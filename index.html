@@ -1,0 +1,1740 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e5e0ce">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gym 45">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<style>[hidden]{display:none!important}</style>
+<meta charset="utf-8">
+<title>Gym 45</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!-- Иконка на экран «Домой» (Safari / Chrome) -->
+<link rel="apple-touch-icon" sizes="180x180" href="media/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="media/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gym 45">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#e5e0ce">
+<link rel="manifest" href="media/manifest.json">
+<style>
+  /* Layout: single phone-width app surface, fixed bottom tab bar, screens toggled by [hidden].
+     Identity: athletic strength-training app — condensed display type, warm orange accent on cool slate. */
+  /* Единый светлый военный стиль (песок + олива), одна тема */
+  :root{
+    --bg:#e5e0ce; --app:#ece6d6; --surface:#f8f4ea; --surface-2:#e2dcc8;
+    --fg:#2a2e1b; --muted:#6f7352; --faint:#9a9c7f; --line:#cfc8b0;
+    --accent:#5f6f2e; --accent-ink:#49561f; --accent-weak:rgba(95,111,46,.14);
+    --good:#4c7a2f; --good-weak:rgba(76,122,47,.14);
+    --shadow:0 1px 2px rgba(60,55,30,.08),0 6px 18px rgba(60,55,30,.10);
+    --edge:#c9be9e; --accent-edge:#39431a; --card-top:#faf7ee; --card-bot:#eee8d7;
+    --panel-top:#ecdfb2; --panel-bot:#e1d198; --panel-line:#d3c07f;
+    --key-top:#f8f1dc; --key-bot:#efe3c2; --key-edge:#cdbc8c;
+    --gold:#9a7d2b; --gold-ink:#7d6420; --active-bg:#2f3320; --active-fg:#ecdfb2; --logo:#1c1d16;
+    --emb-ring:#c6a94a; --emb-ring2:#8a6d23; --emb-disc1:#343923; --emb-disc2:#191c10;
+    --emb-metal1:#565c40; --emb-metal2:#13150b; --emb-star:#e8d58e; --emb-hi:rgba(255,255,255,0.22);
+    --dsp:system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    --body:system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color-scheme:light;
+  }
+  :root[data-theme="dark"]{
+    --bg:#191d10; --app:#1f2413; --surface:#272d18; --surface-2:#2f3620;
+    --fg:#eef0e0; --muted:#a7ab8a; --faint:#787c5f; --line:#3a4126;
+    --accent:#8aa043; --accent-ink:#bcd07c; --accent-weak:rgba(138,160,67,.18);
+    --good:#7bb356; --good-weak:rgba(123,179,86,.16);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.45);
+    --edge:#11140a; --accent-edge:#10130a; --card-top:#272d18; --card-bot:#20250f;
+    --panel-top:#2b3019; --panel-bot:#222611; --panel-line:#3c4426;
+    --key-top:#2f3620; --key-bot:#272d18; --key-edge:#12150a;
+    --gold:#cdb45a; --gold-ink:#dcc77e; --active-bg:#0e110a; --active-fg:#cdb45a; --logo:#d8c27a;
+    --emb-ring:#dcc77e; --emb-ring2:#b89a3e; --emb-disc1:#2b3120; --emb-disc2:#15180d;
+    --emb-metal1:#c3a955; --emb-metal2:#6b5620; --emb-star:#f2e0a2; --emb-hi:rgba(255,255,255,0.28);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);
+    font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums}
+  button{font-family:inherit;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+  /* ---- app shell ---- */
+  #app{max-width:440px;margin:0 auto;min-height:100%;background:var(--app);
+    display:flex;flex-direction:column;position:relative;box-shadow:var(--shadow)}
+  .screen{flex:1;display:flex;flex-direction:column;
+    padding-left:max(18px,env(safe-area-inset-left,0px));
+    padding-right:max(18px,env(safe-area-inset-right,0px));
+    padding-bottom:104px}
+  .hd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+    padding-top:calc(22px + env(safe-area-inset-top,0px));padding-bottom:16px}
+  .hd .eyebrow{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.12em;
+    font-size:12px;color:var(--accent);font-weight:600;margin:0 0 2px}
+  .hd h1{font-family:var(--dsp);font-weight:700;font-size:30px;line-height:1;margin:0;
+    text-wrap:balance}
+  .icon-btn{width:52px;height:52px;border-radius:16px;border:1px solid var(--line);
+    background:linear-gradient(180deg,var(--card-top),var(--card-bot));color:var(--fg);
+    display:grid;place-items:center;font-size:26px;font-weight:700;line-height:1;flex:none;
+    box-shadow:0 5px 0 var(--edge),0 10px 18px rgba(80,75,45,.16)}
+  .icon-btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--edge),0 3px 8px rgba(80,75,45,.16)}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    padding:16px;box-shadow:var(--shadow)}
+  .stack{display:flex;flex-direction:column;gap:12px}
+
+  /* ---- login ---- */
+  #login{position:absolute;inset:0;z-index:40;background:var(--app);
+    display:flex;flex-direction:column;justify-content:center;
+    padding:32px max(26px,env(safe-area-inset-left,0px)) calc(32px + env(safe-area-inset-bottom,0px))}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:34px}
+  .logo{width:52px;height:52px;border-radius:15px;background:var(--accent);color:#fff;
+    font-family:var(--dsp);font-weight:700;font-size:26px;display:grid;place-items:center;
+    box-shadow:0 8px 22px var(--accent-weak)}
+  .brand b{font-family:var(--dsp);font-size:26px;font-weight:700;letter-spacing:.01em;display:block;line-height:1}
+  .brand span{color:var(--muted);font-size:13px}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+  .field label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .field input{font-family:inherit;font-size:16px;color:var(--fg);background:var(--surface);
+    border:1px solid var(--line);border-radius:12px;padding:13px 14px;width:100%}
+  .field input:focus{outline:none;border-color:var(--accent)}
+  .pwrap{position:relative}
+  .pwrap input{padding-right:96px}
+  .pwtg{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;
+    color:var(--accent-ink);font-size:12.5px;font-weight:600;font-family:var(--body);padding:6px 8px}
+  .btn{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.06em;font-weight:700;
+    font-size:16px;border:none;border-radius:13px;padding:15px;width:100%;
+    background:linear-gradient(180deg,#6d7f38,#53652a);color:#f6f2e6;
+    box-shadow:0 4px 0 var(--accent-edge),0 9px 16px rgba(57,67,26,.28)}
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--accent-edge),0 4px 9px rgba(57,67,26,.28)}
+  .hint{text-align:center;color:var(--faint);font-size:12.5px;margin-top:16px}
+
+  /* ---- programs ---- */
+  .prog{display:flex;flex-direction:column;gap:10px;text-align:left;width:100%;
+    border:1px solid var(--line);background:linear-gradient(180deg,var(--card-top),var(--card-bot));border-radius:16px;padding:16px;
+    box-shadow:0 4px 0 var(--edge),0 9px 16px rgba(80,75,45,.12);color:inherit}
+  .prog:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge),0 4px 9px rgba(80,75,45,.12)}
+  .prog .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .prog h3{font-family:var(--dsp);font-weight:700;font-size:21px;margin:0;line-height:1.05}
+  .prog .meta{color:var(--muted);font-size:13px}
+  .tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+    padding:4px 9px;border-radius:999px;background:var(--accent-weak);color:var(--accent-ink);flex:none}
+  .prog .ex{color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);padding-top:9px}
+
+  /* ---- шапка кроссфита с логотипом ---- */
+  .cross-head{position:relative;text-align:center;
+    padding-top:calc(6px + env(safe-area-inset-top,0px));padding-bottom:8px}
+  .cross-back{position:absolute;right:0;top:calc(6px + env(safe-area-inset-top,0px))}
+  .cross-logo{display:block;margin:0 auto;width:min(188px,50%);height:auto;
+    filter:drop-shadow(0 6px 14px rgba(40,36,18,.28))}
+  :root[data-theme="dark"] .cross-logo{filter:drop-shadow(0 0 1px rgba(236,223,178,.5)) drop-shadow(0 6px 16px rgba(0,0,0,.5))}
+  .cross-head .eyebrow{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.14em;
+    font-size:12px;color:var(--accent);font-weight:600;margin:4px 0 2px}
+  .cross-h1{font-family:var(--dsp);font-weight:700;font-size:26px;line-height:1;margin:0}
+  #scr-body .cross-logo{width:min(280px,74%)}
+
+  /* ---- выбор направления ---- */
+  .disc{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;
+    font-family:var(--dsp);font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.02em;color:var(--fg);
+    background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
+    border-left:5px solid var(--gold-ink);border-radius:16px;padding:20px 18px;
+    box-shadow:0 4px 0 var(--edge),0 9px 16px rgba(80,75,45,.12)}
+  .disc:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+  .disc .go{color:var(--gold-ink);font-size:24px;flex:none}
+  .disc-sub{font-family:var(--body);font-weight:500;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--muted)}
+  .street-note{color:var(--muted);font-size:13px;margin:0 0 14px}
+  .disc.disc-soon{opacity:.5}
+  .rm-list{display:flex;flex-direction:column}
+  .rm-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14.5px;
+    padding:8px 0;border-bottom:1px solid var(--line)}
+  .rm-row:last-child{border-bottom:none}
+  .rm-row .k{color:var(--muted);font-weight:600}
+  .rm-row .v{font-family:var(--dsp);font-weight:800;font-variant-numeric:tabular-nums;color:var(--fg)}
+  .rm-row .v small{font-weight:600;color:var(--muted);font-size:11.5px}
+  /* питание */
+  .food-tot{text-align:center}
+  .food-tot-h{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--accent)}
+  .food-kcal{font-family:var(--dsp);font-weight:800;font-size:44px;line-height:1;margin:6px 0 8px;color:var(--fg)}
+  .food-kcal small{font-size:16px;color:var(--muted);font-weight:700}
+  .food-macros{display:flex;justify-content:center;gap:20px;color:var(--muted);font-size:14px}
+  .food-macros b{color:var(--fg)}
+  .food-form{display:flex;flex-direction:column;gap:10px}
+  .food-in{font-family:inherit;font-size:16px;color:var(--fg);background:var(--surface);
+    border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+  .food-in:focus{outline:none;border-color:var(--accent)}
+  .food-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .food-grid label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .frow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .frow:last-child{border-bottom:none}
+  .frow .fn{font-weight:600;color:var(--fg)}
+  .frow .fm{font-size:12px;color:var(--faint)}
+  .frow .fk{font-family:var(--dsp);font-weight:800;color:var(--fg);font-variant-numeric:tabular-nums}
+  .frow .fk small{font-weight:600;color:var(--muted);font-size:11px}
+  .fdel{background:none;border:none;color:var(--faint);font-size:17px;padding:4px 6px}
+  .food-empty{color:var(--faint);font-size:13px;text-align:center;padding:10px 0}
+
+  /* ---- workout ---- */
+  .ex-card{padding:14px 16px}
+  .ex-card h3{font-family:var(--dsp);font-weight:600;font-size:19px;margin:0 0 2px}
+  .ex-card .target{color:var(--muted);font-size:12.5px;margin-bottom:12px}
+  .prev-line{color:var(--accent-ink);font-size:12.5px;font-weight:600;margin:-6px 0 12px;
+    background:var(--accent-weak);border-radius:8px;padding:5px 9px;display:inline-block}
+  .set-row{display:grid;grid-template-columns:30px 1fr 1fr 44px;gap:8px;align-items:center;
+    padding:7px 0;border-top:1px solid var(--line)}
+  .set-row.head{border-top:none;padding-bottom:2px}
+  .set-row.head span{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--faint);font-weight:600}
+  .set-row .sn{font-family:var(--dsp);font-weight:600;color:var(--muted);text-align:center}
+  .set-row input{width:100%;font-family:inherit;font-size:15px;text-align:center;color:var(--fg);
+    background:var(--surface-2);border:1px solid transparent;border-radius:9px;padding:9px 4px}
+  .set-row input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+  .chk{width:34px;height:34px;border-radius:9px;border:1.5px solid var(--line);
+    background:var(--surface);display:grid;place-items:center;color:var(--faint);font-size:16px;
+    box-shadow:0 2px 0 var(--edge)}
+  .chk.on{background:var(--good);border-color:#3c6425;color:#fff;box-shadow:0 2px 0 #2f5a1e}
+  .addset{align-self:flex-start;margin-top:10px;font-family:var(--dsp);text-transform:uppercase;
+    letter-spacing:.05em;font-weight:700;font-size:13px;color:#f6f2e6;
+    background:linear-gradient(180deg,#6d7f38,#53652a);border:none;border-radius:9px;padding:8px 13px;
+    box-shadow:0 3px 0 var(--accent-edge)}
+  .addset:active{transform:translateY(2px);box-shadow:0 1px 0 var(--accent-edge)}
+  .ghost{background:var(--surface);color:var(--fg);border:1px solid var(--line);box-shadow:none}
+
+  /* ---- progress ---- */
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .tile{background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);border-radius:14px;padding:13px 12px;text-align:center;box-shadow:0 3px 0 var(--edge),0 7px 12px rgba(80,75,45,.1)}
+  .tile .v{font-family:var(--dsp);font-weight:700;font-size:27px;line-height:1;color:var(--accent-ink)}
+  .tile .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:5px}
+  .chart-wrap{position:relative}
+  .chart-wrap h3,.hist-h{font-family:var(--dsp);font-weight:600;font-size:16px;margin:0 0 3px;
+    text-transform:uppercase;letter-spacing:.04em}
+  .chart-wrap .sub{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+  svg .grid{stroke:var(--line);stroke-width:1}
+  svg .axlbl{fill:var(--faint);font-size:10px;font-family:var(--body)}
+  .tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--app);
+    font-size:12px;padding:5px 8px;border-radius:8px;transform:translate(-50%,-115%);
+    white-space:nowrap;opacity:0;transition:opacity .12s;font-weight:600}
+  .hist{display:flex;flex-direction:column}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 0;border-top:1px solid var(--line)}
+  .hrow:first-child{border-top:none}
+  .hrow .d{font-family:var(--dsp);font-weight:600;font-size:15px}
+  .hrow .d small{display:block;color:var(--faint);font-size:11.5px;font-weight:400;font-family:var(--body);text-transform:none;letter-spacing:0}
+  .hrow .vol{font-family:var(--dsp);font-weight:700;color:var(--accent-ink);font-size:17px}
+  .seed{font-size:10px;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
+
+  /* ---- home / рабочий стол (по образцу) ---- */
+  #scr-home{background:var(--bg);padding-top:calc(8px + env(safe-area-inset-top,0px))}
+  .home-top{display:flex;align-items:center;gap:12px;padding:4px 0 14px}
+  .avatar{width:46px;height:46px;border-radius:50%;flex:none;background:var(--surface-2);
+    border:2px solid var(--key-edge);display:grid;place-items:center;overflow:hidden}
+  .avatar svg{width:30px;height:30px}
+  .home-title{flex:1;text-align:center;min-width:0}
+  .home-title b{font-family:var(--dsp);font-weight:800;font-size:22px;display:block;line-height:1.05}
+  .home-title span{font-family:var(--dsp);color:var(--gold-ink);font-size:11px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.3em}
+  .dash-panel{display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,var(--panel-top),var(--panel-bot));
+    border:1px solid var(--panel-line);border-radius:18px;padding:14px;margin-bottom:14px;
+    box-shadow:0 5px 0 var(--key-edge),0 12px 22px rgba(80,70,30,.16)}
+  .dash-left{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+  .key{font-family:var(--dsp);font-weight:700;font-size:16px;border-radius:12px;padding:12px 8px;
+    border:1px solid var(--key-edge);background:linear-gradient(180deg,var(--key-top),var(--key-bot));
+    color:var(--fg);box-shadow:0 4px 0 var(--key-edge);text-align:center}
+  .key:active{transform:translateY(3px);box-shadow:0 1px 0 var(--key-edge)}
+  .key-active{background:linear-gradient(180deg,#3a3f28,var(--active-bg));color:var(--active-fg);
+    border-color:#1b1e11;box-shadow:0 4px 0 #14160c}
+  .key-active:active{transform:translateY(3px);box-shadow:0 1px 0 #14160c}
+  .dash-logo{width:100%;display:flex;justify-content:center;padding:6px 0 2px}
+  .dash-logo svg{width:100%;max-width:150px}
+  .dash-logo-img{display:block;width:100%;max-width:300px;height:auto;margin:0 auto;
+    filter:drop-shadow(0 6px 14px rgba(40,36,18,.26))}
+  .logo-name{font-family:var(--dsp);font-weight:800;font-size:26px;letter-spacing:.01em;color:var(--logo);
+    text-shadow:0 2px 2px rgba(0,0,0,.22)}
+  .dash-card{display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+    background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
+    border-left:5px solid var(--gold);border-radius:16px;padding:15px;margin-bottom:12px;color:var(--fg);
+    box-shadow:0 4px 0 var(--edge),0 9px 16px rgba(80,75,45,.12)}
+  .dash-card:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+  .dc-ico{width:44px;height:44px;border-radius:10px;flex:none;display:grid;place-items:center;background:var(--gold)}
+  .dc-ico svg{width:24px;height:24px}
+  .dc-body{flex:1;min-width:0}
+  .dc-body b{font-family:var(--dsp);font-weight:800;font-size:18px;display:block}
+  .dc-body span{color:var(--muted);font-size:12.5px}
+  .dc-go{margin-left:auto;color:var(--gold-ink);font-size:24px;flex:none}
+  .dash-two{display:flex;gap:12px;margin-bottom:14px}
+  .dash-tile{flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:left;
+    background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
+    border-radius:16px;padding:13px;color:var(--fg);box-shadow:0 4px 0 var(--edge),0 9px 16px rgba(80,75,45,.12)}
+  .dash-tile:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+  .dt-ico{font-family:var(--dsp);font-weight:800;font-size:30px;color:var(--gold);flex:none;line-height:1}
+  .dt-body{flex:1;min-width:0}
+  .dt-body b{font-family:var(--dsp);font-weight:800;font-size:15px;display:block;line-height:1.1}
+  .dt-body span{color:var(--muted);font-size:11.5px}
+  .ready{background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
+    border-radius:16px;padding:15px;box-shadow:0 4px 0 var(--edge),0 9px 16px rgba(80,75,45,.12)}
+  .ready-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px}
+  .ready-head b{font-family:var(--dsp);font-weight:800;font-size:17px}
+  .ready-head span{color:var(--gold-ink);font-size:13px;font-weight:600}
+  .seg{display:flex;gap:8px}
+  .seg-b{flex:1;font-family:var(--dsp);font-weight:700;font-size:14px;padding:11px 4px;border-radius:10px;
+    border:1px solid var(--key-edge);background:linear-gradient(180deg,var(--key-top),var(--key-bot));
+    color:var(--muted);box-shadow:0 3px 0 var(--key-edge)}
+  .seg-b:active{transform:translateY(2px);box-shadow:0 1px 0 var(--key-edge)}
+  .seg-b.on{background:linear-gradient(180deg,#eacf79,#d8b84f);color:#3a2f12;border-color:#b89a3e;box-shadow:0 3px 0 #a9893a}
+  .ready-note{color:var(--gold-ink);font-size:13px;font-weight:600;margin-top:12px}
+
+  /* ---- медиа упражнения (анимации) ---- */
+  .ex-media{position:relative;width:100%;aspect-ratio:16/10;border-radius:12px;overflow:hidden;margin-bottom:12px;
+    background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;padding:8px;cursor:pointer}
+  .ex-media img,.ex-media video{width:100%;height:100%;object-fit:contain;background:var(--surface-2)}
+  .ex-media .play{position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:8px;
+    background:rgba(10,10,12,.55);color:#fff;display:grid;place-items:center;font-size:14px}
+  .player{position:fixed;inset:0;z-index:60;background:rgba(10,10,12,.9);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    padding:max(20px,env(safe-area-inset-left,0px)) max(20px,env(safe-area-inset-right,0px))}
+  .player video{width:100%;max-width:520px;max-height:62vh;object-fit:contain;background:#000;border-radius:14px}
+  .player .pname{color:#fff;font-family:var(--dsp);font-weight:800;font-size:20px;text-align:center;text-wrap:balance}
+  .player .pcred{color:#b3ab97;font-size:11px;text-align:center;max-width:42ch;letter-spacing:.02em}
+  .player .pclose{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.05em;font-weight:700;font-size:14px;
+    background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:11px;padding:11px 18px;
+    box-shadow:0 3px 0 var(--edge);margin-top:4px}
+
+  /* ---- bottom nav ---- */
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:30;
+    background:var(--surface);border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom,0px)}
+  .nav-inner{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);
+    padding:8px max(14px,env(safe-area-inset-left,0px)) 8px max(14px,env(safe-area-inset-right,0px))}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;
+    color:var(--faint);padding:6px 0;font-family:var(--dsp);font-weight:600;font-size:10px;
+    text-transform:uppercase;letter-spacing:.02em}
+  .tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;
+    stroke-linecap:round;stroke-linejoin:round}
+  .tab.on{color:var(--accent)}
+  .sticky-foot{position:fixed;left:0;right:0;bottom:0;z-index:35;
+    padding:12px max(18px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(to top,var(--app) 70%,transparent);max-width:440px;margin:0 auto}
+  .row2{display:flex;gap:10px}.row2 .btn{flex:1}
+  .toast{position:fixed;left:50%;bottom:120px;pointer-events:none;transform:translateX(-50%) translateY(20px);
+    background:var(--good);color:#fff;font-family:var(--dsp);font-weight:600;letter-spacing:.03em;
+    padding:11px 20px;border-radius:999px;z-index:50;opacity:0;transition:.25s;box-shadow:var(--shadow);
+    text-transform:uppercase;font-size:14px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* ---- WOD description ---- */
+  .wod-card{display:flex;flex-direction:column;gap:12px}
+  .wod-card .tag{align-self:flex-start}
+  .wod-desc{margin:0;color:var(--fg);font-size:14.5px;line-height:1.5}
+  .wod-mv-h{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    font-size:12px;color:var(--accent);border-top:1px solid var(--line);padding-top:12px}
+  .wod-mv{display:flex;flex-direction:column;gap:7px}
+  .wod-mvrow{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font-size:14px}
+  .wod-mvrow span:first-child{color:var(--fg)}
+  .wod-mvrow .num{color:var(--muted);font-weight:700;flex:none}
+  .wod-timer-btn{background:linear-gradient(180deg,#6d7f38,#53652a)}
+  .wod-log{font-size:16px;padding:16px 18px}
+
+  /* ---- встроенный таймер ---- */
+  #scr-wod .hd{padding-bottom:10px}
+  #scr-wod .stack{gap:10px}
+  .wod-card{padding:14px;gap:9px}
+  .wod-desc{font-size:14px;line-height:1.42}
+  .wod-mv-h{padding-top:9px}
+  .wod-mv{gap:5px}
+  .tmr{display:flex;flex-direction:column;gap:9px}
+  .tm-icon{width:52px;flex:none;border-radius:13px;border:1px solid var(--line);background:var(--surface);
+    color:var(--fg);font-size:18px;box-shadow:0 3px 0 var(--edge)}
+  .tm-icon:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+  .tm-icon.off{color:var(--faint);opacity:.6}
+  .tm-types{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+  .tm-chip{flex:none;font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    font-size:12px;padding:9px 13px;border-radius:999px;border:1px solid var(--line);
+    background:var(--surface);color:var(--muted)}
+  .tm-chip.on{background:var(--accent);color:#f4f1e4;border-color:var(--accent-edge)}
+  .tm-seth{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+    font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    font-size:12px;color:var(--accent);background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:12px 14px;box-shadow:0 2px 0 var(--edge)}
+  .tm-seth:active{transform:translateY(1px);box-shadow:none}
+  #tmSettings{display:flex;flex-direction:column;gap:8px}
+  .tm-mini{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.03em;
+    font-size:11px;color:var(--gold-ink);background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:9px 12px;box-shadow:0 2px 0 var(--edge);align-self:flex-start}
+  .tm-mini:active{transform:translateY(2px);box-shadow:none}
+  .tm-params{display:flex;flex-direction:column;gap:8px}
+  .tm-step{display:flex;align-items:center;gap:10px;
+    background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
+    border-left:4px solid var(--gold-ink);border-radius:13px;padding:9px 12px;box-shadow:0 3px 0 var(--edge)}
+  .tm-step .lbl{flex:1;min-width:0;font-family:var(--dsp);font-weight:700;font-size:13.5px;
+    text-transform:uppercase;letter-spacing:.03em;color:var(--fg)}
+  .tm-sbtn{width:40px;height:40px;flex:none;border-radius:11px;border:1px solid var(--key-edge);
+    background:linear-gradient(180deg,var(--key-top),var(--key-bot));color:var(--accent-ink);
+    font-family:var(--dsp);font-weight:800;font-size:22px;line-height:1;display:grid;place-items:center;
+    box-shadow:0 3px 0 var(--edge)}
+  .tm-sbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+  .tm-val{min-width:70px;text-align:center;font-family:var(--dsp);font-weight:800;
+    font-variant-numeric:tabular-nums;font-size:20px;color:var(--fg)}
+  .tm-stage{border-radius:20px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:2px;border:1px solid #39431a;box-shadow:var(--shadow);
+    background:linear-gradient(180deg,#6d7f38,#47561d);color:#f6f3e6;text-align:center;
+    padding:12px;overflow:hidden}
+  .tm-phase{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+    font-size:14px;color:inherit;opacity:.85;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tm-big{font-family:var(--dsp);font-weight:800;font-variant-numeric:tabular-nums;max-width:100%;
+    font-size:clamp(56px,19vw,104px);line-height:.9;letter-spacing:.005em}
+  .tm-round{font-family:var(--dsp);font-weight:700;font-size:15px;color:inherit;opacity:.85}
+  .tm-controls{display:flex;gap:10px}
+  .tm-controls .btn{flex:1;padding:16px}
+  .tm-reset{flex:none;font-family:var(--dsp);text-transform:uppercase;letter-spacing:.05em;font-weight:700;
+    font-size:14px;background:var(--surface);border:1px solid var(--line);border-radius:13px;
+    padding:0 20px;color:var(--fg);box-shadow:0 3px 0 var(--edge)}
+  .tm-reset:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+  /* счётчик раундов */
+  .tm-counter{display:flex;gap:10px}
+  .tm-cbig{flex:1;display:flex;flex-direction:column;align-items:center;gap:0;padding:8px 12px;border-radius:16px;
+    background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
+    border-left:5px solid var(--gold-ink);box-shadow:0 4px 0 var(--edge);color:inherit}
+  .tm-cbig:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+  .tm-cbig .cl{font-family:var(--dsp);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.07em;color:var(--accent)}
+  .tm-cbig .cn{font-family:var(--dsp);font-weight:800;font-variant-numeric:tabular-nums;font-size:30px;line-height:1.05;color:var(--fg)}
+  .tm-cbig .ch{font-size:10.5px;color:var(--faint)}
+  .tm-creset{width:54px;flex:none;border-radius:16px;background:var(--surface);border:1px solid var(--line);
+    box-shadow:0 3px 0 var(--edge);font-size:18px;color:var(--fg)}
+  .tm-creset:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+  .tmr.running .tm-types,.tmr.running .tm-seth,.tmr.running #tmSettings{display:none}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="app">
+  <!-- LOGIN -->
+  <div id="login">
+    <div class="brand">
+      <div class="logo">45</div>
+      <div><b>GYM&nbsp;45</b><span>Сила. Прогресс. Контроль.</span></div>
+    </div>
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label for="email">Эл. почта</label>
+        <input id="email" type="email" value="me@gym45.app" inputmode="email">
+      </div>
+      <div class="field">
+        <label for="pass">Пароль</label>
+        <div class="pwrap">
+          <input id="pass" type="password" value="demo1234">
+          <button type="button" id="pwToggle" class="pwtg">Показать</button>
+        </div>
+      </div>
+      <button class="btn" type="button" id="loginBtn">Войти</button>
+      <p class="hint">Демо-вход — данные уже заполнены, просто нажми «Войти».</p>
+    </form>
+  </div>
+
+  <!-- HOME / рабочий стол -->
+  <section class="screen" id="scr-home">
+    <div class="home-top">
+      <div class="avatar"><svg viewBox="0 0 24 24" fill="var(--muted)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg></div>
+      <div class="home-title"><b>Рабочий стол</b><span id="cloudStatus">Gym 45</span></div>
+      <button class="icon-btn" id="homeMenu" title="Меню">☰</button>
+    </div>
+
+    <div id="draftBanner" hidden style="margin:10px 0;padding:12px 14px;border-radius:14px;background:var(--accent-weak);color:var(--accent-ink);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="flex:1;min-width:120px;font-weight:600">⏱ Незавершённая тренировка<span id="draftName" style="display:block;font-weight:400;opacity:.8;font-size:13px"></span></span>
+      <button id="draftResume" class="btn" style="padding:8px 14px;width:auto">Продолжить</button>
+      <button id="draftDiscard" class="icon-btn" title="Отменить" style="background:transparent">✕</button>
+    </div>
+
+        <div class="dash-panel">
+      <div class="dash-logo">
+        <img class="dash-logo-img" src="media/gymlogo2.png" alt="GYM 45" width="1191" height="713">
+      </div>
+      <div class="dash-left">
+        <button class="key" data-go="programs">Выбрать программу</button>
+        <button class="key" data-go="progress">Аналитика</button>
+        <button class="key" data-go="nutrition">Питание</button>
+        <button class="key" data-go="onerm">Расчёт рабочих весов</button>
+      </div>
+    </div>
+
+    <button class="dash-card" data-go="workout">
+      <span class="dc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M15 4v16M4 9h16M4 15h16"/></svg></span>
+      <span class="dc-body"><b>Активная программа</b><span>✓ Календарь активен · 14 тренировок · отдых рекомендован</span></span>
+      <span class="dc-go">›</span>
+    </button>
+
+    <button class="dash-card" data-go="progress">
+      <span class="dc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><path d="M4 20V10M9 20V4M14 20v-7M19 20V8"/></svg></span>
+      <span class="dc-body"><b>Обновить замеры</b><span>Силовой цикл 45 · цикл завершён</span></span>
+      <span class="dc-go">›</span>
+    </button>
+
+    <div class="dash-two">
+      <button class="dash-tile" data-go="programs">
+        <span class="dt-ico">+</span>
+        <span class="dt-body"><b>Выбрать программу</b><span>Готовые и собственные</span></span>
+      </button>
+      <button class="dash-tile" data-go="onerm">
+        <span class="dt-ico">%</span>
+        <span class="dt-body"><b>Таблица 1ПМ</b><span>Расчёт рабочих весов</span></span>
+      </button>
+    </div>
+
+    <div class="ready">
+      <div class="ready-head"><b>Готовность к тренировке</b><span id="readyState">Норма</span></div>
+      <div class="seg">
+        <button class="seg-b" data-ready="Устал">Устал</button>
+        <button class="seg-b on" data-ready="Норма">Норма</button>
+        <button class="seg-b" data-ready="Заряжен">Заряжен</button>
+      </div>
+      <div class="ready-note" id="readyNote">1–2 повтора в запасе</div>
+    </div>
+  </section>
+
+  <!-- PROGRAMS -->
+  <section class="screen" id="scr-programs" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Направление</p><h1>Выбрать программу</h1></div>
+      <div style="display:flex;gap:8px">
+        <button class="icon-btn" id="theme" title="Сменить тему">◐</button>
+        <button class="icon-btn back-btn" title="Назад">←</button>
+      </div>
+    </div>
+    <div class="stack">
+      <button class="disc" data-disc="Бодибилдинг">Бодибилдинг<span class="go">›</span></button>
+      <button class="disc" data-disc="Пауэрлифтинг">Пауэрлифтинг<span class="go">›</span></button>
+      <button class="disc" data-disc="Стритлифтинг">Стритлифтинг<span class="go">›</span></button>
+      <button class="disc" data-disc="Кроссфит">Кроссфит<span class="go">›</span></button>
+    </div>
+  </section>
+
+  <!-- СТРИТЛИФТИНГ (программа) -->
+  <section class="screen" id="scr-street" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Стритлифтинг</p><h1>Классический цикл</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <p class="street-note">4 тренировки в неделю. База — подтягивания и брусья с весом: рабочий подход, затем 3×5 на −10%. Адаптировано из программы WSF.</p>
+    <div class="stack" id="streetDays"></div>
+  </section>
+
+  <!-- БОДИБИЛДИНГ · список программ -->
+  <section class="screen" id="scr-body" hidden>
+    <div class="cross-head">
+      <button class="icon-btn back-btn cross-back" title="Назад">←</button>
+      <img class="cross-logo" src="media/bodylogo.png" alt="Bodybuilding" width="1145" height="687">
+      <h1 class="cross-h1">5 программ</h1>
+    </div>
+    <p class="street-note">Пять проверенных схем — от новичка до сплита на 5 дней. Выбери программу, затем день тренировки. Веса и повторы можно менять под себя.</p>
+    <div class="stack" id="bodyProgs"></div>
+  </section>
+
+  <!-- ПАУЭРЛИФТИНГ · список программ -->
+  <section class="screen" id="scr-pwr" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Пауэрлифтинг</p><h1>Программы</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <p class="street-note">Силовые программы. Выбери программу, затем этап и день тренировки.</p>
+    <div class="stack" id="pwrPrograms"></div>
+  </section>
+
+  <!-- ПАУЭРЛИФТИНГ · «Руки титана» · 7 этапов -->
+  <section class="screen" id="scr-pwr-ta" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Пауэрлифтинг · программа</p><h1>Руки титана</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card wod-card">
+        <span class="tag">Стюарт МакРоберт · 7 этапов</span>
+        <p class="wod-desc">Легендарная система Стюарта МакРоберта: большие руки через рост базовой силы. 7 последовательных этапов — от базы 5×5 до пиковой специализации на руки, с периодами лёгкой нагрузки и отдыха между ними. Проходи этапы по порядку. Источник: fitnesspower.ru.</p>
+        <div class="wod-mv-h">Этапы программы</div>
+      </div>
+      <div class="stack" id="pwrProgs"></div>
+    </div>
+  </section>
+
+  <!-- БОДИБИЛДИНГ · GVT · недели -->
+  <section class="screen" id="scr-gvt" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Бодибилдинг · программа</p><h1>GVT · 6 недель</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card wod-card">
+        <span class="tag">Немецкий объёмный · 10×10</span>
+        <p class="wod-desc">Классика на массу: основные движения — 10 подходов по 10. Вес считается от твоего 1ПМ (задай в «Рабочих весах»). Первые подходы идут «лесенкой» 30%→60% и служат разминкой; рабочие подходы — 60% (стандарт GVT). 3 дня в неделю: A грудь/спина, B ноги, C плечи/руки. Логика Штурм 30.</p>
+        <div class="wod-mv-h">Недели</div>
+      </div>
+      <div class="stack" id="gvtWeeks"></div>
+    </div>
+  </section>
+
+  <!-- ПАУЭРЛИФТИНГ · 5×5 · недели -->
+  <section class="screen" id="scr-pl5" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Пауэрлифтинг · программа</p><h1>5×5 · 8 недель</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card wod-card">
+        <span class="tag">Присед · жим · становая</span>
+        <p class="wod-desc">Восьминедельный силовой цикл: веса считаются от твоего 1ПМ (задай в «Рабочих весах»). Пн — акцент присед, Ср — жим, Пт — становая. Недели 5–6 выход на пик, неделя 7 разгрузка, неделя 8 — проходка. Логика Штурм 30.</p>
+        <div class="wod-mv-h">Недели</div>
+      </div>
+      <div class="stack" id="pl5Weeks"></div>
+    </div>
+  </section>
+
+  <!-- Программа (дни): общий экран для бодибилдинга и пауэрлифтинга -->
+  <section class="screen" id="scr-bodyprog" hidden>
+    <div class="hd">
+      <div><p class="eyebrow" id="progEyebrow">Программа</p><h1 id="bodyName">—</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card wod-card">
+        <span class="tag" id="bodyMeta"></span>
+        <p class="wod-desc" id="bodyDesc"></p>
+      </div>
+      <div class="stack" id="bodyDays"></div>
+    </div>
+  </section>
+
+  <!-- РАСЧЁТ РАБОЧИХ ВЕСОВ (логика Штурм 30) -->
+  <section class="screen" id="scr-onerm" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Инструменты</p><h1>Рабочие веса</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card tmr">
+        <div class="tm-seth" style="cursor:default">Движение (мой 1ПМ)</div>
+        <div class="tm-types" id="rmLifts"></div>
+        <div class="tm-step"><span class="lbl">1ПМ (макс), кг</span>
+          <button class="tm-sbtn" id="rmMinus" type="button">−</button>
+          <span class="tm-val" id="rmMaxVal">100</span>
+          <button class="tm-sbtn" id="rmPlus" type="button">+</button></div>
+        <div class="tm-seth" style="cursor:default;opacity:.7;font-size:12px">Рабочие веса округляются вверх до целого кг</div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 10px">Проценты от 1ПМ</h3>
+        <div class="rm-list" id="rmPct"></div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 4px">Ориентир по повторам</h3>
+        <p class="sub" style="margin:0 0 10px">Потолок интенсивности: вес, с которым реально сделать столько повторов.</p>
+        <div class="rm-list" id="rmReps"></div>
+      </div>
+      <p class="street-note">Формула округления Штурм 30: <b>вес = ⌊(1ПМ × % / 100) / шаг⌋ × шаг</b>. Таблица повторов — эвристические потолки Штурм.</p>
+    </div>
+  </section>
+
+  <!-- ПИТАНИЕ · дневник (логика Штурм 30) -->
+  <section class="screen" id="scr-food" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Дневник</p><h1>Питание</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card food-tot">
+        <div class="food-tot-h">Сегодня · <span id="foodDate"></span></div>
+        <div class="food-kcal"><span class="num" id="foodKcal">0</span> <small>ккал</small></div>
+        <div class="food-macros">
+          <span>Б <b class="num" id="foodP">0</b></span>
+          <span>Ж <b class="num" id="foodF">0</b></span>
+          <span>У <b class="num" id="foodC">0</b></span>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 10px">Добавить приём пищи</h3>
+        <div class="food-form">
+          <input id="fName" class="food-in" placeholder="Название (напр. овсянка)" autocomplete="off">
+          <div class="food-grid">
+            <label>Ккал<input id="fKcal" class="food-in" type="number" inputmode="numeric" placeholder="0"></label>
+            <label>Белки<input id="fP" class="food-in" type="number" inputmode="numeric" placeholder="0"></label>
+            <label>Жиры<input id="fF" class="food-in" type="number" inputmode="numeric" placeholder="0"></label>
+            <label>Углев.<input id="fC" class="food-in" type="number" inputmode="numeric" placeholder="0"></label>
+          </div>
+          <button class="btn" id="fAdd">Добавить</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="hist-h" style="margin-bottom:8px">Приёмы за сегодня</div>
+        <div id="foodList"></div>
+      </div>
+      <p class="street-note">Ручной учёт как в Штурм 30: автоматический расчёт рациона/дефицита не делается — вводишь значения сам.</p>
+    </div>
+  </section>
+
+  <!-- КРОССФИТ (20 WOD) -->
+  <section class="screen" id="scr-cross" hidden>
+    <div class="cross-head">
+      <button class="icon-btn back-btn cross-back" title="Назад">←</button>
+      <img class="cross-logo" src="media/crossfit2.png" alt="CrossFit" width="641" height="699">
+      <p class="eyebrow">Кроссфит</p>
+      <h1 class="cross-h1">20 WOD для начала</h1>
+    </div>
+    <p class="street-note">Открой комплекс — сначала описание, затем крупный таймер (AMRAP / EMOM / Tabata / на время) со звуком, настроенный под формат. Адаптировано из подборки SportKuznica. «Броски медбола» и «выпады над головой» идут без анимации.</p>
+    <div class="stack" id="crossDays"></div>
+  </section>
+
+  <!-- WOD: описание + запуск таймера -->
+  <section class="screen" id="scr-wod" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Кроссфит · комплекс</p><h1 id="wodName">—</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card wod-card">
+        <span class="tag" id="wodFmt"></span>
+        <p class="wod-desc" id="wodDesc"></p>
+        <div class="wod-mv-h">Движения</div>
+        <div class="wod-mv" id="wodMoves"></div>
+      </div>
+
+      <!-- ВСТРОЕННЫЙ ТАЙМЕР -->
+      <div class="tmr" id="tmr">
+        <div class="tm-types" id="tmTypes"></div>
+        <div class="tm-stage" id="tmStage" data-ph="idle">
+          <div class="tm-phase" id="tmPhase">Готов</div>
+          <div class="tm-big num" id="tmBig">00:00</div>
+          <div class="tm-round" id="tmRound"></div>
+        </div>
+        <div class="tm-counter" id="tmCounter">
+          <button class="tm-cbig" id="tmCountBtn" type="button">
+            <span class="cl">Раундов пройдено</span>
+            <span class="cn num" id="tmCountN">0</span>
+            <span class="ch">нажми +1 за круг</span>
+          </button>
+          <button class="tm-creset" id="tmCountReset" type="button" title="Обнулить счётчик">↺</button>
+        </div>
+        <div class="tm-controls">
+          <button class="btn tm-start" id="tmStart">Старт</button>
+          <button class="tm-reset" id="tmReset" type="button">Сброс</button>
+          <button class="tm-icon" id="tmSound" type="button" title="Звук">🔊</button>
+        </div>
+        <button class="tm-seth" id="tmSetToggle" type="button">
+          <span>⚙ Настройки — подготовка, время, раунды</span><span id="tmCaret">▾</span>
+        </button>
+        <div id="tmSettings" hidden>
+          <div class="tm-params" id="tmParams"></div>
+          <button class="tm-mini" id="tmDefault" type="button">↺ Вернуть значения по умолчанию</button>
+        </div>
+      </div>
+
+      <button class="btn wod-finish-btn" id="wodFinishBtn">✓ Завершить тренировку</button>
+    </div>
+  </section>
+
+  <!-- WORKOUT -->
+  <section class="screen" id="scr-workout" hidden>
+    <div class="hd">
+      <div><p class="eyebrow" id="wkEyebrow">Тренировка</p><h1 id="wkTitle">—</h1></div>
+      <button class="icon-btn back-btn" id="wkBack" title="Назад">←</button>
+    </div>
+    <div class="stack" id="exList"></div>
+    <div class="sticky-foot" id="wkFoot" hidden>
+      <button class="btn" id="wkFinish">Завершить тренировку</button>
+    </div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="screen" id="scr-progress" hidden>
+    <div class="hd"><div><p class="eyebrow">Твоя динамика</p><h1>Прогресс</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button></div>
+    <div class="stack">
+      <div id="coachNote" hidden style="padding:12px 14px;border-radius:14px;background:var(--accent-weak);color:var(--accent-ink);display:flex;gap:10px;align-items:flex-start">
+        <span id="coachText" style="flex:1;min-width:0;font-size:14px;line-height:1.45"></span>
+        <button id="coachClose" class="icon-btn" title="Скрыть" style="background:transparent;flex:none">✕</button>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="v num" id="tWeek">0</div><div class="l">за неделю</div></div>
+        <div class="tile"><div class="v num" id="tVol">0</div><div class="l">тонн всего</div></div>
+        <div class="tile"><div class="v num" id="tStreak">0</div><div class="l">дней подряд</div></div>
+      </div>
+      <div class="card chart-wrap">
+        <h3>Объём за тренировку</h3>
+        <p class="sub">Суммарный тоннаж, кг · последние сессии</p>
+        <div id="chart"></div>
+        <div class="tip" id="tip"></div>
+      </div>
+      <div class="card">
+        <div class="hist-h" style="margin-bottom:4px">История</div>
+        <div class="hist" id="hist"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <button class="tab on" data-scr="home">
+        <svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 10v9h12v-9"/></svg>Главная</button>
+      <button class="tab" data-scr="programs">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Программы</button>
+      <button class="tab" data-scr="workout">
+        <svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M4 9l2-2M9 4l2-2M20 15l-2 2M15 20l-2 2M7.5 7.5L4.5 10.5M16.5 16.5l3-3"/></svg>Тренировка</button>
+      <button class="tab" data-scr="progress">
+        <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/></svg>Прогресс</button>
+    </div>
+  </nav>
+</div>
+<div class="toast" id="toast">Сохранено</div>
+<div class="player" id="player" hidden>
+  <div class="pname" id="pname"></div>
+  <video id="pvideo" muted loop playsinline preload="none" controls></video>
+  <div class="pcred" id="pcred"></div>
+  <button class="pclose" id="pclose">✕ Закрыть</button>
+</div>
+
+<script>
+"use strict";
+/* ---------- storage (safe) ---------- */
+const KEY="gym45_history_v1";
+const safe={
+  get(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}},
+  set(v){try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}cloudPush();}
+};
+/* локальная календарная дата (не UTC) — чтобы ночные записи в Казахстане не уходили на вчера */
+function localDate(d){d=d||new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
+/* ---------- data ---------- */
+const PROGRAMS=[
+ {id:"p1",name:"Сила 45",focus:"Всё тело",dur:"≈ 50 мин",
+  ex:[["Присед со штангой",4,5,70],["Жим лёжа",4,6,55],["Тяга в наклоне",3,8,50],["Жим стоя",3,8,30]]},
+ {id:"p2",name:"Гиревой базовый",focus:"Выносливость",dur:"≈ 35 мин",
+  ex:[["Мах гирей",5,15,24],["Турецкий подъём",3,5,16],["Гоблет-присед",4,12,24],["Жим гири",3,8,20]]},
+ {id:"p3",name:"Ноги и кор",focus:"Низ тела",dur:"≈ 45 мин",
+  ex:[["Становая тяга",4,5,90],["Выпады с гантелями",3,10,22],["Подъём на носки",4,15,40],["Планка (сек)",3,45,0]]},
+ {id:"p4",name:"Верх: толчок",focus:"Грудь · плечи",dur:"≈ 40 мин",
+  ex:[["Жим гантелей",4,8,26],["Разводка",3,12,14],["Отжимания на брусьях",3,10,0],["Французский жим",3,12,25]]},
+];
+/* seed history so progress isn't empty (marked «пример») */
+const SEED=[
+ {date:dAgo(16),name:"Сила 45",vol:3120,seed:true},
+ {date:dAgo(13),name:"Гиревой базовый",vol:2740,seed:true},
+ {date:dAgo(10),name:"Ноги и кор",vol:3580,seed:true},
+ {date:dAgo(7),name:"Сила 45",vol:3360,seed:true},
+ {date:dAgo(4),name:"Верх: толчок",vol:2980,seed:true},
+];
+function dAgo(n){const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);}
+function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+  return d.getDate()+" "+m[d.getMonth()];}
+
+/* ---------- navigation ---------- */
+const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),workout:el("scr-workout"),progress:el("scr-progress")};
+function el(id){return document.getElementById(id);}
+let histStack=[],currentScreen=null;
+function applyScreen(name){
+  if(currentScreen==="wod"&&name!=="wod"&&typeof resetTimer==="function")resetTimer();
+  if(currentScreen==="workout"&&name!=="workout")document.querySelectorAll("#exList video").forEach(v=>{try{v.pause()}catch(e){}});
+  for(const k in scr)scr[k].hidden=(k!==name);
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
+  currentScreen=name;if(name==="progress")renderProgress();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
+function show(name){if(currentScreen&&name!==currentScreen)histStack.push(currentScreen);applyScreen(name);}
+function goBack(){
+  if(currentScreen==="workout"){current=null;el("wkFoot").hidden=true;}
+  let prev=histStack.pop()||"home";
+  if(prev==="workout"&&!current)prev="home";
+  applyScreen(prev);}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  if(t.dataset.scr==="workout"&&!current)startWorkout(PROGRAMS[0]);else show(t.dataset.scr);});
+document.querySelectorAll(".back-btn").forEach(b=>b.addEventListener("click",goBack));
+
+/* ---------- login ---------- */
+function doLogin(e){if(e)e.preventDefault();el("login").style.display="none";}
+el("loginForm").onsubmit=doLogin;
+el("loginBtn").addEventListener("click",doLogin);
+el("theme").addEventListener("click",()=>{
+  const r=document.documentElement;
+  r.setAttribute("data-theme", r.getAttribute("data-theme")==="dark"?"light":"dark");
+});
+el("pwToggle").addEventListener("click",()=>{
+  const p=el("pass"),show=p.type==="password";
+  p.type=show?"text":"password";el("pwToggle").textContent=show?"Скрыть":"Показать";});
+
+
+/* ---------- programs list ---------- */
+function renderPrograms(){
+  el("progList").innerHTML="";
+  PROGRAMS.forEach(p=>{
+    const b=document.createElement("button");b.className="prog";
+    b.innerHTML=`<div class="top"><div><h3>${p.name}</h3>
+       <div class="meta">${p.dur} · ${p.ex.length} упражнения</div></div>
+       <span class="tag">${p.focus}</span></div>
+       <div class="ex">${p.ex.map(e=>e[0]).join(" · ")}</div>`;
+    b.onclick=()=>startWorkout(p);
+    el("progList").appendChild(b);
+  });
+}
+/* ---------- workout session ---------- */
+let current=null;
+/* черновик незавершённой тренировки */
+const DRAFTK="gym45_draft_v1";
+function saveDraft(){try{if(current)localStorage.setItem(DRAFTK,JSON.stringify(current));}catch(e){}}
+function clearDraft(){try{localStorage.removeItem(DRAFTK)}catch(e){}}
+function getDraft(){try{return JSON.parse(localStorage.getItem(DRAFTK)||"null")}catch(e){return null}}
+function showDraftBanner(){const b=el("draftBanner");if(!b)return;const d=getDraft();
+  if(d&&d.program&&d.sets){el("draftName").textContent=(d.program.name||"")+(d.program.focus?" · "+d.program.focus:"");b.hidden=false;}
+  else b.hidden=true;}
+/* готовность → нагрузка (логика Штурм 30: scaledExercise) */
+const RF={"Устал":0.8,"Норма":1,"Заряжен":1.04};
+let readiness="Норма";
+function rScaleW(w){if(!w)return 0;const f=RF[readiness]||1;return Math.max(1,Math.ceil(w*f-1e-9));}
+function rScaleSets(n){return readiness==="Устал"?Math.max(1,n-1):n;}
+/* память результатов (логика Штурм 30: previousExerciseResult) */
+function lastResult(name){
+  const all=safe.get();
+  for(let i=all.length-1;i>=0;i--){const h=all[i];
+    if(h.log&&h.log[name]){const done=h.log[name].filter(s=>s.done&&s.r>0);
+      if(done.length)return {date:h.date,sets:done.map(s=>({r:s.r,w:s.w}))};}}
+  return null;
+}
+function startWorkout(p,computed){
+  const prevMap={};
+  const sets=p.ex.map(e=>{
+    const name=e[0],pr=computed?null:lastResult(name);
+    const psw=Array.isArray(e[4])?e[4]:null;           // индивидуальный вес по подходам (GVT-лесенка)
+    const ns=psw?psw.length:rScaleSets(e[1]);
+    const baseW=rScaleW(e[3]);
+    if(pr)prevMap[name]=pr;
+    return Array.from({length:ns},(_,j)=>{
+      const pv=pr?(pr.sets[j]||pr.sets[pr.sets.length-1]):null;
+      const w=pv?pv.w:(psw?rScaleW(psw[j]):baseW);
+      return {w:w,r:pv?pv.r:e[2],done:false,prev:pv||null};});});
+  current={program:p,readiness:readiness,prev:prevMap,sets:sets};
+  el("wkTitle").textContent=p.name;
+  el("wkEyebrow").textContent=p.focus+" · готовность: "+readiness;
+  renderWorkout();el("wkFoot").hidden=false;saveDraft();show("workout");
+}
+/* ---------- медиа-библиотека упражнений (ExerciseDB, из сборки SHTURM30, некоммерческая лицензия) ---------- */
+const MEDIA={
+  "Присед со штангой":{p:"media/0043.jpg",v:"media/0043.mp4",id:"edb-0043",name:"Полный присед со штангой"},
+  "Жим лёжа":{p:"media/0025.jpg",v:"media/0025.mp4",id:"edb-0025",name:"Жим штанги лёжа"},
+  "Тяга в наклоне":{p:"media/0027.jpg",v:"media/0027.mp4",id:"edb-0027",name:"Тяга штанги в наклоне"},
+  "Жим стоя":{p:"media/1457.jpg",v:"media/1457.mp4",id:"edb-1457",name:"Армейский жим штанги широким хватом стоя"},
+  "Подтягивания с весом":{p:"media/0652.jpg",v:"media/0652.mp4",id:"edb-0652",name:"Подтягивания"},
+  "Подтягивания (объём)":{p:"media/0652.jpg",v:"media/0652.mp4",id:"edb-0652",name:"Подтягивания"},
+  "Отжимания на брусьях с весом":{p:"media/0251.jpg",v:"media/0251.mp4",id:"edb-0251",name:"Отжимания на брусьях для груди"},
+  "Отжимания на брусьях (пауза)":{p:"media/0251.jpg",v:"media/0251.mp4",id:"edb-0251",name:"Отжимания на брусьях для груди"},
+  "Тяга штанги в наклоне":{p:"media/0027.jpg",v:"media/0027.mp4",id:"edb-0027",name:"Тяга штанги в наклоне"},
+  "Подъём штанги на бицепс":{p:"media/0031.jpg",v:"media/0031.mp4",id:"edb-0031",name:"Сгибание рук со штангой"},
+  "Жим штанги лёжа":{p:"media/0025.jpg",v:"media/0025.mp4",id:"edb-0025",name:"Жим штанги лёжа"},
+  "Обратные отжимания на трицепс":{p:"media/0813.jpg",v:"media/0813.mp4",id:"edb-0813",name:"Обратные отжимания на трицепс между скамьями"},
+  "Приседания со штангой":{p:"media/0043.jpg",v:"media/0043.mp4",id:"edb-0043",name:"Полный присед со штангой"},
+  "Армейский жим стоя":{p:"media/1457.jpg",v:"media/1457.mp4",id:"edb-1457",name:"Армейский жим штанги широким хватом стоя"},
+  "Махи гантелей перед собой":{p:"media/0310.jpg",v:"media/0310.mp4",id:"edb-0310",name:"Подъём гантелей перед собой"},
+  "Тяга штанги на задние дельты":{p:"media/0076.jpg",v:"media/0076.mp4",id:"edb-0076",name:"Тяга штанги на задние дельты"},
+  "Планка":{p:"media/3665.jpg",v:"media/3665.mp4",id:"edb-3665",name:"Силовая планка"},
+  "Стойка на руках у стены":{p:"media/3302.jpg",v:"media/3302.mp4",id:"edb-3302",name:"Стойка на руках"},
+  "Подъём ног в висе":{p:"media/0472.jpg",v:"media/0472.mp4",id:"edb-0472",name:"Подъём ног в висе"},
+  "Прогулка фермера":{p:"media/2133.jpg",v:"media/2133.mp4",id:"edb-2133",name:"Прогулка фермера"},
+  "Гиперэкстензия":{p:"media/0489.jpg",v:"media/0489.mp4",id:"edb-0489",name:"Гиперэкстензия"},
+  "Отжимания от пола":{p:"media/0662.jpg",v:"media/0662.mp4",id:"edb-0662",name:"Отжимания"},
+  "Воздушные приседания":{p:"media/cfair.jpg",v:"media/cfair.mp4",id:"crossfit-air",name:"Приседания без веса"},
+  "Бёрпи":{p:"media/1160.jpg",v:"media/1160.mp4",id:"edb-1160",name:"Бёрпи"},
+  "Ситапы":{p:"media/0001.jpg",v:"media/0001.mp4",id:"edb-0001",name:"Подъём корпуса"},
+  "Подтягивания":{p:"media/0652.jpg",v:"media/0652.mp4",id:"edb-0652",name:"Подтягивания"},
+  "Махи гирей":{p:"media/0549.jpg",v:"media/0549.mp4",id:"edb-0549",name:"Махи гирей"},
+  "Прыжки на тумбу":{p:"media/1374.jpg",v:"media/1374.mp4",id:"edb-1374",name:"Прыжок с тумбы"},
+  "Прыжки на скакалке":{p:"media/2612.jpg",v:"media/2612.mp4",id:"edb-2612",name:"Прыжки со скакалкой"},
+  "Жимовой швунг":{p:"media/1700.jpg",v:"media/1700.mp4",id:"edb-1700",name:"Жим с толчком ногами"},
+  "Становая тяга":{p:"media/0032.jpg",v:"media/0032.mp4",id:"edb-0032",name:"Становая тяга со штангой"},
+  "Фронтальные приседания":{p:"media/0042.jpg",v:"media/0042.mp4",id:"edb-0042",name:"Фронтальный присед со штангой"},
+  "Жим штанги стоя":{p:"media/1457.jpg",v:"media/1457.mp4",id:"edb-1457",name:"Армейский жим штанги стоя"},
+  "Гоблет-присед":{p:"media/0534.jpg",v:"media/0534.mp4",id:"edb-0534",name:"Гоблет-приседание с гирей"},
+  "Прыжковые выпады":{p:"media/3582.jpg",v:"media/3582.mp4",id:"edb-3582",name:"Выпады с прыжком"},
+  "Взятие штанги на грудь":{p:"media/0648.jpg",v:"media/0648.mp4",id:"edb-0648",name:"Взятие штанги на грудь в полуприсед"},
+  "Трастеры со штангой":{p:"media/3305.jpg",v:"media/3305.mp4",id:"edb-3305",name:"Трастер со штангой"},
+  "Тяга штанги к подбородку":{p:"media/0120.jpg",v:"media/0120.mp4",id:"edb-0120",name:"Тяга штанги к подбородку"},
+  "Рывок гантели":{p:"media/3888.jpg",v:"media/3888.mp4",id:"edb-3888",name:"Рывок гантели одной рукой"},
+  "Подъём ног к перекладине":{p:"media/0475.jpg",v:"media/0475.mp4",id:"edb-0475",name:"Подъём прямых ног в висе"},
+  "Толчок гири одной рукой":{p:"media/0538.jpg",v:"media/0538.mp4",id:"edb-0538",name:"Толчок гири одной рукой"},
+  "Бег на дорожке":{p:"media/0684.jpg",v:"media/0684.mp4",id:"edb-0684",name:"Бег на тренажёре"},
+  "Гребля":{p:"media/rower.jpg",v:"media/rower.mp4",id:"motions-rower",name:"Гребной тренажёр"},
+  "Тяга верхнего блока":{p:"media/0150.jpg",v:"media/0150.mp4",id:"edb-0150",name:"Тяга верхнего блока"},
+  "Жим из-за головы сидя":{p:"media/0086.jpg",v:"media/0086.mp4",id:"edb-0086",name:"Армейский жим штанги из-за головы сидя"},
+  "Жим штанги сидя":{p:"media/0091.jpg",v:"media/0091.mp4",id:"edb-0091",name:"Жим штанги над головой сидя"},
+  "Жим лёжа узким хватом":{p:"media/0030.jpg",v:"media/0030.mp4",id:"edb-0030",name:"Жим штанги лёжа узким хватом"},
+  "Жим на наклонной скамье":{p:"media/0047.jpg",v:"media/0047.mp4",id:"edb-0047",name:"Жим штанги на наклонной скамье"},
+  "Жим гантелей":{p:"media/0289.jpg",v:"media/0289.mp4",id:"edb-0289",name:"Жим гантелей лёжа"},
+  "Тяга гантели одной рукой":{p:"media/0292.jpg",v:"media/0292.mp4",id:"edb-0292",name:"Тяга гантели одной рукой в наклоне"},
+  "Шраги со штангой":{p:"media/0095.jpg",v:"media/0095.mp4",id:"edb-0095",name:"Шраги со штангой"},
+  "Сгибание рук обратным хватом":{p:"media/0110.jpg",v:"media/0110.mp4",id:"edb-0110",name:"Сгибание рук со штангой обратным хватом стоя"},
+  "Становая тяга на прямых ногах":{p:"media/0085.jpg",v:"media/0085.mp4",id:"edb-0085",name:"Румынская тяга со штангой"},
+  "Дыхательные пуловеры":{p:"media/0375.jpg",v:"media/0375.mp4",id:"edb-0375",name:"Пуловер с гантелью"},
+  "Подъём на носки стоя":{p:"media/0108.jpg",v:"media/0108.mp4",id:"edb-0108",name:"Подъём на носки со штангой стоя"},
+  "Подъём на носки сидя":{p:"media/0088.jpg",v:"media/0088.mp4",id:"edb-0088",name:"Подъём на носки со штангой сидя"},
+  "Скручивания":{p:"media/0274.jpg",v:"media/0274.mp4",id:"edb-0274",name:"Скручивания на полу"},
+  "Наклоны в сторону":{p:"media/0407.jpg",v:"media/0407.mp4",id:"edb-0407",name:"Наклон в сторону с гантелью"},
+};
+const MEDIA_CREDIT="ExerciseDB v1 / AscendAPI · некоммерческое использование, атрибуция обязательна";
+function openMedia(key){const m=MEDIA[key];if(!m)return;const v=el("pvideo");
+  el("pname").textContent=m.name;el("pcred").textContent="ID: "+m.id+" · "+MEDIA_CREDIT;
+  v.poster=m.p;v.src=m.v;el("player").hidden=false;
+  try{v.currentTime=0;v.play().catch(()=>{});}catch(e){}}
+function closeMedia(){const v=el("pvideo");try{v.pause();}catch(e){}
+  v.removeAttribute("src");try{v.load();}catch(e){}el("player").hidden=true;}
+window.__io=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.play().catch(()=>{});}),{threshold:0.15}):null;
+["touchstart","click"].forEach(ev=>document.addEventListener(ev,function p(){
+  document.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;v.play().catch(()=>{});});},{once:true}));
+function renderWorkout(){
+  const wrap=el("exList");
+  if(window.__io)wrap.querySelectorAll("video").forEach(v=>{try{window.__io.unobserve(v)}catch(e){}});
+  wrap.innerHTML="";
+  current.program.ex.forEach((ex,i)=>{
+    const c=document.createElement("div");c.className="card ex-card";
+    const bw=ex[3]===0; // упражнение без веса — только повторы
+    let rows=`<div class="set-row head"><span>#</span><span>${bw?"—":"Вес"}</span><span>Повт.</span><span></span></div>`;
+    current.sets[i].forEach((s,j)=>{
+      const wCell=bw
+        ?`<div class="num" style="opacity:.35;text-align:center">—</div>`
+        :`<input class="num" inputmode="numeric" data-e="${i}" data-s="${j}" data-f="w" value="${s.w}">`;
+      rows+=`<div class="set-row">
+        <div class="sn num">${j+1}</div>
+        ${wCell}
+        <input class="num" inputmode="numeric" data-e="${i}" data-s="${j}" data-f="r" value="${s.r}">
+        <button class="chk ${s.done?"on":""}" data-e="${i}" data-s="${j}">${s.done?"✓":""}</button>
+      </div>`;
+    });
+    const _m=MEDIA[ex[0]];
+    const _media=_m?`<div class="ex-media" data-key="${ex[0]}"><video src="${_m.v}" poster="${_m.p}" muted loop autoplay playsinline preload="auto"></video><span class="play">⛶</span></div>`:"";
+    const _pr=current.prev&&current.prev[ex[0]];
+    const _prev=_pr?`<div class="prev-line">Прошлый раз: ${_pr.sets.map(s=>ex[3]?(s.r+"×"+s.w):(""+s.r)).join(", ")}${ex[3]?" кг":" повт."}</div>`:"";
+    const _rmv=(typeof rmReg==="function")?rmReg()[ex[0]]:0;
+    c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">Цель: ${ex[1]} × ${ex[2]}${ex[3]?" · "+ex[3]+" кг":""}${_rmv?" · 1ПМ "+_rmv+" кг":""}</div>${_prev}
+      ${rows}<button class="addset" data-add="${i}">+ подход</button>`;
+    wrap.appendChild(c);
+  });
+  wrap.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
+    const{e:ei,s:si,f}=e.target.dataset;const v=parseFloat(e.target.value)||0;
+    current.sets[ei][si][f]=v;saveDraft();});
+  wrap.querySelectorAll(".chk").forEach(b=>b.onclick=()=>{
+    const s=current.sets[b.dataset.e][b.dataset.s];s.done=!s.done;
+    b.classList.toggle("on",s.done);b.textContent=s.done?"✓":"";saveDraft();});
+  wrap.querySelectorAll(".addset").forEach(b=>b.onclick=()=>{
+    const i=b.dataset.add,last=current.sets[i][current.sets[i].length-1]||{w:0,r:0};
+    current.sets[i].push({w:last.w,r:last.r,done:false});saveDraft();renderWorkout();});
+  wrap.querySelectorAll(".ex-media").forEach(b=>b.onclick=()=>openMedia(b.dataset.key));
+  wrap.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;
+    const pl=()=>{v.play().catch(()=>{});};
+    v.addEventListener("canplay",pl);v.addEventListener("loadeddata",pl);pl();
+    if(window.__io)window.__io.observe(v);});
+}
+el("wkFinish").onclick=()=>{
+  let vol=0,anyDone=false;
+  current.sets.forEach(se=>se.forEach(s=>{if(s.done){anyDone=true;vol+=s.w*s.r;}}));
+  if(!anyDone){toast("Отметьте выполненные подходы ✓");return;} // считаем только отмеченное
+  const prog=current.program;
+  // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
+  const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].map(x=>({r:x.r,w:x.w,done:x.done}));log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
+  const h=safe.get();h.push({date:localDate(),name:prog.name,vol:Math.round(vol),log:log});
+  safe.set(h);
+  // 2b · проходка обновляет 1ПМ (только вверх)
+  let rmMsg="";
+  if(/проходк/i.test(prog.focus||"")||/проходка/i.test(prog.name||"")){
+    const byLift={};
+    prog.ex.forEach((e,i)=>{const lift=e[0];
+      const dw=current.sets[i].filter(s=>s.done&&s.r>0).map(s=>s.w);
+      if(dw.length){const m=Math.max(...dw);if(byLift[lift]==null||m>byLift[lift])byLift[lift]=m;}});
+    const reg=rmReg(),upd=[];
+    Object.keys(byLift).forEach(lift=>{if(byLift[lift]>(reg[lift]||0)){reg[lift]=byLift[lift];upd.push(lift+" "+byLift[lift]+" кг");}});
+    if(upd.length){rmRegSet(reg);rmMsg="Новый 1ПМ записан: "+upd.join(", ")+". ";}
+  }
+  // 2a · совет при недоборе плана по движениям с весом
+  const short=[];
+  prog.ex.forEach((e,i)=>{if(!e[3])return;const sets=current.sets[i];
+    const full=sets.filter(s=>s.done&&s.r>=e[2]).length;
+    if(full<sets.length)short.push(e[0]);});
+  const uniqShort=[...new Set(short)];
+  let note=rmMsg;
+  if(uniqShort.length)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
+  window.__coachPending=note||"";
+  clearDraft();current=null;el("wkFoot").hidden=true;
+  toast("Тренировка сохранена");show("progress");
+};
+el("coachClose").addEventListener("click",()=>{el("coachNote").hidden=true;});
+el("draftResume").addEventListener("click",()=>{const d=getDraft();if(!(d&&d.program&&d.sets))return;
+  current=d;readiness=d.readiness||readiness;
+  el("wkTitle").textContent=d.program.name;el("wkEyebrow").textContent=(d.program.focus||"")+" · готовность: "+(d.readiness||readiness);
+  renderWorkout();el("wkFoot").hidden=false;el("draftBanner").hidden=true;show("workout");});
+el("draftDiscard").addEventListener("click",()=>{clearDraft();el("draftBanner").hidden=true;});
+/* ---------- progress ---------- */
+function allHistory(){return [...SEED,...safe.get()];}
+function mmss(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60),x=s%60;return m+":"+(x<10?"0"+x:x);}
+function renderProgress(){
+  const cn=el("coachNote");
+  if(cn){if(window.__coachPending){el("coachText").textContent=window.__coachPending;cn.hidden=false;window.__coachPending=null;}else cn.hidden=true;}
+  const all=allHistory();
+  const strength=all.filter(x=>typeof x.vol==="number");
+  const total=(strength.reduce((a,b)=>a+b.vol,0)/1000);
+  el("tVol").textContent=total.toFixed(1);
+  const wk=Date.now()-6*864e5;
+  el("tWeek").textContent=all.filter(x=>new Date(x.date+"T00:00")>=wk).length;
+  el("tStreak").textContent=streak(all);
+  drawChart(strength.slice(-8));
+  // history newest first
+  const hist=el("hist");hist.innerHTML="";
+  [...all].reverse().slice(0,8).forEach(x=>{
+    const r=document.createElement("div");r.className="hrow";
+    let badge;
+    if(x.cross){
+      const parts=[];if(x.tmtype&&typeof TLABEL!=="undefined"&&TLABEL[x.tmtype])parts.push(TLABEL[x.tmtype]);if(x.secs)parts.push(mmss(x.secs));if(x.rounds)parts.push(x.rounds+" р.");
+      badge=`<span class="seed" style="background:var(--accent-weak);color:var(--accent-ink)">кроссфит</span>`+
+        (parts.length?`<span class="vol num">${parts.join(" · ")}</span>`:"");
+    }else{
+      badge=`${x.seed?'<span class="seed">пример</span>':''}<span class="vol num">${(x.vol/1000).toFixed(2)} т</span>`;
+    }
+    r.innerHTML=`<div class="d">${x.name}<small>${fmtDate(x.date)}</small></div>
+      <div style="display:flex;align-items:center;gap:8px">${badge}</div>`;
+    hist.appendChild(r);
+  });
+}
+function streak(all){
+  const days=new Set(all.map(x=>x.date));let s=0,d=new Date();
+  for(let i=0;i<60;i++){const k=localDate(d);
+    if(days.has(k))s++;else if(i>0)break;d.setDate(d.getDate()-1);}
+  return s;
+}
+function drawChart(data){
+  const W=360,H=168,pad={l:34,r:12,t:12,b:24};
+  const xs=(W-pad.l-pad.r),ys=(H-pad.t-pad.b);
+  const max=Math.max(...data.map(d=>d.vol))*1.08,min=Math.min(...data.map(d=>d.vol))*0.9;
+  const X=i=>pad.l+(data.length<2?xs/2:i/(data.length-1)*xs);
+  const Y=v=>pad.t+ys-((v-min)/(max-min))*ys;
+  const pts=data.map((d,i)=>[X(i),Y(d.vol)]);
+  const line=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area=`M${pts[0][0]} ${pad.t+ys} `+pts.map(p=>"L"+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ")+` L${pts[pts.length-1][0]} ${pad.t+ys} Z`;
+  let grid="",lbl="";
+  for(let g=0;g<=2;g++){const v=min+(max-min)*g/2,y=Y(v);
+    grid+=`<line class="grid" x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W-pad.r}" y2="${y.toFixed(1)}"/>`;
+    lbl+=`<text class="axlbl" x="${pad.l-6}" y="${(y+3).toFixed(1)}" text-anchor="end">${Math.round(v/1000*10)/10}т</text>`;}
+  data.forEach((d,i)=>{if(i%2===0||i===data.length-1)
+    lbl+=`<text class="axlbl" x="${X(i).toFixed(1)}" y="${H-8}" text-anchor="middle">${fmtDate(d.date)}</text>`;});
+  const dots=pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="7" fill="transparent" data-i="${i}"/>`).join("");
+  const endpt=pts[pts.length-1];
+  el("chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="График объёма тренировок" style="display:block">
+    <defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--accent)" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${area}" fill="url(#fill)"/>
+    <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===pts.length-1?4:2.6}" fill="var(--accent)"/>`).join("")}
+    <circle cx="${endpt[0].toFixed(1)}" cy="${endpt[1].toFixed(1)}" r="7" fill="none" stroke="var(--accent)" stroke-width="2" opacity="0.4"/>
+    ${lbl}${dots}</svg>`;
+  const svg=el("chart").querySelector("svg"),tip=el("tip"),wrap=el("chart");
+  svg.querySelectorAll("circle[data-i]").forEach(c=>{
+    const i=+c.dataset.i;const move=()=>{
+      const d=data[i];tip.textContent=`${(d.vol/1000).toFixed(2)} т · ${fmtDate(d.date)}`;
+      const rb=svg.getBoundingClientRect(),cb=wrap.getBoundingClientRect();
+      const sx=rb.width/W,sy=rb.height/H;
+      tip.style.left=(pts[i][0]*sx+(rb.left-cb.left))+"px";
+      tip.style.top=(pts[i][1]*sy+(rb.top-cb.top))+"px";tip.style.opacity="1";};
+    c.addEventListener("mouseenter",move);c.addEventListener("touchstart",move,{passive:true});
+    c.addEventListener("mouseleave",()=>tip.style.opacity="0");
+  });
+}
+/* ---------- toast ---------- */
+let tt;function toast(m){const t=el("toast");t.textContent=m;t.classList.add("show");
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),1900);}
+/* ---------- init ---------- */
+document.querySelectorAll("#scr-home [data-go]").forEach(b=>b.onclick=()=>{
+  const g=b.dataset.go;
+  if(g==="home")return;
+  if(g==="programs")show("programs");
+  else if(g==="progress")show("progress");
+  else if(g==="workout")startWorkout(PROGRAMS[0]);
+  else if(g==="nutrition"){renderFood();show("food");}
+  else if(g==="onerm")show("onerm");
+});
+document.querySelectorAll(".seg-b").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".seg-b").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");
+  const v=b.dataset.ready;readiness=v;
+  el("readyState").textContent=v;
+  el("readyNote").textContent=v==="Устал"?"−20% веса · −1 подход":(v==="Заряжен"?"+4% веса · можно в отказ":"рабочий вес без изменений");
+});
+el("homeMenu").addEventListener("click",()=>{const r=document.documentElement;
+  r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark");});
+const STREET=[
+ {name:"День 1 · Подтягивания",sub:"Спина · бицепс · кор",focus:"Тяга",ex:[
+   ["Подтягивания с весом",4,5,10],["Тяга штанги в наклоне",3,10,50],
+   ["Подъём штанги на бицепс",3,10,25],["Прогулка фермера",3,30,16],["Планка",2,60,0]]},
+ {name:"День 2 · Брусья",sub:"Грудь · трицепс · кор",focus:"Жим",ex:[
+   ["Отжимания на брусьях с весом",4,5,10],["Жим штанги лёжа",3,10,55],
+   ["Обратные отжимания на трицепс",3,12,0],["Подъём ног в висе",3,12,0],["Гиперэкстензия",3,15,0]]},
+ {name:"День 3 · Ноги и плечи",sub:"Присед · жим · дельты",focus:"Ноги · плечи",ex:[
+   ["Приседания со штангой",3,10,70],["Армейский жим стоя",3,10,30],
+   ["Махи гантелей перед собой",3,15,8],["Тяга штанги на задние дельты",3,14,20]]},
+ {name:"День 4 · Объём",sub:"Выносливость · ОФП",focus:"Объём",ex:[
+   ["Подтягивания (объём)",3,10,0],["Отжимания на брусьях (пауза)",3,10,0],
+   ["Стойка на руках у стены",2,30,0]]},
+];
+function renderStreet(){const w=el("streetDays");w.innerHTML="";
+  STREET.forEach((d,i)=>{const b=document.createElement("button");b.className="disc";
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${d.name}</span><span class="disc-sub">${d.sub}</span></span><span class="go">›</span>`;
+    b.onclick=()=>startWorkout({name:d.name,focus:d.focus,ex:d.ex});w.appendChild(b);});}
+renderStreet();
+/* ---------- БОДИБИЛДИНГ · 5 программ ---------- */
+const BODY=[
+ {name:"Фулбади для новичков",meta:"3 дня/нед · всё тело",
+  desc:"Старт для новичков: всё тело за тренировку, через день. Чередуй День A и День B, 3 раза в неделю. Фокус — техника базовых движений и постепенный рост веса.",
+  days:[
+   {name:"День A · всё тело",focus:"База A",ex:[["Приседания со штангой",3,8,50],["Жим лёжа",3,8,40],["Тяга штанги в наклоне",3,8,40],["Армейский жим стоя",3,10,25],["Подъём штанги на бицепс",3,12,20],["Планка",3,45,0]]},
+   {name:"День B · всё тело",focus:"База B",ex:[["Становая тяга",3,6,60],["Жим лёжа",3,8,40],["Подтягивания",3,8,0],["Жим стоя",3,10,25],["Обратные отжимания на трицепс",3,12,0],["Гиперэкстензия",3,12,0]]}]},
+ {name:"Верх / Низ",meta:"4 дня/нед · сплит",
+  desc:"Тело делится на верх и низ, по две тренировки на каждый за неделю. Хороший баланс объёма и восстановления для среднего уровня.",
+  days:[
+   {name:"Верх A",focus:"Жимы и тяги",ex:[["Жим лёжа",4,8,45],["Тяга штанги в наклоне",4,8,45],["Жим стоя",3,10,25],["Подтягивания",3,10,0],["Подъём штанги на бицепс",3,12,20],["Обратные отжимания на трицепс",3,12,0]]},
+   {name:"Низ A",focus:"Ноги и кор",ex:[["Приседания со штангой",4,8,60],["Становая тяга",3,6,70],["Гиперэкстензия",3,12,0],["Прогулка фермера",3,40,20],["Планка",3,60,0]]},
+   {name:"Верх B",focus:"Объём верх",ex:[["Жим стоя",4,8,27],["Подтягивания с весом",4,8,8],["Тяга штанги на задние дельты",3,14,18],["Жим лёжа",3,10,42],["Подъём штанги на бицепс",3,14,18],["Обратные отжимания на трицепс",3,14,0]]},
+   {name:"Низ B",focus:"Объём низ",ex:[["Фронтальные приседания",4,10,45],["Приседания со штангой",3,12,50],["Гиперэкстензия",3,15,0],["Прыжковые выпады",3,16,0],["Планка",3,60,0]]}]},
+ {name:"Push / Pull / Legs",meta:"3–6 дней · жим-тяга-ноги",
+  desc:"Жим (грудь, плечи, трицепс) — Тяга (спина, бицепс) — Ноги. Можно крутить 3 дня в неделю или по два круга — 6 дней для опытных.",
+  days:[
+   {name:"Жим (Push)",focus:"Грудь · плечи · трицепс",ex:[["Жим лёжа",4,8,45],["Жим стоя",4,10,27],["Махи гантелей перед собой",3,15,8],["Обратные отжимания на трицепс",3,12,0],["Отжимания на брусьях с весом",3,10,0]]},
+   {name:"Тяга (Pull)",focus:"Спина · бицепс",ex:[["Становая тяга",4,6,70],["Подтягивания",4,10,0],["Тяга штанги в наклоне",4,10,45],["Тяга штанги на задние дельты",3,14,18],["Подъём штанги на бицепс",4,12,20]]},
+   {name:"Ноги (Legs)",focus:"Квадры · ягодицы · кор",ex:[["Приседания со штангой",4,10,60],["Фронтальные приседания",3,10,45],["Гиперэкстензия",3,15,0],["Прыжки на тумбу",3,12,0],["Планка",3,60,0]]}]},
+ {name:"Трёхдневный сплит",meta:"3 дня/нед · по группам",
+  desc:"Классика: грудь+трицепс, спина+бицепс, ноги+плечи. По одной тренировке на связку в неделю — просто и результативно.",
+  days:[
+   {name:"Грудь + трицепс",focus:"Жим",ex:[["Жим лёжа",4,8,45],["Жим гантелей",3,10,24],["Отжимания на брусьях с весом",3,10,0],["Обратные отжимания на трицепс",3,12,0]]},
+   {name:"Спина + бицепс",focus:"Тяга",ex:[["Подтягивания",4,8,0],["Тяга штанги в наклоне",4,10,45],["Тяга штанги на задние дельты",3,14,18],["Подъём штанги на бицепс",4,12,20]]},
+   {name:"Ноги + плечи",focus:"Ноги · дельты",ex:[["Приседания со штангой",4,10,60],["Становая тяга",3,6,70],["Армейский жим стоя",4,10,27],["Махи гантелей перед собой",3,15,8]]}]},
+ {name:"Пятидневный сплит",meta:"5 дней/нед · продвинутый",
+  desc:"По одной мышечной группе в день: грудь, спина, ноги, плечи, руки. Максимум объёма на каждую группу — для опытных атлетов.",
+  days:[
+   {name:"Грудь",focus:"Грудь",ex:[["Жим лёжа",4,8,45],["Жим гантелей",3,10,24],["Отжимания на брусьях с весом",3,10,0],["Махи гантелей перед собой",3,15,8]]},
+   {name:"Спина",focus:"Спина",ex:[["Становая тяга",4,6,70],["Подтягивания",4,10,0],["Тяга штанги в наклоне",4,10,45],["Тяга штанги на задние дельты",3,14,18]]},
+   {name:"Ноги",focus:"Ноги",ex:[["Приседания со штангой",4,10,60],["Фронтальные приседания",3,10,45],["Гиперэкстензия",3,15,0],["Прогулка фермера",3,40,20]]},
+   {name:"Плечи",focus:"Дельты",ex:[["Армейский жим стоя",4,10,27],["Махи гантелей перед собой",3,15,8],["Тяга штанги к подбородку",3,12,25],["Тяга штанги на задние дельты",3,14,18]]},
+   {name:"Руки",focus:"Бицепс · трицепс",ex:[["Подъём штанги на бицепс",4,12,20],["Обратные отжимания на трицепс",4,12,0],["Отжимания на брусьях с весом",3,12,0],["Прогулка фермера",3,40,20]]}]},
+];
+let currentBody=null;
+function openProg(p,eyebrow,computed){
+  if(p.pending){toast("Этап «"+p.name+"» — скоро");return;}
+  currentBody=p;
+  el("progEyebrow").textContent=eyebrow||"Программа";
+  el("bodyName").textContent=p.name;
+  el("bodyMeta").textContent=p.meta;
+  el("bodyDesc").textContent=p.desc;
+  const w=el("bodyDays");w.innerHTML="";
+  p.days.forEach(d=>{const b=document.createElement("button");b.className="disc";
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${d.name}</span><span class="disc-sub">${d.focus} · ${d.ex.length} упр.</span></span><span class="go">›</span>`;
+    b.onclick=()=>startWorkout({name:d.name,focus:p.name+" · "+d.focus,ex:d.ex},computed);w.appendChild(b);});
+  show("bodyprog");
+}
+function progButton(p,eyebrow){const b=document.createElement("button");b.className="disc"+(p.pending?" disc-soon":"");
+  b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${p.name}</span><span class="disc-sub">${p.meta}</span></span><span class="go">›</span>`;
+  b.onclick=()=>openProg(p,eyebrow);return b;}
+function renderBody(){const w=el("bodyProgs");w.innerHTML="";
+  BODY.forEach(p=>w.appendChild(progButton(p,"Бодибилдинг · программа")));
+  const g=document.createElement("button");g.className="disc";
+  g.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Немецкий объёмный (GVT)</span><span class="disc-sub">6 недель · 10×10 · от 1ПМ</span></span><span class="go">›</span>`;
+  g.onclick=()=>show("gvt");w.appendChild(g);}
+renderBody();
+/* ---------- GVT · 6-недельный цикл (логика Штурм 30 §3.5) ---------- */
+function gvtPcts(w,target){const ramp=7-w,base=Math.min(30,target),a=[];
+  for(let i=0;i<10;i++)a.push(i<ramp?Math.round((base+(target-base)*i/ramp)*10)/10:target);return a;}
+const GVT_DAYS=[
+ {name:"День A · грудь · спина",focus:"жим · тяга",
+  mains:[["Жим гантелей",40],["Тяга штанги в наклоне",60]],
+  acc:[["Обратные отжимания на трицепс",3,12,0],["Подъём штанги на бицепс",3,12,20]]},
+ {name:"День B · ноги",focus:"присед · бицепс бедра",
+  mains:[["Приседания со штангой",100],["Сгибание ног",40]],
+  acc:[["Подъём на носки стоя",3,15,50],["Скручивания",3,15,0]]},
+ {name:"День C · плечи · руки",focus:"жим стоя · бицепс",
+  mains:[["Жим штанги стоя",40],["Сгибание рук с гантелями",20]],
+  acc:[["Тяга штанги к подбородку",3,12,25],["Обратные отжимания на трицепс",3,12,0]]},
+];
+function gvtMax(name,def){const r=rmReg();
+  if(r[name])return r[name];
+  if(name==="Жим штанги стоя"&&r["Армейский жим стоя"])return r["Армейский жим стоя"];
+  return def;}
+function gvtDay(w,d){const D=GVT_DAYS[d],ex=[],pcts=gvtPcts(w,60);
+  D.mains.forEach(([name,def])=>{const max=gvtMax(name,def);const ws=pcts.map(p=>rmW(max,p,2.5));
+    ex.push([name,10,10,ws[9],ws]);});
+  D.acc.forEach(a=>ex.push(a.slice()));
+  return {name:D.name,focus:D.focus,ex};}
+function renderGvt(){const w=el("gvtWeeks");w.innerHTML="";
+  for(let n=1;n<=6;n++){const b=document.createElement("button");b.className="disc";
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Неделя ${n}</span><span class="disc-sub">10×10 · 3 дня (A/B/C)</span></span><span class="go">›</span>`;
+    b.onclick=()=>openGvtWeek(n);w.appendChild(b);}}
+renderGvt();
+function openGvtWeek(n){const wi=n-1;
+  openProg({name:"GVT · Неделя "+n,meta:"10×10 · от 1ПМ",
+    desc:"Основные движения — 10×10, веса от твоего 1ПМ. Первые подходы — лесенка-разминка 30%→60%, рабочие подходы — 60%. "+(n>=4?"С этой недели добавь лёгкий разогрев перед базой.":""),
+    days:[gvtDay(wi,0),gvtDay(wi,1),gvtDay(wi,2)]},"Бодибилдинг · GVT",true);
+}
+/* ---------- ПАУЭРЛИФТИНГ · «Руки титана» (МакРоберт), 7 этапов ---------- */
+const PWR=[
+ {name:"Этап 1 · База 5×5",meta:"12 недель · 2 дня/нед",
+  desc:"Базовый силовой фундамент: тяжёлые «пятёрки» дважды в неделю (Пн и Пт), вес растёт каждую неделю. После 12 недель — 10 дней отдыха. Источник: fitnesspower.ru.",
+  days:[
+   {name:"Понедельник",focus:"Присед · жим · тяга",ex:[["Приседания со штангой",5,5,60],["Жим лёжа",5,5,45],["Тяга верхнего блока",5,5,40]]},
+   {name:"Пятница",focus:"Становая · спина · руки",ex:[["Становая тяга",5,5,70],["Шраги со штангой",5,5,50],["Подтягивания",5,5,0],["Жим лёжа узким хватом",5,5,35]]}]},
+ {name:"Этап 2 · База всё тело",meta:"12 недель · 3 дня/нед",
+  desc:"База на всё тело с акцентом на руки, спину, грудь и плечи. Трижды в неделю (Пн/Ср/Пт), вес растёт каждую неделю; в пятницу присед на 20–30% легче. 12 недель, затем 10 дней отдыха. Источник: fitnesspower.ru.",
+  days:[
+   {name:"Понедельник",focus:"Присед · жим · тяга",ex:[["Приседания со штангой",5,5,60],["Жим лёжа",5,5,45],["Тяга верхнего блока",5,5,40],["Жим из-за головы сидя",5,5,30],["Подъём на носки стоя",5,5,50],["Скручивания",1,45,0]]},
+   {name:"Среда",focus:"Грудь · спина · трапеции",ex:[["Жим на наклонной скамье",5,5,40],["Тяга гантели одной рукой",5,5,24],["Шраги со штангой",5,5,50],["Скручивания",1,45,0],["Наклоны в сторону",1,35,0]]},
+   {name:"Пятница",focus:"Присед (лёгкий) · руки · тяга",ex:[["Приседания со штангой",5,5,45],["Жим лёжа узким хватом",5,5,35],["Становая тяга",5,5,70],["Подъём на носки сидя",5,5,40],["Скручивания",2,45,0]]}]},
+ {name:"Этап 3 · Сила 5×6",meta:"12 недель · 2 дня/нед",
+  desc:"Силовой комплекс на 12 недель, вес растёт каждую неделю, затем 10 дней отдыха. Две тренировки — Пн и Пт. Источник: fitnesspower.ru.",
+  days:[
+   {name:"Понедельник",focus:"Присед · брусья · спина",ex:[["Приседания со штангой",5,6,60],["Отжимания на брусьях с весом",5,6,0],["Подтягивания",5,6,0],["Шраги со штангой",5,6,50],["Подъём на носки стоя",4,12,50],["Скручивания",1,45,0]]},
+   {name:"Пятница",focus:"Становая · жим · тяга",ex:[["Становая тяга",5,6,70],["Жим лёжа",5,6,45],["Тяга верхнего блока",5,6,40],["Жим штанги сидя",5,6,30],["Подъём на носки сидя",4,18,40],["Скручивания",1,90,0]]}]},
+ {name:"Этап 4 · Выход на специализацию",meta:"12 недель · 3 дня/нед",
+  desc:"4 вводные недели + 8 тяжёлых, трижды в неделю (Пн/Ср/Пт). Понедельник — присед с «дыхательными» пуловерами, среда — акцент на руки, пятница — тяги и спина. Схемы «2×6 + 3×6» сведены к рабочим подходам для лога. Источник: fitnesspower.ru.",
+  days:[
+   {name:"Понедельник",focus:"Присед · грудь · спина",ex:[["Приседания со штангой",3,8,60],["Дыхательные пуловеры",1,30,7],["Жим лёжа",5,6,50],["Тяга верхнего блока",5,6,42],["Подъём на носки стоя",2,15,50],["Скручивания",1,25,0]]},
+   {name:"Среда",focus:"Руки",ex:[["Армейский жим стоя",5,6,30],["Подъём штанги на бицепс",5,6,25],["Жим лёжа узким хватом",5,6,35],["Сгибание рук обратным хватом",3,6,20]]},
+   {name:"Пятница",focus:"Становая · трапеции · спина",ex:[["Становая тяга на прямых ногах",4,8,60],["Шраги со штангой",4,8,50],["Отжимания на брусьях с весом",1,30,0],["Подтягивания",1,20,0],["Подъём на носки стоя",2,15,50],["Скручивания",1,30,0]]}]},
+ {name:"Этап 5 · Специализация рук",meta:"3 недели · 3 дня/нед",
+  desc:"Специализация на руки: жим над головой, подъёмы на бицепс и жим узким хватом три раза в неделю, волнообразно по повторам (6–8 и 8–12). После 3 недель — 10 дней отдыха. Схемы «2×6 + 3×6–8» сведены к рабочим подходам для удобства лога. Источник: fitnesspower.ru.",
+  days:[
+   {name:"Понедельник · 6–8",focus:"Тяжёлый",ex:[["Армейский жим стоя",5,6,30],["Подъём штанги на бицепс",5,6,25],["Жим лёжа узким хватом",5,6,35],["Сгибание рук обратным хватом",3,6,20]]},
+   {name:"Среда · 8–12",focus:"Объём",ex:[["Армейский жим стоя",5,10,27],["Подъём штанги на бицепс",5,10,22],["Жим лёжа узким хватом",5,10,32],["Сгибание рук обратным хватом",3,10,18],["Отжимания на брусьях с весом",1,8,0],["Подтягивания",1,8,0]]},
+   {name:"Пятница · 6–8",focus:"Тяжёлый + ноги",ex:[["Армейский жим стоя",5,6,30],["Подъём штанги на бицепс",5,6,25],["Жим лёжа узким хватом",5,6,35],["Приседания со штангой",5,6,60]]}]},
+ {name:"Этап 6 · Тяжёлый блок рук",meta:"6 недель · 3 дня/нед",
+  desc:"Короткий интенсивный блок специализации: 2 вводные недели + 4 тяжёлые, трижды в неделю (Пн/Ср/Пт). Структура как на этапе 4, но плотнее. Источник: fitnesspower.ru.",
+  days:[
+   {name:"Понедельник",focus:"Присед · грудь · спина",ex:[["Приседания со штангой",3,8,65],["Дыхательные пуловеры",1,30,7],["Жим лёжа",5,6,52],["Тяга верхнего блока",5,6,44],["Подъём на носки стоя",2,15,52],["Скручивания",1,25,0]]},
+   {name:"Среда",focus:"Руки",ex:[["Армейский жим стоя",5,6,32],["Подъём штанги на бицепс",5,6,27],["Жим лёжа узким хватом",5,6,37],["Сгибание рук обратным хватом",3,6,22]]},
+   {name:"Пятница",focus:"Становая · трапеции · спина",ex:[["Становая тяга на прямых ногах",4,8,65],["Шраги со штангой",4,8,52],["Отжимания на брусьях с весом",1,30,0],["Подтягивания",1,20,0],["Подъём на носки стоя",2,15,52],["Скручивания",1,30,0]]}]},
+ {name:"Этап 7 · Пик рук",meta:"3 недели · 3 дня/нед",
+  desc:"Финальный пик специализации рук: 3 недели, трижды в неделю (Пн/Ср/Пт), волнообразно по повторам (6–8 и 8–12). После — 10 дней отдыха и возврат к сбалансированной программе. Источник: fitnesspower.ru.",
+  days:[
+   {name:"Понедельник · 6–8",focus:"Тяжёлый",ex:[["Армейский жим стоя",5,6,32],["Подъём штанги на бицепс",5,6,27],["Жим лёжа узким хватом",5,6,37],["Сгибание рук обратным хватом",3,6,22]]},
+   {name:"Среда · 8–12",focus:"Объём",ex:[["Армейский жим стоя",5,10,28],["Подъём штанги на бицепс",5,10,24],["Жим лёжа узким хватом",5,10,34],["Сгибание рук обратным хватом",3,10,20],["Отжимания на брусьях с весом",1,8,0],["Подтягивания",1,8,0]]},
+   {name:"Пятница · 6–8 + ноги",focus:"Тяжёлый + база",ex:[["Армейский жим стоя",5,6,32],["Подъём штанги на бицепс",5,6,27],["Жим лёжа узким хватом",5,6,37],["Приседания со штангой",5,6,65]]}]},
+];
+function renderPwr(){const w=el("pwrProgs");w.innerHTML="";
+  PWR.forEach(p=>w.appendChild(progButton(p,"Пауэрлифтинг · этап")));}
+renderPwr();
+function renderPwrPrograms(){const w=el("pwrPrograms");w.innerHTML="";
+  const mk=(name,sub,fn)=>{const b=document.createElement("button");b.className="disc";
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${name}</span><span class="disc-sub">${sub}</span></span><span class="go">›</span>`;
+    b.onclick=fn;w.appendChild(b);};
+  mk("Руки титана","Стюарт МакРоберт · 7 этапов",()=>show("pwrta"));
+  mk("5×5 · Сила","8 недель · от 1ПМ · присед/жим/становая",()=>show("pl5"));}
+renderPwrPrograms();
+/* ---------- PL 5×5 · 8-недельный цикл (логика Штурм 30 §3.4) ---------- */
+const PL_LIFTS=["Приседания со штангой","Жим лёжа","Становая тяга"]; // Пн/Ср/Пт акцент
+const PL_DEF={"Приседания со штангой":100,"Жим лёжа":80,"Становая тяга":120};
+const PL_DAY=["Понедельник · присед","Среда · жим","Пятница · становая"];
+const PL_MAINPCT={1:72.5,2:75,3:77.5,4:80}, PL_OTHERPCT={1:62.5,2:65,3:67.5,4:70}, PL_DEADPCT={1:57.5,2:60,3:62.5,4:65};
+function plW(lift,pct){return rmW((rmReg()[lift]||PL_DEF[lift]),pct,2.5);}
+function plDay(w,d){
+  const main=PL_LIFTS[d], others=PL_LIFTS.filter(l=>l!==main), ex=[];
+  if(w<=4){
+    ex.push([main,5,5,plW(main,PL_MAINPCT[w])]);
+    others.forEach(l=>{ if(l==="Становая тяга") ex.push([l,2,3,plW(l,PL_DEADPCT[w])]);
+                        else ex.push([l,2,5,plW(l,PL_OTHERPCT[w])]); });
+    const acc=w<=2?2:1;
+    ex.push(["Подтягивания",acc,8,0],["Тяга штанги в наклоне",acc,8,plW("Становая тяга",45)],["Скручивания",acc,12,0]);
+    return {name:PL_DAY[d],focus:["присед","жим","становая"][d],ex};
+  }
+  if(w===5){ ex.push([main,4,3,plW(main,85)]); others.forEach(l=>ex.push([l,2,3,plW(l,72.5)]));
+    return {name:PL_DAY[d],focus:"пик",ex}; }
+  if(w===6){ ex.push([main,1,1,plW(main,92.5)],[main,2,2,plW(main,80)]); others.forEach(l=>ex.push([l,2,2,plW(l,72.5)]));
+    return {name:PL_DAY[d],focus:"пик",ex}; }
+  if(w===7){ if(d===2)return null; const pct=d===0?55:50;
+    PL_LIFTS.forEach(l=>ex.push([l,2,3,plW(l,pct)]));
+    return {name:(d===0?"Понедельник":"Среда")+" · разгрузка",focus:"разгрузка",ex}; }
+  if(w===8){ if(d>0)return null;
+    PL_LIFTS.forEach(l=>ex.push([l,1,1,plW(l,90)],[l,1,1,plW(l,97.5)],[l,1,1,plW(l,100)]));
+    return {name:"Проходка · 1ПМ",focus:"проходка 90/97,5/100%",ex}; }
+  return null;
+}
+function renderPl5(){const w=el("pl5Weeks");w.innerHTML="";
+  const labels={5:"пик",6:"пик",7:"разгрузка",8:"проходка"};
+  for(let n=1;n<=8;n++){const b=document.createElement("button");b.className="disc";
+    const days=n===7?2:(n===8?1:3);
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Неделя ${n}</span><span class="disc-sub">${labels[n]?labels[n]+" · ":""}${days} ${days===1?"день":"дня"}</span></span><span class="go">›</span>`;
+    b.onclick=()=>openPl5Week(n);w.appendChild(b);}}
+renderPl5();
+function openPl5Week(n){
+  const days=[plDay(n,0),plDay(n,1),plDay(n,2)].filter(Boolean);
+  openProg({name:"5×5 · Неделя "+n,meta:"от 1ПМ · шаг 2,5 кг",
+    desc:"Веса рассчитаны от твоего 1ПМ (присед/жим/становая). Меняй 1ПМ в «Рабочих весах». "+(n>=5?"Пиковые/разгрузочные недели.":"Базовые недели."),
+    days},"Пауэрлифтинг · 5×5",true);
+}
+const CROSS=[
+ {name:"Susan",fmt:"5 раундов · на время",desc:"Пять раундов в быстром темпе: бег, отжимания и приседания без веса. Задача — пройти все раунды за минимальное время.",t:{type:"fortime",cap:0},ex:[["Бег на дорожке",5,200,0],["Отжимания от пола",5,10,0],["Воздушные приседания",5,10,0]]},
+ {name:"Anderson",fmt:"AMRAP 20 мин",desc:"Двадцать минут работы без остановки. Проходи круг за кругом и считай, сколько успеешь — чем больше, тем лучше.",t:{type:"amrap",sec:1200},ex:[["Бёрпи",1,5,0],["Отжимания от пола",1,10,0],["Ситапы",1,15,0],["Воздушные приседания",1,20,0]]},
+ {name:"Infernal Duo",fmt:"Лесенка 1-10-1 · на время",desc:"Лесенка бёрпи и подтягиваний вверх и обратно вниз. Выполняй на время, отдыхай только по необходимости.",t:{type:"fortime",cap:0},ex:[["Бёрпи",1,10,0],["Подтягивания",1,10,0]]},
+ {name:"Death By · отжимания",fmt:"EMOM · +1 каждую минуту",desc:"Каждую минуту добавляй один повтор: 1 в первую минуту, 2 во вторую и так далее, пока укладываешься в минуту. Таймер ЭМОМ сигналит в начале каждой минуты.",t:{type:"emom",period:60,rounds:0},ex:[["Отжимания от пола",10,10,0]]},
+ {name:"Клаус",fmt:"5 раундов · на время",desc:"Пять раундов возрастающего объёма на пресс и ноги. Работай на время.",t:{type:"fortime",cap:0},ex:[["Отжимания от пола",5,20,0],["Ситапы",5,35,0],["Воздушные приседания",5,50,0]]},
+ {name:"Hooper",fmt:"5 раундов · на время",desc:"Пять раундов гребли, подтягиваний и швунга. На время, с полной выкладкой.",t:{type:"fortime",cap:0},ex:[["Гребля",1,1000,0],["Подтягивания",5,25,0],["Жимовой швунг",5,7,60]]},
+ {name:"Jack",fmt:"AMRAP 20 мин",desc:"Двадцать минут: швунг, махи гирей и запрыгивания на тумбу. Максимум кругов за отведённое время.",t:{type:"amrap",sec:1200},ex:[["Жимовой швунг",1,10,52],["Махи гирей",1,10,24],["Прыжки на тумбу",1,10,0]]},
+ {name:"Annie",fmt:"Лесенка 50-40-30-20-10 · на время",desc:"Классическая лесенка: скакалка (двойные) и пресс, по убывающей. На время.",t:{type:"fortime",cap:0},ex:[["Прыжки на скакалке",1,50,0],["Ситапы",1,50,0]]},
+ {name:"Junior",fmt:"Лесенка 20-1 · на время",desc:"Лесенка от 20 до 1: запрыгивания и отжимания. На время.",t:{type:"fortime",cap:0},ex:[["Прыжки на тумбу",1,20,0],["Отжимания от пола",1,20,0]]},
+ {name:"Отбор БК",fmt:"AMRAP 10 мин",desc:"Десять минут непрерывной работы: тяга, броски мяча и скакалка. Считай круги.",t:{type:"amrap",sec:600},ex:[["Становая тяга",1,15,70],["Броски медбола",1,20,9],["Прыжки на скакалке",1,25,0]]},
+ {name:"Домашний вызов",fmt:"Интервалы · +2 повтора/раунд",desc:"Интервальная работа: новый круг стартует по сигналу таймера каждые две минуты. Добавляй по 2 повтора к каждому движению.",t:{type:"emom",period:120,rounds:0},ex:[["Воздушные приседания",1,14,0],["Ситапы",1,14,0],["Отжимания от пола",1,14,0]]},
+ {name:"Кулак веры",fmt:"Чиппер · на время",desc:"Чиппер: пройди весь список сверху вниз по одному разу. На время, без пропусков.",t:{type:"fortime",cap:0},ex:[["Воздушные приседания",1,100,0],["Махи гирей",1,90,24],["Отжимания от пола",1,80,0],["Прыжковые выпады",1,70,0],["Ситапы",1,60,0],["Гоблет-присед",1,50,24],["Прыжки на тумбу",1,40,0],["Толчок гири одной рукой",1,30,24],["Бёрпи",1,20,0],["Выпады над головой",1,10,24]]},
+ {name:"Молот Тора",fmt:"3 раунда · на время",desc:"Три тяжёлых раунда со штангой. На время, следи за техникой.",t:{type:"fortime",cap:0},ex:[["Взятие штанги на грудь",3,20,40],["Фронтальные приседания",3,20,40],["Жимовой швунг",3,20,40]]},
+ {name:"CrossFit Open 15.5",fmt:"Лесенка 27-21-15-9 · на время",desc:"Лесенка 27-21-15-9: гребля (калории) и трастеры. На время.",t:{type:"fortime",cap:0},ex:[["Гребля",1,27,0],["Трастеры со штангой",1,27,43]]},
+ {name:"Fight Gone Bad",fmt:"3×5 станций по 1 мин",desc:"Три раунда по пять станций, минута на каждую станцию и минута отдыха между раундами. Таймер отбивает каждую минуту — меняй станцию по сигналу.",t:{type:"emom",period:60,rounds:17},ex:[["Броски медбола",1,0,9],["Тяга штанги к подбородку",1,0,35],["Прыжки на тумбу",1,0,0],["Жимовой швунг",1,0,35],["Гребля",1,0,0]]},
+ {name:"CrossFit Total",fmt:"Сумма 1ПМ · 12 мин",desc:"Три силовых блока по четыре минуты: присед, жим стоя и становая. В каждом блоке найди свой максимум на 1 повтор.",t:{type:"emom",period:240,rounds:3},ex:[["Приседания со штангой",1,1,0],["Жим штанги стоя",1,1,0],["Становая тяга",1,1,0]]},
+ {name:"Nicole",fmt:"AMRAP 20 мин",desc:"Двадцать минут: круг бега и максимум подтягиваний. Записывай число подтягиваний в каждом круге.",t:{type:"amrap",sec:1200},ex:[["Бег на дорожке",1,400,0],["Подтягивания",1,0,0]]},
+ {name:"Одинокая сестра",fmt:"AMRAP 18 мин",desc:"Восемнадцать минут: подъёмы ног к перекладине, запрыгивания и рывок гантели. Максимум кругов.",t:{type:"amrap",sec:1080},ex:[["Подъём ног к перекладине",1,6,0],["Прыжки на тумбу",1,7,0],["Рывок гантели",1,8,22]]},
+ {name:"Hotshots 19",fmt:"6 раундов · на время",desc:"Шесть тяжёлых раундов: приседания, взятия на грудь, подтягивания и бег. На время.",t:{type:"fortime",cap:0},ex:[["Воздушные приседания",6,30,0],["Взятие штанги на грудь",6,19,60],["Подтягивания",6,7,0],["Бег на дорожке",6,400,0]]},
+ {name:"The 540",fmt:"на время",desc:"Один большой круг на 540 повторов суммарно. На время, разбивай подходы как удобно.",t:{type:"fortime",cap:0},ex:[["Выпады над головой",1,50,20],["Подтягивания",1,40,0],["Трастеры со штангой",1,30,43],["Бёрпи",1,20,0],["Взятие штанги на грудь",1,10,60]]},
+];
+function renderCross(){const w=el("crossDays");w.innerHTML="";
+  CROSS.forEach(d=>{const b=document.createElement("button");b.className="disc";
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${d.name}</span><span class="disc-sub">${d.fmt}</span></span><span class="go">›</span>`;
+    b.onclick=()=>openWod(d);w.appendChild(b);});}
+renderCross();
+document.querySelectorAll(".disc[data-disc]").forEach(b=>b.onclick=()=>{
+  const d=b.dataset.disc;
+  if(d==="Стритлифтинг")show("street");else if(d==="Кроссфит")show("cross");
+  else if(d==="Бодибилдинг")show("body");else if(d==="Пауэрлифтинг")show("pwr");
+  else toast("«"+d+"» — скоро");});
+el("pclose").addEventListener("click",closeMedia);
+
+/* ===================== КРОССФИТ: описание + таймер ===================== */
+let currentWod=null;
+function openWod(d){currentWod=d;
+  el("wodName").textContent=d.name;
+  el("wodFmt").textContent=d.fmt;
+  el("wodDesc").textContent=d.desc||"";
+  const mv=el("wodMoves");mv.innerHTML="";
+  d.ex.forEach(e=>{
+    const row=document.createElement("div");row.className="wod-mvrow";
+    let rep;
+    if(e[2]>0)rep=e[1]>1?(e[1]+"×"+e[2]):(""+e[2]);
+    else rep=e[1]>1?(e[1]+" раунд"):"по станции";
+    const wt=e[3]>0?" · "+e[3]+" кг":"";
+    const s1=document.createElement("span");s1.textContent=e[0];
+    const s2=document.createElement("span");s2.className="num";s2.textContent=rep+wt;
+    row.appendChild(s1);row.appendChild(s2);mv.appendChild(row);
+  });
+  setupTimer(d);
+  show("wod");
+}
+/* завершённые раунды: для AMRAP/For Time — ручной счётчик, для EMOM/Tabata/Interval — по времени */
+function wodRounds(){const c=TIMER.cfg,t=TIMER.type,ms=TIMER.lastElapsed||0;
+  if(t==="amrap"||t==="fortime")return TIMER.count;
+  if(t==="emom"){const r=Math.floor(ms/((c.period||60)*1000));return c.rounds>0?Math.min(r,c.rounds):r;}
+  const per=((c.work||0)+(c.rest||0))*1000;const r=per>0?Math.floor(ms/per):0;
+  return c.rounds>0?Math.min(r,c.rounds):r;}
+function finishCross(){
+  const secs=Math.round((TIMER.lastElapsed||0)/1000);
+  const rounds=wodRounds();
+  const tp=TIMER.type;
+  resetTimer();resetCount();
+  const h=safe.get();
+  h.push({date:localDate(),name:currentWod?currentWod.name:"Кроссфит",
+    cross:true,rounds:rounds,tmtype:tp,secs:secs});
+  safe.set(h);
+  toast("Тренировка завершена");
+  show("progress");
+}
+el("wodFinishBtn").onclick=finishCross;
+
+/* ---- звук (Web Audio) ---- */
+let AC=null;
+function ac(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==="suspended")AC.resume();}catch(e){}return AC;}
+function beep(freq,dur,vol,type){const c=ac();if(!c)return;
+  const t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+  o.type=type||"square";o.frequency.value=freq;o.connect(g);g.connect(c.destination);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol==null?0.3:vol,t+0.012);
+  g.gain.setValueAtTime(vol==null?0.3:vol,t+Math.max(0.03,dur-0.03));
+  g.gain.linearRampToValueAtTime(0,t+dur);
+  o.start(t);o.stop(t+dur+0.03);}
+function sTick(){if(!TIMER.sound)return;beep(880,0.1,0.26);}
+function sGo(){if(!TIMER.sound)return;beep(1320,0.55,0.4);}
+function sWork(){if(!TIMER.sound)return;beep(1046,0.22,0.34);}
+function sRest(){if(!TIMER.sound)return;beep(620,0.26,0.32);}
+function sSet(){if(!TIMER.sound)return;beep(540,0.09,0.18,"sine");}
+function sDone(){if(!TIMER.sound)return;beep(1320,0.18,0.36);setTimeout(()=>beep(1320,0.18,0.36),220);setTimeout(()=>beep(660,0.7,0.4),460);}
+
+/* ---- конфиг типов ---- */
+const TDEF={amrap:{sec:1200},fortime:{cap:0},emom:{period:60,rounds:0},
+  tabata:{work:20,rest:10,rounds:8},interval:{work:60,rest:60,rounds:5}};
+const TLABEL={amrap:"AMRAP",emom:"EMOM",tabata:"Tabata",fortime:"На время",interval:"Интервал"};
+const TORDER=["amrap","emom","tabata","interval","fortime"];
+const TIMER={type:"amrap",cfg:{},phase:"idle",accMs:0,startTs:0,preEnd:0,preRem:0,timer:null,
+  prep:10,sound:true,def:null,count:0,lastElapsed:0,prevSec:null,prevSeg:null,prevMin:null};
+/* ручной счётчик раундов нужен там, где таймер не считает круги сам */
+const COUNTER_TYPES={amrap:1,fortime:1};
+
+function fmt(sec){sec=Math.max(0,Math.round(sec));const m=Math.floor(sec/60),s=sec%60;
+  return (m<10?"0"+m:m)+":"+(s<10?"0"+s:s);}
+function setStage(ph,big,phase,round){const st=el("tmStage");st.dataset.ph=ph;
+  el("tmBig").textContent=big;el("tmPhase").textContent=phase;el("tmRound").textContent=round||"";}
+
+function setupTimer(d){ // настроить встроенный таймер под комплекс
+  if(!d)return;
+  TIMER.def=d.t;                       // значение по умолчанию для этого комплекса
+  TIMER.type=d.t.type;
+  TIMER.cfg=Object.assign({type:d.t.type},TDEF[d.t.type],d.t);
+  el("tmSettings").hidden=true;el("tmCaret").textContent="▾";
+  buildTypes();buildParams();resetTimer();resetCount();updateCounterVis();
+}
+function timerDefault(){ // вернуть настройки комплекса по умолчанию
+  if(!TIMER.def)return;sSet();
+  TIMER.type=TIMER.def.type;
+  TIMER.cfg=Object.assign({type:TIMER.def.type},TDEF[TIMER.def.type],TIMER.def);
+  buildTypes();buildParams();resetTimer();updateCounterVis();
+}
+function updateCounterVis(){el("tmCounter").style.display=COUNTER_TYPES[TIMER.type]?"flex":"none";}
+function resetCount(){TIMER.count=0;el("tmCountN").textContent="0";}
+function buildTypes(){const w=el("tmTypes");w.innerHTML="";
+  TORDER.forEach(t=>{const b=document.createElement("button");
+    b.className="tm-chip"+(t===TIMER.type?" on":"");b.textContent=TLABEL[t];b.type="button";
+    b.onclick=()=>switchType(t);w.appendChild(b);});}
+function tmActive(){return TIMER.phase!=="idle"&&TIMER.phase!=="done";}
+function switchType(t){if(tmActive()){toast("Сначала сбросьте таймер");return;}
+  TIMER.type=t;TIMER.cfg=Object.assign({type:t},TDEF[t]);
+  sSet();buildTypes();buildParams();resetTimer();updateCounterVis();}
+/* шаговый регулятор: подпись + [−] значение [+] */
+function step(label,get,set,min,max,stp,fmtFn){
+  const row=document.createElement("div");row.className="tm-step";
+  const l=document.createElement("span");l.className="lbl";l.textContent=label;
+  const minus=document.createElement("button");minus.className="tm-sbtn";minus.type="button";minus.textContent="−";
+  const val=document.createElement("span");val.className="tm-val";
+  const plus=document.createElement("button");plus.className="tm-sbtn";plus.type="button";plus.textContent="+";
+  const draw=()=>{val.textContent=fmtFn?fmtFn(get()):get();};
+  const change=d=>{if(tmActive()){toast("Сначала сбросьте таймер");return;}
+    let v=get()+d*stp;v=Math.max(min,Math.min(max,v));set(v);draw();
+    sSet();if(TIMER.phase==="idle")initStage();};
+  minus.onclick=()=>change(-1);plus.onclick=()=>change(1);draw();
+  row.appendChild(l);row.appendChild(minus);row.appendChild(val);row.appendChild(plus);
+  return row;}
+function buildParams(){const w=el("tmParams");w.innerHTML="";const c=TIMER.cfg,t=TIMER.type;
+  const mmss=s=>fmt(s);
+  if(t==="amrap")
+    w.appendChild(step("Время, мин",()=>Math.round(c.sec/60),v=>c.sec=v*60,1,90,1));
+  else if(t==="fortime")
+    w.appendChild(step("Кэп, мин (0=∞)",()=>Math.round(c.cap/60),v=>c.cap=v*60,0,90,1,
+      v=>v===0?"∞":v));
+  else if(t==="emom"){
+    w.appendChild(step("Период",()=>c.period,v=>c.period=v,5,600,5,mmss));
+    w.appendChild(step("Раундов (0=∞)",()=>c.rounds,v=>c.rounds=v,0,99,1,v=>v===0?"∞":v));
+  }else{
+    w.appendChild(step("Работа",()=>c.work,v=>c.work=v,5,600,5,mmss));
+    w.appendChild(step("Отдых",()=>c.rest,v=>c.rest=v,0,600,5,mmss));
+    w.appendChild(step("Раундов",()=>c.rounds,v=>c.rounds=v,1,60,1));
+  }
+  // подготовка (отсчёт перед стартом) — для всех режимов
+  w.appendChild(step("Подготовка",()=>TIMER.prep,v=>TIMER.prep=v,0,30,1,v=>v===0?"нет":v+" с"));
+}
+function initStage(){const c=TIMER.cfg,t=TIMER.type;let big="00:00",lbl=TLABEL[t],rd="";
+  if(t==="amrap"){big=fmt(c.sec);rd=Math.round(c.sec/60)+" мин · максимум кругов";}
+  else if(t==="fortime"){big="00:00";lbl="На время";rd=c.cap>0?("кэп "+Math.round(c.cap/60)+" мин"):"без лимита";}
+  else if(t==="emom"){big=fmt(c.period);rd=c.rounds>0?("раундов: "+c.rounds):"без лимита";}
+  else{big=fmt(c.work);lbl="Готов";rd="Раунд 1/"+c.rounds;}
+  setStage("idle",big,lbl,rd);}
+
+function tmSegs(){const c=TIMER.cfg,segs=[];
+  for(let r=0;r<c.rounds;r++){segs.push({k:"work",d:c.work*1000});if(c.rest>0)segs.push({k:"rest",d:c.rest*1000});}
+  return segs;}
+function startInt(){stopInt();TIMER.timer=setInterval(tmTick,100);tmTick();}
+function stopInt(){if(TIMER.timer){clearInterval(TIMER.timer);TIMER.timer=null;}}
+function finish(big,label,round){stopInt();TIMER.phase="done";
+  el("tmr").classList.remove("running");el("tmStart").textContent="Старт";
+  setStage("done",big,label||"Готово",round||"Комплекс завершён");sDone();}
+
+function tmTick(){
+  const now=performance.now();
+  if(TIMER.phase==="pre"){
+    const rem=TIMER.preEnd-now,s=Math.ceil(rem/1000);
+    if(rem<=0){sGo();TIMER.phase="run";TIMER.startTs=now;TIMER.accMs=0;
+      TIMER.prevSec=null;TIMER.prevSeg=null;TIMER.prevMin=null;return;}
+    if(s<=3&&TIMER.prevSec!==s){TIMER.prevSec=s;sTick();}
+    setStage("pre",String(s),"Приготовься","до старта");return;
+  }
+  if(TIMER.phase!=="run")return;
+  const c=TIMER.cfg,t=TIMER.type,el_ms=TIMER.accMs+(now-TIMER.startTs);
+  TIMER.lastElapsed=el_ms;
+  if(t==="amrap"){
+    const rem=c.sec*1000-el_ms;if(rem<=0){finish("00:00","Время вышло","AMRAP завершён");return;}
+    const s=Math.ceil(rem/1000);
+    if(s<=3&&TIMER.prevSec!==s){TIMER.prevSec=s;sTick();}
+    setStage("work",fmt(s),"AMRAP","осталось времени");
+  }else if(t==="fortime"){
+    if(c.cap>0&&el_ms>=c.cap*1000){finish(fmt(c.cap),"Кэп","Лимит времени");return;}
+    if(c.cap>0){const s=Math.ceil((c.cap*1000-el_ms)/1000);if(s<=3&&TIMER.prevSec!==s){TIMER.prevSec=s;sTick();}}
+    setStage("work",fmt(Math.floor(el_ms/1000)),"На время","идёт отсчёт");
+  }else if(t==="emom"){
+    const per=c.period*1000,minute=Math.floor(el_ms/per),within=per-(el_ms%per);
+    if(c.rounds>0&&minute>=c.rounds){finish("00:00","Готово",c.rounds+" раундов пройдено");return;}
+    if(TIMER.prevMin!==minute){const first=TIMER.prevMin===null;TIMER.prevMin=minute;if(!first)sWork();}
+    const s=Math.ceil(within/1000);
+    if(s<=3&&TIMER.prevSec!==s){TIMER.prevSec=s;sTick();}
+    setStage("work",fmt(s),"EMOM","Раунд "+(minute+1)+(c.rounds?" / "+c.rounds:""));
+  }else{ // tabata / interval
+    const segs=tmSegs();let acc=0,idx=-1,cur=null,segRem=0;
+    for(let i=0;i<segs.length;i++){if(el_ms<acc+segs[i].d){idx=i;cur=segs[i];segRem=acc+segs[i].d-el_ms;break;}acc+=segs[i].d;}
+    if(idx<0){finish("00:00","Готово",c.rounds+" раундов пройдено");return;}
+    if(TIMER.prevSeg!==idx){const first=TIMER.prevSeg===null;TIMER.prevSeg=idx;
+      if(!first){cur.k==="work"?sWork():sRest();}}
+    const s=Math.ceil(segRem/1000),round=Math.floor(idx/(c.rest>0?2:1))+1;
+    setStage(cur.k,fmt(s),cur.k==="work"?"Работа":"Отдых","Раунд "+round+" / "+c.rounds);
+  }
+}
+function resetTimer(){stopInt();TIMER.phase="idle";TIMER.accMs=0;
+  TIMER.prevSec=TIMER.prevSeg=TIMER.prevMin=null;
+  el("tmr").classList.remove("running");el("tmStart").textContent="Старт";initStage();}
+function tmToggle(){ac();const p=TIMER.phase;
+  if(p==="idle"||p==="done"){
+    el("tmr").classList.add("running");
+    TIMER.accMs=0;TIMER.prevSec=null;TIMER.prevSeg=null;TIMER.prevMin=null;
+    if(p==="done")resetCount();
+    el("tmStart").textContent="Пауза";
+    if(TIMER.prep>0){TIMER.phase="pre";TIMER.preEnd=performance.now()+TIMER.prep*1000;}
+    else{sGo();TIMER.phase="run";TIMER.startTs=performance.now();}
+    startInt();
+  }else if(p==="run"){
+    TIMER.accMs+=performance.now()-TIMER.startTs;TIMER.phase="paused";
+    stopInt();el("tmStart").textContent="Старт";
+  }else if(p==="paused"){
+    TIMER.startTs=performance.now();TIMER.phase="run";
+    el("tmStart").textContent="Пауза";startInt();
+  }else if(p==="pre"){
+    // пауза во время подготовки — запоминаем остаток, не перескакиваем на работу
+    TIMER.preRem=Math.max(0,TIMER.preEnd-performance.now());TIMER.phase="prepaused";
+    stopInt();el("tmStart").textContent="Старт";
+  }else if(p==="prepaused"){
+    TIMER.preEnd=performance.now()+(TIMER.preRem||0);TIMER.phase="pre";
+    el("tmStart").textContent="Пауза";startInt();
+  }
+}
+el("tmStart").addEventListener("click",tmToggle);
+el("tmReset").addEventListener("click",()=>{sSet();resetTimer();});
+el("tmDefault").addEventListener("click",timerDefault);
+el("tmSound").addEventListener("click",()=>{TIMER.sound=!TIMER.sound;
+  const b=el("tmSound");b.textContent=TIMER.sound?"🔊":"🔈";b.classList.toggle("off",!TIMER.sound);
+  if(TIMER.sound)sSet();});
+/* счётчик раундов */
+el("tmCountBtn").addEventListener("click",()=>{TIMER.count++;el("tmCountN").textContent=TIMER.count;sTick();});
+el("tmCountReset").addEventListener("click",resetCount);
+/* сворачивание настроек */
+el("tmSetToggle").addEventListener("click",()=>{
+  const s=el("tmSettings");s.hidden=!s.hidden;el("tmCaret").textContent=s.hidden?"▾":"▴";});
+
+/* ---------- Рабочие веса (логика Штурм 30) ---------- */
+const RM_CEIL=[[1,100],[2,95],[3,93],[4,90],[5,87],[6,85],[7,83],[8,80],[9,77],[10,75],[12,70],[15,60],[20,50],[30,40]];
+const RM_PCTS=[100,95,90,87.5,85,82.5,80,77.5,75,72.5,70,65,60,55,50];
+const RM_STEPS=[0.5,1,2.5,5];
+/* реестр 1ПМ (Штурм 30: maxima) */
+const RM_LIFTS=[["Присед","Приседания со штангой",100],["Жим лёжа","Жим лёжа",80],["Становая","Становая тяга",120],["Жим стоя","Армейский жим стоя",50]];
+const RMK="gym45_rm_v1";
+function rmReg(){try{return JSON.parse(localStorage.getItem(RMK))||{}}catch(e){return{}}}
+function rmRegSet(o){try{localStorage.setItem(RMK,JSON.stringify(o))}catch(e){}cloudPush();}
+function rmSaveCur(){const r=rmReg();r[RM_LIFTS[rmLift][1]]=rmMax;rmRegSet(r);}
+let rmMax=100, rmStep=2.5, rmLift=0;
+function rmLoadLift(i){rmLift=i;const r=rmReg();rmMax=r[RM_LIFTS[i][1]]||RM_LIFTS[i][2];renderRM();}
+/* рабочий вес = процент от 1ПМ, округлён ВВЕРХ до целого кг (67,5 → 68) */
+function rmW(max,pct,step){return Math.ceil(max*pct/100-1e-9);}
+function fmtW(w){return (Math.round(w*10)%10===0)?String(Math.round(w)):w.toFixed(1).replace(".",",");}
+function renderRM(){
+  el("rmMaxVal").textContent=fmtW(rmMax);
+  const lc=el("rmLifts");lc.innerHTML="";
+  RM_LIFTS.forEach((L,i)=>{const b=document.createElement("button");b.type="button";
+    b.className="tm-chip"+(i===rmLift?" on":"");b.textContent=L[0];
+    b.onclick=()=>rmLoadLift(i);lc.appendChild(b);});
+  const p=el("rmPct");p.innerHTML="";
+  RM_PCTS.forEach(pc=>{const r=document.createElement("div");r.className="rm-row";
+    r.innerHTML=`<span class="k">${fmtW(pc)} %</span><span class="v">${fmtW(rmW(rmMax,pc,rmStep))} <small>кг</small></span>`;p.appendChild(r);});
+  const q=el("rmReps");q.innerHTML="";
+  RM_CEIL.forEach(([reps,pc])=>{const r=document.createElement("div");r.className="rm-row";
+    r.innerHTML=`<span class="k">${reps} повт.</span><span class="v">${fmtW(rmW(rmMax,pc,rmStep))} <small>кг · ${pc}%</small></span>`;q.appendChild(r);});
+}
+el("rmMinus").addEventListener("click",()=>{rmMax=Math.max(20,rmMax-2.5);rmSaveCur();renderRM();});
+el("rmPlus").addEventListener("click",()=>{rmMax=Math.min(500,rmMax+2.5);rmSaveCur();renderRM();});
+rmLoadLift(0);
+
+/* ---------- Питание · дневник ---------- */
+const FOODK="gym45_food_v1";
+function foodGet(){try{return JSON.parse(localStorage.getItem(FOODK))||[]}catch(e){return[]}}
+function foodSet(v){try{localStorage.setItem(FOODK,JSON.stringify(v))}catch(e){}cloudPush();}
+function foodToday(){return localDate();}
+function renderFood(){
+  el("foodDate").textContent=fmtDate(foodToday());
+  const list=foodGet().filter(x=>x.date===foodToday());
+  let k=0,p=0,fat=0,c=0;list.forEach(x=>{k+=x.kcal;p+=x.p;fat+=x.f;c+=x.c;});
+  el("foodKcal").textContent=Math.round(k);
+  el("foodP").textContent=Math.round(p);el("foodF").textContent=Math.round(fat);el("foodC").textContent=Math.round(c);
+  const w=el("foodList");w.innerHTML="";
+  if(!list.length){w.innerHTML='<div class="food-empty">Пока пусто — добавь первый приём пищи</div>';return;}
+  list.slice().reverse().forEach(x=>{const r=document.createElement("div");r.className="frow";
+    const left=document.createElement("div");left.style.minWidth="0";
+    const fn=document.createElement("div");fn.className="fn";fn.textContent=x.name; // textContent — защита от XSS в названии приёма пищи
+    const fm=document.createElement("div");fm.className="fm";fm.textContent=`Б ${x.p} · Ж ${x.f} · У ${x.c}`;
+    left.appendChild(fn);left.appendChild(fm);
+    const right=document.createElement("div");right.style.cssText="display:flex;align-items:center;gap:10px";
+    const fk=document.createElement("span");fk.className="fk num";fk.innerHTML=`${Math.round(x.kcal)} <small>ккал</small>`;
+    const del=document.createElement("button");del.className="fdel";del.dataset.id=x.id;del.title="Удалить";del.textContent="✕";
+    right.appendChild(fk);right.appendChild(del);
+    r.appendChild(left);r.appendChild(right);w.appendChild(r);});
+  w.querySelectorAll(".fdel").forEach(btn=>btn.onclick=()=>{foodSet(foodGet().filter(x=>x.id!=btn.dataset.id));renderFood();});
+}
+el("fAdd").addEventListener("click",()=>{
+  const name=el("fName").value.trim();
+  const k=parseFloat(el("fKcal").value)||0,p=parseFloat(el("fP").value)||0,fat=parseFloat(el("fF").value)||0,c=parseFloat(el("fC").value)||0;
+  if(!name&&!k){toast("Введите название или ккал");return;}
+  const all=foodGet();all.push({id:Date.now()+"-"+Math.floor(Math.random()*1000),date:foodToday(),name:name||"Приём пищи",kcal:k,p:p,f:fat,c:c});
+  foodSet(all);
+  ["fName","fKcal","fP","fF","fC"].forEach(id=>el(id).value="");
+  renderFood();toast("Добавлено");
+});
+
+/* ===================== ОБЛАКО (db + user) ===================== */
+let CLOUD=null, CLOUD_UID=null, cloudReady=false;
+function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
+function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),at:Date.now()};}
+/* объединение локальных и облачных данных — ничего не теряем при синхронизации */
+function mergeHistory(a,b){const seen=new Set(),out=[];
+  const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
+  [...(b||[]),...(a||[])].forEach(h=>{const s=sig(h);if(seen.has(s))return;seen.add(s);out.push(h);});
+  out.sort((x,y)=>(x.date||"").localeCompare(y.date||""));return out;}
+function mergeFood(a,b){const m={};[...(b||[]),...(a||[])].forEach(x=>{if(x&&x.id!=null)m[x.id]=x;});return Object.values(m);}
+function mergeRm(a,b){return Object.assign({},b||{},a||{});}
+function cloudRefreshUI(){
+  try{if(currentScreen==="progress")renderProgress();
+      if(currentScreen==="food")renderFood();
+      if(currentScreen==="onerm")rmLoadLift(rmLift);}catch(e){}
+}
+function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;}
+async function cloudInit(){
+  try{
+    if(!(window.claude&&claude.use))return;
+    const user=await claude.use("user"); const db=await claude.use("db");
+    if(!user||!db)return;
+    const uid=await user.id(); if(!uid)return;
+    CLOUD={db,user};CLOUD_UID=uid;
+    const snap=await cloudDoc().get();
+    if(snap&&snap.exists&&snap.data()){
+      const d=snap.data();
+      // объединяем, а не затираем: сохранится и локальное, и облачное
+      try{localStorage.setItem(KEY,JSON.stringify(mergeHistory(safe.get(),d.history)))}catch(e){}
+      try{localStorage.setItem(FOODK,JSON.stringify(mergeFood(foodGet(),d.food)))}catch(e){}
+      try{localStorage.setItem(RMK,JSON.stringify(mergeRm(rmReg(),d.rm)))}catch(e){}
+      cloudRefreshUI();
+      cloudReady=true;
+      try{await cloudDoc().set(cloudSnapshot());}catch(e){} // пишем объединённый результат обратно
+    }else{
+      // облако пустое — зальём то, что есть локально
+      await cloudDoc().set(cloudSnapshot());
+      cloudReady=true;
+    }
+    cloudStatus("☁ Синхронизация включена");
+  }catch(e){cloudStatus("Gym 45 · локально");}
+}
+function cloudPush(){
+  if(!cloudReady||!CLOUD)return;
+  clearTimeout(cloudPush._t);
+  cloudPush._t=setTimeout(async()=>{
+    try{await cloudDoc().set(cloudSnapshot());}catch(e){}
+  },1500);
+}
+
+show("home");
+cloudInit();
+</script>
+
+</html>
