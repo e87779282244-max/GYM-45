@@ -146,6 +146,15 @@
   .street-note{color:var(--muted);font-size:13px;margin:0 0 14px}
   .disc.disc-soon{opacity:.5}
   .rm-list{display:flex;flex-direction:column}
+  #rmLifts .tm-step{cursor:pointer;border-left-color:var(--line)}
+  #rmLifts .tm-step.on{border-left-color:var(--gold-ink);background:linear-gradient(180deg,var(--panel-top),var(--panel-bot))}
+  .rm-fold{padding:0;overflow:hidden}
+  .rm-fold-h{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+    background:none;border:none;padding:16px;text-align:left;color:var(--fg);
+    font-family:var(--dsp);font-weight:700;font-size:17px}
+  .rm-fold-h small{display:block;font-family:var(--body);font-weight:600;font-size:12px;color:var(--muted);margin-top:2px}
+  .rm-caret{color:var(--gold-ink);font-size:20px;flex:none}
+  .rm-fold-b{padding:0 16px 14px}
   .rm-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14.5px;
     padding:8px 0;border-bottom:1px solid var(--line)}
   .rm-row:last-child{border-bottom:none}
@@ -608,22 +617,22 @@
     </div>
     <div class="stack">
       <div class="card tmr">
-        <div class="tm-seth" style="cursor:default">Движение (мой 1ПМ)</div>
-        <div class="tm-types" id="rmLifts"></div>
-        <div class="tm-step"><span class="lbl">1ПМ (макс), кг</span>
-          <button class="tm-sbtn" id="rmMinus" type="button">−</button>
-          <span class="tm-val" id="rmMaxVal">100</span>
-          <button class="tm-sbtn" id="rmPlus" type="button">+</button></div>
+        <div class="tm-seth" style="cursor:default">Заполни 1 максимальный повтор</div>
+        <div class="tm-params" id="rmLifts"></div>
         <div class="tm-seth" style="cursor:default;opacity:.7;font-size:12px">Рабочие веса округляются вверх до целого кг</div>
       </div>
-      <div class="card">
-        <h3 style="margin:0 0 10px">Проценты от 1ПМ</h3>
-        <div class="rm-list" id="rmPct"></div>
+      <div class="card rm-fold">
+        <button class="rm-fold-h" type="button" aria-expanded="false"><span>Проценты от 1ПМ<small class="rm-cur"></small></span><span class="rm-caret">▾</span></button>
+        <div class="rm-fold-b" hidden>
+          <div class="rm-list" id="rmPct"></div>
+        </div>
       </div>
-      <div class="card">
-        <h3 style="margin:0 0 4px">Ориентир по повторам</h3>
-        <p class="sub" style="margin:0 0 10px">Потолок интенсивности: вес, с которым реально сделать столько повторов.</p>
-        <div class="rm-list" id="rmReps"></div>
+      <div class="card rm-fold">
+        <button class="rm-fold-h" type="button" aria-expanded="false"><span>Ориентир по повторам<small class="rm-cur"></small></span><span class="rm-caret">▾</span></button>
+        <div class="rm-fold-b" hidden>
+          <p class="sub" style="margin:0 0 10px">Потолок интенсивности: вес, с которым реально сделать столько повторов.</p>
+          <div class="rm-list" id="rmReps"></div>
+        </div>
       </div>
       <p class="street-note">Формула округления Штурм 30: <b>вес = ⌊(1ПМ × % / 100) / шаг⌋ × шаг</b>. Таблица повторов — эвристические потолки Штурм.</p>
     </div>
@@ -1621,7 +1630,7 @@ const RM_CEIL=[[1,100],[2,95],[3,93],[4,90],[5,87],[6,85],[7,83],[8,80],[9,77],[
 const RM_PCTS=[100,95,90,87.5,85,82.5,80,77.5,75,72.5,70,65,60,55,50];
 const RM_STEPS=[0.5,1,2.5,5];
 /* реестр 1ПМ (Штурм 30: maxima) */
-const RM_LIFTS=[["Присед","Приседания со штангой",100],["Жим лёжа","Жим лёжа",80],["Становая","Становая тяга",120],["Жим стоя","Армейский жим стоя",50]];
+const RM_LIFTS=[["Присед","Приседания со штангой",100],["Жим лёжа","Жим лёжа",80],["Становая","Становая тяга",120],["Жим стоя","Армейский жим стоя",50],["Подъём на бицепс","Подъём штанги на бицепс",40]];
 const RMK="gym45_rm_v1";
 function rmReg(){try{return JSON.parse(localStorage.getItem(RMK))||{}}catch(e){return{}}}
 function rmRegSet(o){try{localStorage.setItem(RMK,JSON.stringify(o))}catch(e){}cloudPush();}
@@ -1631,12 +1640,18 @@ function rmLoadLift(i){rmLift=i;const r=rmReg();rmMax=r[RM_LIFTS[i][1]]||RM_LIFT
 /* рабочий вес = процент от 1ПМ, округлён ВВЕРХ до целого кг (67,5 → 68) */
 function rmW(max,pct,step){return Math.ceil(max*pct/100-1e-9);}
 function fmtW(w){return (Math.round(w*10)%10===0)?String(Math.round(w)):w.toFixed(1).replace(".",",");}
+function rmGet(i){const r=rmReg();return r[RM_LIFTS[i][1]]||RM_LIFTS[i][2];}
 function renderRM(){
-  el("rmMaxVal").textContent=fmtW(rmMax);
+  rmMax=rmGet(rmLift);
   const lc=el("rmLifts");lc.innerHTML="";
-  RM_LIFTS.forEach((L,i)=>{const b=document.createElement("button");b.type="button";
-    b.className="tm-chip"+(i===rmLift?" on":"");b.textContent=L[0];
-    b.onclick=()=>rmLoadLift(i);lc.appendChild(b);});
+  RM_LIFTS.forEach((L,i)=>{const row=document.createElement("div");
+    row.className="tm-step"+(i===rmLift?" on":"");
+    row.innerHTML=`<span class="lbl">${L[0]}</span><button class="tm-sbtn" type="button" data-d="-1">−</button><span class="tm-val">${fmtW(rmGet(i))}</span><button class="tm-sbtn" type="button" data-d="1">+</button>`;
+    row.onclick=e=>{const b=e.target.closest(".tm-sbtn");rmLift=i;
+      if(b){const r=rmReg();r[L[1]]=Math.min(500,Math.max(20,rmGet(i)+2.5*(+b.dataset.d)));rmRegSet(r);}
+      renderRM();};
+    lc.appendChild(row);});
+  document.querySelectorAll("#scr-onerm .rm-cur").forEach(x=>x.textContent=`${RM_LIFTS[rmLift][0]} · 1ПМ ${fmtW(rmMax)} кг`);
   const p=el("rmPct");p.innerHTML="";
   RM_PCTS.forEach(pc=>{const r=document.createElement("div");r.className="rm-row";
     r.innerHTML=`<span class="k">${fmtW(pc)} %</span><span class="v">${fmtW(rmW(rmMax,pc,rmStep))} <small>кг</small></span>`;p.appendChild(r);});
@@ -1644,8 +1659,9 @@ function renderRM(){
   RM_CEIL.forEach(([reps,pc])=>{const r=document.createElement("div");r.className="rm-row";
     r.innerHTML=`<span class="k">${reps} повт.</span><span class="v">${fmtW(rmW(rmMax,pc,rmStep))} <small>кг · ${pc}%</small></span>`;q.appendChild(r);});
 }
-el("rmMinus").addEventListener("click",()=>{rmMax=Math.max(20,rmMax-2.5);rmSaveCur();renderRM();});
-el("rmPlus").addEventListener("click",()=>{rmMax=Math.min(500,rmMax+2.5);rmSaveCur();renderRM();});
+document.querySelectorAll("#scr-onerm .rm-fold-h").forEach(h=>h.addEventListener("click",()=>{
+  const b=h.nextElementSibling;b.hidden=!b.hidden;h.setAttribute("aria-expanded",String(!b.hidden));
+  h.querySelector(".rm-caret").textContent=b.hidden?"▾":"▴";}));
 rmLoadLift(0);
 
 /* ---------- Питание · дневник ---------- */
