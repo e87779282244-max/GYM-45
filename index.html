@@ -324,6 +324,62 @@
     padding:12px max(18px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px));
     background:linear-gradient(to top,var(--app) 70%,transparent);max-width:440px;margin:0 auto}
   .row2{display:flex;gap:10px}.row2 .btn{flex:1}
+  .btn-alt{background:linear-gradient(180deg,var(--key-top),var(--key-bot));color:var(--fg);
+    border:1px solid var(--key-edge);box-shadow:0 4px 0 var(--edge),0 9px 16px rgba(80,75,45,.14)}
+  .btn-alt:active{box-shadow:0 1px 0 var(--edge)}
+  .btn[disabled],.btn.is-off{opacity:.45}
+  /* обзор дня */
+  #scr-day{padding-bottom:calc(170px + env(safe-area-inset-bottom,0px))}
+  .day-foot{display:flex;flex-direction:column;gap:12px}
+  .day-sum{color:var(--muted);font-size:13.5px;font-weight:600;margin:-6px 0 12px}
+  .day-list{display:flex;flex-direction:column;gap:10px}
+  .day-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:var(--fg);
+    background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
+    border-radius:14px;padding:8px 12px 8px 8px;box-shadow:0 3px 0 var(--edge)}
+  .day-row:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+  .day-row.done{border-left:4px solid var(--good)}
+  .day-th{width:64px;height:64px;flex:none;border-radius:10px;background:var(--surface-2);
+    border:1px solid var(--line);overflow:hidden;display:grid;place-items:center;color:var(--faint);font-size:22px}
+  .day-th img{width:100%;height:100%;object-fit:contain;background:#fff}
+  .day-n{font-family:var(--dsp);color:var(--faint);font-weight:800;font-size:13px;width:18px;flex:none;text-align:center}
+  .day-tx{flex:1;min-width:0}
+  .day-tx b{display:block;font-family:var(--dsp);font-weight:700;font-size:15.5px;line-height:1.2}
+  .day-tx span{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+  .day-st{flex:none;font-family:var(--dsp);font-weight:800;font-size:13px;color:var(--gold-ink)}
+  .day-row.done .day-st{color:var(--good)}
+  /* режим тренировки: всё упражнение в одном окне */
+  #scr-workout{flex:none;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;min-height:0;overflow:hidden;
+    padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+  #scr-workout.resting{padding-bottom:calc(148px + env(safe-area-inset-bottom,0px))}
+  .wk-hd{padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:8px}
+  .wk-hd h1{font-size:23px}
+  .wk-hd .icon-btn{width:46px;height:46px;font-size:22px}
+  .wk-prog{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;
+    font-family:var(--dsp);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+  .wk-dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+  .wk-dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--key-edge);background:var(--surface);padding:0}
+  .wk-dot.done{background:var(--good);border-color:var(--good)}
+  .wk-dot.cur{background:var(--gold);border-color:var(--gold-ink);transform:scale(1.25)}
+  #exList{flex:1;min-height:0;display:flex}
+  .wk-card{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 14px}
+  .wk-card .ex-media{flex:none;aspect-ratio:auto;height:clamp(110px,27vh,250px);margin-bottom:8px}
+  .wk-card h3{font-size:18px}
+  .wk-card .target{margin-bottom:6px}
+  .wk-card .prev-line{margin:0 0 6px;align-self:flex-start}
+  .wk-sets{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+  .wk-sets .set-row{padding:5px 0}
+  .wk-sets .set-row.cur .sn{color:var(--fg);background:var(--panel-top);border-radius:8px}
+  .wk-sets .addset{margin-top:8px}
+  #wkFoot .btn{font-size:14px;letter-spacing:.03em;padding:15px 8px;white-space:nowrap}
+  body.toast-top .toast{bottom:auto;top:calc(84px + env(safe-area-inset-top,0px))}
+  .wk-rest{position:fixed;left:50%;transform:translateX(-50%);width:min(404px,calc(100% - 36px));
+    bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:36;display:flex;align-items:center;gap:8px;
+    background:linear-gradient(180deg,#6d7f38,#47561d);color:#f6f3e6;border:1px solid #39431a;border-radius:14px;
+    padding:8px 10px 8px 14px;box-shadow:var(--shadow)}
+  .wk-rest-l{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:12px;opacity:.85}
+  .wk-rest b{font-family:var(--dsp);font-size:24px;font-weight:800;flex:1}
+  .wk-rest button{background:rgba(255,255,255,.14);color:#f6f3e6;border:1px solid rgba(255,255,255,.25);
+    border-radius:9px;padding:7px 9px;font-family:var(--dsp);font-weight:700;font-size:12.5px}
   .toast{position:fixed;left:50%;bottom:120px;pointer-events:none;transform:translateX(-50%) translateY(20px);
     background:var(--good);color:#fff;font-family:var(--dsp);font-weight:600;letter-spacing:.03em;
     padding:11px 20px;border-radius:999px;z-index:50;opacity:0;transition:.25s;box-shadow:var(--shadow);
@@ -735,15 +791,35 @@
     </div>
   </section>
 
-  <!-- WORKOUT -->
-  <section class="screen" id="scr-workout" hidden>
+  <!-- ОБЗОР ДНЯ: список упражнений + Начать / Завершить -->
+  <section class="screen" id="scr-day" hidden>
     <div class="hd">
-      <div><p class="eyebrow" id="wkEyebrow">Тренировка</p><h1 id="wkTitle">—</h1></div>
-      <button class="icon-btn back-btn" id="wkBack" title="Назад">←</button>
+      <div><p class="eyebrow" id="dayEyebrow">Программа дня</p><h1 id="dayTitle">—</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
     </div>
-    <div class="stack" id="exList"></div>
-    <div class="sticky-foot" id="wkFoot" hidden>
-      <button class="btn" id="wkFinish">Завершить тренировку</button>
+    <div class="day-sum" id="daySum"></div>
+    <div class="day-list" id="dayList"></div>
+    <div class="sticky-foot day-foot">
+      <button class="btn" id="dayStart" type="button">Начать программу</button>
+      <button class="btn btn-alt" id="dayFinish" type="button">Завершить программу</button>
+    </div>
+  </section>
+
+  <!-- WORKOUT · одно упражнение на экран -->
+  <section class="screen" id="scr-workout" hidden>
+    <div class="hd wk-hd">
+      <div><p class="eyebrow" id="wkEyebrow">Тренировка</p><h1 id="wkTitle">—</h1></div>
+      <button class="icon-btn back-btn" id="wkBack" title="К списку">←</button>
+    </div>
+    <div class="wk-prog"><span id="wkStep">Упражнение 1 из 1</span><div class="wk-dots" id="wkDots"></div></div>
+    <div id="exList"></div>
+    <div class="wk-rest" id="wkRest" hidden>
+      <span class="wk-rest-l">Отдых</span><b class="num" id="wkRestT">1:30</b>
+      <button type="button" id="wkRestMinus">−15</button><button type="button" id="wkRestPlus">+15</button>
+      <button type="button" id="wkRestSkip">Пропустить</button>
+    </div>
+    <div class="sticky-foot" id="wkFoot">
+      <div class="row2"><button class="btn btn-alt" id="wkPrev" type="button">← Предыдущее</button><button class="btn" id="wkNext" type="button">Следующее →</button></div>
     </div>
   </section>
 
@@ -830,7 +906,7 @@ function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","ма�
   return d.getDate()+" "+m[d.getMonth()];}
 
 /* ---------- navigation ---------- */
-const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),workout:el("scr-workout"),progress:el("scr-progress")};
+const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),workout:el("scr-workout"),progress:el("scr-progress")};
 function el(id){return document.getElementById(id);}
 let histStack=[],currentScreen=null;
 function applyScreen(name){
@@ -838,15 +914,16 @@ function applyScreen(name){
   if(currentScreen==="workout"&&name!=="workout")document.querySelectorAll("#exList video").forEach(v=>{try{v.pause()}catch(e){}});
   for(const k in scr)scr[k].hidden=(k!==name);
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
-  currentScreen=name;if(name==="progress")renderProgress();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
+  currentScreen=name;document.body.classList.toggle("toast-top",name==="workout"||name==="day");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
 function show(name){if(currentScreen&&name!==currentScreen)histStack.push(currentScreen);applyScreen(name);}
 function goBack(){
-  if(currentScreen==="workout"){current=null;el("wkFoot").hidden=true;}
   let prev=histStack.pop()||"home";
+  while((prev==="workout"&&!current)||prev===currentScreen)prev=histStack.pop()||"home";
   if(prev==="workout"&&!current)prev="home";
   applyScreen(prev);}
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
-  if(t.dataset.scr==="workout"&&!current)startWorkout(PROGRAMS[0]);else show(t.dataset.scr);});
+  if(t.dataset.scr==="workout"){if(current)show("workout");else if(dayView)show("day");else startWorkout(PROGRAMS[0]);}
+  else show(t.dataset.scr);});
 document.querySelectorAll(".back-btn").forEach(b=>b.addEventListener("click",goBack));
 
 /* ---------- login ---------- */
@@ -898,7 +975,50 @@ function lastResult(name){
       if(done.length)return {date:h.date,sets:done.map(s=>({r:s.r,w:s.w}))};}}
   return null;
 }
-function startWorkout(p,computed){
+/* ---------- обзор дня ---------- */
+let dayView=null; // {p,computed}
+function progKey(p){return (p.name||"")+"|"+(p.focus||"")+"|"+p.ex.map(e=>e[0]).join(",");}
+function isActive(p){return !!(current&&current.key===progKey(p));}
+function startWorkout(p,computed){dayView={p:p,computed:computed};renderDay();show("day");}
+function plural(n,a,b,c){const m=n%10,h=n%100;return (m===1&&h!==11)?a:(m>=2&&m<=4&&(h<10||h>=20))?b:c;}
+function planOf(e){ // что будет на тренировке (с учётом готовности)
+  const psw=Array.isArray(e[4])?e[4]:null;
+  const ns=psw?psw.length:rScaleSets(e[1]);
+  let w="";
+  if(psw){const ws=psw.map(rScaleW),lo=Math.min(...ws),hi=Math.max(...ws);w=lo===hi?lo+" кг":lo+"–"+hi+" кг";}
+  else if(e[3])w=rScaleW(e[3])+" кг";
+  return {sets:ns,reps:e[2],w:w};}
+function renderDay(){
+  if(!dayView)return;const p=dayView.p,act=isActive(p);
+  el("dayTitle").textContent=p.name;
+  el("dayEyebrow").textContent=(p.focus||"Программа дня")+(act?" · идёт":"");
+  let tot=0;const w=el("dayList");w.innerHTML="";
+  p.ex.forEach((e,i)=>{const pl=planOf(e);
+    const sets=act?current.sets[i]:null,ns=sets?sets.length:pl.sets;tot+=ns;
+    const nd=sets?sets.filter(s=>s.done).length:0,fin=sets&&nd===ns;
+    const m=MEDIA[e[0]];
+    const b=document.createElement("button");b.type="button";b.className="day-row"+(fin?" done":"");
+    b.innerHTML=`<span class="day-n">${i+1}</span><span class="day-th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"🏋"}</span>
+      <span class="day-tx"><b></b><span>${ns} ${plural(ns,"подход","подхода","подходов")} · ${pl.reps} повт.${pl.w?" · "+pl.w:""}</span></span>
+      <span class="day-st">${act?(fin?"✓":nd+"/"+ns):(m?"▶":"")}</span>`;
+    b.querySelector("b").textContent=e[0];
+    b.onclick=()=>{if(act){current.idx=i;saveDraft();renderWorkout();show("workout");}else if(m)openMedia(e[0]);};
+    w.appendChild(b);});
+  el("daySum").textContent=`${p.ex.length} ${plural(p.ex.length,"упражнение","упражнения","упражнений")} · ${tot} ${plural(tot,"подход","подхода","подходов")} · готовность: ${act?current.readiness:readiness}`;
+  el("dayStart").textContent=act?"Продолжить программу":"Начать программу";
+  el("dayFinish").classList.toggle("is-off",!act);
+}
+let startArm=0;
+el("dayStart").addEventListener("click",()=>{
+  if(!dayView)return;const p=dayView.p;
+  if(isActive(p)){renderWorkout();show("workout");return;}
+  if(current&&Date.now()-startArm>4000){startArm=Date.now();
+    toast("Идёт «"+current.program.name+"». Нажми ещё раз — начнём новую");return;}
+  startArm=0;beginWorkout(p,dayView.computed);});
+el("dayFinish").addEventListener("click",()=>{
+  if(!dayView||!isActive(dayView.p)){toast("Сначала начни программу");return;}
+  finishWorkout();});
+function beginWorkout(p,computed){
   const prevMap={};
   const sets=p.ex.map(e=>{
     const name=e[0],pr=computed?null:lastResult(name);
@@ -910,10 +1030,11 @@ function startWorkout(p,computed){
       const pv=pr?(pr.sets[j]||pr.sets[pr.sets.length-1]):null;
       const w=pv?pv.w:(psw?rScaleW(psw[j]):baseW);
       return {w:w,r:pv?pv.r:e[2],done:false,prev:pv||null};});});
-  current={program:p,readiness:readiness,prev:prevMap,sets:sets};
+  current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p)};
+  dayView={p:p,computed:computed};restStop();
   el("wkTitle").textContent=p.name;
   el("wkEyebrow").textContent=p.focus+" · готовность: "+readiness;
-  renderWorkout();el("wkFoot").hidden=false;saveDraft();show("workout");
+  renderWorkout();saveDraft();show("workout");
 }
 /* ---------- медиа-библиотека упражнений (ExerciseDB, из сборки SHTURM30, некоммерческая лицензия) ---------- */
 const MEDIA={
@@ -986,50 +1107,100 @@ function closeMedia(){const v=el("pvideo");try{v.pause();}catch(e){}
 window.__io=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.play().catch(()=>{});}),{threshold:0.15}):null;
 ["touchstart","click"].forEach(ev=>document.addEventListener(ev,function p(){
   document.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;v.play().catch(()=>{});});},{once:true}));
+function exDone(i){const st=current.sets[i];return st.length>0&&st.every(x=>x.done);}
+function nextUndone(i){const n=current.sets.length;
+  for(let k=1;k<n;k++){const j=(i+k)%n;if(!exDone(j))return j;}return -1;}
+function goEx(i){if(!current)return;const n=current.program.ex.length;
+  current.idx=Math.max(0,Math.min(n-1,i));saveDraft();renderWorkout();}
+function markCur(){const rows=el("exList").querySelectorAll(".wk-sets .set-row:not(.head)");
+  const st=current.sets[current.idx];let f=false;
+  rows.forEach((r,j)=>{const c=!f&&!st[j].done;if(c)f=true;r.classList.toggle("cur",c);});
+  el("wkDots").querySelectorAll(".wk-dot").forEach((d,k)=>d.classList.toggle("done",exDone(k)));
+  const cr=el("exList").querySelector(".set-row.cur"),box=el("exList").querySelector(".wk-sets");
+  if(cr&&box){const t=cr.offsetTop-box.offsetTop-40;box.scrollTo({top:Math.max(0,t),behavior:"smooth"});}}
 function renderWorkout(){
   const wrap=el("exList");
   if(window.__io)wrap.querySelectorAll("video").forEach(v=>{try{window.__io.unobserve(v)}catch(e){}});
   wrap.innerHTML="";
-  current.program.ex.forEach((ex,i)=>{
-    const c=document.createElement("div");c.className="card ex-card";
-    const bw=ex[3]===0; // упражнение без веса — только повторы
-    let rows=`<div class="set-row head"><span>#</span><span>${bw?"—":"Вес"}</span><span>Повт.</span><span></span></div>`;
-    current.sets[i].forEach((s,j)=>{
-      const wCell=bw
-        ?`<div class="num" style="opacity:.35;text-align:center">—</div>`
-        :`<input class="num" inputmode="numeric" data-e="${i}" data-s="${j}" data-f="w" value="${s.w}">`;
-      rows+=`<div class="set-row">
-        <div class="sn num">${j+1}</div>
-        ${wCell}
-        <input class="num" inputmode="numeric" data-e="${i}" data-s="${j}" data-f="r" value="${s.r}">
-        <button class="chk ${s.done?"on":""}" data-e="${i}" data-s="${j}">${s.done?"✓":""}</button>
-      </div>`;
-    });
-    const _m=MEDIA[ex[0]];
-    const _media=_m?`<div class="ex-media" data-key="${ex[0]}"><video src="${_m.v}" poster="${_m.p}" muted loop autoplay playsinline preload="auto"></video><span class="play">⛶</span></div>`:"";
-    const _pr=current.prev&&current.prev[ex[0]];
-    const _prev=_pr?`<div class="prev-line">Прошлый раз: ${_pr.sets.map(s=>ex[3]?(s.r+"×"+s.w):(""+s.r)).join(", ")}${ex[3]?" кг":" повт."}</div>`:"";
-    const _rmv=(typeof rmReg==="function")?rmReg()[ex[0]]:0;
-    c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">Цель: ${ex[1]} × ${ex[2]}${ex[3]?" · "+ex[3]+" кг":""}${_rmv?" · 1ПМ "+_rmv+" кг":""}</div>${_prev}
-      ${rows}<button class="addset" data-add="${i}">+ подход</button>`;
-    wrap.appendChild(c);
+  const n=current.program.ex.length;
+  if(current.idx==null){const u=current.sets.findIndex((st,k)=>!exDone(k));current.idx=u<0?0:u;}
+  const i=current.idx=Math.max(0,Math.min(n-1,current.idx));
+  const ex=current.program.ex[i];
+  el("wkTitle").textContent=current.program.name;
+  el("wkStep").textContent=`Упражнение ${i+1} из ${n}`;
+  const dots=el("wkDots");dots.innerHTML="";
+  current.program.ex.forEach((e,k)=>{const d=document.createElement("button");d.type="button";
+    d.className="wk-dot"+(k===i?" cur":"")+(exDone(k)?" done":"");d.title=e[0];d.onclick=()=>goEx(k);dots.appendChild(d);});
+  const c=document.createElement("div");c.className="card ex-card wk-card";
+  const bw=ex[3]===0&&!Array.isArray(ex[4]); // упражнение без веса — только повторы
+  let rows=`<div class="set-row head"><span>#</span><span>${bw?"—":"Вес"}</span><span>Повт.</span><span></span></div>`;
+  current.sets[i].forEach((s,j)=>{
+    const wCell=bw
+      ?`<div class="num" style="opacity:.35;text-align:center">—</div>`
+      :`<input class="num" inputmode="decimal" data-s="${j}" data-f="w" value="${s.w}">`;
+    rows+=`<div class="set-row">
+      <div class="sn num">${j+1}</div>
+      ${wCell}
+      <input class="num" inputmode="numeric" data-s="${j}" data-f="r" value="${s.r}">
+      <button class="chk ${s.done?"on":""}" data-s="${j}" type="button">${s.done?"✓":""}</button>
+    </div>`;
   });
-  wrap.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
-    const{e:ei,s:si,f}=e.target.dataset;const v=parseFloat(e.target.value)||0;
-    current.sets[ei][si][f]=v;saveDraft();});
-  wrap.querySelectorAll(".chk").forEach(b=>b.onclick=()=>{
-    const s=current.sets[b.dataset.e][b.dataset.s];s.done=!s.done;
-    b.classList.toggle("on",s.done);b.textContent=s.done?"✓":"";saveDraft();});
-  wrap.querySelectorAll(".addset").forEach(b=>b.onclick=()=>{
-    const i=b.dataset.add,last=current.sets[i][current.sets[i].length-1]||{w:0,r:0};
-    current.sets[i].push({w:last.w,r:last.r,done:false});saveDraft();renderWorkout();});
-  wrap.querySelectorAll(".ex-media").forEach(b=>b.onclick=()=>openMedia(b.dataset.key));
-  wrap.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;
+  const _m=MEDIA[ex[0]];
+  const _media=_m?`<div class="ex-media" data-key="${ex[0]}"><video src="${_m.v}" poster="${_m.p}" muted loop autoplay playsinline preload="auto"></video><span class="play">⛶</span></div>`:"";
+  const _pr=current.prev&&current.prev[ex[0]];
+  const _prev=_pr?`<div class="prev-line">Прошлый раз: ${_pr.sets.map(s=>ex[3]?(s.r+"×"+s.w):(""+s.r)).join(", ")}${ex[3]?" кг":" повт."}</div>`:"";
+  const _rmv=(typeof rmReg==="function")?rmReg()[ex[0]]:0;
+  const ns=current.sets[i].length;
+  c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">${ns} ${plural(ns,"подход","подхода","подходов")} × ${ex[2]} повт.${ex[3]?" · "+ex[3]+" кг":""}${_rmv?" · 1ПМ "+_rmv+" кг":""}</div>${_prev}
+    <div class="wk-sets">${rows}<button class="addset" type="button">+ подход</button></div>`;
+  wrap.appendChild(c);
+  c.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
+    const{s:si,f}=e.target.dataset;const v=parseFloat(String(e.target.value).replace(",","."))||0;
+    current.sets[i][si][f]=v;saveDraft();});
+  c.querySelectorAll(".chk").forEach(b=>b.onclick=()=>{
+    const s=current.sets[i][b.dataset.s];s.done=!s.done;
+    b.classList.toggle("on",s.done);b.textContent=s.done?"✓":"";saveDraft();markCur();
+    if(!s.done)return;
+    if(!exDone(i)){restStart();return;}
+    const nx=nextUndone(i);
+    if(nx<0){restStop();toast("Все упражнения выполнены 💪");renderWorkout();return;}
+    restStart();
+    setTimeout(()=>{if(current&&current.idx===i&&exDone(i)){goEx(nx);toast("Дальше: "+current.program.ex[nx][0]);}},700);});
+  c.querySelector(".addset").onclick=()=>{
+    const last=current.sets[i][current.sets[i].length-1]||{w:0,r:0};
+    current.sets[i].push({w:last.w,r:last.r,done:false});saveDraft();renderWorkout();};
+  c.querySelectorAll(".ex-media").forEach(b=>b.onclick=()=>openMedia(b.dataset.key));
+  c.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;
     const pl=()=>{v.play().catch(()=>{});};
     v.addEventListener("canplay",pl);v.addEventListener("loadeddata",pl);pl();
     if(window.__io)window.__io.observe(v);});
+  markCur();
+  el("wkPrev").disabled=i===0;
+  const allDone=nextUndone(i)<0&&exDone(i);
+  el("wkNext").textContent=(i<n-1&&!allDone)?"Следующее →":"Завершить ✓";
 }
-el("wkFinish").onclick=()=>{
+el("wkPrev").addEventListener("click",()=>{if(current&&current.idx>0)goEx(current.idx-1);});
+el("wkNext").addEventListener("click",()=>{if(!current)return;const n=current.program.ex.length,i=current.idx;
+  if(i<n-1&&!(nextUndone(i)<0&&exDone(i)))goEx(i+1);
+  else {renderDay();show("day");if(nextUndone(i)<0&&exDone(i))finishWorkout();else toast("Проверь отметки ✓ и нажми «Завершить программу»");}});
+/* ---------- таймер отдыха между подходами ---------- */
+const RESTK="gym45_rest_v1";
+let restDef=90,restEnd=0,restIv=null;
+try{restDef=parseInt(localStorage.getItem(RESTK))||90;}catch(e){}
+function restTick(){const left=Math.ceil((restEnd-Date.now())/1000);
+  if(left<=0){restStop();try{if(typeof beep==="function"){beep(1046,0.2,0.35);setTimeout(()=>beep(1320,0.35,0.4),240);}}catch(e){}
+    try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}
+    if(current&&currentScreen==="workout")toast("Отдых окончен — работаем");return;}
+  el("wkRestT").textContent=mmss(left);}
+function restStart(){restEnd=Date.now()+restDef*1000;el("wkRest").hidden=false;scr.workout.classList.add("resting");
+  if(restIv)clearInterval(restIv);restIv=setInterval(restTick,250);restTick();}
+function restStop(){if(restIv)clearInterval(restIv);restIv=null;el("wkRest").hidden=true;scr.workout.classList.remove("resting");}
+function restAdj(d){restDef=Math.max(15,Math.min(600,restDef+d));try{localStorage.setItem(RESTK,restDef)}catch(e){}
+  restEnd=Math.max(Date.now()+1000,restEnd+d*1000);restTick();}
+el("wkRestMinus").addEventListener("click",()=>restAdj(-15));
+el("wkRestPlus").addEventListener("click",()=>restAdj(15));
+el("wkRestSkip").addEventListener("click",restStop);
+function finishWorkout(){
   let vol=0,anyDone=false;
   current.sets.forEach(se=>se.forEach(s=>{if(s.done){anyDone=true;vol+=s.w*s.r;}}));
   if(!anyDone){toast("Отметьте выполненные подходы ✓");return;} // считаем только отмеченное
@@ -1058,14 +1229,15 @@ el("wkFinish").onclick=()=>{
   let note=rmMsg;
   if(uniqShort.length)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
   window.__coachPending=note||"";
-  clearDraft();current=null;el("wkFoot").hidden=true;
+  clearDraft();current=null;restStop();
   toast("Тренировка сохранена");show("progress");
-};
+}
 el("coachClose").addEventListener("click",()=>{el("coachNote").hidden=true;});
 el("draftResume").addEventListener("click",()=>{const d=getDraft();if(!(d&&d.program&&d.sets))return;
   current=d;readiness=d.readiness||readiness;
+  if(!current.key)current.key=progKey(d.program);dayView={p:d.program,computed:true};
   el("wkTitle").textContent=d.program.name;el("wkEyebrow").textContent=(d.program.focus||"")+" · готовность: "+(d.readiness||readiness);
-  renderWorkout();el("wkFoot").hidden=false;el("draftBanner").hidden=true;show("workout");});
+  renderWorkout();el("draftBanner").hidden=true;show("workout");});
 el("draftDiscard").addEventListener("click",()=>{clearDraft();el("draftBanner").hidden=true;});
 /* ---------- progress ---------- */
 function allHistory(){return [...SEED,...safe.get()];}
