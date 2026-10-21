@@ -518,6 +518,18 @@
   .tm-creset:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
   .tmr.running .tm-types,.tmr.running .tm-seth,.tmr.running #tmSettings{display:none}
 
+  /* стрит воркаут */
+  .sw-lvl{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--accent);margin:8px 0 -2px}
+  .sw-moves{display:flex;flex-direction:column;gap:8px}
+  .sw-mv{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;padding:0;color:var(--fg)}
+  .sw-mv .th{width:48px;height:48px;flex:none;border-radius:9px;border:1px solid var(--line);background:#fff;overflow:hidden;display:grid;place-items:center;color:var(--faint)}
+  .sw-mv .th img{width:100%;height:100%;object-fit:contain}
+  .sw-mv .nm{flex:1;min-width:0;font-size:14.5px;font-weight:600}
+  .sw-mv .rp{flex:none;font-family:var(--dsp);font-weight:800;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+  .sw-stage .tm-big{font-size:clamp(56px,18vw,96px)}
+  .sw-stage[data-ph="done"]{background:linear-gradient(180deg,#8a7a2e,#5e5317)}
+  .sw-laps{display:flex;flex-direction:column;padding:10px 16px}
+  .sw-laps .rm-row{font-size:14px}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -619,6 +631,7 @@
       <button class="disc" data-disc="Пауэрлифтинг">Пауэрлифтинг<span class="go">›</span></button>
       <button class="disc" data-disc="Стритлифтинг">Стритлифтинг<span class="go">›</span></button>
       <button class="disc" data-disc="Кроссфит">Кроссфит<span class="go">›</span></button>
+      <button class="disc" data-disc="Стрит воркаут">Стрит воркаут<span class="go">›</span></button>
     </div>
   </section>
 
@@ -843,6 +856,50 @@
     </div>
   </section>
 
+  <!-- СТРИТ ВОРКАУТ: круговые комплексы -->
+  <section class="screen" id="scr-sw" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Стрит воркаут</p><h1>Круговые комплексы</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <p class="street-note">Турник, брусья и собственный вес. Проходи упражнения круга подряд, без отдыха между ними, и повторяй круг нужное число раз. Секундомер считает общее время, кнопка «+1 круг» — пройденные круги.</p>
+    <div class="stack" id="swList"></div>
+  </section>
+
+  <section class="screen" id="scr-swc" hidden>
+    <div class="hd">
+      <div><p class="eyebrow" id="swcEyebrow">Стрит воркаут · комплекс</p><h1 id="swcName">—</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card wod-card">
+        <span class="tag" id="swcFmt"></span>
+        <p class="wod-desc" id="swcDesc"></p>
+        <div class="wod-mv-h">Один круг</div>
+        <div class="sw-moves" id="swcMoves"></div>
+      </div>
+      <div class="tm-stage sw-stage" id="swStage" data-ph="idle">
+        <div class="tm-phase">Общее время</div>
+        <div class="tm-big num" id="swTime">00:00</div>
+        <div class="tm-round" id="swRoundTxt">Круг 1 из 5</div>
+      </div>
+      <div class="tm-counter">
+        <button class="tm-cbig" id="swLap" type="button">
+          <span class="cl">Кругов пройдено</span>
+          <span class="cn num" id="swLapN">0 / 5</span>
+          <span class="ch">нажми +1 после каждого круга</span>
+        </button>
+        <button class="tm-creset" id="swLapUndo" type="button" title="Отменить последний круг">↺</button>
+      </div>
+      <div class="tm-controls">
+        <button class="btn tm-start" id="swStart" type="button">Старт</button>
+        <button class="tm-reset" id="swReset" type="button">Сброс</button>
+      </div>
+      <div class="card sw-laps" id="swLaps" hidden></div>
+      <button class="btn wod-finish-btn" id="swFinish" type="button">✓ Завершить тренировку</button>
+    </div>
+  </section>
+
   <!-- ОБЗОР ДНЯ: список упражнений + Начать / Завершить -->
   <section class="screen" id="scr-day" hidden>
     <div class="hd">
@@ -965,7 +1022,7 @@ function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","ма�
   return d.getDate()+" "+m[d.getMonth()];}
 
 /* ---------- navigation ---------- */
-const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),workout:el("scr-workout"),progress:el("scr-progress")};
+const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),workout:el("scr-workout"),progress:el("scr-progress")};
 function el(id){return document.getElementById(id);}
 let histStack=[],currentScreen=null;
 function applyScreen(name){
@@ -973,7 +1030,7 @@ function applyScreen(name){
   if(currentScreen==="workout"&&name!=="workout")document.querySelectorAll("#exList video").forEach(v=>{try{v.pause()}catch(e){}});
   for(const k in scr)scr[k].hidden=(k!==name);
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
-  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof renderGvt==="function")renderGvt();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
+  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day"||name==="swc");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof renderGvt==="function")renderGvt();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
 function show(name){if(currentScreen&&name!==currentScreen)histStack.push(currentScreen);applyScreen(name);}
 function goBack(){
   let prev=histStack.pop()||"home";
@@ -1111,6 +1168,7 @@ const MEDIA={
   "Подтягивания с весом":{p:"media/0652.jpg",v:"media/0652.mp4?v=2",id:"edb-0652",name:"Подтягивания"},
   "Подтягивания (объём)":{p:"media/0652.jpg",v:"media/0652.mp4?v=2",id:"edb-0652",name:"Подтягивания"},
   "Отжимания на брусьях с весом":{p:"media/0251.jpg",v:"media/0251.mp4?v=2",id:"edb-0251",name:"Отжимания на брусьях для груди"},
+  "Отжимания на брусьях":{p:"media/0251.jpg",v:"media/0251.mp4?v=2",id:"edb-0251",name:"Отжимания на брусьях"},
   "Отжимания на брусьях (пауза)":{p:"media/0251.jpg",v:"media/0251.mp4?v=2",id:"edb-0251",name:"Отжимания на брусьях для груди"},
   "Тяга штанги в наклоне":{p:"media/0027.jpg",v:"media/0027.mp4?v=2",id:"edb-0027",name:"Тяга штанги в наклоне"},
   "Подъём штанги на бицепс":{p:"media/0031.jpg",v:"media/0031.mp4?v=2",id:"edb-0031",name:"Сгибание рук со штангой"},
@@ -1364,7 +1422,10 @@ function renderProgress(){
   [...all].reverse().slice(0,8).forEach(x=>{
     const r=document.createElement("div");r.className="hrow";
     let badge;
-    if(x.cross){
+    if(x.sw){
+      const parts=[];if(x.secs)parts.push(mmss(x.secs));parts.push((x.circles||0)+" кр.");
+      badge=`<span class="seed" style="background:var(--accent-weak);color:var(--accent-ink)">воркаут</span><span class="vol num">${parts.join(" · ")}</span>`;
+    }else if(x.cross){
       const parts=[];if(x.tmtype&&typeof TLABEL!=="undefined"&&TLABEL[x.tmtype])parts.push(TLABEL[x.tmtype]);if(x.secs)parts.push(mmss(x.secs));if(x.rounds)parts.push(x.rounds+" р.");
       badge=`<span class="seed" style="background:var(--accent-weak);color:var(--accent-ink)">кроссфит</span>`+
         (parts.length?`<span class="vol num">${parts.join(" · ")}</span>`:"");
@@ -1865,6 +1926,7 @@ renderCross();
 document.querySelectorAll(".disc[data-disc]").forEach(b=>b.onclick=()=>{
   const d=b.dataset.disc;
   if(d==="Стритлифтинг")show("street");else if(d==="Кроссфит")show("cross");
+  else if(d==="Стрит воркаут"){renderSw();show("sw");}
   else if(d==="Бодибилдинг")show("body");else if(d==="Пауэрлифтинг")show("pwr");
   else toast("«"+d+"» — скоро");});
 el("pclose").addEventListener("click",closeMedia);
@@ -1908,6 +1970,78 @@ function finishCross(){
   show("progress");
 }
 el("wodFinishBtn").onclick=finishCross;
+
+/* ===================== СТРИТ ВОРКАУТ: круги + общее время ===================== */
+const SW=[
+ {lvl:"Новичок",name:"Старт",circles:3,desc:"Первый круговой комплекс: всё тело, простые движения. Двигайся без спешки, но без отдыха между упражнениями.",ex:[["Подтягивания","3"],["Отжимания от пола","10"],["Воздушные приседания","15"],["Ситапы","10"]]},
+ {lvl:"Новичок",name:"Турник и брусья",circles:3,desc:"Базовая связка верха тела на турнике и брусьях.",ex:[["Подтягивания","5"],["Отжимания на брусьях","8"],["Подъём ног в висе","8"]]},
+ {lvl:"Новичок",name:"Пресс и кор",circles:3,desc:"Круг на мышцы корпуса. Планку держи ровно, без прогиба в пояснице.",ex:[["Подъём ног в висе","10"],["Ситапы","15"],["Планка","40 с"]]},
+ {lvl:"Новичок",name:"Всё тело",circles:4,desc:"Четыре круга на всё тело с бёрпи в конце круга.",ex:[["Отжимания от пола","10"],["Воздушные приседания","20"],["Ситапы","15"],["Бёрпи","5"]]},
+ {lvl:"Средний",name:"Лестница силы",circles:5,desc:"Пять кругов базовых упражнений с собственным весом. Держи технику до последнего круга.",ex:[["Подтягивания","8"],["Отжимания на брусьях","12"],["Отжимания от пола","15"],["Воздушные приседания","20"]]},
+ {lvl:"Средний",name:"Взрыв",circles:5,desc:"Взрывная работа ног и турник. Пульс будет высоким — дыши ровно.",ex:[["Бёрпи","10"],["Прыжковые выпады","20"],["Подтягивания","6"]]},
+ {lvl:"Средний",name:"Турник",circles:5,desc:"Акцент на турник: подтягивания и подъёмы ног к перекладине.",ex:[["Подтягивания","10"],["Подъём ног к перекладине","8"],["Отжимания от пола","20"]]},
+ {lvl:"Средний",name:"Ноги и пресс",circles:4,desc:"Ноги, пресс и скакалка — круг на выносливость.",ex:[["Воздушные приседания","30"],["Прыжковые выпады","20"],["Ситапы","20"],["Прыжки на скакалке","50"]]},
+ {lvl:"Продвинутый",name:"Спартанец",circles:5,desc:"Большой объём на турнике и брусьях. Разбивай подходы, если нужно, но не отдыхай между упражнениями.",ex:[["Подтягивания","15"],["Отжимания на брусьях","20"],["Отжимания от пола","30"],["Воздушные приседания","40"]]},
+ {lvl:"Продвинутый",name:"Сотня",circles:10,desc:"Десять кругов — сто подтягиваний за тренировку. Цель — пройти все круги быстрее, чем в прошлый раз.",ex:[["Подтягивания","10"],["Отжимания от пола","20"],["Воздушные приседания","30"]]},
+ {lvl:"Продвинутый",name:"Стойка и турник",circles:5,desc:"Стойка на руках у стены, брусья и турник. Для тех, кто уже уверенно стоит у стены.",ex:[["Стойка на руках у стены","30 с"],["Отжимания на брусьях","15"],["Подтягивания","10"],["Подъём ног к перекладине","10"]]},
+ {lvl:"Продвинутый",name:"Финиш",circles:6,desc:"Шесть кругов на выносливость: бёрпи, турник, трицепс и скакалка.",ex:[["Бёрпи","15"],["Подтягивания","8"],["Обратные отжимания на трицепс","15"],["Прыжки на скакалке","100"]]},
+];
+const SWS={cur:null,run:false,acc:0,t0:0,laps:[],iv:null};
+function swElapsed(){return SWS.acc+(SWS.run?performance.now()-SWS.t0:0);}
+function swFmt(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+  return (h?h+":"+String(m).padStart(2,"0"):String(m).padStart(2,"0"))+":"+String(x).padStart(2,"0");}
+function plCircle(n){const m=n%10,h=n%100;return (m===1&&h!==11)?"круг":(m>=2&&m<=4&&(h<10||h>=20))?"круга":"кругов";}
+function renderSw(){const w=el("swList");w.innerHTML="";let lvl="";
+  SW.forEach(d=>{if(d.lvl!==lvl){lvl=d.lvl;const h=document.createElement("div");h.className="sw-lvl";h.textContent=lvl;w.appendChild(h);}
+    const b=document.createElement("button");b.className="disc";b.type="button";
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${d.circles} ${plCircle(d.circles)} · ${d.ex.length} упр. · на время</span></span><span class="go">›</span>`;
+    b.querySelector("span span").textContent=d.name;
+    b.onclick=()=>openSw(d);w.appendChild(b);});}
+function swUI(){const d=SWS.cur;if(!d)return;const n=SWS.laps.length,done=n>=d.circles;
+  el("swTime").textContent=swFmt(swElapsed());
+  el("swLapN").textContent=n+" / "+d.circles;
+  el("swRoundTxt").textContent=done?"Все круги пройдены":(SWS.run||SWS.acc?"Круг "+(n+1)+" из "+d.circles:d.circles+" "+plCircle(d.circles)+" · на время");
+  el("swStage").dataset.ph=done?"done":(SWS.run?"run":"idle");
+  el("swStart").textContent=done?"Пройдено ✓":SWS.run?"Пауза":(SWS.acc>0?"Продолжить":"Старт");
+  const L=el("swLaps");L.hidden=!n;
+  L.innerHTML=SWS.laps.map((t,i)=>{const prev=i?SWS.laps[i-1]:0;return `<div class="rm-row"><span class="k">Круг ${i+1}</span><span class="v">${swFmt(t-prev)} <small>· всего ${swFmt(t)}</small></span></div>`;}).join("");}
+function swTick(){swUI();}
+function swStop(){if(SWS.run){SWS.acc+=performance.now()-SWS.t0;SWS.run=false;}if(SWS.iv){clearInterval(SWS.iv);SWS.iv=null;}}
+function swReset(){swStop();SWS.acc=0;SWS.laps=[];swUI();}
+function openSw(d){
+  if(SWS.cur&&SWS.cur!==d&&(SWS.run||SWS.acc>0)){toast("Сначала заверши или сбрось «"+SWS.cur.name+"»");d=SWS.cur;}
+  else if(SWS.cur!==d){SWS.cur=d;swReset();}
+  el("swcName").textContent=d.name;el("swcEyebrow").textContent="Стрит воркаут · "+d.lvl.toLowerCase();
+  el("swcFmt").textContent=d.circles+" "+plCircle(d.circles)+" · на время";
+  el("swcDesc").textContent=d.desc;
+  const mv=el("swcMoves");mv.innerHTML="";
+  d.ex.forEach(([name,rp])=>{const m=MEDIA[name];const b=document.createElement("button");b.type="button";b.className="sw-mv";
+    b.innerHTML=`<span class="th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"•"}</span><span class="nm"></span><span class="rp num"></span>`;
+    b.querySelector(".nm").textContent=name;b.querySelector(".rp").textContent=rp;
+    if(m)b.onclick=()=>openMedia(name);mv.appendChild(b);});
+  swUI();show("swc");}
+function swBeep(){try{if(typeof beep==="function"){ac();beep(1046,0.18,0.35);setTimeout(()=>beep(1320,0.3,0.4),220);}}catch(e){}}
+el("swStart").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
+  if(SWS.laps.length>=d.circles){toast("Все круги пройдены — нажми «Завершить» или «Сброс»");return;}
+  if(SWS.run){swStop();}else{try{ac();}catch(e){}SWS.t0=performance.now();SWS.run=true;if(!SWS.iv)SWS.iv=setInterval(swTick,250);}
+  swUI();});
+el("swReset").addEventListener("click",()=>{if((SWS.run||SWS.acc>0)&&Date.now()-(SWS.rArm||0)>3000){SWS.rArm=Date.now();toast("Нажми «Сброс» ещё раз — время и круги обнулятся");return;}SWS.rArm=0;swReset();});
+el("swLap").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
+  if(!SWS.run){toast(SWS.acc>0?"Секундомер на паузе — нажми «Продолжить»":"Сначала нажми «Старт»");return;}
+  if(SWS.laps.length>=d.circles)return;
+  SWS.laps.push(swElapsed());
+  try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}
+  if(SWS.laps.length>=d.circles){swStop();swBeep();toast("Готово: "+d.circles+" "+plCircle(d.circles)+" за "+swFmt(SWS.laps[SWS.laps.length-1]));}
+  swUI();});
+el("swLapUndo").addEventListener("click",()=>{if(!SWS.laps.length)return;
+  const wasDone=SWS.laps.length>=SWS.cur.circles;SWS.laps.pop();
+  if(wasDone&&SWS.acc>0)toast("Последний круг отменён — нажми «Продолжить»");swUI();});
+el("swFinish").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
+  const n=SWS.laps.length;if(!n){toast("Нет пройденных кругов — тренировка не сохранена");return;}
+  swStop();const secs=Math.round((n>=d.circles?SWS.laps[n-1]:swElapsed())/1000);
+  const prev=SWS.laps.map((t,i)=>Math.round((t-(i?SWS.laps[i-1]:0))/1000));
+  const h=safe.get();h.push({date:localDate(),name:d.name,sw:true,circles:n,target:d.circles,secs:secs,laps:prev});safe.set(h);
+  swReset();SWS.cur=null;toast("Тренировка сохранена");show("progress");});
 
 /* ---- звук (Web Audio) ---- */
 let AC=null;
