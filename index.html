@@ -146,6 +146,49 @@
   .street-note{color:var(--muted);font-size:13px;margin:0 0 14px}
   .disc.disc-soon{opacity:.5}
   .rm-list{display:flex;flex-direction:column}
+  /* GVT · цикл */
+  .gvt-sum{display:flex;flex-direction:column;gap:10px}
+  .gvt-sum h3{font-family:var(--dsp);font-weight:700;font-size:17px;margin:0}
+  .gvt-kv{display:flex;flex-wrap:wrap;gap:6px}
+  .gvt-kv span{font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:4px 10px}
+  .gvt-bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+  .gvt-bar i{display:block;height:100%;background:var(--good);border-radius:999px}
+  .gvt-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--muted);font-weight:600}
+  .gvt-opt .seg-b{padding:8px 12px;font-size:12px}
+  .gvt-rm{display:grid;grid-template-columns:1fr 110px;gap:8px 12px;align-items:center;margin-bottom:12px}
+  .gvt-rm label{font-size:13.5px;font-weight:600;color:var(--fg);line-height:1.25}
+  .gvt-rm label small{display:block;color:var(--muted);font-weight:500;font-size:11.5px}
+  .gvt-rm input{font-family:inherit;font-size:16px;color:var(--fg);background:var(--surface);text-align:center;
+    border:1px solid var(--line);border-radius:12px;padding:11px 8px;width:100%}
+  .gvt-rm input:focus{outline:none;border-color:var(--accent)}
+  .gvt-rm input.bad{border-color:#b5452f}
+  .gvt-note{font-size:12.5px;color:var(--muted);margin:0}
+  .gvt-sess .disc{padding:14px 16px;font-size:16px}
+  .gvt-sess .disc.next{border-left-color:var(--good);background:linear-gradient(180deg,var(--panel-top),var(--panel-bot))}
+  .gvt-sess .disc.full{border-left-color:var(--good);opacity:.8}
+  .gvt-st{font-family:var(--dsp);font-weight:800;font-size:13px;color:var(--gold-ink);flex:none;text-align:right}
+  .gvt-st.full{color:var(--good)}
+  .gvt-pend{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--accent-weak);color:var(--accent-ink);font-weight:600}
+  .gvt-pend span{flex:1}
+  .gvt-modal{position:fixed;inset:0;z-index:70;background:rgba(20,20,12,.55);display:flex;align-items:flex-end;justify-content:center;
+    padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  .gvt-mbox{width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
+  .gvt-mbox h3{font-family:var(--dsp);font-weight:800;font-size:20px;margin:0}
+  .gvt-mbox p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+  .gvt-rate{display:flex;flex-direction:column;gap:10px}
+  .gvt-rate .btn small{display:block;font-family:var(--body);text-transform:none;letter-spacing:0;font-weight:500;font-size:12px;opacity:.85;margin-top:2px}
+  /* GVT · строки подходов */
+  .set-row.g5{grid-template-columns:38px 1fr 1fr 58px 40px;gap:6px}
+  .set-row .sn small{display:block;font-family:var(--body);font-size:10px;font-weight:600;color:var(--faint);line-height:1.1}
+  .set-row.warm{opacity:.78}
+  .set-row.warm .sn{color:var(--gold-ink)}
+  .set-row .rir{width:100%;font-family:inherit;font-size:13px;color:var(--fg);background:var(--surface-2);
+    border:1px solid transparent;border-radius:9px;padding:9px 2px;text-align:center;-webkit-appearance:none;appearance:none}
+  .set-row .rir.on{background:var(--panel-top);border-color:var(--panel-line);font-weight:700}
+  .set-row .chk[disabled]{opacity:.35}
+  .gvt-src{font-size:12px;font-weight:600;color:var(--muted);margin:-2px 0 6px}
+  .gvt-src b{color:var(--accent-ink)}
+  .gvt-stop{font-size:12.5px;font-weight:700;color:#8a3a22;background:rgba(181,69,47,.12);border-radius:9px;padding:7px 10px;margin:0 0 6px}
   #rmLifts .tm-step{cursor:pointer;border-left-color:var(--line)}
   #rmLifts .tm-step.on{border-left-color:var(--gold-ink);background:linear-gradient(180deg,var(--panel-top),var(--panel-bot))}
   .rm-fold{padding:0;overflow:hidden}
@@ -626,7 +669,7 @@
     </div>
   </section>
 
-  <!-- БОДИБИЛДИНГ · GVT · недели -->
+  <!-- БОДИБИЛДИНГ · GVT · персональный цикл (алгоритм «ШТУРМ: Режим силы») -->
   <section class="screen" id="scr-gvt" hidden>
     <div class="hd">
       <div><p class="eyebrow">Бодибилдинг · программа</p><h1>GVT · 6 недель</h1></div>
@@ -635,12 +678,13 @@
     <div class="stack">
       <div class="card wod-card">
         <span class="tag">Немецкий объёмный · 10×10</span>
-        <p class="wod-desc">Классика на массу: основные движения — 10 подходов по 10. Вес считается от твоего 1ПМ (задай в «Рабочих весах»). Первые подходы идут «лесенкой» 30%→60% и служат разминкой; рабочие подходы — 60% (стандарт GVT). 3 дня в неделю: A грудь/спина, B ноги, C плечи/руки. Логика Штурм 30.</p>
-        <div class="wod-mv-h">Недели</div>
+        <p class="wod-desc">Персональный цикл: 42 дня, 14 занятий по кругу А → Б → В, занятие раз в три дня (тренировка + два дня отдыха). В основных движениях 10 подходов по 10: первые идут лесенкой от 30 % к рабочему проценту, остальные — на рабочем. Рабочий процент стартует с 70 % твоего 1ПМ и меняется по твоей оценке после занятия, отдельно для дней А, Б и В.</p>
       </div>
-      <div class="stack" id="gvtWeeks"></div>
+      <div class="stack" id="gvtBody"></div>
     </div>
   </section>
+
+  <div class="gvt-modal" id="gvtModal" hidden><div class="card gvt-mbox" id="gvtMbox"></div></div>
 
   <!-- ПАУЭРЛИФТИНГ · 5×5 · недели -->
   <section class="screen" id="scr-pl5" hidden>
@@ -929,7 +973,7 @@ function applyScreen(name){
   if(currentScreen==="workout"&&name!=="workout")document.querySelectorAll("#exList video").forEach(v=>{try{v.pause()}catch(e){}});
   for(const k in scr)scr[k].hidden=(k!==name);
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
-  currentScreen=name;document.body.classList.toggle("toast-top",name==="workout"||name==="day");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
+  currentScreen=name;document.body.classList.toggle("toast-top",name==="workout"||name==="day");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof renderGvt==="function")renderGvt();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
 function show(name){if(currentScreen&&name!==currentScreen)histStack.push(currentScreen);applyScreen(name);}
 function goBack(){
   let prev=histStack.pop()||"home";
@@ -1008,13 +1052,13 @@ function renderDay(){
   el("dayTitle").textContent=p.name;
   el("dayEyebrow").textContent=(p.focus||"Программа дня")+(act?" · идёт":"");
   let tot=0;const w=el("dayList");w.innerHTML="";
-  p.ex.forEach((e,i)=>{const pl=planOf(e);
-    const sets=act?current.sets[i]:null,ns=sets?sets.length:pl.sets;tot+=ns;
-    const nd=sets?sets.filter(s=>s.done).length:0,fin=sets&&nd===ns;
+  p.ex.forEach((e,i)=>{const pl=p.preset?gvtPlanOf(p,i):planOf(e);
+    const sets=act?current.sets[i].filter(s=>!s.warm):null,ns=sets?sets.length:pl.sets;tot+=ns;
+    const nd=sets?sets.filter(s=>s.done).length:0,fin=sets&&(nd===ns||!!(current.stop&&current.stop[i]));
     const m=MEDIA[e[0]];
     const b=document.createElement("button");b.type="button";b.className="day-row"+(fin?" done":"");
     b.innerHTML=`<span class="day-n">${i+1}</span><span class="day-th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"🏋"}</span>
-      <span class="day-tx"><b></b><span>${ns} ${plural(ns,"подход","подхода","подходов")} · ${pl.reps} повт.${pl.w?" · "+pl.w:""}</span></span>
+      <span class="day-tx"><b></b><span>${ns} ${plural(ns,"подход","подхода","подходов")} · ${pl.reps} повт.${pl.w?" · "+pl.w:""}${pl.extra||""}</span></span>
       <span class="day-st">${act?(fin?"✓":nd+"/"+ns):(m?"▶":"")}</span>`;
     b.querySelector("b").textContent=e[0];
     b.onclick=()=>{if(act){current.idx=i;saveDraft();renderWorkout();show("workout");}else if(m)openMedia(e[0]);};
@@ -1035,6 +1079,13 @@ el("dayFinish").addEventListener("click",()=>{
   finishWorkout();});
 function beginWorkout(p,computed){
   const prevMap={};
+  if(p.preset){ // GVT: подходы уже рассчитаны циклом (проценты + память фактических весов)
+    const sets=JSON.parse(JSON.stringify(p.preset));
+    (p.prevShow||[]).forEach((ps,i)=>{if(ps&&ps.length)prevMap[p.ex[i][0]]={sets:ps};});
+    current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),stop:{},startedAt:new Date().toISOString()};
+    dayView={p:p,computed:computed};restStop();
+    el("wkTitle").textContent=p.name;el("wkEyebrow").textContent=p.focus;
+    renderWorkout();saveDraft();show("workout");return;}
   const sets=p.ex.map(e=>{
     const name=e[0],pr=computed?null:lastResult(name);
     const psw=Array.isArray(e[4])?e[4]:null;           // индивидуальный вес по подходам (GVT-лесенка)
@@ -1101,6 +1152,8 @@ const MEDIA={
   "Жим штанги сидя":{p:"media/0091.jpg",v:"media/0091.mp4",id:"edb-0091",name:"Жим штанги над головой сидя"},
   "Жим лёжа узким хватом":{p:"media/0030.jpg",v:"media/0030.mp4",id:"edb-0030",name:"Жим штанги лёжа узким хватом"},
   "Жим на наклонной скамье":{p:"media/0047.jpg",v:"media/0047.mp4",id:"edb-0047",name:"Жим штанги на наклонной скамье"},
+  "Жим гантелей лёжа":{p:"media/0289.jpg",v:"media/0289.mp4",id:"edb-0289",name:"Жим гантелей лёжа"},
+  "Сгибание рук со штангой":{p:"media/0031.jpg",v:"media/0031.mp4",id:"edb-0031",name:"Сгибание рук со штангой"},
   "Жим гантелей":{p:"media/0289.jpg",v:"media/0289.mp4",id:"edb-0289",name:"Жим гантелей лёжа"},
   "Тяга гантели одной рукой":{p:"media/0292.jpg",v:"media/0292.mp4",id:"edb-0292",name:"Тяга гантели одной рукой в наклоне"},
   "Шраги со штангой":{p:"media/0095.jpg",v:"media/0095.mp4",id:"edb-0095",name:"Шраги со штангой"},
@@ -1122,7 +1175,8 @@ function closeMedia(){const v=el("pvideo");try{v.pause();}catch(e){}
 window.__io=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.play().catch(()=>{});}),{threshold:0.15}):null;
 ["touchstart","click"].forEach(ev=>document.addEventListener(ev,function p(){
   document.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;v.play().catch(()=>{});});},{once:true}));
-function exDone(i){const st=current.sets[i];return st.length>0&&st.every(x=>x.done);}
+function exDone(i){if(current.stop&&current.stop[i])return true;
+  const st=current.sets[i].filter(x=>!x.warm);return st.length>0&&st.every(x=>x.done);}
 function nextUndone(i){const n=current.sets.length;
   for(let k=1;k<n;k++){const j=(i+k)%n;if(!exDone(j))return j;}return -1;}
 function goEx(i){if(!current)return;const n=current.program.ex.length;
@@ -1148,16 +1202,22 @@ function renderWorkout(){
     d.className="wk-dot"+(k===i?" cur":"")+(exDone(k)?" done":"");d.title=e[0];d.onclick=()=>goEx(k);dots.appendChild(d);});
   const c=document.createElement("div");c.className="card ex-card wk-card";
   const bw=ex[3]===0&&!Array.isArray(ex[4]); // упражнение без веса — только повторы
-  let rows=`<div class="set-row head"><span>#</span><span>${bw?"—":"Вес"}</span><span>Повт.</span><span></span></div>`;
+  const G=current.program.gx?current.program.gx[i]:null,stopR=current.stop&&current.stop[i];
+  let rows=`<div class="set-row head${G?" g5":""}"><span>#</span><span>${bw?"—":"Вес"}</span><span>Повт.</span>${G?`<span>${G.main?"RIR":""}</span>`:""}<span></span></div>`;
+  let wn=0,mn=0;
   current.sets[i].forEach((s,j)=>{
     const wCell=bw
       ?`<div class="num" style="opacity:.35;text-align:center">—</div>`
-      :`<input class="num" inputmode="decimal" data-s="${j}" data-f="w" value="${s.w}">`;
-    rows+=`<div class="set-row">
-      <div class="sn num">${j+1}</div>
+      :`<input class="num" inputmode="decimal" data-s="${j}" data-f="w" value="${G&&!s.w?"":s.w}" placeholder="кг">`;
+    const lbl=s.warm?("Р"+(++wn)):String(++mn);
+    const pct=(G&&s.pct!=null)?`<small>${fmtW(s.pct)}%</small>`:"";
+    const rir=G?(G.main&&!s.warm?`<select class="rir${s.rir?" on":""}" data-s="${j}"><option value="">—</option><option value="3"${s.rir==="3"?" selected":""}>3+</option><option value="2"${s.rir==="2"?" selected":""}>2</option><option value="1"${s.rir==="1"?" selected":""}>1</option><option value="0"${s.rir==="0"?" selected":""}>0</option><option value="fail"${s.rir==="fail"?" selected":""}>✗</option></select>`:"<span></span>"):"";
+    const lock=stopR&&!s.done&&!s.warm;
+    rows+=`<div class="set-row${G?" g5":""}${s.warm?" warm":""}">
+      <div class="sn num">${lbl}${pct}</div>
       ${wCell}
       <input class="num" inputmode="numeric" data-s="${j}" data-f="r" value="${s.r}">
-      <button class="chk ${s.done?"on":""}" data-s="${j}" type="button">${s.done?"✓":""}</button>
+      ${rir}<button class="chk ${s.done?"on":""}" data-s="${j}" type="button"${lock?" disabled":""}>${s.done?"✓":""}</button>
     </div>`;
   });
   const _m=MEDIA[ex[0]];
@@ -1165,23 +1225,30 @@ function renderWorkout(){
   const _pr=current.prev&&current.prev[ex[0]];
   const _prev=_pr?`<div class="prev-line">Прошлый раз: ${_pr.sets.map(s=>ex[3]?(s.r+"×"+s.w):(""+s.r)).join(", ")}${ex[3]?" кг":" повт."}</div>`:"";
   const _rmv=(typeof rmReg==="function")?rmReg()[ex[0]]:0;
-  const ns=current.sets[i].length;
-  c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">${ns} ${plural(ns,"подход","подхода","подходов")} × ${ex[2]} повт.${ex[3]?" · "+ex[3]+" кг":""}${_rmv?" · 1ПМ "+_rmv+" кг":""}</div>${_prev}
-    <div class="wk-sets">${rows}<button class="addset" type="button">+ подход</button></div>`;
+  const ns=current.sets[i].filter(x=>!x.warm).length;
+  const tgt=G?gvtTargetLine(i):`${ns} ${plural(ns,"подход","подхода","подходов")} × ${ex[2]} повт.${ex[3]?" · "+ex[3]+" кг":""}${_rmv?" · 1ПМ "+_rmv+" кг":""}`;
+  const extra=G?`${gvtSrcLine(i)}${stopR?`<div class="gvt-stop">Блок остановлен: ${stopR}. Остальные подходы не засчитаны.</div>`:""}`:"";
+  const add=(G&&G.main)?"":`<button class="addset" type="button">+ подход</button>`;
+  c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">${tgt}</div>${extra}${_prev}
+    <div class="wk-sets">${rows}${add}</div>`;
   wrap.appendChild(c);
   c.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
     const{s:si,f}=e.target.dataset;const v=parseFloat(String(e.target.value).replace(",","."))||0;
     current.sets[i][si][f]=v;saveDraft();});
+  c.querySelectorAll(".rir").forEach(sel=>sel.onchange=()=>{
+    const s=current.sets[i][sel.dataset.s];s.rir=sel.value;sel.classList.toggle("on",!!s.rir);saveDraft();
+    if(s.done&&gvtStopUpdate(i))return;});
   c.querySelectorAll(".chk").forEach(b=>b.onclick=()=>{
-    const s=current.sets[i][b.dataset.s];s.done=!s.done;
+    const s=current.sets[i][b.dataset.s];if(b.disabled)return;s.done=!s.done;
     b.classList.toggle("on",s.done);b.textContent=s.done?"✓":"";saveDraft();markCur();
+    if(G&&G.main&&!s.warm&&gvtStopUpdate(i))return;
     if(!s.done)return;
     if(!exDone(i)){restStart();return;}
     const nx=nextUndone(i);
     if(nx<0){restStop();toast("Все упражнения выполнены 💪");renderWorkout();return;}
     restStart();
     setTimeout(()=>{if(current&&current.idx===i&&exDone(i)){goEx(nx);toast("Дальше: "+current.program.ex[nx][0]);}},700);});
-  c.querySelector(".addset").onclick=()=>{
+  if(c.querySelector(".addset"))c.querySelector(".addset").onclick=()=>{
     const last=current.sets[i][current.sets[i].length-1]||{w:0,r:0};
     current.sets[i].push({w:last.w,r:last.r,done:false});saveDraft();renderWorkout();};
   c.querySelectorAll(".ex-media").forEach(b=>b.onclick=()=>openMedia(b.dataset.key));
@@ -1223,11 +1290,12 @@ el("wkRestPlus").addEventListener("click",()=>restAdj(60));
 el("wkRestSkip").addEventListener("click",restStop);
 function finishWorkout(){
   let vol=0,anyDone=false;
-  current.sets.forEach(se=>se.forEach(s=>{if(s.done){anyDone=true;vol+=s.w*s.r;}}));
-  if(!anyDone){toast("Отметьте выполненные подходы ✓");return;} // считаем только отмеченное
+  current.sets.forEach(se=>se.forEach(s=>{if(s.done&&!s.warm){anyDone=true;vol+=(s.w||0)*s.r;}}));
+  if(!anyDone){toast(current.program.gvt?"Нет выполненных подходов — занятие не сохранено":"Отметьте выполненные подходы ✓");return;} // считаем только отмеченное
+  const gRec=current.program.gvt?gvtRecord():null;
   const prog=current.program;
   // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
-  const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].map(x=>({r:x.r,w:x.w,done:x.done}));log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
+  const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(x=>({r:x.r,w:x.w,done:x.done}));log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
   const h=safe.get();h.push({date:localDate(),name:prog.name,vol:Math.round(vol),log:log});
   safe.set(h);
   // 2b · проходка обновляет 1ПМ (только вверх)
@@ -1248,9 +1316,11 @@ function finishWorkout(){
     if(full<sets.length)short.push(e[0]);});
   const uniqShort=[...new Set(short)];
   let note=rmMsg;
-  if(uniqShort.length)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
+  if(uniqShort.length&&!gRec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
   window.__coachPending=note||"";
   clearDraft();current=null;restStop();
+  if(gRec){toast(gRec.full?"Занятие выполнено полностью":"Частичный результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
+    show("gvt");gvtRateOpen(gRec.uid);return;}
   toast("Тренировка сохранена");show("progress");
 }
 el("coachClose").addEventListener("click",()=>{el("coachNote").hidden=true;});
@@ -1435,39 +1505,227 @@ function renderBody(){const w=el("bodyProgs");w.innerHTML="";
   g.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Немецкий объёмный (GVT)</span><span class="disc-sub">6 недель · 10×10 · от 1ПМ</span></span><span class="go">›</span>`;
   g.onclick=()=>show("gvt");w.appendChild(g);}
 renderBody();
-/* ---------- GVT · 6-недельный цикл (логика Штурм 30 §3.5) ---------- */
+/* ---------- GVT · персональный цикл (алгоритм «ШТУРМ: Режим силы», перенос владельцем) ----------
+   42 дня · 14 занятий · А → Б → В · занятие раз в 3 дня.
+   n = 0..13: день = n % 3; неделя (с нуля) = floor(n*3/7); плановая дата = старт + 3n дней. */
 function gvtPcts(w,target){const ramp=7-w,base=Math.min(30,target),a=[];
   for(let i=0;i<10;i++)a.push(i<ramp?Math.round((base+(target-base)*i/ramp)*10)/10:target);return a;}
-const GVT_DAYS=[
- {name:"День A · грудь · спина",focus:"жим · тяга",
-  mains:[["Жим гантелей",40],["Тяга штанги в наклоне",60]],
-  acc:[["Обратные отжимания на трицепс",3,12,0],["Подъём штанги на бицепс",3,12,20]]},
- {name:"День B · ноги",focus:"присед · бицепс бедра",
-  mains:[["Приседания со штангой",100],["Сгибание ног",40]],
-  acc:[["Подъём на носки стоя",3,15,50],["Скручивания",3,15,0]]},
- {name:"День C · плечи · руки",focus:"жим стоя · бицепс",
-  mains:[["Жим штанги стоя",40],["Сгибание рук с гантелями",20]],
-  acc:[["Тяга штанги к подбородку",3,12,25],["Обратные отжимания на трицепс",3,12,0]]},
-];
-function gvtMax(name,def){const r=rmReg();
-  if(r[name])return r[name];
-  if(name==="Жим штанги стоя"&&r["Армейский жим стоя"])return r["Армейский жим стоя"];
-  return def;}
-function gvtDay(w,d){const D=GVT_DAYS[d],ex=[],pcts=gvtPcts(w,60);
-  D.mains.forEach(([name,def])=>{const max=gvtMax(name,def);const ws=pcts.map(p=>rmW(max,p,2.5));
-    ex.push([name,10,10,ws[9],ws]);});
-  D.acc.forEach(a=>ex.push(a.slice()));
-  return {name:D.name,focus:D.focus,ex};}
-function renderGvt(){const w=el("gvtWeeks");w.innerHTML="";
-  for(let n=1;n<=6;n++){const b=document.createElement("button");b.className="disc";
-    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Неделя ${n}</span><span class="disc-sub">10×10 · 3 дня (A/B/C)</span></span><span class="go">›</span>`;
-    b.onclick=()=>openGvtWeek(n);w.appendChild(b);}}
-renderGvt();
-function openGvtWeek(n){const wi=n-1;
-  openProg({name:"GVT · Неделя "+n,meta:"10×10 · от 1ПМ",
-    desc:"Основные движения — 10×10, веса от твоего 1ПМ. Первые подходы — лесенка-разминка 30%→60%, рабочие подходы — 60%. "+(n>=4?"С этой недели добавь лёгкий разогрев перед базой.":""),
-    days:[gvtDay(wi,0),gvtDay(wi,1),gvtDay(wi,2)]},"Бодибилдинг · GVT",true);
+const GVT_EX={
+  A1:{name:"Жим гантелей лёжа",main:true,db:true},
+  A2:{name:"Тяга штанги в наклоне",main:true},
+  A3:{name:"Сведение рук сидя в рычажном тренажёре"},
+  A4:{name:"Тяга в наклоне в рычажном тренажёре"},
+  B1:{name:"Присед со штангой",main:true},
+  B2:{name:"Сгибание ног лёжа в тренажёре",main:true},
+  B3:{name:"Подъём на носки с гантелями стоя"},
+  B4:{name:"Подъём ног в висе",bw:true},
+  C1:{name:"Армейский жим штанги узким хватом стоя",main:true},
+  C2:{name:"Сгибание рук со штангой",main:true},
+  C3:{name:"Разгибание рук на трицепс на блоке лёжа"},
+  C4:{name:"Обратное разведение гантелей"},
+};
+const GVT_DAYS=[{key:"A",name:"А · грудь и спина",ex:["A1","A2","A3","A4"]},
+  {key:"B",name:"Б · ноги и пресс",ex:["B1","B2","B3","B4"]},
+  {key:"C",name:"В · плечи и руки",ex:["C1","C2","C3","C4"]}];
+const GVT_MAINS=["A1","A2","B1","B2","C1","C2"];
+/* префилл 1ПМ только из записи того же движения в «Рабочих весах» (без пересчёта из чужих максимумов) */
+const GVT_RM_SAME={B1:"Приседания со штангой",C2:"Подъём штанги на бицепс",A2:"Тяга штанги в наклоне",A1:"Жим гантелей лёжа"};
+const GVT_N=14,GVT_ACC_SETS=3,GVT_ACC_R=12,GVT_START=70,GVT_MIN=50,GVT_MAX=75;
+const GVTK="gym45_gvt_v1";
+function gvtStore(){try{const v=JSON.parse(localStorage.getItem(GVTK));if(v&&Array.isArray(v.cycles))return v;}catch(e){}return {cycles:[],activeId:null};}
+function gvtSave(v){try{localStorage.setItem(GVTK,JSON.stringify(v))}catch(e){}cloudPush();}
+function gvtActive(v){v=v||gvtStore();return v.cycles.find(c=>c.id===v.activeId&&!c.closedAt)||null;}
+function gvtNow(){return new Date().toISOString();}
+function addDays(iso,n){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+n);return localDate(d);}
+function gvtSlot(n){return {n:n,day:n%3,week:Math.floor(n*3/7)};}
+function gvtRound(x,dir){return dir==="down"?Math.floor(x+1e-8):Math.ceil(x-1e-9);}
+function gvtOkW(w){return typeof w==="number"&&isFinite(w)&&w>0;}
+function gvtRecs(c,n){return c.recs.filter(r=>r.n===n);}
+function gvtStatus(c,n){const r=gvtRecs(c,n);if(!r.length)return null;return r.some(x=>x.full)?"full":"partial";}
+function gvtNextN(c){for(let n=0;n<GVT_N;n++)if(gvtStatus(c,n)!=="full")return n;return -1;}
+function gvtDD(iso){const [y,m,d]=iso.split("-");return d+"."+m;}
+function gvtMainPct(rec){let d=0,t=0;rec.ex.forEach(x=>{if(!x.main)return;const st=x.sets.filter(s=>!s.warm);t+=10;d+=st.filter(s=>s.done).length;});return t?Math.round(d/t*100):0;}
+
+/* память фактических весов: последнее занятие того же дня А/Б/В этого цикла (не из будущего) */
+function gvtPrevRec(c,n){const day=n%3;
+  return c.recs.filter(r=>r.day===day&&r.n<=n).sort((a,b)=>(b.finishedAt||"").localeCompare(a.finishedAt||""))[0]||null;}
+function gvtBuild(c,n){
+  const sl=gvtSlot(n),D=GVT_DAYS[sl.day],target=c.target[D.key],pcts=gvtPcts(sl.week,target);
+  const prev=gvtPrevRec(c,n),warmOn=!!c.warmup&&sl.week>=3;
+  const ex=[],preset=[],gx=[],prevShow=[];
+  D.ex.forEach(id=>{const E=GVT_EX[id];
+    const pe=prev?prev.ex.find(x=>x.id===id):null,pw=pe?pe.sets.filter(s=>!s.warm):[];
+    prevShow.push(pw.filter(s=>s.done&&s.r>0).map(s=>({r:s.r,w:s.w})));
+    const sets=[];
+    if(E.main){const rm=c.rm[id];
+      if(warmOn)[[20,8],[30,5],[40,3]].forEach(([pc,r])=>sets.push({w:gvtRound(rm*pc/100,c.round),r:r,done:false,warm:true,pct:pc,src:"plan"}));
+      pcts.forEach((pc,j)=>{let w=gvtRound(rm*pc/100,c.round),src="plan";const ps=pw[j];
+        if(ps&&ps.done&&ps.r>0&&gvtOkW(ps.w)){w=ps.w;src="prev";}
+        sets.push({w:w,r:10,done:false,pct:pc,src:src,rir:""});});
+      const ws=sets.filter(s=>!s.warm).map(s=>s.w);
+      ex.push([E.name,10,10,ws[9],ws]);
+    }else{
+      for(let j=0;j<GVT_ACC_SETS;j++){const ps=pw[j];let w=0,src="manual",r=GVT_ACC_R;
+        if(ps&&ps.done&&ps.r>0&&(E.bw||gvtOkW(ps.w))){w=E.bw?0:ps.w;src="prev";}
+        sets.push({w:w,r:r,done:false,src:src});}
+      ex.push([E.name,GVT_ACC_SETS,"10–15",E.bw?0:null]);
+    }
+    preset.push(sets);gx.push({id:id,main:!!E.main,db:!!E.db,bw:!!E.bw});});
+  return {name:"GVT · №"+(n+1)+" · "+D.name,focus:"Неделя "+(sl.week+1)+" · рабочий "+fmtW(target)+"% · план "+gvtDD(addDays(c.start,n*3)),
+    ex:ex,sec:"body",preset:preset,gx:gx,prevShow:prevShow,
+    gvt:{cycleId:c.id,n:n,day:sl.day,week:sl.week,target:target,pcts:pcts,planned:addDays(c.start,n*3),rm:Object.assign({},c.rm),round:c.round,warm:warmOn}};
 }
+function gvtPlanOf(p,i){const st=p.preset[i].filter(s=>!s.warm),e=p.ex[i],G=p.gx[i];
+  const ws=st.map(s=>s.w).filter(gvtOkW);let w="";
+  if(ws.length){const lo=Math.min(...ws),hi=Math.max(...ws);w=(lo===hi?lo:lo+"–"+hi)+" кг"+(G.db?" (гантель)":"");}
+  else if(!G.bw&&!G.main)w="вес вручную";
+  const nw=p.preset[i].filter(s=>s.warm).length,np=st.filter(s=>s.src==="prev").length;
+  let extra="";if(nw)extra+=" · +"+nw+" разогрев";if(np)extra+=" · из пред. тренировки";
+  return {sets:st.length,reps:e[2],w:w,extra:extra};}
+function gvtTargetLine(i){const p=current.program,g=p.gvt,G=p.gx[i];
+  if(!G.main)return "3 подхода × 10–15 повт."+(G.bw?" · свой вес":" · вес вводится вручную");
+  return "10 подходов × 10 повт. · 1ПМ "+fmtW(g.rm[G.id])+" кг"+(G.db?" (одна гантель)":"")+" · рабочий "+fmtW(g.target)+"%";}
+function gvtSrcLine(i){const G=current.program.gx[i],st=current.sets[i].filter(s=>!s.warm);
+  const np=st.filter(s=>s.src==="prev").length;
+  if(G.bw&&!G.main)return "";
+  if(np===0)return `<div class="gvt-src">Вес: <b>${G.main?"По программе":"Введи вручную"}</b></div>`;
+  if(np===st.length)return `<div class="gvt-src">Вес: <b>Из предыдущей тренировки</b></div>`;
+  return `<div class="gvt-src">Вес: <b>Из предыдущей тренировки</b> (${np} из ${st.length}), остальное — <b>По программе</b></div>`;}
+
+/* остановка тяжёлого блока: два выполненных подряд < 8 повт., или < 8 повт. при RIR 0 */
+function gvtStopReason(i){const st=current.sets[i].filter(s=>!s.warm);let reason=null;
+  for(let j=0;j<st.length;j++){const s=st[j];if(!s.done)continue;
+    if(s.r<8&&s.rir==="0")reason="подход "+(j+1)+" — "+s.r+" повт. при RIR 0";
+    if(j>0&&st[j-1].done&&st[j-1].r<8&&s.r<8)reason="подходы "+j+" и "+(j+1)+" подряд меньше 8 повторов";}
+  return reason;}
+function gvtStopUpdate(i){if(!current.program.gx||!current.program.gx[i].main)return false;
+  current.stop=current.stop||{};const was=!!current.stop[i],r=gvtStopReason(i);
+  if(r)current.stop[i]=r;else delete current.stop[i];saveDraft();
+  if(r&&!was){restStop();renderWorkout();toast("Блок остановлен — дальше следующее упражнение");
+    const nx=nextUndone(i);
+    setTimeout(()=>{if(current&&current.idx===i){if(nx>=0)goEx(nx);else renderWorkout();}},1600);return true;}
+  if(!r&&was){renderWorkout();return true;}
+  return false;}
+
+/* запись занятия (вызывается из finishWorkout; пустое завершение сюда не доходит) */
+function gvtRecord(){const p=current.program,g=p.gvt,v=gvtStore(),c=v.cycles.find(x=>x.id===g.cycleId);
+  if(!c)return null;
+  const stops=[];
+  const ex=p.gx.map((G,i)=>{if(current.stop&&current.stop[i])stops.push({id:G.id,reason:current.stop[i]});
+    return {id:G.id,name:p.ex[i][0],main:G.main,sets:current.sets[i].map(s=>({w:s.w,r:s.r,rir:s.rir||"",done:!!s.done,fail:s.rir==="fail",warm:!!s.warm,pct:s.pct==null?null:s.pct,src:s.src||""}))};});
+  const full=ex.every(x=>{if(!x.main)return true;const st=x.sets.filter(s=>!s.warm);
+    return st.length===10&&st.every(s=>s.done&&s.r>=10&&!s.fail);})&&!stops.length;
+  const rir0=ex.some(x=>x.main&&x.sets.some(s=>!s.warm&&s.rir==="0"));
+  const now=gvtNow();
+  const rec={uid:c.id+"-"+g.n+"-"+Date.now().toString(36),n:g.n,day:g.day,week:g.week,planned:g.planned,
+    startedAt:current.startedAt||now,finishedAt:now,updatedAt:now,target:g.target,pcts:g.pcts,rm:g.rm,round:g.round,warm:g.warm,
+    ex:ex,full:full,easyOK:full&&!rir0,autoHard:stops.length>0,stops:stops,rating:null,targetAfter:null};
+  c.recs.push(rec);
+  if(rec.autoHard)gvtApplyRating(c,rec,"hard");
+  if(gvtNextN(c)<0&&!c.completedAt)c.completedAt=now;
+  c.updatedAt=now;gvtSave(v);return rec;}
+function gvtApplyRating(c,rec,r){if(rec.rating)return;const k=GVT_DAYS[rec.day].key,t=c.target[k];
+  let nt=t;if(r==="hard")nt=Math.max(GVT_MIN,t-10);else if(r==="easy"&&rec.easyOK)nt=Math.min(GVT_MAX,t+5);
+  if(r==="easy"&&!rec.easyOK)r="normal";
+  c.target[k]=nt;rec.rating=r;rec.targetAfter=nt;rec.updatedAt=gvtNow();c.updatedAt=rec.updatedAt;}
+function gvtRateOpen(uid){const v=gvtStore(),c=gvtActive(v)||v.cycles.find(x=>x.recs.some(r=>r.uid===uid));if(!c)return;
+  const rec=c.recs.find(r=>r.uid===uid);if(!rec)return;
+  const k=GVT_DAYS[rec.day].name,box=el("gvtMbox");
+  const head=`<h3>Занятие №${rec.n+1} · ${k}</h3><p>${rec.full?"Основные блоки выполнены полностью.":"Частичный результат: выполнено "+gvtMainPct(rec)+"% основных подходов. Занятие останется в плане для повтора."}</p>`;
+  if(rec.rating){const nm={hard:"Тяжело",normal:"Нормально",easy:"Легко"}[rec.rating];
+    box.innerHTML=head+`<p><b>${rec.autoHard?"Блок остановлен — оценка «Тяжело» присвоена автоматически.":"Оценка: "+nm+"."}</b> Рабочий процент дня ${k.split(" ")[0]}: ${fmtW(rec.target)}% → <b>${fmtW(rec.targetAfter)}%</b>.</p>`+
+      (rec.stops||[]).map(s=>`<p class="gvt-note">${GVT_EX[s.id].name}: ${s.reason}.</p>`).join("")+`<button class="btn" type="button" id="gvtMok">Понятно</button>`;
+    el("gvtModal").hidden=false;el("gvtMok").onclick=()=>{el("gvtModal").hidden=true;renderGvt();};return;}
+  const t=rec.target;
+  box.innerHTML=head+`<p>Как прошло? Это меняет рабочий процент только для дня ${k.split(" ")[0]}.</p><div class="gvt-rate">
+    <button class="btn btn-alt" type="button" data-r="hard">Тяжело<small>${fmtW(t)}% → ${fmtW(Math.max(GVT_MIN,t-10))}%</small></button>
+    <button class="btn btn-alt" type="button" data-r="normal">Нормально<small>остаётся ${fmtW(t)}%</small></button>
+    <button class="btn" type="button" data-r="easy"${rec.easyOK?"":" disabled"}>Легко<small>${rec.easyOK?fmtW(t)+"% → "+fmtW(Math.min(GVT_MAX,t+5))+"%":"доступно при полном 10×10 без отказа и RIR 0"}</small></button>
+    <button class="tm-mini" type="button" id="gvtLater">Оценить позже</button></div>`;
+  el("gvtModal").hidden=false;
+  box.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const v2=gvtStore(),c2=v2.cycles.find(x=>x.id===c.id),r2=c2&&c2.recs.find(r=>r.uid===uid);
+    if(!r2)return;gvtApplyRating(c2,r2,b.dataset.r);gvtSave(v2);gvtRateOpen(uid);});
+  el("gvtLater").onclick=()=>{el("gvtModal").hidden=true;renderGvt();};}
+
+/* слияние с облаком: циклы по id, записи по uid (новее — по updatedAt) */
+function mergeGvt(a,b){a=a&&a.cycles?a:{cycles:[],activeId:null};b=b&&b.cycles?b:{cycles:[],activeId:null};
+  const m={};
+  [...b.cycles,...a.cycles].forEach(c=>{const o=m[c.id];if(!o){m[c.id]=JSON.parse(JSON.stringify(c));return;}
+    const recs={};[...o.recs,...c.recs].forEach(r=>{const x=recs[r.uid];if(!x||(r.updatedAt||"")>(x.updatedAt||""))recs[r.uid]=r;});
+    const newer=(c.updatedAt||"")>(o.updatedAt||"")?c:o;
+    m[c.id]=Object.assign({},JSON.parse(JSON.stringify(newer)),{recs:Object.values(recs).sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||"")),
+      closedAt:o.closedAt||c.closedAt||null,completedAt:o.completedAt||c.completedAt||null});});
+  const cycles=Object.values(m).sort((x,y)=>(x.createdAt||"").localeCompare(y.createdAt||""));
+  const cand=[a.activeId,b.activeId].map(id=>cycles.find(c=>c.id===id&&!c.closedAt)).filter(Boolean)
+    .sort((x,y)=>(y.createdAt||"").localeCompare(x.createdAt||""));
+  return {cycles:cycles,activeId:cand.length?cand[0].id:null};}
+
+/* активация цикла */
+let gvtFormOpen=false,gvtNewArm=0;
+function gvtSameParams(c,rm,start,round){return c.start===start&&c.round===round&&GVT_MAINS.every(id=>c.rm[id]===rm[id]);}
+function gvtActivate(){const v=gvtStore(),a=gvtActive(v),rm={};let bad=false;
+  GVT_MAINS.forEach(id=>{const inp=el("gvtRm_"+id),x=parseFloat(String(inp.value).replace(",","."));
+    const ok=isFinite(x)&&x>0&&x<1000;inp.classList.toggle("bad",!ok);if(ok)rm[id]=Math.round(x*100)/100;else bad=true;});
+  if(bad){toast("Подтверди 1ПМ всех шести движений (> 0)");return;}
+  const start=el("gvtStart").value||localDate(),round=el("gvtRoundUp").classList.contains("on")?"up":"down";
+  if(a&&gvtSameParams(a,rm,start,round)){gvtFormOpen=false;toast("Цикл с этими параметрами уже активен — прогресс сохранён");renderGvt();return;}
+  if(a&&Date.now()-gvtNewArm>4000){gvtNewArm=Date.now();toast("Текущий цикл уйдёт в архив. Нажми ещё раз для подтверждения");return;}
+  const now=gvtNow();
+  if(a){a.closedAt=now;a.updatedAt=now;}
+  const c={id:"gvt-"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),createdAt:now,updatedAt:now,start:start,
+    rm:rm,round:round,warmup:false,target:{A:GVT_START,B:GVT_START,C:GVT_START},recs:[],closedAt:null,completedAt:null};
+  v.cycles.push(c);v.activeId=c.id;gvtSave(v);gvtFormOpen=false;gvtNewArm=0;toast("Цикл активирован");renderGvt();}
+function gvtFormHTML(a){const r=rmReg();
+  const val=id=>a?a.rm[id]:(GVT_RM_SAME[id]&&r[GVT_RM_SAME[id]]?r[GVT_RM_SAME[id]]:"");
+  const round=a?a.round:"up";
+  return `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">${a?"Новый цикл":"Активация цикла"}</h3>
+    <p class="gvt-note" style="margin-bottom:12px">Подтверди 1ПМ каждого основного движения отдельно — можно ввести уже известный максимум, новая попытка не нужна. Значения зафиксируются на весь цикл.</p>
+    <div class="gvt-rm">${GVT_MAINS.map(id=>`<label for="gvtRm_${id}">${GVT_EX[id].name}<small>${GVT_DAYS[["A","B","C"].indexOf(id[0])].name}${GVT_EX[id].db?" · вес одной гантели":""}</small></label>
+      <input id="gvtRm_${id}" inputmode="decimal" placeholder="кг" value="${val(id)}">`).join("")}</div>
+    <div class="field"><label for="gvtStart">Дата начала</label><input id="gvtStart" type="date" value="${a?a.start:localDate()}"></div>
+    <div class="gvt-opt" style="margin-bottom:14px"><span>Округление веса до целого кг</span><div class="seg">
+      <button class="seg-b${round==="down"?" on":""}" id="gvtRoundDown" type="button">Вниз</button><button class="seg-b${round==="up"?" on":""}" id="gvtRoundUp" type="button">Вверх</button></div></div>
+    <button class="btn" type="button" id="gvtGo">${a?"Начать новый цикл":"Активировать цикл"}</button>
+    ${a?`<button class="tm-mini" type="button" id="gvtCancel" style="margin-top:10px">Отмена</button>`:""}</div>`;}
+function renderGvt(){const w=el("gvtBody");if(!w)return;const v=gvtStore(),c=gvtActive(v);
+  if(!c||gvtFormOpen){w.innerHTML=gvtFormHTML(c);
+    el("gvtRoundDown").onclick=()=>{el("gvtRoundDown").classList.add("on");el("gvtRoundUp").classList.remove("on");};
+    el("gvtRoundUp").onclick=()=>{el("gvtRoundUp").classList.add("on");el("gvtRoundDown").classList.remove("on");};
+    el("gvtGo").onclick=gvtActivate;if(el("gvtCancel"))el("gvtCancel").onclick=()=>{gvtFormOpen=false;renderGvt();};
+    gvtArchiveHTML(v,w);return;}
+  const nx=gvtNextN(c),today=localDate(),full=[...Array(GVT_N).keys()].filter(n=>gvtStatus(c,n)==="full").length;
+  const curWeek=Math.min(5,Math.max(0,Math.floor((new Date(today+"T12:00")-new Date(c.start+"T12:00"))/864e5/7)));
+  let html=`<div class="card gvt-sum"><h3>${c.completedAt?"Цикл завершён ✓":"Цикл активен"} · старт ${gvtDD(c.start)}</h3>
+    <div class="gvt-bar"><i style="width:${Math.round(full/GVT_N*100)}%"></i></div>
+    <div class="gvt-kv"><span>Выполнено ${full} из ${GVT_N}</span><span>Календарная неделя ${curWeek+1} из 6</span></div>
+    <div class="gvt-kv"><span>А ${fmtW(c.target.A)}%</span><span>Б ${fmtW(c.target.B)}%</span><span>В ${fmtW(c.target.C)}%</span></div>
+    <div class="gvt-opt"><span>Округление</span><div class="seg"><button class="seg-b${c.round==="down"?" on":""}" data-round="down" type="button">Вниз</button><button class="seg-b${c.round==="up"?" on":""}" data-round="up" type="button">Вверх</button></div></div>
+    <div class="gvt-opt"><span>Разогрев 20/30/40 % с 4-й недели</span><div class="seg"><button class="seg-b${c.warmup?"":" on"}" data-warm="0" type="button">Выкл</button><button class="seg-b${c.warmup?" on":""}" data-warm="1" type="button">Вкл</button></div></div>
+    <p class="gvt-note">1ПМ цикла: ${GVT_MAINS.map(id=>GVT_EX[id].name.split(" ").slice(0,2).join(" ")+" "+fmtW(c.rm[id])).join(" · ")} кг</p></div>`;
+  const pend=c.recs.filter(r=>!r.rating).slice(-1)[0];
+  if(pend)html+=`<div class="gvt-pend"><span>Оцени занятие №${pend.n+1}</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="gvtPend">Оценить</button></div>`;
+  html+=`<div class="stack gvt-sess" id="gvtSess"></div>
+    <button class="btn btn-alt" type="button" id="gvtNew">Новый цикл</button>`;
+  w.innerHTML=html;
+  const list=el("gvtSess");
+  for(let n=0;n<GVT_N;n++){const sl=gvtSlot(n),st=gvtStatus(c,n),pl=addDays(c.start,n*3),recs=gvtRecs(c,n);
+    const b=document.createElement("button");b.type="button";b.className="disc"+(n===nx?" next":"")+(st==="full"?" full":"");
+    let stt=st==="full"?"✓":st==="partial"?"◐ "+Math.max(...recs.map(gvtMainPct))+"%":(n===nx?(pl>today?"раньше срока ▶":"▶"):"");
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>№${n+1} · ${GVT_DAYS[sl.day].name}</span><span class="disc-sub">Неделя ${sl.week+1} · план ${gvtDD(pl)}${n===nx?" · следующее":""}</span></span><span class="gvt-st${st==="full"?" full":""}">${stt}</span>`;
+    b.onclick=()=>{const cc=gvtActive();if(!cc)return;startWorkout(gvtBuild(cc,n),true);};
+    list.appendChild(b);}
+  w.querySelectorAll("[data-round]").forEach(b=>b.onclick=()=>{const v2=gvtStore(),c2=gvtActive(v2);c2.round=b.dataset.round;c2.updatedAt=gvtNow();gvtSave(v2);renderGvt();});
+  w.querySelectorAll("[data-warm]").forEach(b=>b.onclick=()=>{const v2=gvtStore(),c2=gvtActive(v2);c2.warmup=b.dataset.warm==="1";c2.updatedAt=gvtNow();gvtSave(v2);renderGvt();});
+  if(el("gvtPend"))el("gvtPend").onclick=()=>gvtRateOpen(pend.uid);
+  el("gvtNew").onclick=()=>{gvtFormOpen=true;gvtNewArm=0;renderGvt();window.scrollTo(0,0);};
+  gvtArchiveHTML(v,w);}
+function gvtArchiveHTML(v,w){const arch=v.cycles.filter(c=>c.closedAt);if(!arch.length)return;
+  const d=document.createElement("div");d.className="card";
+  d.innerHTML=`<h3 style="margin:0 0 8px;font-family:var(--dsp)">Архив циклов</h3><div class="rm-list">${arch.map(c=>{const f=[...Array(GVT_N).keys()].filter(n=>gvtStatus(c,n)==="full").length;
+    return `<div class="rm-row"><span class="k">Старт ${gvtDD(c.start)}</span><span class="v">${f}/${GVT_N} <small>занятий · ${c.recs.length} записей</small></span></div>`;}).join("")}</div>`;
+  w.appendChild(d);}
+/* экран рисуется при открытии (applyScreen → renderGvt) */
+
 /* ---------- ПАУЭРЛИФТИНГ · «Руки титана» (МакРоберт), 7 этапов ---------- */
 const PWR=[
  {name:"Этап 1 · База 5×5",meta:"12 недель · 2 дня/нед",
@@ -1896,7 +2154,7 @@ el("fAdd").addEventListener("click",()=>{
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false;
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
-function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),at:Date.now()};}
+function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),at:Date.now()};}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -1907,7 +2165,8 @@ function mergeRm(a,b){return Object.assign({},b||{},a||{});}
 function cloudRefreshUI(){
   try{if(currentScreen==="progress")renderProgress();
       if(currentScreen==="food")renderFood();
-      if(currentScreen==="onerm")rmLoadLift(rmLift);}catch(e){}
+      if(currentScreen==="onerm")rmLoadLift(rmLift);
+      if(currentScreen==="gvt")renderGvt();}catch(e){}
 }
 function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;}
 async function cloudInit(){
@@ -1924,6 +2183,7 @@ async function cloudInit(){
       try{localStorage.setItem(KEY,JSON.stringify(mergeHistory(safe.get(),d.history)))}catch(e){}
       try{localStorage.setItem(FOODK,JSON.stringify(mergeFood(foodGet(),d.food)))}catch(e){}
       try{localStorage.setItem(RMK,JSON.stringify(mergeRm(rmReg(),d.rm)))}catch(e){}
+      try{if(d.gvt)localStorage.setItem(GVTK,JSON.stringify(mergeGvt(gvtStore(),d.gvt)))}catch(e){}
       cloudRefreshUI();
       cloudReady=true;
       try{await cloudDoc().set(cloudSnapshot());}catch(e){} // пишем объединённый результат обратно
