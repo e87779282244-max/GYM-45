@@ -973,7 +973,7 @@ function applyScreen(name){
   if(currentScreen==="workout"&&name!=="workout")document.querySelectorAll("#exList video").forEach(v=>{try{v.pause()}catch(e){}});
   for(const k in scr)scr[k].hidden=(k!==name);
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
-  currentScreen=name;document.body.classList.toggle("toast-top",name==="workout"||name==="day");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof renderGvt==="function")renderGvt();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
+  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof renderGvt==="function")renderGvt();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
 function show(name){if(currentScreen&&name!==currentScreen)histStack.push(currentScreen);applyScreen(name);}
 function goBack(){
   let prev=histStack.pop()||"home";
@@ -1152,6 +1152,13 @@ const MEDIA={
   "Жим штанги сидя":{p:"media/0091.jpg",v:"media/0091.mp4?v=2",id:"edb-0091",name:"Жим штанги над головой сидя"},
   "Жим лёжа узким хватом":{p:"media/0030.jpg",v:"media/0030.mp4?v=2",id:"edb-0030",name:"Жим штанги лёжа узким хватом"},
   "Жим на наклонной скамье":{p:"media/0047.jpg",v:"media/0047.mp4?v=2",id:"edb-0047",name:"Жим штанги на наклонной скамье"},
+  "Сведение рук сидя в рычажном тренажёре":{p:"media/0596.jpg",v:"media/0596.mp4?v=2",id:"edb-0596",name:"Сведение рук сидя в рычажном тренажёре"},
+  "Тяга в наклоне в рычажном тренажёре":{p:"media/0574.jpg",v:"media/0574.mp4?v=2",id:"edb-0574",name:"Тяга в наклоне в рычажном тренажёре"},
+  "Сгибание ног лёжа в тренажёре":{p:"media/0586.jpg",v:"media/0586.mp4?v=2",id:"edb-0586",name:"Сгибание ног лёжа в рычажном тренажёре"},
+  "Подъём на носки с гантелями стоя":{p:"media/0417.jpg",v:"media/0417.mp4?v=2",id:"edb-0417",name:"Подъём на носки с гантелями стоя"},
+  "Армейский жим штанги узким хватом стоя":{p:"media/1456.jpg",v:"media/1456.mp4?v=2",id:"edb-1456",name:"Армейский жим штанги узким хватом стоя"},
+  "Разгибание рук на трицепс на блоке лёжа":{p:"media/0186.jpg",v:"media/0186.mp4?v=2",id:"edb-0186",name:"Разгибание рук на трицепс на блоке лёжа"},
+  "Обратное разведение гантелей":{p:"media/0383.jpg",v:"media/0383.mp4?v=2",id:"edb-0383",name:"Обратное разведение гантелей"},
   "Жим гантелей лёжа":{p:"media/0289.jpg",v:"media/0289.mp4?v=2",id:"edb-0289",name:"Жим гантелей лёжа"},
   "Сгибание рук со штангой":{p:"media/0031.jpg",v:"media/0031.mp4?v=2",id:"edb-0031",name:"Сгибание рук со штангой"},
   "Жим гантелей":{p:"media/0289.jpg",v:"media/0289.mp4?v=2",id:"edb-0289",name:"Жим гантелей лёжа"},
@@ -1168,13 +1175,20 @@ const MEDIA={
 const MEDIA_CREDIT="ExerciseDB v1 / AscendAPI · некоммерческое использование, атрибуция обязательна";
 function openMedia(key){const m=MEDIA[key];if(!m)return;const v=el("pvideo");
   el("pname").textContent=m.name;el("pcred").textContent="ID: "+m.id+" · "+MEDIA_CREDIT;
-  v.poster=m.p;v.src=m.v;el("player").hidden=false;
+  v.poster=m.p;v.src=m.v;el("player").hidden=false;mediaSync();
   try{v.currentTime=0;v.play().catch(()=>{});}catch(e){}}
 function closeMedia(){const v=el("pvideo");try{v.pause();}catch(e){}
-  v.removeAttribute("src");try{v.load();}catch(e){}el("player").hidden=true;}
-window.__io=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.play().catch(()=>{});}),{threshold:0.15}):null;
-["touchstart","click"].forEach(ev=>document.addEventListener(ev,function p(){
-  document.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;v.play().catch(()=>{});});},{once:true}));
+  v.removeAttribute("src");try{v.load();}catch(e){}el("player").hidden=true;mediaSync();}
+/* играет только видимая анимация: экран открыт, карточка в кадре, плеер закрыт, вкладка активна */
+function mediaVisible(v){if(document.hidden||!el("player").hidden)return false;
+  if(v.dataset.inview==="0")return false;
+  const sc=v.closest(".screen");if(sc&&sc.hidden)return false;
+  const r=v.getBoundingClientRect();return r.width>0&&r.height>0&&r.bottom>0&&r.top<(window.innerHeight||9999);}
+function mediaSync(){document.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;
+  if(mediaVisible(v)){if(v.paused)v.play().catch(()=>{});}else if(!v.paused){try{v.pause()}catch(e){}}});}
+window.__io=("IntersectionObserver" in window)?new IntersectionObserver(es=>{es.forEach(e=>{e.target.dataset.inview=e.isIntersecting?"1":"0";});mediaSync();},{threshold:0.15}):null;
+document.addEventListener("visibilitychange",mediaSync);
+["touchstart","click"].forEach(ev=>document.addEventListener(ev,function p(){mediaSync();},{once:true}));
 function exDone(i){if(current.stop&&current.stop[i])return true;
   const st=current.sets[i].filter(x=>!x.warm);return st.length>0&&st.every(x=>x.done);}
 function nextUndone(i){const n=current.sets.length;
@@ -1253,9 +1267,10 @@ function renderWorkout(){
     current.sets[i].push({w:last.w,r:last.r,done:false});saveDraft();renderWorkout();};
   c.querySelectorAll(".ex-media").forEach(b=>b.onclick=()=>openMedia(b.dataset.key));
   c.querySelectorAll(".ex-media video").forEach(v=>{v.muted=true;
-    const pl=()=>{v.play().catch(()=>{});};
-    v.addEventListener("canplay",pl);v.addEventListener("loadeddata",pl);pl();
+    const pl=()=>mediaSync();
+    v.addEventListener("canplay",pl);v.addEventListener("loadeddata",pl);
     if(window.__io)window.__io.observe(v);});
+  setTimeout(mediaSync,0);
   markCur();
   el("wkPrev").disabled=i===0;
   const allDone=nextUndone(i)<0&&exDone(i);
