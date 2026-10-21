@@ -377,9 +377,17 @@
     background:linear-gradient(180deg,#6d7f38,#47561d);color:#f6f3e6;border:1px solid #39431a;border-radius:14px;
     padding:8px 10px 8px 14px;box-shadow:var(--shadow)}
   .wk-rest-l{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:12px;opacity:.85}
-  .wk-rest b{font-family:var(--dsp);font-size:24px;font-weight:800;flex:1}
+  .wk-rest-tx{flex:1;display:flex;flex-direction:column;line-height:1.05}
+  .wk-rest b{font-family:var(--dsp);font-size:26px;font-weight:800}
+  .wk-dial{width:50px;height:50px;flex:none}
+  .wk-dial .d-bg{fill:rgba(0,0,0,.18);stroke:rgba(255,255,255,.18);stroke-width:3}
+  .wk-dial .d-arc{fill:none;stroke:#e8d58e;stroke-width:3;stroke-linecap:round;transition:stroke-dasharray .25s linear}
+  .wk-dial .d-ticks line{stroke:rgba(246,243,230,.75);stroke-width:1.4;stroke-linecap:round}
+  .wk-dial .d-hand{stroke:#fff;stroke-width:1.8;stroke-linecap:round;transform-origin:22px 22px;transition:transform .2s cubic-bezier(.4,2.2,.6,1)}
+  .wk-dial .d-pin{fill:#e8d58e}
   .wk-rest button{background:rgba(255,255,255,.14);color:#f6f3e6;border:1px solid rgba(255,255,255,.25);
-    border-radius:9px;padding:7px 9px;font-family:var(--dsp);font-weight:700;font-size:12.5px}
+    border-radius:9px;padding:8px 7px;font-family:var(--dsp);font-weight:700;font-size:12px;white-space:nowrap;flex:none}
+  .wk-rest{gap:6px;padding-left:10px}
   .toast{position:fixed;left:50%;bottom:120px;pointer-events:none;transform:translateX(-50%) translateY(20px);
     background:var(--good);color:#fff;font-family:var(--dsp);font-weight:600;letter-spacing:.03em;
     padding:11px 20px;border-radius:999px;z-index:50;opacity:0;transition:.25s;box-shadow:var(--shadow);
@@ -814,9 +822,16 @@
     <div class="wk-prog"><span id="wkStep">Упражнение 1 из 1</span><div class="wk-dots" id="wkDots"></div></div>
     <div id="exList"></div>
     <div class="wk-rest" id="wkRest" hidden>
-      <span class="wk-rest-l">Отдых</span><b class="num" id="wkRestT">1:30</b>
-      <button type="button" id="wkRestMinus">−15</button><button type="button" id="wkRestPlus">+15</button>
-      <button type="button" id="wkRestSkip">Пропустить</button>
+      <svg class="wk-dial" viewBox="0 0 44 44" aria-hidden="true">
+        <circle class="d-bg" cx="22" cy="22" r="20"/>
+        <circle class="d-arc" id="wkRestArc" cx="22" cy="22" r="20" pathLength="100" stroke-dasharray="100 100" transform="rotate(-90 22 22)"/>
+        <g class="d-ticks"><line x1="22" y1="3.5" x2="22" y2="7" transform="rotate(0 22 22)"/><line x1="22" y1="3.5" x2="22" y2="5.5" transform="rotate(30 22 22)"/><line x1="22" y1="3.5" x2="22" y2="5.5" transform="rotate(60 22 22)"/><line x1="22" y1="3.5" x2="22" y2="7" transform="rotate(90 22 22)"/><line x1="22" y1="3.5" x2="22" y2="5.5" transform="rotate(120 22 22)"/><line x1="22" y1="3.5" x2="22" y2="5.5" transform="rotate(150 22 22)"/><line x1="22" y1="3.5" x2="22" y2="7" transform="rotate(180 22 22)"/><line x1="22" y1="3.5" x2="22" y2="5.5" transform="rotate(210 22 22)"/><line x1="22" y1="3.5" x2="22" y2="5.5" transform="rotate(240 22 22)"/><line x1="22" y1="3.5" x2="22" y2="7" transform="rotate(270 22 22)"/><line x1="22" y1="3.5" x2="22" y2="5.5" transform="rotate(300 22 22)"/><line x1="22" y1="3.5" x2="22" y2="5.5" transform="rotate(330 22 22)"/></g>
+        <line class="d-hand" id="wkRestHand" x1="22" y1="25" x2="22" y2="5"/>
+        <circle class="d-pin" cx="22" cy="22" r="2.2"/>
+      </svg>
+      <span class="wk-rest-tx"><span class="wk-rest-l">Отдых</span><b class="num" id="wkRestT">2:00</b></span>
+      <button type="button" id="wkRestMinus">−1 мин</button><button type="button" id="wkRestPlus">+1 мин</button>
+      <button type="button" id="wkRestSkip">Пропуск</button>
     </div>
     <div class="sticky-foot" id="wkFoot">
       <div class="row2"><button class="btn btn-alt" id="wkPrev" type="button">← Предыдущее</button><button class="btn" id="wkNext" type="button">Следующее →</button></div>
@@ -1184,21 +1199,25 @@ el("wkNext").addEventListener("click",()=>{if(!current)return;const n=current.pr
   if(i<n-1&&!(nextUndone(i)<0&&exDone(i)))goEx(i+1);
   else {renderDay();show("day");if(nextUndone(i)<0&&exDone(i))finishWorkout();else toast("Проверь отметки ✓ и нажми «Завершить программу»");}});
 /* ---------- таймер отдыха между подходами ---------- */
-const RESTK="gym45_rest_v1";
-let restDef=90,restEnd=0,restIv=null;
-try{restDef=parseInt(localStorage.getItem(RESTK))||90;}catch(e){}
+const RESTK="gym45_rest_v2";
+let restDef=120,restEnd=0,restIv=null,restTotal=120;
+try{restDef=parseInt(localStorage.getItem(RESTK))||120;}catch(e){}
 function restTick(){const left=Math.ceil((restEnd-Date.now())/1000);
   if(left<=0){restStop();try{if(typeof beep==="function"){beep(1046,0.2,0.35);setTimeout(()=>beep(1320,0.35,0.4),240);}}catch(e){}
     try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}
     if(current&&currentScreen==="workout")toast("Отдых окончен — работаем");return;}
-  el("wkRestT").textContent=mmss(left);}
-function restStart(){restEnd=Date.now()+restDef*1000;el("wkRest").hidden=false;scr.workout.classList.add("resting");
+  el("wkRestT").textContent=mmss(left);
+  const passed=Math.floor((restTotal*1000-(restEnd-Date.now()))/1000);
+  el("wkRestHand").style.transform="rotate("+(((passed%60)+60)%60)*6+"deg)";
+  el("wkRestArc").setAttribute("stroke-dasharray",Math.max(0,Math.min(100,left/restTotal*100)).toFixed(2)+" 100");}
+function restStart(){restEnd=Date.now()+restDef*1000;restTotal=restDef;el("wkRest").hidden=false;scr.workout.classList.add("resting");
   if(restIv)clearInterval(restIv);restIv=setInterval(restTick,250);restTick();}
 function restStop(){if(restIv)clearInterval(restIv);restIv=null;el("wkRest").hidden=true;scr.workout.classList.remove("resting");}
-function restAdj(d){restDef=Math.max(15,Math.min(600,restDef+d));try{localStorage.setItem(RESTK,restDef)}catch(e){}
-  restEnd=Math.max(Date.now()+1000,restEnd+d*1000);restTick();}
-el("wkRestMinus").addEventListener("click",()=>restAdj(-15));
-el("wkRestPlus").addEventListener("click",()=>restAdj(15));
+function restAdj(d){restDef=Math.max(60,Math.min(600,restDef+d));try{localStorage.setItem(RESTK,restDef)}catch(e){}
+  const left=restEnd-Date.now(),nl=Math.max(1000,left+d*1000);restEnd=Date.now()+nl;
+  restTotal=Math.max(restTotal+d,Math.ceil(nl/1000));restTick();toast("Отдых по умолчанию: "+mmss(restDef));}
+el("wkRestMinus").addEventListener("click",()=>restAdj(-60));
+el("wkRestPlus").addEventListener("click",()=>restAdj(60));
 el("wkRestSkip").addEventListener("click",restStop);
 function finishWorkout(){
   let vol=0,anyDone=false;
