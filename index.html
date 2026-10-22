@@ -332,6 +332,8 @@
   .nt-note{background:var(--accent-weak);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13.5px}
   .nt-note p{margin:6px 0 0;line-height:1.4}
   .nt-ctl{margin-top:8px}
+  .nt-soft{color:var(--accent-ink);background:var(--accent-weak);border-radius:10px;padding:8px 10px;font-size:13.5px;margin:6px 0}
+  .nt-days button.near::after{background:#9bb04a}
   .food-empty{color:var(--faint);font-size:13px;text-align:center;padding:10px 0}
 
   /* ---- workout ---- */
@@ -1119,6 +1121,7 @@
         <p class="nt-sub" id="ntPlanNorm"></p>
         <div class="sk-lvl" id="ntShakes"><span>Протеиновых коктейлей в день</span><button type="button" data-v="0">Без протеина</button><button type="button" data-v="1">1 коктейль</button><button type="button" data-v="2">2 коктейля</button></div>
         <div class="sk-lvl" id="ntLiquid"><span>Основа коктейля</span><button type="button" data-v="milk">Молоко 2,5%</button><button type="button" data-v="water">Вода · 250 мл</button></div>
+        <div id="ntScoopBox"><div class="nt-grid"><label>Порция порошка, г<input id="ntScG" class="food-in" type="text" inputmode="decimal" value="30"></label><label>Белка в порции, г<input id="ntScP" class="food-in" type="text" inputmode="decimal" value="24"></label></div><p class="nt-sub" id="ntScoopNote"></p></div>
         <button class="btn" id="ntMake" type="button">Составить меню</button>
         <p class="nt-err" id="ntPlanErr" role="alert"></p>
       </div>
@@ -1771,6 +1774,30 @@ root.ShturmNutrition={foods,num,totals,norm,measure,menu,shopping};
  refresh();
 })(globalThis);
 
+</script>
+<script data-nt-shim="gym45-scoop">
+/* Gym 45 · фиксированная порция протеина в ПЕРВОМ коктейле (решение владельца: 1-й — полная порция,
+   во 2-м движок по-прежнему подбирает порошок 10–35 г). Подключается МЕЖДУ nutrition-calculator.js
+   и nutrition-menu-portions.js и оборачивает исходное меню ядра: порошок в «Коктейль 1» заменяется
+   отдельным продуктом wheyScoop с фиксированной массой (по умолчанию 30 г = 24 г белка).
+   PR9 не знает этот id → относит его к категории 'fixed' и не меняет; остальные порции
+   подбираются под норму уже с учётом реальной порции. Байты модулей ШТУРМ 30 не меняются. */
+(function(root){'use strict';
+const N=root.ShturmNutrition;if(!N||N.__gymScoop)return;
+const coreMenu=N.menu.bind(N);let scoop=null;
+N.gymScoop=function(cfg){
+ const g=Number(cfg&&cfg.g),p=Number(cfg&&cfg.p);
+ if(!cfg||!Number.isFinite(g)||!Number.isFinite(p)){scoop=null;return null;}
+ if(g<10||g>60||p<5||p>g*.9)throw Error('Порция протеина: 10–60 г порошка, белка не больше 90% массы порции.');
+ const w=N.foods.whey,per=100/g;scoop={g,p};
+ N.foods.wheyScoop={id:'wheyScoop',name:'Протеин, порошок · порция '+g+' г = '+p+' г белка',group:'protein',p:p*per,f:w.f,c:w.c,kcal:4*p*per+9*w.f+4*w.c,scoop:g};
+ return scoop;};
+N.menu=function(target,options){const days=coreMenu(target,options);if(!scoop)return days;
+ for(const d of days){for(const m of d.meals)if(/^Коктейль 1/.test(m.name)){m.items=m.items.map(i=>i.id==='whey'?{id:'wheyScoop',g:scoop.g}:i);m.total=N.totals(m.items);}
+  d.total=N.totals(d.meals.flatMap(m=>m.items));}
+ return days;};
+N.__gymScoop=true;
+})(globalThis);
 </script>
 <script data-nt-module="nutrition-menu-portions" data-sha256="d6a3cf57e7daf4502fbd1f5e39cd864ba0dc8e8494fc2acda251f9b89f72bbc6">
 /* ШТУРМ 30 → Gym 45 · nutrition-menu-portions.js · перенесён побайтно (Sites154 + PR9 final), SHA-256 d6a3cf57e7daf4502fbd1f5e39cd864ba0dc8e8494fc2acda251f9b89f72bbc6 */
@@ -4555,7 +4582,7 @@ el("fAdd").addEventListener("click",()=>{
    Алгоритмы не переписаны: здесь только хранение (ключи gym45_nutrition_*), единицы и разметка.
    Логика сборки целевой нормы для меню — 1:1 из nutrition-tools.js (renderPlan). */
 const NTK_T="gym45_nutrition_target_v1",NTK_O="gym45_nutrition_options_v1",NTK_P="gym45_nutrition_plan_v1",FOODDELK="gym45_food_del_v1";
-const NT_ENGINE="sites154+pr9-final";
+const NT_ENGINE="sites154+pr9-final+g45r1";
 const NT_LB=0.45359237,NT_IN=2.54,NT_OZ=28.349523125,NT_FLOZ=29.5735295625;
 const NTN=()=>window.ShturmNutrition;
 const ntF=(n,d=0)=>Number(n).toLocaleString("ru-RU",{maximumFractionDigits:d});
@@ -4563,7 +4590,8 @@ const ntR1=x=>Math.round(x*10)/10;
 function ntRead(k,def){try{const v=JSON.parse(localStorage.getItem(k)||"null");return v&&typeof v==="object"?v:def;}catch(e){return def;}}
 function ntWrite(k,v,push){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){toast("Не удалось сохранить данные питания");return false;}if(push!==false)cloudPush();return true;}
 function ntT(){return ntRead(NTK_T,null);}
-function ntO(){return Object.assign({units:"metric",shakes:2,liquid:"milk",method:"gym45"},ntRead(NTK_O,{}));}
+function ntO(){return Object.assign({units:"metric",shakes:2,liquid:"milk",method:"gym45",scoop:{g:30,p:24}},ntRead(NTK_O,{}));}
+function ntApplyScoop(){const o=ntO();if(o.method==="shturm"){NTN().gymScoop(null);return;}try{NTN().gymScoop(o.scoop);}catch(e){NTN().gymScoop({g:30,p:24});}}
 /* Уточнённая методика Gym 45 (по умолчанию). BMR, TDEE и калорийность цели — без изменений, из ShturmNutrition.calculate.
    Меняется только раскладка БЖУ:
    1) белок и жиры г/кг считаются от «расчётного веса» = min(вес, вес при ИМТ 27) — чтобы при большом весе
@@ -4644,10 +4672,10 @@ function ntReadForm(){const imp=ntImp(),num=v=>Number(String(v).replace(",",".")
   else{if(!el("ntHeight").value.trim())throw Error("Заполни рост.");rec.weight=num(el("ntWeight").value);rec.height=num(el("ntHeight").value);rec.src={units:"metric",w:el("ntWeight").value.trim(),h:el("ntHeight").value.trim()};}
   return rec;}
 /* ---- план на 7 дней ---- */
-function ntSig(t,o){return JSON.stringify([NT_ENGINE,o.method||"gym45",t.sex,t.age,t.weight,t.height,t.activity,t.goal,Number(o.shakes),o.liquid]);}
+function ntSig(t,o){const sc=o.scoop||{};return JSON.stringify([NT_ENGINE,o.method||"gym45",sc.g,sc.p,t.sex,t.age,t.weight,t.height,t.activity,t.goal,Number(o.shakes),o.liquid]);}
 function ntPlanGet(){const p=ntRead(NTK_P,null);return p&&Array.isArray(p.days)&&p.days.length===7?p:null;}
-function ntGenerate(){const t=ntT(),o=ntO(),target=ntTarget(t);if(!target.menuAllowed)throw Error("Для этой нормы автоматическое меню не составляется — нужен индивидуальный подбор.");
-  const days=NTN().menu(target,{shakes:Number(o.shakes),liquid:o.liquid}),shop=NTN().shopping(days);
+function ntGenerate(){ntApplyScoop();const t=ntT(),o=ntO(),target=ntTarget(t);if(!target.menuAllowed)throw Error("Для этой нормы автоматическое меню не составляется — нужен индивидуальный подбор.");
+  let days=NTN().menu(target,{shakes:Number(o.shakes),liquid:o.liquid});if(target.method==="gym45")days=ntRealistic(days,target);const shop=NTN().shopping(days);
   const plan={sig:ntSig(t,o),engine:NT_ENGINE,shakes:Number(o.shakes),liquid:o.liquid,target:{kcal:target.kcal,p:target.p,f:target.f,c:target.c},days,shop,generatedAt:Date.now()};
   ntWrite(NTK_P,plan,false);return plan;}
 function ntMakeAsync(){const b=el("ntMake");if(b.disabled)return;b.disabled=true;const txt=b.textContent;b.textContent="Подбираю порции…";el("ntPlanErr").textContent="";
@@ -4658,7 +4686,9 @@ function ntRenderPlan(){const t=ntT(),o=ntO(),wk=el("ntWeek");el("ntPlanErr").te
   el("ntPlanNorm").textContent=`Норма: ${ntF(target.kcal)} ккал · Б ${ntF(target.p,1)} · Ж ${ntF(target.f,1)} · У ${ntF(target.c,1)} г. Три основных приёма пищи + выбранные коктейли.`;
   ntChips("ntShakes",o.shakes,v=>{ntSetO({shakes:Number(v)});ntRenderPlan();ntMakeAsync();});
   ntChips("ntLiquid",o.liquid,v=>{ntSetO({liquid:v});ntRenderPlan();ntMakeAsync();});
-  el("ntLiquid").hidden=Number(o.shakes)===0;
+  el("ntLiquid").hidden=Number(o.shakes)===0;el("ntScoopBox").hidden=Number(o.shakes)===0||o.method==="shturm";
+  if(document.activeElement!==el("ntScG"))el("ntScG").value=o.scoop.g;if(document.activeElement!==el("ntScP"))el("ntScP").value=o.scoop.p;
+  el("ntScoopNote").textContent=Number(o.shakes)===2?"Коктейль 1 — всегда полная порция. Во втором коктейле порошок подбирается под норму (10–35 г): две полные порции почти всегда перебирают белок.":"Коктейль — всегда полная порция.";
   if(!target.menuAllowed){wk.innerHTML=`<div class="card"><p class="nt-warn">Для результата ниже 1500 ккал у мужчин, 1200 ккал у женщин или выше 5000 ккал, а также при нулевой норме углеводов автоматическое меню не составляется: нужен индивидуальный подбор.</p></div>`;el("ntMake").hidden=true;return;}
   const p=ntPlanGet(),fresh=p&&p.sig===ntSig(t,o);el("ntMake").textContent=p?"Пересоставить меню":"Составить меню";
   el("ntMake").onclick=ntMakeAsync;
@@ -4667,11 +4697,11 @@ function ntRenderPlan(){const t=ntT(),o=ntO(),wk=el("ntWeek");el("ntPlanErr").te
 function ntDev(a,b){return (a-b)/b*100;}
 function ntRenderWeek(p){const wk=el("ntWeek");const fitN=p.days.filter(d=>d.fitted).length;NT_DAY=Math.min(7,Math.max(1,NT_DAY));
   let h=`<div class="card"><div class="nt-dhead"><b>Подобрано под норму: ${fitN} из 7 дней</b><span class="nt-sub">${p.shakes?p.shakes+" "+(p.shakes===1?"коктейль":"коктейля")+" · "+(p.liquid==="water"?"на воде":"на молоке"):"без протеина"}</span></div><div class="nt-days">`;
-  p.days.forEach(d=>{h+=`<button type="button" data-d="${d.day}" class="${d.fitted?"ok":"approx"}${d.day===NT_DAY?" on":""}">День ${d.day}<small class="num">${ntF(d.total.kcal)}</small></button>`;});
-  h+=`</div><p class="nt-sub">Крупы — сухие; мясо, рыба, овощи — сырые, съедобная часть. Варить, запекать или готовить на пару; всё масло уже указано. Специи по вкусу, дополнительные соусы в расчёт не входят.</p></div>`;
+  p.days.forEach(d=>{h+=`<button type="button" data-d="${d.day}" class="${d.fitted?"ok":d.reason&&d.reason.startsWith("Белок")?"near":"approx"}${d.day===NT_DAY?" on":""}">День ${d.day}<small class="num">${ntF(d.total.kcal)}</small></button>`;});
+  h+=`</div>${p.days.some(d=>d.realistic)?`<p class="nt-sub">Порции — реальные: на один приём не больше ~900 г еды в готовом виде, каждый основной приём — 20–25 г белка и больше, при нехватке калорий добавлен перекус.</p>`:""}<p class="nt-sub">Крупы — сухие; мясо, рыба, овощи — сырые, съедобная часть. Варить, запекать или готовить на пару; всё масло уже указано. Специи по вкусу, дополнительные соусы в расчёт не входят.</p></div>`;
   const d=p.days[NT_DAY-1],tg=p.target,T={kcal:tg.kcal,p:tg.p,f:tg.f,c:tg.c};
   h+=`<div class="card nt-day"><div class="nt-dhead"><b>День ${d.day}</b><span class="num">${ntF(d.total.kcal)} ккал</span></div>`;
-  h+=`<p class="${d.fitted?"nt-ok":"nt-warn"}">${d.fitted?"✓ Порции подобраны под норму":`Приблизительный вариант: отклонение калорий ${ntF(d.error*100,1)}%, максимальное отклонение БЖУ ${ntF(d.macroError*100,1)}%. Нужна ручная корректировка.`}</p>`;
+  h+=`<p class="${d.fitted?"nt-ok":d.reason&&d.reason.startsWith("Белок")?"nt-soft":"nt-warn"}">${d.fitted?"✓ Порции подобраны под норму":d.reason?d.reason:`Приблизительный вариант: отклонение калорий ${ntF(d.error*100,1)}%, максимальное отклонение БЖУ ${ntF(d.macroError*100,1)}%. Нужна ручная корректировка.`}</p>`;
   h+=`<table class="nt-table nt-dev"><thead><tr><th></th><th>Норма</th><th>Меню</th><th>Откл.</th></tr></thead><tbody>`+[["Ккал","kcal",5,0],["Белки, г","p",10,1],["Жиры, г","f",10,1],["Углеводы, г","c",10,1]].map(([n,k,tol,dg])=>{const dv=ntDev(d.total[k],T[k]);return `<tr><td>${n}</td><td class="num">${ntF(T[k],dg)}</td><td class="num">${ntF(d.total[k],dg)}</td><td class="num ${Math.abs(dv)>tol?"bad":"good"}">${dv>0?"+":""}${ntF(dv,1)}%</td></tr>`;}).join("")+`</tbody></table>`;
   if(d.pr9Warnings&&d.pr9Warnings.length)h+=`<ul class="nt-notes">${d.pr9Warnings.map(w=>`<li>${w}</li>`).join("")}</ul>`;
   d.meals.forEach((m,mi)=>{h+=`<div class="nt-meal"><div class="nt-mh"><b>${m.name}</b><span class="num">${ntF(m.total.kcal)} ккал</span></div><ul>${m.items.map(i=>{const hn=ntHint(i);return `<li><span>${NTN().foods[i.id].name}</span><b class="num">${ntAmount(i)}</b>${hn?`<small>${hn}</small>`:""}</li>`;}).join("")}${m.water?`<li><span>Вода</span><b class="num">${ntMass(250,true)}</b></li>`:""}</ul>
@@ -4718,7 +4748,11 @@ function ntRenderMeas(){if(!NT_MEAS_INIT){NT_MEAS_INIT=true;const prev=ntO().mea
 /* ---- покупки: ShturmNutrition.shopping() + подсказки фасовки PR9 ---- */
 function ntRenderShop(){const box=el("ntShop"),t=ntT(),p=ntPlanGet();
   if(!t||!p||p.sig!==ntSig(t,ntO())){box.innerHTML=`<p class="nt-sub">${p?"Норма или настройки изменились — пересоставь меню на вкладке «План 7 дней».":"Сначала составь меню на вкладке «План 7 дней»."}</p><button class="btn btn-alt" type="button" id="ntShopGo">Открыть план</button>`;el("ntShopGo").onclick=()=>ntTab("plan");return;}
-  box.innerHTML=`<p class="nt-sub">Меню на ${ntF(p.target.kcal)} ккал · ${p.shakes?p.shakes+" "+(p.shakes===1?"коктейль":"коктейля")+(p.liquid==="water"?" на воде":" на молоке"):"без протеина"}</p><ul class="nt-shop">`+p.shop.map(i=>{const pk=i.pr9Package;return `<li><span>${NTN().foods[i.id].name}</span><b class="num">${ntAmount(i)}</b>${pk?`<small>${pk.packageLabel?"купить: "+pk.purchaseNote:"к покупке ≈ "+ntMass(pk.purchaseQuantity,pk.unit==="ml")+" — округлено вверх, уточни упаковку"}</small>`:""}</li>`;}).join("")+`</ul>`;}
+  box.innerHTML=`<p class="nt-sub">Меню на ${ntF(p.target.kcal)} ккал · ${p.shakes?p.shakes+" "+(p.shakes===1?"коктейль":"коктейля")+(p.liquid==="water"?" на воде":" на молоке"):"без протеина"}</p><ul class="nt-shop">`+ntShopRows(p.shop).map(i=>{const pk=i.pr9Package;return `<li><span>${NTN().foods[i.id].name}</span><b class="num">${ntAmount(i)}</b>${pk?`<small>${pk.packageLabel?"купить: "+pk.purchaseNote:"к покупке ≈ "+ntMass(pk.purchaseQuantity,pk.unit==="ml")+" — округлено вверх, уточни упаковку"}</small>`:""}</li>`;}).join("")+`</ul>`;}
+/* протеин из 1-го коктейля (wheyScoop) и 2-го (whey) — один товар: показываем одной строкой */
+function ntShopRows(shop){const w=shop.filter(i=>i.id==="whey"||i.id==="wheyScoop");if(w.length<2)return shop;
+  const g=w.reduce((s,i)=>s+i.g,0),n=Math.ceil(g/500);
+  return shop.filter(i=>i.id!=="whey"&&i.id!=="wheyScoop").concat([{id:"whey",g,pr9Package:{packageLabel:"упаковка 500 г",purchaseNote:n+" × упаковка 500 г",purchaseQuantity:n*500,unit:"g"}}]);}
 /* ---- дневник: сравнение с нормой (без пересчёта прошлых записей) ---- */
 function ntVsNorm(){const box=el("ntVsNorm");if(!box||!NTN())return;const t=ntT();if(!t){box.hidden=true;return;}
   let x;try{x=ntTarget(t);}catch(e){box.hidden=true;return;}
@@ -4728,10 +4762,64 @@ function ntVsNorm(){const box=el("ntVsNorm");if(!box||!NTN())return;const t=ntT(
 const _ntRenderFood=renderFood;
 renderFood=function(){_ntRenderFood();ntVsNorm();ntRenderVisible();};
 el("ntTabs").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ntTab(b.dataset.t)));
+function ntScoopChange(){const g=Number(String(el("ntScG").value).replace(",",".")),p=Number(String(el("ntScP").value).replace(",","."));
+  try{NTN().gymScoop({g,p});}catch(e){el("ntPlanErr").textContent=e.message;ntApplyScoop();return;}
+  el("ntPlanErr").textContent="";ntSetO({scoop:{g,p}});ntRenderPlan();ntMakeAsync();}
+["ntScG","ntScP"].forEach(id=>el(id).addEventListener("change",ntScoopChange));
+if(NTN()&&NTN().gymScoop)ntApplyScoop();
 el("ntCalc").addEventListener("click",()=>{el("ntErr").textContent="";let rec;
   try{rec=ntReadForm();ntCalcOf(rec);}catch(e){let m=e.message;if(rec&&ntImp())m+=` (в пересчёте: ${ntF(rec.weight,1)} кг, ${ntF(rec.height,1)} см)`;el("ntErr").textContent=m;return;}
   ntWrite(NTK_T,rec);NTF=null;ntFillForm();ntRenderNorm();ntVsNorm();toast("Норма сохранена");});
 if(!NTN()){el("ntTabs").querySelectorAll('button:not([data-t="diary"])').forEach(b=>b.disabled=true);}
+
+/*<nt-realistic>*/
+/* ---- Gym 45 · «реальные порции» (только в методике Gym 45) ----
+   Поверх меню движка ШТУРМ 30: продукты и шаблоны дня — от движка, а граммовки переподбираются
+   в жизненных границах НА ОДИН ПРИЁМ ПИЩИ с удобным шагом; каждый основной приём — не меньше 25 г
+   белка и не больше 40% калорий дня; объём тарелки (в готовом виде) ограничен; при нехватке —
+   перекус. Итоги и статус «подобрано» пересчитываются по фактическим порциям, как в движке. */
+const NT_REAL={ // [min,max,step] на один приём
+  oats:[40,100,10],rice:[50,150,10],buckwheat:[50,150,10],pasta:[50,150,10],millet:[50,150,10],barley:[50,150,10],
+  potato:[150,400,50],chicken:[100,250,10],turkey:[100,250,10],beef:[100,250,10],thigh:[100,250,10],salmon:[100,200,10],cod:[120,300,10],
+  vegetables:[150,350,50],broccoli:[150,300,50],cucumber:[100,300,50],tomato:[100,300,50],cabbage:[100,300,50],carrot:[100,250,50],
+  oil:[5,15,5],egg:[50,150,50],curd:[100,250,50],bread:[30,100,10],apple:[100,250,10],orange:[100,250,10],pear:[100,250,10],banana:[100,250,10],berries:[100,250,10],
+  raisins:[0,40,10],honey:[0,30,5],nuts:[0,30,5],peanut:[0,30,5],milk:[100,300,50],whey:[15,35,5],cheese:[0,40,10],sourcream:[0,40,10]};
+const NT_SHAKE={milk:[150,300,50],oats:[0,60,10],whey:[15,35,5]};
+const NT_FRUIT={apple:1,orange:1,pear:1,banana:1,berries:1};
+const NT_COOK={oats:2,rice:3,buckwheat:3,pasta:2.4,millet:3,barley:3,chicken:.75,turkey:.75,beef:.7,thigh:.75,salmon:.8,cod:.8,potato:.9}; // сырое/сухое → готовое
+const NT_SNACKS=[[["banana",150],["bread",60],["honey",15]],[["curd",150],["berries",150]],[["apple",150],["nuts",20]],[["bread",60],["cheese",30],["tomato",100]]];
+function ntRealistic(days,T){const N=NTN(),K=["kcal","p","f","c"],W={kcal:4,p:2,f:1,c:1};
+  const isShake=m=>/^Коктейль/.test(m.name);
+  const bnd=(m,i)=>i.id==="wheyScoop"?null:(isShake(m)?NT_SHAKE[i.id]:NT_REAL[i.id])||null;
+  const cooked=m=>m.items.reduce((s,i)=>s+(N.foods[i.id].volume?0:i.g*(NT_COOK[i.id]||1)),0);
+  function loss(meals){const tot=N.totals(meals.flatMap(m=>m.items));let L=0;for(const k of K){const e=(tot[k]-T[k])/T[k];L+=W[k]*e*e;}
+    for(const m of meals){if(isShake(m))continue;const t=N.totals(m.items),sh=t.kcal/T.kcal;
+      if(sh>.4)L+=3*(sh-.4)**2;const pm=m.name==="Завтрак"?20:m.name==="Перекус"?0:25;if(t.p<pm)L+=1.5*((pm-t.p)/T.p)**2;const cm=cooked(m);if(cm>850)L+=2*((cm-850)/850)**2;
+      const fr=m.items.reduce((s,i)=>s+(NT_FRUIT[i.id]?i.g:0),0);if(fr>300)L+=2*((fr-300)/300)**2;}
+    return L;}
+  function opt(meals){const ed=[];meals.forEach(m=>m.items.forEach(i=>{const b=bnd(m,i);if(b){i.g=Math.min(b[1],Math.max(b[0],Math.round(i.g/b[2])*b[2]));ed.push([i,b]);}}));
+    let best=loss(meals);for(let s=0;s<400;s++){let pick=null;for(const [i,b] of ed){const o=i.g;for(const d of [-1,1]){const v=o+d*b[2];if(v<b[0]||v>b[1])continue;i.g=v;const l=loss(meals);if(l<best-1e-12){best=l;pick=[i,v];}}i.g=o;}
+      if(!pick)break;pick[0].g=pick[1];}
+    meals.forEach(m=>m.items=m.items.filter(i=>i.g>0||i.id==="wheyScoop"));return best;}
+  const fit=t=>Math.abs(t.kcal-T.kcal)/T.kcal<=.05&&["p","f","c"].every(k=>Math.abs(t[k]-T[k])/T[k]<=.1);
+  return days.map(d=>{let meals=d.meals.map(m=>({...m,items:m.items.map(i=>({...i}))}));
+    // одно и то же блюдо в одном приёме не повторяется дважды (движок PR9 иногда добавляет хлеб/банан к уже имеющимся)
+    meals.forEach(m=>{const seen={};m.items=m.items.filter(i=>{if(seen[i.id]){seen[i.id].g+=i.g;return false;}seen[i.id]=i;return true;});});
+    let L=opt(meals);let tot=N.totals(meals.flatMap(m=>m.items));
+    if(!fit(tot)){let best=null;for(const s of NT_SNACKS){const c=meals.map(m=>({...m,items:m.items.map(i=>({...i}))}));const at=c.findIndex(isShake);const snack={name:"Перекус",items:s.map(([id,g])=>({id,g}))};
+        c.splice(at<0?c.length:at,0,snack);const l=opt(c);if(!best||l<best.l)best={l,c};}
+      if(best&&best.l<L*.8){meals=best.c;L=best.l;}}
+    for(const m of meals)m.total=N.totals(m.items);
+    const total=N.totals(meals.flatMap(m=>m.items)),error=Math.abs(total.kcal-T.kcal)/T.kcal,macroError=Math.max(...["p","f","c"].map(k=>Math.abs(total[k]-T[k])/T[k]));
+    const warnings=[];if(!(error<=.05&&macroError<=.1))warnings.push("Меню отклоняется от нормы: проверь порции перед применением.");
+    for(const m of meals){const pm=m.name==="Завтрак"?20:25;if(!isShake(m)&&m.name!=="Перекус"&&m.total.p<pm)warnings.push(m.name+": меньше "+pm+" г белка.");}
+    // понятная причина, если не уложились: белок выше нормы из-за реальных порций — не вредно
+    const dv=k=>(total[k]-T[k])/T[k];let reason="";
+    if(!(error<=.05&&macroError<=.1)){if(dv("p")>.1&&error<=.05&&Math.abs(dv("f"))<=.1&&dv("c")>=-.2)reason=`Белок выше нормы на ${Math.round(dv("p")*100)}% — так выходит при реальных порциях мяса и полном коктейле; это не вредно. Углеводы ${dv("c")<0?"ниже":"выше"} на ${Math.abs(Math.round(dv("c")*100))}%.`;
+      else if(dv("kcal")<-.05)reason=`Не хватает ${Math.round(T.kcal-total.kcal)} ккал: при реальных порциях добавь перекус (фрукт, хлеб, творог).`;
+      else if(dv("c")<-.2)reason=`Углеводов меньше нормы на ${Math.abs(Math.round(dv("c")*100))}% — за 3 приёма столько не съесть: добавь перекус (банан, хлеб, мёд, крупа) или выбери коктейль на молоке.`;}
+    return {...d,meals,total,error,macroError,fitted:error<=.05&&macroError<=.1,pr9Warnings:warnings,realistic:true,reason};});}
+/*</nt-realistic>*/
 
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
