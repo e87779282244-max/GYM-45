@@ -721,6 +721,13 @@
   .cfb-el{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
   .cfb-mod button{font-size:12.5px}
   select.food-in{appearance:none;-webkit-appearance:none}
+  textarea.food-in{resize:vertical;font-size:15px;line-height:1.4}
+  .cf-t3{width:100%;table-layout:fixed;border-collapse:collapse;font-size:11.5px;margin-top:10px;overflow-wrap:anywhere;hyphens:auto}
+  .cf-t3 col:first-child{width:24%}
+  .cf-t3 th,.cf-t3 td{border-top:1px solid var(--line);padding:5px 4px;text-align:left;vertical-align:top}
+  .cf-t3 th{font-size:11px;color:var(--muted);text-transform:uppercase}
+  .cf-t3 td:first-child{color:var(--muted);font-weight:700}
+  .cf-plan{margin-top:10px}
   .wod-mvrow small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
   body.sub-open{overflow:hidden}
   .sk-c.part{background:#e9cf6b!important;color:#3a300a!important;border-color:transparent}
@@ -3039,6 +3046,71 @@ CFW.push(...
 {"id":"old_crossfit_total","name":"CrossFit Total","kind":"legacy","lvl":"Ещё комплексы","score":"load","src":null,"about":"Три силовых блока по четыре минуты: присед, жим стоя и становая. В каждом блоке найди свой максимум на 1 повтор.","v":{"rx":{"fmt":"Сумма 1ПМ · 12 мин","t":{"type":"emom","period":240,"rounds":3},"ex":[["Приседания со штангой","1",null],["Жим штанги стоя","1",null],["Становая тяга","1",null]]}}},
 {"id":"old_одинокая_сестра","name":"Одинокая сестра","kind":"legacy","lvl":"Ещё комплексы","score":"rr","src":null,"about":"Восемнадцать минут: подъёмы ног к перекладине, запрыгивания и рывок гантели. Максимум кругов.","v":{"rx":{"fmt":"AMRAP 18 мин","t":{"type":"amrap","sec":1080},"ex":[["Подъём ног к перекладине","6",null],["Прыжки на тумбу","7",null],["Рывок гантели","8",{"m":"22 кг","f":"22 кг"}]]}}},
 {"id":"old_the_540","name":"The 540","kind":"legacy","lvl":"Ещё комплексы","score":"time","src":null,"about":"Один большой круг на 540 повторов суммарно. На время, разбивай подходы как удобно.","v":{"rx":{"fmt":"на время","t":{"type":"fortime","cap":0},"ex":[["Выпады над головой","50",{"m":"20 кг","f":"20 кг"}],["Подтягивания","40",null],["Трастеры со штангой","30",{"m":"43 кг","f":"43 кг"}],["Бёрпи","20",null],["Взятие штанги на грудь","10",{"m":"60 кг","f":"60 кг"}]]}}}]);
+/* ===================== Из «Руководства тренера CrossFit 1-го уровня» (рус. изд., © CrossFit 2021) ===================== */
+CF_VN.a="Версия A";CF_VN.b="Версия B";CF_VN.c="Версия C";CF_VN.book="Как в книге";
+const L1="Руководство тренера CrossFit L1 (рус.), с. ";
+const SAME=(kg)=>({m:kg,f:kg});
+/* Fran — облегчённые варианты по плану занятия из книги (с. 109–112) */
+{const f=CFW.find(d=>d.id==="fran");f.src2=L1+"109–112";
+ f.stim="Дуплет гимнастики и тяжёлой атлетики, выполняемый быстро: элиты — меньше 2 мин, цель — меньше 10 мин. Задача — справиться с очень высоким пульсом. Разбивай серии не больше чем на 3 части в 21, 2 — в 15, 1 — в 9. Если масштабированный Fran занял меньше 5 мин — усложняй.";
+ f.v.int={fmt:"21-15-9 трастеры · 15-12-9 подтягивания",t:FT,ex:[["Трастеры со штангой","21-15-9",{m:"43 кг",f:"29,5 кг"}],["Подтягивания","15-12-9"]]};
+ f.v.beg={fmt:"21-15-9 · на время",t:FT,ex:[["Трастеры со штангой","21-15-9",{m:"29,5 кг",f:"20 кг"}],["Подтягивания к кольцам (тяга на кольцах)","21-15-9",null,"Австралийские подтягивания"]]};}
+/* Cindy — масштабированные версии из «Примерной недели по масштабированию» (с. 98) */
+{const c=CFW.find(d=>d.id==="cindy");c.src2=L1+"98";
+ c.v.a={fmt:"AMRAP 10 мин",t:AM(600),ex:[["Подтягивания к кольцам (тяга на кольцах)","5",null,"Австралийские подтягивания"],["Отжимания с колен","10"],["Воздушные приседания на предмет (до касания)","15",null,"Воздушные приседания"]]};
+ c.v.b={fmt:"AMRAP 10 мин",t:AM(600),ex:[["Подтягивания в прыжке","5",null,"Подтягивания"],["Отжимания от стены","10"],["Воздушные приседания","15"]]};
+ c.v.c={fmt:"10 раундов · на время",t:FT,score:"time",ex:[["Подтягивания с резиной","3",null,"Подтягивания"],["Отжимания от пола","6"],["Воздушные приседания","9"]]};}
+/* «Девочки» для бабушек — точные цифры русского издания (с. 103–106) */
+Object.assign(CF_GRANDMA,{angie:"на время: 25 подтягиваний к кольцам, 25 отжиманий с колен, 25 подъёмов корпуса, 25 приседаний",
+ barbara:"3 раунда на время (отдых 3 мин): 20 подтягиваний к кольцам, 30 отжиманий с колен, 40 подъёмов корпуса, 50 приседаний",
+ chelsea:"каждую минуту 20 мин: 5 подтягиваний к кольцам, 10 отжиманий с колен, 15 приседаний",
+ diane:"21-15-9 на время: становая тяга 23 кг, жим гантелей 4,5 кг стоя",
+ elizabeth:"21-15-9 на время: взятие на грудь 11 кг, отжимания от скамьи",
+ fran:"21-15-9 на время: трастер 11 кг, подтягивания к кольцам"});
+CF_LVLS.push("Руководство CrossFit L1");
+const BK=(o)=>Object.assign({kind:"book",lvl:"Руководство CrossFit L1"},o);
+CFW.push(
+ BK({id:"l1_wb_box",name:"Броски мяча + прыжки на коробку",score:"time",src:L1+"99",about:"Тренировка 2 «Примерной недели по масштабированию». Объём высокий — по 150 повторов каждого движения.",
+  stim:"Объём проще всего снижать числом повторов; можно уменьшить только одно движение. Высоту коробки снижай, чтобы сохранить число прыжков; после травмы прыжки можно заменить зашагиваниями.",
+  v:{rx:{fmt:"50-40-30-20-10 · на время",t:FT,ex:[["Броски мяча в мишень (wall ball)","50-40-30-20-10",SAME("мяч 9 кг")],["Прыжки на тумбу","50-40-30-20-10",SAME("коробка 61 см")]]},
+     a:{fmt:"25-20-15-10-5 · на время",t:FT,ex:[["Броски мяча в мишень (wall ball)","25-20-15-10-5",SAME("мяч 9 кг")],["Прыжки на тумбу","25-20-15-10-5",SAME("коробка 61 см")]]},
+     b:{fmt:"Мяч 50-40-30-20-10 · коробка 25-20-15-10-5",t:FT,ex:[["Броски мяча в мишень (wall ball)","50-40-30-20-10",SAME("мяч 6,4 кг")],["Прыжки на тумбу","25-20-15-10-5",SAME("коробка 61 см")]]},
+     c:{fmt:"5 раундов · на время",t:FT,ex:[["Броски мяча в мишень (wall ball)","15",SAME("мяч 4,5 кг")],["Прыжки на диск","15",SAME("диск 20 кг")]]}}}),
+ BK({id:"l1_dl5",name:"Становая тяга 5-5-5-5-5",score:"load",src:L1+"100",about:"Тренировка 3 «Примерной недели по масштабированию»: тяжёлый день одной модальности.",
+  stim:"Все работают над тяжёлым подходом из 5 повторов с правильной механикой: тяжело, но без потери формы. Новичкам с малым весом при схемах меньше 5 повторов можно добавлять повторы для отработки механики.",
+  v:{book:{fmt:"5 подходов по 5 · максимальный вес",t:FT,ex:[["Становая тяга","5-5-5-5-5"]]}}}),
+ BK({id:"l1_sdhp_jerk",name:"Тяга сумо + толчковый швунг",score:"time",src:L1+"101",about:"Тренировка 4 «Примерной недели по масштабированию»: всего 84 повтора каждого движения.",
+  stim:"Объём эффективно уменьшается вдвое, если убрать раунды по 21 и 18. Вес снижают, чтобы отрабатывать механику; гиря вместо штанги в тяге сумо упрощает движение.",
+  v:{rx:{fmt:"21-18-15-12-9-6-3 · на время",t:FT,ex:[["Сумо-тяга к подбородку","21-18-15-12-9-6-3",SAME("34 кг")],["Толчковый швунг","21-18-15-12-9-6-3",SAME("34 кг")]]},
+     a:{fmt:"15-12-9-6-3 · на время",t:FT,ex:[["Сумо-тяга к подбородку","15-12-9-6-3",SAME("20 кг")],["Толчковый швунг","15-12-9-6-3",SAME("20 кг")]]},
+     b:{fmt:"15-12-9-6-3 · на время",t:FT,ex:[["Сумо-тяга к подбородку с гирей","15-12-9-6-3",SAME("гиря 16 кг")],["Жимовой швунг","15-12-9-6-3",SAME("20 кг")]]},
+     c:{fmt:"5 раундов · на время",t:FT,ex:[["Сумо-тяга к подбородку","10",SAME("20 кг")],["Толчковый швунг","10",SAME("20 кг")]]}}}),
+ BK({id:"l1_clean_mu",name:"Взятия на грудь + выходы силой",score:"time",src:L1+"101",about:"Тренировка 5 «Примерной недели по масштабированию»: объём невысокий, нагрузка высокая.",
+  stim:"Вес для новичков снижают; работа с медболом особенно полезна новичкам. Выходы силой масштабируют тяговыми и толкающими движениями или полным движением с эспандером.",
+  v:{rx:{fmt:"12-9-6 · на время",t:FT,ex:[["Взятие штанги на грудь","12-9-6",SAME("84 кг")],["Выход силой на кольцах","12-9-6",null,"Выход силой"]]},
+     a:{fmt:"12-9-6 · на время",t:FT,ex:[["Взятие штанги на грудь","12-9-6",SAME("34 кг")],["Строгие подтягивания с эспандером","12-9-6",null,"Подтягивания"],["Строгие отжимания на кольцах с эспандером","12-9-6",null,"Отжимания на брусьях"]]},
+     b:{fmt:"12-9-6 · на время",t:FT,ex:[["Взятие медбола на грудь","12-9-6",SAME("мяч 9 кг")],["Подтягивания к кольцам (тяга на кольцах)","12-9-6",null,"Австралийские подтягивания"],["Обратные отжимания от скамьи","12-9-6",null,"Обратные отжимания на трицепс"]]},
+     c:{fmt:"3 раунда · на время",t:FT,ex:[["Взятие штанги на грудь","8",SAME("43 кг")],["Переход в выходе на кольцах с эспандером","8",null,"Выход силой"]]}}}),
+ BK({id:"l1_squat5",name:"Присед со штангой на спине 5-5-5-5-5",score:"load",src:L1+"113–116",about:"План занятия из книги: тяжёлый день одной модальности, вес растёт от подхода к подходу.",
+  stim:"Цель — максимальный вес в подходе из 5 повторов с правильной техникой. Отдых 3–5 мин. Рекорд пробуют в 3-м или 4-м подходе; не выполнил 5 повторов или техника поплыла — снижай вес. Новичкам допустимо больше 5 рабочих подходов, если 5ПМ ещё не известен.",
+  v:{book:{fmt:"5 подходов по 5 · отдых 3–5 мин",t:FT,ex:[["Присед со штангой","5-5-5-5-5"]]}}}),
+ BK({id:"l1_amrap20",name:"20-минутный AMRAP (план занятия)",score:"rr",src:L1+"117–120",about:"Триплет M+G+W из плана занятия. Ожидается не меньше 4 раундов.",
+  stim:"Бег 400 м поднимает пульс и усложняет остальные элементы; подтягивания с уголком требуют силы средней линии. Толчок — умеренный вес, повторы быстрые. Ориентир на раунд: 2 мин бег, 2 мин подтягивания, 1 мин толчки.",
+  v:{rx:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Бег","400 м"],["Подтягивания с уголком","15",null,"Подтягивания"],["Толчок штанги","5",{m:"93 кг",f:"61 кг"}]]},
+     int:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Бег","400 м"],["Подтягивания с уголком","10",null,"Подтягивания"],["Толчок штанги","5",{m:"70 кг",f:"48 кг"}]]},
+     beg:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Бег","200 м"],["Подтягивания с уголком с эспандером","10",null,"Подтягивания"],["Толчок штанги","5",{m:"52 кг",f:"34 кг"}]]}}}),
+ /* пример 12-дневного цикла (таблица 4, с. 93) */
+ BK({id:"l1_t1",name:"Шаблон, день 1 (M): бег 10 км",score:"time",src:L1+"93",about:"День одного элемента M: длительная работа, медленно, длинная дистанция.",v:{book:{fmt:"На время",t:FT,ex:[["Бег","10 км"]]}}}),
+ BK({id:"l1_t2",name:"Шаблон, день 2 (Г+Т)",score:"time",src:L1+"93",about:"Дуплет: 5 раундов на время, вес становой растёт на 9 кг каждый раунд.",v:{book:{fmt:"5 раундов · на время",t:FT,ex:[["Отжимания в стойке на руках","5"],["Становая тяга","5",SAME("102 кг, +9 кг каждый раунд")]]}}}),
+ BK({id:"l1_t3",name:"Шаблон, день 3 (М+Г+Т)",score:"rr",src:L1+"93",about:"Триплет 20 мин на максимум циклов. Вес трастера — 50% массы тела.",v:{book:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Бег","400 м"],["Подтягивания","10"],["Трастеры со штангой","15",SAME("50% массы тела")]]}}}),
+ BK({id:"l1_t5",name:"Шаблон, день 5 (Г): стойка на руках",score:"done",src:L1+"93",about:"День одного элемента Г: спокойная отработка сложного навыка.",v:{book:{fmt:"Практика 45 мин",t:AM(2700),ex:[["Стойка на руках у стены","45 мин практики"]]}}}),
+ BK({id:"l1_t6",name:"Шаблон, день 6 (Т+М)",score:"time",src:L1+"93",about:"Дуплет: 5 циклов на время.",v:{book:{fmt:"5 циклов · на время",t:FT,ex:[["Жим лёжа","10",SAME("75% массы тела")],["Гребля","500 м"]]}}}),
+ BK({id:"l1_t7",name:"Шаблон, день 7 (Г+Т+М)",score:"rr",src:L1+"93",about:"Триплет 20 мин на максимум циклов.",v:{book:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Выпады","30 м"],["Жимовой швунг","15",SAME("50% массы тела")],["Гребля","500 м"]]}}}),
+ BK({id:"l1_t9",name:"Шаблон, день 9 (Т): становая тяга",score:"load",src:L1+"93",about:"День одного элемента Т: тяжёлый подъём, мало повторов, полный отдых.",v:{book:{fmt:"5-3-3-2-2-2-1-1-1 · максимальный вес",t:FT,ex:[["Становая тяга","5-3-3-2-2-2-1-1-1"]]}}}),
+ BK({id:"l1_t10",name:"Шаблон, день 10 (М+Г)",score:"time",src:L1+"93",about:"Дуплет: 5 циклов на время.",v:{book:{fmt:"5 циклов · на время",t:FT,ex:[["Бег","200 м"],["Прыжки на тумбу","10",SAME("ящик 76 см")]]}}}),
+ BK({id:"l1_t11",name:"Шаблон, день 11 (Т+М+Г)",score:"rr",src:L1+"93",about:"Триплет 20 мин на максимум циклов.",v:{book:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Становая тяга","20",SAME("50% массы тела")],["Велотренажёр / эйрбайк","1,6 км"],["Отжимания от пола","15"]]}}}));
+/* пример из книги для каждого дня шаблона — для кнопки в конструкторе */
+const CF_TPL_EX={0:"l1_t1",1:"l1_t2",2:"l1_t3",4:"l1_t5",5:"l1_t6",6:"l1_t7",8:"l1_t9",9:"l1_t10",10:"l1_t11"};
 /* ---------- хранение: настройки, результаты, свои тренировки ---------- */
 const CFK="gym45_cf_v1";
 function cfGet(){try{const v=JSON.parse(localStorage.getItem(CFK)||"null");if(v&&typeof v==="object")return Object.assign({sex:"m",res:[],my:[],del:{},cycle:0},v);}catch(e){}return {sex:"m",res:[],my:[],del:{},cycle:0};}
@@ -3047,8 +3119,8 @@ function mergeCf(a,b){a=a||{};b=b||{};const del=Object.assign({},b.del||{},a.del
   const newer=(a.upd||0)>=(b.upd||0)?a:b;return {sex:newer.sex||"m",cycle:Math.max(a.cycle||0,b.cycle||0),res:u(a.res,b.res).sort((x,y)=>(x.ts||0)-(y.ts||0)),my:u(a.my,b.my),del,upd:Math.max(a.upd||0,b.upd||0)};}
 /* ---------- результат: формат и сравнение ---------- */
 const cfMmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
-function cfScoreTxt(r){if(!r)return "";if(r.sc==="time")return cfMmss(r.t)+(r.capped?" (лимит, "+r.reps+" повт.)":"");if(r.sc==="rr")return r.r+" р. + "+(r.reps||0);if(r.sc==="rounds")return r.r+" р.";if(r.sc==="reps")return r.reps+" повт.";if(r.sc==="load")return String(r.kg).replace(".",",")+" кг";return "";}
-function cfVal(r){return r.sc==="time"?(r.capped?1e9-(r.reps||0):r.t):r.sc==="rr"?r.r*1000+(r.reps||0):r.sc==="rounds"?r.r:r.sc==="reps"?r.reps:r.kg;}
+function cfScoreTxt(r){if(!r)return "";if(r.sc==="time")return cfMmss(r.t)+(r.capped?" (лимит, "+r.reps+" повт.)":"");if(r.sc==="rr")return r.r+" р. + "+(r.reps||0);if(r.sc==="rounds")return r.r+" р.";if(r.sc==="reps")return r.reps+" повт.";if(r.sc==="load")return String(r.kg).replace(".",",")+" кг";if(r.sc==="done")return "выполнено";return "";}
+function cfVal(r){return r.sc==="time"?(r.capped?1e9-(r.reps||0):r.t):r.sc==="rr"?r.r*1000+(r.reps||0):r.sc==="rounds"?r.r:r.sc==="reps"?r.reps:r.sc==="done"?1:r.kg;}
 const cfBetter=(a,b)=>a.sc==="time"?cfVal(a)<cfVal(b):cfVal(a)>cfVal(b);
 function cfResOf(id,vk){return cfGet().res.filter(r=>r.wod===id&&(!vk||r.v===vk));}
 function cfPR(id,vk){const l=cfResOf(id,vk);return l.reduce((b,r)=>!b||cfBetter(r,b)?r:b,null);}
@@ -3060,11 +3132,11 @@ function renderCross(){const w=el("crossDays");w.innerHTML="";const s=cfGet();
   if(s.my.length){const h=document.createElement("div");h.className="cf-lvl";h.innerHTML=`<b>Мои тренировки</b><span>${s.my.length}</span>`;w.appendChild(h);
     s.my.slice().reverse().forEach(m=>w.appendChild(cfDisc(cfMyToWod(m))));}
   CF_LVLS.forEach(L=>{const list=CFW.filter(d=>d.lvl===L);if(!list.length)return;const h=document.createElement("div");h.className="cf-lvl";h.innerHTML=`<b>${L}</b><span>${list.length}</span>`;w.appendChild(h);list.forEach(d=>w.appendChild(cfDisc(d)));});
-  const n=document.createElement("p");n.className="street-note";n.innerHTML=`Бенчмарки и варианты Rx / Средний / Новичок — из CrossFit Journal и официальных постов crossfit.com; источник указан в каждом комплексе. «Ещё комплексы» — прежний список Gym 45.`;w.appendChild(n);}
+  const n=document.createElement("p");n.className="street-note";n.innerHTML=`Бенчмарки и варианты Rx / Средний / Новичок — из CrossFit Journal и официальных постов crossfit.com; источник указан в каждом комплексе. «Руководство CrossFit L1» — тренировки и облегчённые версии из книги. «Ещё комплексы» — прежний список Gym 45.`;w.appendChild(n);}
 function cfDisc(d){const b=document.createElement("button");b.className="disc";const pr=cfPR(d.id,"rx")||cfPR(d.id);
   const first=d.v[cfVariants(d)[0]];
   b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="cf-pr">${pr?"PR "+cfScoreTxt(pr):""}</span><span class="go">›</span>`;
-  b.querySelector("span span").textContent=d.name+(d.kind&&d.kind!=="my"&&d.kind!=="legacy"?" · "+(d.kind==="Hero"?"Hero":d.kind==="Open"?"Open":d.kind==="Girl"?"Girl":"Benchmark"):"");
+  b.querySelector("span span").textContent=d.name+(d.kind&&!["my","legacy","book"].includes(d.kind)?" · "+(d.kind==="Hero"?"Hero":d.kind==="Open"?"Open":d.kind==="Girl"?"Girl":"Benchmark"):"");
   b.querySelector(".disc-sub").textContent=first.fmt;b.onclick=()=>openWod(d);return b;}
 /* ---------- экран комплекса ---------- */
 let currentWod=null,cfVar="rx";
@@ -3092,8 +3164,10 @@ function openWod(d,vk){currentWod=d;d.cf=1;const vs=cfVariants(d);cfVar=vk&&d.v[
   const extra=el("cfExtra");let h="";
   if(d.kind==="my"){h+=`<div class="cf-myact"><button type="button" class="tm-reset" id="cfEdit">✎ Изменить</button><button type="button" class="tm-reset" id="cfDel">Удалить</button></div>`;}
   if(CF_GRANDMA[d.id])h+=`<p class="cf-note"><b>Ещё проще («Девочки» для бабушек, CrossFit Journal):</b> ${CF_GRANDMA[d.id]}</p>`;
+  if(d.stim)h+=`<p class="cf-note"><b>Заложенный стимул:</b> ${d.stim}</p>`;
+  if(d.my&&(d.my.warm||d.my.cool))h+=`<details class="cf-info cf-plan"><summary>План занятия: разминка и заминка</summary>${d.my.warm?`<p><b>Разминка.</b> ${d.my.warm.replace(/</g,"&lt;")}</p>`:""}${d.my.cool?`<p><b>Заминка.</b> ${d.my.cool.replace(/</g,"&lt;")}</p>`:""}</details>`;
   if(d.kind==="legacy")h+=`<p class="cf-src">Комплекс из прежнего списка Gym 45.</p>`;
-  if(d.src)h+=`<p class="cf-src">Источник: <a href="${d.src}" target="_blank" rel="noopener">${d.src.replace(/^https:\/\/(www\.)?/,"")}</a></p>`;
+  if(d.src)h+=`<p class="cf-src">Источник: ${/^https?:/.test(d.src)?`<a href="${d.src}" target="_blank" rel="noopener">${d.src.replace(/^https:\/\/(www\.)?/,"")}</a>`:d.src}${d.src2?" · "+d.src2:""}</p>`;
   extra.innerHTML=h;
   if(d.kind==="my"){el("cfEdit").onclick=()=>cfbOpen(d.my);el("cfDel").onclick=()=>{const b=el("cfDel");if(Date.now()-(b._arm||0)>3000){b._arm=Date.now();b.textContent="Нажми ещё раз";return;}const t=cfGet();t.my=t.my.filter(x=>x.id!==d.my.id);t.del[d.my.id]=Date.now();cfSave(t);toast("Тренировка удалена");goBack();renderCross();};}
   cfRenderResults(d);
@@ -3118,13 +3192,14 @@ function finishCross(){const d=currentWod;if(!d)return;const sc=cfScoreType(d),s
    :sc==="rr"?`<div class="cf-grid"><label>Полных раундов<input id="cfR" class="food-in" inputmode="numeric" value="${rounds||""}"></label><label>+ повторов<input id="cfRp" class="food-in" inputmode="numeric" value="0"></label></div>`
    :sc==="rounds"?`<label class="cf-lab">Раундов выполнено<input id="cfR" class="food-in" inputmode="numeric" value="${rounds||""}"></label>`
    :sc==="reps"?`<label class="cf-lab">Всего повторов (калории гребли — как повторы)<input id="cfRp" class="food-in" inputmode="numeric"></label>`
-   :`<label class="cf-lab">Лучший вес, кг<input id="cfKg" class="food-in" inputmode="decimal"></label>`;
+   :sc==="done"?`<p class="cf-sub">Отметь тренировку выполненной — она попадёт в журнал и «Прогресс».</p>`:`<label class="cf-lab">Лучший вес, кг<input id="cfKg" class="food-in" inputmode="decimal"></label>`;
   const cap=el("cfCap");if(cap)cap.onchange=()=>{el("cfCapW").hidden=!cap.checked;};
   el("cfResSave").onclick=()=>{const num=id=>{const x=el(id);return x?Number(String(x.value).replace(",",".")):NaN;};const r={id:Date.now()+"-"+Math.floor(Math.random()*1e4),wod:d.id,name:d.name,v:cfVar,sex:cfGet().sex,sc,date:localDate(),ts:Date.now()};
     if(sc==="time"){if(el("cfCap").checked){r.capped=true;r.reps=num("cfCapR");r.t=secs;if(!(r.reps>=0)){toast("Введи число повторов");return;}}else{const m=String(el("cfT").value).trim().match(/^(\d{1,3})(?::(\d{1,2}))?$/);if(!m){toast("Время в формате мин:сек, напр. 7:45");return;}r.t=m[2]!=null?(+m[1])*60+(+m[2]):+m[1]*60;if(m[2]!=null&&+m[2]>59){toast("Секунд не больше 59");return;}}}
     else if(sc==="rr"){r.r=num("cfR");r.reps=num("cfRp")||0;if(!(r.r>=0)){toast("Введи число раундов");return;}}
     else if(sc==="rounds"){r.r=num("cfR");if(!(r.r>=0)){toast("Введи число раундов");return;}}
     else if(sc==="reps"){r.reps=num("cfRp");if(!(r.reps>=0)){toast("Введи число повторов");return;}}
+    else if(sc==="done"){}
     else{r.kg=num("cfKg");if(!(r.kg>0)){toast("Введи вес");return;}}
     const prev=cfPR(d.id,cfVar),last=cfResOf(d.id,cfVar).slice(-1)[0];r.pr=!prev||cfBetter(r,prev);
     const t=cfGet();t.res.push(r);cfSave(t);
@@ -3143,16 +3218,18 @@ el("wodFinishBtn").onclick=finishCross;
    пара (2 элемента) — 3–5 раундов на время, тройка (3 элемента) — 20 мин на количество кругов.
    Масштабирование: сохраняй стимул; сначала снижай нагрузку/объём, затем упрощай движение, замена — в последнюю очередь.
    Принцип: механика → стабильность → интенсивность. */
-CF_VN.my="Моя тренировка";
+CF_VN.my="Моя тренировка";CF_VN.beg="Новичок";
 const CF_MOD={M:"M · метаболическая",G:"G · гимнастика",W:"W · тяжёлая атлетика"};
 const CF_LIB={ // [название, единица по умолчанию, ключ анимации]
  M:[["Бег","м","Бег"],["Гребля","м","Гребля"],["Гребля (калории)","кал","Гребля"],["Велотренажёр / эйрбайк","кал",""],["Прыжки на скакалке","раз","Прыжки на скакалке"],["Двойные прыжки на скакалке","раз","Прыжки на скакалке"],["Плавание","м",""]],
- G:[["Воздушные приседания","повт","Воздушные приседания"],["Подтягивания","повт","Подтягивания"],["Отжимания от пола","повт","Отжимания от пола"],["Отжимания на брусьях","повт","Отжимания на брусьях"],["Отжимания в стойке на руках","повт",""],["Выход силой","повт","Выход силой"],["Лазание по канату","раз",""],["Гиперэкстензия","повт","Гиперэкстензия"],["Ситапы","повт","Ситапы"],["Подъём ног к перекладине","повт","Подъём ног к перекладине"],["Прыжки на тумбу","повт","Прыжки на тумбу"],["Выпады","повт","Выпады"],["Бёрпи","повт","Бёрпи"],["Пистолетики","повт",""],["Стойка на руках у стены","сек","Стойка на руках у стены"],["Тяга на кольцах (австралийские подтягивания)","повт","Австралийские подтягивания"]],
- W:[["Становая тяга","повт","Становая тяга"],["Взятие штанги на грудь","повт","Взятие штанги на грудь"],["Жим штанги стоя","повт","Жим штанги стоя"],["Жимовой швунг","повт","Жимовой швунг"],["Толчковый швунг","повт",""],["Рывок штанги","повт",""],["Взятие на грудь и толчок","повт",""],["Фронтальные приседания","повт","Фронтальные приседания"],["Приседания со штангой над головой","повт",""],["Присед со штангой","повт","Присед со штангой"],["Трастеры со штангой","повт","Трастеры со штангой"],["Сумо-тяга к подбородку","повт",""],["Махи гирей","повт","Махи гирей"],["Броски мяча в мишень (wall ball)","повт",""],["Взятие медбола","повт",""]]};
+ G:[["Воздушные приседания","повт","Воздушные приседания"],["Подтягивания","повт","Подтягивания"],["Отжимания от пола","повт","Отжимания от пола"],["Отжимания на брусьях","повт","Отжимания на брусьях"],["Отжимания в стойке на руках","повт",""],["Выход силой","повт","Выход силой"],["Лазание по канату","раз",""],["Гиперэкстензия","повт","Гиперэкстензия"],["Ситапы","повт","Ситапы"],["Подъём ног к перекладине","повт","Подъём ног к перекладине"],["Прыжки на тумбу","повт","Прыжки на тумбу"],["Выпады","повт","Выпады"],["Бёрпи","повт","Бёрпи"],["Пистолетики","повт",""],["Стойка на руках у стены","сек","Стойка на руках у стены"],["Тяга на кольцах (австралийские подтягивания)","повт","Австралийские подтягивания"],["Отжимания на кольцах","повт","Отжимания на брусьях"],["Выход в стойку на руках","повт",""],["Прыжки в длину","повт",""]],
+ W:[["Становая тяга","повт","Становая тяга"],["Взятие штанги на грудь","повт","Взятие штанги на грудь"],["Жим штанги стоя","повт","Жим штанги стоя"],["Жимовой швунг","повт","Жимовой швунг"],["Толчковый швунг","повт",""],["Рывок штанги","повт",""],["Взятие на грудь и толчок","повт",""],["Фронтальные приседания","повт","Фронтальные приседания"],["Приседания со штангой над головой","повт",""],["Присед со штангой","повт","Присед со штангой"],["Трастеры со штангой","повт","Трастеры со штангой"],["Сумо-тяга к подбородку","повт",""],["Махи гирей","повт","Махи гирей"],["Броски мяча в мишень (wall ball)","повт",""],["Взятие медбола","повт",""],["Толчок штанги","повт",""],["Жим лёжа","повт","Жим лёжа"]]};
 /* 12-дневный шаблон «3 через 1» (CrossFit Journal №6) */
 const CF_TPL=[["M"],["G","W"],["M","G","W"],null,["G"],["W","M"],["G","W","M"],null,["W"],["M","G"],["W","M","G"],null];
 let CFB=null;
-function cfbBlank(mods){mods=mods||["G","W"];return {id:null,name:"",els:mods.map(m=>cfbEl(m)),fmt:cfbFmtFor(mods)};}
+const CF_WARM="Общая разминка ~10 мин в ровном темпе: бег 800 м; 2 раунда по 15 повторов — приседания, подтягивания к кольцам, отжимания, подъёмы корпуса, разгибания бедра. Затем специальная разминка: движения тренировки с пустым грифом или лёгким весом, постепенно до рабочего.";
+const CF_COOL="Заминка ~10 мин: убери снаряды, растяжка плеч и бёдер по 1 мин на сторону, восстанови дыхание. Запиши результат и отметь личные рекорды.";
+function cfbBlank(mods){mods=mods||["G","W"];return {id:null,name:"",els:mods.map(m=>cfbEl(m)),fmt:cfbFmtFor(mods),beg:true,stim:"",warm:CF_WARM,cool:CF_COOL};}
 function cfbEl(m){const e=CF_LIB[m][0];return {mod:m,ex:e[0],amt:m==="M"?"400":m==="W"?"5":"10",unit:e[1],kg:m==="W"?"40":""};}
 function cfbFmtFor(mods){const n=mods.length;if(n===3)return {type:"amrap",min:20,rounds:5,cap:0,scheme:""};if(n===2)return {type:"fortime",rounds:5,min:12,cap:0,scheme:""};
   return mods[0]==="W"?{type:"heavy",scheme:"5-5-5-5-5",rounds:5,min:0,cap:0}:mods[0]==="G"?{type:"skill",rounds:5,min:15,cap:0,scheme:""}:{type:"fortime",rounds:1,min:0,cap:0,scheme:""};}
@@ -3161,7 +3238,8 @@ function cfbOpen(my){const s=cfGet();if(my)CFB=JSON.parse(JSON.stringify(my));el
 function cfbMods(){return CFB.els.map(e=>e.mod);}
 function cfbRender(){const s=cfGet(),box=el("cfbBody");const cyc=s.cycle%12;
   let h=`<div class="card"><h3>Шаблон CrossFit «3 через 1»</h3><p class="cf-sub">3 дня работы, 1 день отдыха. Каждый новый день добавляет элемент: 1 → пара → тройка. M — бег, гребля, скакалка; G — свой вес; W — штанга, гиря, мяч.</p><div class="cf-tpl">`+
-    CF_TPL.map((d,i)=>`<button type="button" data-i="${i}" class="${i===cyc?"cur":""}${d?"":" rest"}"><small>День ${i+1}</small><b>${d?d.join("+"):"отдых"}</b></button>`).join("")+`</div><p class="cf-sub">Подсвечен следующий день по твоему циклу. Нажми на день — структура подставится.</p></div>`;
+    CF_TPL.map((d,i)=>`<button type="button" data-i="${i}" class="${i===cyc?"cur":""}${d?"":" rest"}"><small>День ${i+1}</small><b>${d?d.join("+"):"отдых"}</b></button>`).join("")+`</div><p class="cf-sub">Подсвечен следующий день по твоему циклу. Нажми на день — структура подставится. Удобнее рабочая неделя — используй «5 дней работы + 2 отдыха» с тем же чередованием.</p>${CF_TPL_EX[CFB.tplDay]!=null?`<button type="button" class="tm-reset" id="cfbEx">Пример из книги для дня ${CFB.tplDay+1}</button>`:""}
+  <table class="cf-t3" lang="ru"><colgroup><col><col><col><col></colgroup><tr><th></th><th>1 элемент</th><th>Пара</th><th>Тройка</th></tr><tr><td>Приоритет</td><td>элемента</td><td>задания</td><td>времени</td></tr><tr><td>Структура</td><td>M — одно упражнение; Г — один навык (подходы); Т — один подъём</td><td>3–5 раундов на время</td><td>20 мин на максимум циклов</td></tr><tr><td>Интенсивность</td><td>M — долго и медленно; Г — сложный навык; Т — большой вес</td><td>умеренная — высокая</td><td>лёгкая — умеренная</td></tr><tr><td>Работа/отдых</td><td>не ограничивает</td><td>критически важно</td><td>несущественно</td></tr></table><p class="cf-src">Таблицы 1–4, с. 89–93.</p></div>`;
   h+=`<div class="card cf-form"><h3>Структура</h3><div class="sk-lvl" id="cfbN"><span>Элементов в тренировке</span><button type="button" data-v="1">1 · одна модальность</button><button type="button" data-v="2">2 · пара</button><button type="button" data-v="3">3 · тройка</button></div>`;
   CFB.els.forEach((e,i)=>{h+=`<div class="cfb-el"><div class="sk-lvl cfb-mod" data-i="${i}"><span>Элемент ${i+1}</span>${["M","G","W"].map(m=>`<button type="button" data-v="${m}" class="${e.mod===m?"on":""}">${CF_MOD[m]}</button>`).join("")}</div>
     <label class="cf-lab">Упражнение<select class="food-in cfb-ex" data-i="${i}">${CF_LIB[e.mod].map(x=>`<option${x[0]===e.ex?" selected":""}>${x[0]}</option>`).join("")}</select></label>
@@ -3173,6 +3251,12 @@ function cfbRender(){const s=cfGet(),box=el("cfbBody");const cyc=s.cycle%12;
   if(F.type==="heavy")h+=`<label class="cf-lab">Схема подходов (повторы через дефис)<input class="food-in" id="cfbScheme" value="${F.scheme||"5-5-5-5-5"}"></label><p class="cf-sub">Типично: 5-5-5-5-5, 3-3-3-3-3 или 1-1-1-1-1, отдых 2–3 мин. Результат — лучший вес.</p>`;
   if(F.type==="skill")h+=`<div class="cf-grid"><label>Подходов<input class="food-in" id="cfbRounds" inputmode="numeric" value="${F.rounds}"></label><label>Минут на практику<input class="food-in" id="cfbMin" inputmode="numeric" value="${F.min}"></label></div>`;
   h+=`</div><div class="card cfb-tips" id="cfbTips"></div>`;
+  h+=`<div class="card cf-form"><h3>Стимул, облегчение и план занятия</h3>
+   <label class="cf-lab">Заложенный стимул — чего ты хочешь от тренировки<textarea id="cfbStim" class="food-in" rows="2" placeholder="Напр.: быстрая пара, пульс под максимум, цель — меньше 10 мин">${(CFB.stim||"").replace(/</g,"&lt;")}</textarea></label>
+   <label class="cf-chk"><input type="checkbox" id="cfbBeg" ${CFB.beg!==false?"checked":""}> Добавить вариант «Новичок»: вес и объём вдвое (правило книги)</label>
+   <div id="cfbBegPrev" class="cf-sub"></div>
+   <label class="cf-chk"><input type="checkbox" id="cfbPlan" ${CFB.warm||CFB.cool?"checked":""}> Добавить разминку и заминку (по плану занятия из книги)</label>
+   <div id="cfbPlanBox" ${CFB.warm||CFB.cool?"":"hidden"}><label class="cf-lab">Разминка<textarea id="cfbWarm" class="food-in" rows="3">${(CFB.warm||CF_WARM).replace(/</g,"&lt;")}</textarea></label><label class="cf-lab">Заминка<textarea id="cfbCool" class="food-in" rows="2">${(CFB.cool||CF_COOL).replace(/</g,"&lt;")}</textarea></label></div></div>`;
   h+=`<div class="card cf-form"><h3>Сохранить</h3><input id="cfbName" class="food-in" placeholder="Название, напр. «Пятничная пара»" value="${(CFB.name||"").replace(/"/g,"&quot;")}"><button type="button" class="btn" id="cfbSave">${CFB.id?"Сохранить изменения":"Сохранить в «Мои тренировки»"}</button><button type="button" class="btn btn-alt" id="cfbGo">Сохранить и начать</button></div>`;
   h+=`<details class="card wod-card cf-info"><summary>Рекомендации CrossFit по составлению</summary>
    <p><b>Цикл.</b> 3 дня работы — 1 день отдыха (или 5 через 2 под рабочую неделю). Чередуй модальности, не повторяй один и тот же день: разнообразие — основа программы.</p>
@@ -3181,15 +3265,20 @@ function cfbRender(){const s=cfGet(),box=el("cfbBody");const cyc=s.cycle%12;
    <p><b>3 элемента (тройка).</b> Три упражнения полегче, 20 минут на максимум кругов. Нагрузку создаёт не отдельное упражнение, а повторение кругов — держи ровный темп.</p>
    <p><b>Время.</b> Чередуй короткие (до 5 мин), средние (5–15) и длинные (15+) тренировки.</p>
    <p><b>Механика → стабильность → интенсивность.</b> Сначала правильная техника, затем её повторяемость и только потом скорость и вес.</p>
+   <p><b>Новичкам</b> (минимум первый месяц): снижай интенсивность и/или объём вдвое хотя бы на 2 недели. Веса для новичков часто меньше 50% предписанных; лучше ошибиться в сторону меньшего веса. Первый раунд должен проходить без ухудшения формы и без отказа.</p>
+   <p><b>Выбор замены</b> (только если движение невозможно): сохрани работающую часть тела (верх/низ), функцию (тяга/толчок), амплитуду в суставах и плоскость движения. Рывок с 43 кг лучше делать с трубкой, чем заменить приседом над головой.</p>
+   <p><b>План занятия.</b> Разминка (поднять температуру, подготовить к интенсивности, проверить технику и подобрать вес) → тренировка (стандарты амплитуды, варианты облегчения, высокая личная интенсивность) → заминка (восстановить пульс, записать результат).</p>
    <p><b>Масштабирование.</b> Сохраняй задуманный стимул. Сначала уменьши вес, повторы или дистанцию; если мало — упрости движение (часть упражнения, меньшая амплитуда); замена — в последнюю очередь (например, бег → гребля при травме). Не выбирай всегда одну и ту же облегчённую версию — двигайся к полной.</p>
-   <p class="cf-src">Источники: CrossFit Level 1 Training Guide; CrossFit Journal №6 «A Theoretical Template for CrossFit’s Programming»; crossfit.com — Professional Training: Scaling.</p></details>`;
+   <p class="cf-src">Источники: «Руководство тренера CrossFit 1-го уровня» (рус.), с. 88–120; CrossFit Journal №6 «A Theoretical Template for CrossFit’s Programming»; crossfit.com — Professional Training: Scaling.</p></details>`;
   box.innerHTML=h;
+  const exb=el("cfbEx");if(exb)exb.onclick=()=>openWod(CFW.find(d=>d.id===CF_TPL_EX[CFB.tplDay]));
   box.querySelectorAll(".cf-tpl button").forEach(b=>b.onclick=()=>{const d=CF_TPL[+b.dataset.i];if(!d){toast("День отдыха — восстановление тоже часть программы");return;}cfbSync();const keep=CFB.name,id=CFB.id;CFB=cfbBlank(d);CFB.name=keep;CFB.id=id;CFB.tplDay=+b.dataset.i;cfbRender();});
   ntChipsCf("cfbN",String(CFB.els.length),v=>{cfbSync();const n=+v,m=cfbMods();while(m.length<n)m.push(["M","G","W"].find(x=>!m.includes(x)));m.length=n;CFB.els=m.map((x,i)=>CFB.els[i]&&CFB.els[i].mod===x?CFB.els[i]:cfbEl(x));CFB.fmt=cfbFmtFor(m);cfbRender();});
   box.querySelectorAll(".cfb-mod").forEach(g=>g.querySelectorAll("button").forEach(b=>b.onclick=()=>{cfbSync();const i=+g.dataset.i;CFB.els[i]=cfbEl(b.dataset.v);cfbRender();}));
   box.querySelectorAll(".cfb-ex").forEach(s=>s.onchange=()=>{cfbSync();const e=CFB.els[+s.dataset.i];const x=CF_LIB[e.mod].find(y=>y[0]===s.value);e.ex=s.value;if(e.mod!=="W")e.unit=x[1];cfbRender();});
   ntChipsCf("cfbF",F.type,v=>{cfbSync();CFB.fmt.type=v;if(v==="amrap"&&!CFB.fmt.min)CFB.fmt.min=20;if(v==="emom"&&!CFB.fmt.min)CFB.fmt.min=12;if(v==="skill"&&!CFB.fmt.min)CFB.fmt.min=15;if(!CFB.fmt.rounds)CFB.fmt.rounds=5;cfbRender();});
   box.querySelectorAll("input,select").forEach(i=>i.addEventListener("input",()=>{cfbSync();cfbTips();}));
+  el("cfbPlan").onchange=()=>{el("cfbPlanBox").hidden=!el("cfbPlan").checked;};el("cfbBeg").onchange=()=>{cfbSync();cfbTips();};
   el("cfbSave").onclick=()=>cfbSave(false);el("cfbGo").onclick=()=>cfbSave(true);
   cfbTips();}
 function ntChipsCf(id,val,on){el(id).querySelectorAll("button").forEach(b=>{b.classList.toggle("on",b.dataset.v===String(val));b.onclick=()=>on(b.dataset.v);});}
@@ -3197,7 +3286,9 @@ function cfbSync(){const q=s=>el("cfbBody").querySelectorAll(s);
   q(".cfb-amt").forEach(i=>{if(!i.disabled)CFB.els[+i.dataset.i].amt=i.value.trim();});q(".cfb-kg").forEach(i=>CFB.els[+i.dataset.i].kg=i.value.trim());q(".cfb-unit").forEach(i=>CFB.els[+i.dataset.i].unit=i.value);
   const v=id=>{const x=el(id);return x?x.value.trim():null;};const F=CFB.fmt;
   if(v("cfbRounds")!=null)F.rounds=Math.max(1,parseInt(v("cfbRounds"))||1);if(v("cfbCap")!=null)F.cap=Math.max(0,parseInt(v("cfbCap"))||0);if(v("cfbMin")!=null)F.min=Math.max(1,parseInt(v("cfbMin"))||1);if(v("cfbScheme")!=null)F.scheme=v("cfbScheme");
-  if(v("cfbName")!=null)CFB.name=v("cfbName");}
+  if(v("cfbName")!=null)CFB.name=v("cfbName");
+  if(el("cfbStim"))CFB.stim=el("cfbStim").value.trim();if(el("cfbBeg"))CFB.beg=el("cfbBeg").checked;
+  if(el("cfbPlan")){if(el("cfbPlan").checked){CFB.warm=el("cfbWarm").value.trim();CFB.cool=el("cfbCool").value.trim();}else{CFB.warm="";CFB.cool="";}}}
 /* подсказки по шаблону и масштабированию — пересчитываются на лету */
 function cfbTips(){const m=cfbMods(),n=m.length,F=CFB.fmt,t=[],ok=[];
   if(n>1&&new Set(m).size<n)t.push("В шаблоне CrossFit элементы пары и тройки — из разных модальностей (M, G, W). Два упражнения одной модальности дают однобокую нагрузку.");
@@ -3212,6 +3303,7 @@ function cfbTips(){const m=cfbMods(),n=m.length,F=CFB.fmt,t=[],ok=[];
   CFB.els.forEach(e=>{if(e.mod==="W"&&!(parseFloat(String(e.kg).replace(",","."))>0))t.push(`Укажи вес для «${e.ex}».`);if(F.type!=="heavy"&&!String(e.amt).trim())t.push(`Укажи количество для «${e.ex}».`);});
   const est=cfbEstimate();if(est)ok.push(`Ориентировочная длительность: ${est}.`);
   if(CFB.tplDay!=null&&CF_TPL[CFB.tplDay]&&CF_TPL[CFB.tplDay].join()===m.join())ok.push(`Соответствует дню ${CFB.tplDay+1} шаблона «3 через 1».`);
+  const bp=el("cfbBegPrev");if(bp){if(CFB.beg!==false){const bw=cfMyToWod(Object.assign({},CFB,{id:"x",name:"x"})).v.beg;bp.textContent="Новичок: "+bw.fmt+" · "+bw.ex.map(e=>e[0].split(" (")[0]+" "+e[1]+(e[2]?" · "+e[2].m:"")).join(", ");}else bp.textContent="";}
   el("cfbTips").innerHTML=`<h3>Проверка по рекомендациям</h3>`+(t.length?`<ul class="cf-notes cf-warn">${t.map(x=>`<li>${x}</li>`).join("")}</ul>`:`<p class="cf-ok">✓ Тренировка соответствует шаблону CrossFit</p>`)+ok.map(x=>`<p class="cf-sub">${x}</p>`).join("")+`<p class="cf-sub">Помни: механика → стабильность → интенсивность. Если тяжело — сначала уменьши вес или повторы.</p>`;}
 function cfbEstimate(){const F=CFB.fmt;if(F.type==="amrap"||F.type==="emom")return F.min+" мин";if(F.type==="tabata")return "4 мин";if(F.type==="skill")return F.min+" мин";if(F.type==="heavy")return "≈"+(String(F.scheme).split("-").length*3)+" мин с отдыхом";
   const per=CFB.els.reduce((s,e)=>{const a=parseFloat(String(e.amt).split("-")[0])||0;return s+(e.mod==="M"?(e.unit==="м"?a/200*60/ (e.ex.startsWith("Гребля")?1.1:1):e.unit==="кал"?a*4:e.unit==="мин"?a*60:a*0.6):a*(e.mod==="W"?3:2.5));},0)*(F.rounds||1);
@@ -3227,7 +3319,15 @@ function cfMyToWod(m){const F=m.fmt;const ex=m.els.map(e=>{const kg=e.mod==="W"?
   const t=F.type==="amrap"?{type:"amrap",sec:F.min*60}:F.type==="emom"?{type:"emom",period:60,rounds:F.min}:F.type==="tabata"?{type:"tabata",work:20,rest:10,rounds:8}:F.type==="skill"?{type:"amrap",sec:F.min*60}:F.type==="heavy"?{type:"fortime",cap:0}:{type:"fortime",cap:(F.cap||0)*60};
   const fmt=F.type==="fortime"?(F.rounds>1?F.rounds+" раундов · на время":"На время")+(F.cap?" · лимит "+F.cap+" мин":""):F.type==="amrap"?"AMRAP "+F.min+" мин":F.type==="emom"?"EMOM "+F.min+" мин":F.type==="tabata"?"Tabata 8 × 20/10 с":F.type==="heavy"?"Тяжёлые подходы "+F.scheme:"Практика навыка · "+F.rounds+" подходов · "+F.min+" мин";
   const score=F.type==="amrap"?"rr":F.type==="emom"?"rounds":F.type==="tabata"?"reps":F.type==="heavy"?"load":F.type==="skill"?"reps":"time";
-  return {id:m.id,name:m.name,kind:"my",lvl:"",score,about:"Моя тренировка · "+m.els.map(e=>CF_MOD[e.mod].split(" ")[0]).join("+")+" · составлена по шаблону CrossFit",v:{my:{fmt,t,ex,score}},my:m};}
+  const v={my:{fmt,t,ex,score}};
+  if(m.beg!==false){const half=x=>{const n=parseFloat(String(x).replace(",","."));return Number.isFinite(n)?String(Math.max(1,Math.round(n/2))).replace(".",","):x;};
+    const kgH=k=>{const n=parseFloat(String(k).replace(",","."));return Number.isFinite(n)?String(Math.round(n/2*2)/2).replace(".",",")+" кг":"";};
+    let F2=Object.assign({},F),cutAmt=false;if(F.type==="fortime"){if(F.rounds>1)F2.rounds=Math.max(1,Math.round(F.rounds/2));else cutAmt=true;}else if(F.type==="amrap"||F.type==="emom"||F.type==="skill")F2.min=Math.max(5,Math.round(F.min/2));
+    const ex2=m.els.map((e,i)=>{const kg=e.mod==="W"?kgH(e.kg):"";const a=cutAmt&&F.type!=="heavy"?half(e.amt):e.amt;return [ex[i][0],F.type==="heavy"?F.scheme:(a+" "+e.unit).replace(" повт",""),kg?{m:kg,f:kg}:null,ex[i][3]];});
+    const t2=F2.type==="amrap"||F2.type==="skill"?{type:"amrap",sec:F2.min*60}:F2.type==="emom"?{type:"emom",period:60,rounds:F2.min}:t;
+    const fmt2=F.type==="fortime"?(F2.rounds>1?F2.rounds+" раундов · на время":"На время"):F.type==="amrap"?"AMRAP "+F2.min+" мин":F.type==="emom"?"EMOM "+F2.min+" мин":F.type==="skill"?"Практика навыка · "+F2.min+" мин":fmt;
+    v.beg={fmt:fmt2+" · вес и объём вдвое",t:t2,ex:ex2,score};}
+  return {id:m.id,name:m.name,kind:"my",lvl:"",score,stim:m.stim||"",about:"Моя тренировка · "+m.els.map(e=>CF_MOD[e.mod].split(" ")[0]).join("+")+" · составлена по шаблону CrossFit",v,my:m};}
 renderCross();
 
 /* ===================== СТРИТ ВОРКАУТ: круги + общее время ===================== */
