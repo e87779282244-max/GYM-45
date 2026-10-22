@@ -677,6 +677,50 @@
   .sub-ask[hidden]{display:none}
   .sub-q{font-weight:700;font-size:15px;margin:2px 0 4px}
   .wod-mvrow .sw-swap{margin-left:8px}
+  .cf-top{margin-bottom:4px}
+  .cf-lvl{display:flex;justify-content:space-between;align-items:baseline;margin:14px 2px 2px;font-family:var(--dsp)}
+  .cf-lvl b{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent)}
+  .cf-lvl span{font-size:12px;color:var(--muted);font-weight:700}
+  .cf-pr{flex:none;font-size:11.5px;font-weight:800;color:var(--gold-ink);font-family:var(--dsp)}
+  .cf-mv{align-items:center}
+  .cf-mv .th{width:44px;height:44px;flex:none;border-radius:9px;border:1px solid var(--line);background:#fff;overflow:hidden;display:grid;place-items:center;color:var(--faint);cursor:pointer}
+  .cf-mv .th img{width:100%;height:100%;object-fit:contain}
+  .cf-mv .nm{flex:1;min-width:0;font-weight:600}
+  .cf-mv .nm small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+  .cf-vars{margin:10px 0 0}
+  .cf-note{font-size:13px;line-height:1.4;background:var(--accent-weak);border-radius:10px;padding:8px 10px;margin:10px 0 0}
+  .cf-src{font-size:12px;color:var(--muted);margin:8px 0 0;word-break:break-word}
+  .cf-src a{color:var(--accent-ink)}
+  .cf-myact{display:flex;gap:8px;margin-top:10px}
+  .cf-myact .tm-reset{flex:1}
+  .cf-prs{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin-bottom:8px}
+  .cf-prs div{background:var(--accent-weak);border-radius:12px;padding:8px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .cf-prs span{font-size:11px;color:var(--muted);font-weight:700}
+  .cf-prs b{font-family:var(--dsp);font-size:18px;font-weight:800}
+  .cf-prs small{font-size:11px;color:var(--muted)}
+  .cf-hist div{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13.5px;align-items:baseline}
+  .cf-hist span{color:var(--muted)}
+  .cf-hist i{font-style:normal;font-size:10.5px;font-weight:800;color:#fff;background:var(--gold);border-radius:6px;padding:1px 5px}
+  .cf-form{display:flex;flex-direction:column;gap:10px}
+  .cf-form h3,.card>h3{margin:0;font-family:var(--dsp)}
+  .cf-sub{font-size:13px;color:var(--muted);line-height:1.4;margin:0}
+  .cf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cf-grid label,.cf-lab{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+  .cf-chk{display:flex;gap:8px;align-items:center;font-size:14px}
+  .cf-ok{color:var(--good);font-weight:700;font-size:13.5px;margin:6px 0}
+  .cf-notes{margin:6px 0;padding-left:18px;font-size:13px;line-height:1.4}
+  .cf-warn{color:#8a4a2c}
+  .cf-info summary{font-family:var(--dsp);font-weight:700;cursor:pointer}
+  .cf-info p{font-size:13.5px;line-height:1.45}
+  .cf-tpl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0}
+  .cf-tpl button{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:13px}
+  .cf-tpl button small{font-size:10.5px;color:var(--muted);font-weight:600}
+  .cf-tpl button.rest{opacity:.55}
+  .cf-tpl button.cur{background:var(--accent);color:#fff;border-color:transparent}
+  .cf-tpl button.cur small{color:#eef0e0}
+  .cfb-el{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+  .cfb-mod button{font-size:12.5px}
+  select.food-in{appearance:none;-webkit-appearance:none}
   .wod-mvrow small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
   body.sub-open{overflow:hidden}
   .sk-c.part{background:#e9cf6b!important;color:#3a300a!important;border-color:transparent}
@@ -1000,9 +1044,9 @@
       <button class="icon-btn back-btn cross-back" title="Назад">←</button>
       <img class="cross-logo" src="media/crossfit4.png?v=1" alt="CrossFit" width="706" height="670">
       <p class="eyebrow">Кроссфит</p>
-      <h1 class="cross-h1">20 WOD для начала</h1>
+      <h1 class="cross-h1">Бенчмарки и свои тренировки</h1>
     </div>
-    <p class="street-note">Открой комплекс — сначала описание, затем крупный таймер (AMRAP / EMOM / Tabata / на время) со звуком, настроенный под формат. Адаптировано из подборки SportKuznica. «Броски медбола» и «выпады над головой» идут без анимации.</p>
+    <p class="street-note">Классические бенчмарки CrossFit по уровням: у каждого — варианты Rx / Средний / Новичок, веса для мужчин и женщин, таймер и журнал результатов с личным рекордом. Или составь свою тренировку по шаблону CrossFit.</p>
     <div class="stack" id="crossDays"></div>
   </section>
 
@@ -1016,9 +1060,13 @@
       <div class="card wod-card">
         <span class="tag" id="wodFmt"></span>
         <p class="wod-desc" id="wodDesc"></p>
+        <div class="sk-lvl cf-vars" id="cfVarBox"></div>
+        <div class="sk-lvl" id="cfSexBox"><span>Веса для</span><button type="button" data-s="m">Мужчин</button><button type="button" data-s="f">Женщин</button></div>
         <div class="wod-mv-h">Движения</div>
         <div class="wod-mv" id="wodMoves"></div>
+        <div id="cfExtra"></div>
       </div>
+      <div class="card"><h3 style="margin:0 0 8px">Мои результаты</h3><div id="cfResults"></div></div>
 
       <!-- ВСТРОЕННЫЙ ТАЙМЕР -->
       <div class="tmr" id="tmr">
@@ -1052,6 +1100,21 @@
 
       <button class="btn wod-finish-btn" id="wodFinishBtn">✓ Завершить тренировку</button>
     </div>
+  </section>
+
+  <div class="sub-sheet" id="cfResSheet" hidden>
+    <div class="sub-card" role="dialog" aria-label="Результат комплекса">
+      <div class="sub-top"><b class="sub-h">Результат</b><button type="button" class="sub-x" aria-label="Закрыть">✕</button></div>
+      <div id="cfResForm" class="cf-form" style="margin:10px 0"></div>
+      <button type="button" class="btn" id="cfResSave">Записать результат</button>
+    </div>
+  </div>
+
+  <!-- КРОССФИТ: конструктор своей тренировки -->
+  <section class="screen" id="scr-cfb" hidden>
+    <div class="hd"><div><p class="eyebrow">Кроссфит · конструктор</p><h1>Своя тренировка</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button></div>
+    <div class="stack" id="cfbBody"></div>
   </section>
 
   <!-- СТРИТ ВОРКАУТ: круговые комплексы -->
@@ -1430,7 +1493,7 @@ function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","ма�
   return d.getDate()+" "+m[d.getMonth()];}
 
 /* ---------- navigation ---------- */
-const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),pu:el("scr-pu"),workout:el("scr-workout"),progress:el("scr-progress")};
+const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),pu:el("scr-pu"),workout:el("scr-workout"),progress:el("scr-progress"),cfb:el("scr-cfb")};
 function el(id){return document.getElementById(id);}
 let histStack=[],currentScreen=null;
 function applyScreen(name){
@@ -1872,7 +1935,7 @@ function renderProgress(){
       const parts=[];if(x.secs)parts.push(mmss(x.secs));parts.push((x.circles||0)+(x.target?"/"+x.target:"")+" кр.");if(x.pct!=null)parts.push(x.pct+"%");
       badge=`<span class="seed" style="background:var(--accent-weak);color:var(--accent-ink)">воркаут</span><span class="vol num">${parts.join(" · ")}</span>`;
     }else if(x.cross){
-      const parts=[];if(x.tmtype&&typeof TLABEL!=="undefined"&&TLABEL[x.tmtype])parts.push(TLABEL[x.tmtype]);if(x.secs)parts.push(mmss(x.secs));if(x.rounds)parts.push(x.rounds+" р.");
+      const parts=[];if(x.tmtype&&typeof TLABEL!=="undefined"&&TLABEL[x.tmtype])parts.push(TLABEL[x.tmtype]);if(x.score)parts.push((x.pr?"🏆 ":"")+x.score);else{if(x.secs)parts.push(mmss(x.secs));if(x.rounds)parts.push(x.rounds+" р.");}
       badge=`<span class="seed" style="background:var(--accent-weak);color:var(--accent-ink)">кроссфит</span>`+
         (parts.length?`<span class="vol num">${parts.join(" · ")}</span>`:"");
     }else{
@@ -2837,33 +2900,6 @@ function openPl5Week(n){
     desc:"Веса рассчитаны от твоего 1ПМ (присед/жим/становая). Меняй 1ПМ в «Рабочих весах». "+(n>=5?"Пиковые/разгрузочные недели.":"Базовые недели."),
     days},"Пауэрлифтинг · 5×5",true);
 }
-const CROSS=[
- {name:"Susan",fmt:"5 раундов · на время",desc:"Пять раундов в быстром темпе: бег, отжимания и приседания без веса. Задача — пройти все раунды за минимальное время.",t:{type:"fortime",cap:0},ex:[["Бег на дорожке",5,200,0],["Отжимания от пола",5,10,0],["Воздушные приседания",5,10,0]]},
- {name:"Anderson",fmt:"AMRAP 20 мин",desc:"Двадцать минут работы без остановки. Проходи круг за кругом и считай, сколько успеешь — чем больше, тем лучше.",t:{type:"amrap",sec:1200},ex:[["Бёрпи",1,5,0],["Отжимания от пола",1,10,0],["Ситапы",1,15,0],["Воздушные приседания",1,20,0]]},
- {name:"Infernal Duo",fmt:"Лесенка 1-10-1 · на время",desc:"Лесенка бёрпи и подтягиваний вверх и обратно вниз. Выполняй на время, отдыхай только по необходимости.",t:{type:"fortime",cap:0},ex:[["Бёрпи",1,10,0],["Подтягивания",1,10,0]]},
- {name:"Death By · отжимания",fmt:"EMOM · +1 каждую минуту",desc:"Каждую минуту добавляй один повтор: 1 в первую минуту, 2 во вторую и так далее, пока укладываешься в минуту. Таймер ЭМОМ сигналит в начале каждой минуты.",t:{type:"emom",period:60,rounds:0},ex:[["Отжимания от пола",10,10,0]]},
- {name:"Клаус",fmt:"5 раундов · на время",desc:"Пять раундов возрастающего объёма на пресс и ноги. Работай на время.",t:{type:"fortime",cap:0},ex:[["Отжимания от пола",5,20,0],["Ситапы",5,35,0],["Воздушные приседания",5,50,0]]},
- {name:"Hooper",fmt:"5 раундов · на время",desc:"Пять раундов гребли, подтягиваний и швунга. На время, с полной выкладкой.",t:{type:"fortime",cap:0},ex:[["Гребля",1,1000,0],["Подтягивания",5,25,0],["Жимовой швунг",5,7,60]]},
- {name:"Jack",fmt:"AMRAP 20 мин",desc:"Двадцать минут: швунг, махи гирей и запрыгивания на тумбу. Максимум кругов за отведённое время.",t:{type:"amrap",sec:1200},ex:[["Жимовой швунг",1,10,52],["Махи гирей",1,10,24],["Прыжки на тумбу",1,10,0]]},
- {name:"Annie",fmt:"Лесенка 50-40-30-20-10 · на время",desc:"Классическая лесенка: скакалка (двойные) и пресс, по убывающей. На время.",t:{type:"fortime",cap:0},ex:[["Прыжки на скакалке",1,50,0],["Ситапы",1,50,0]]},
- {name:"Junior",fmt:"Лесенка 20-1 · на время",desc:"Лесенка от 20 до 1: запрыгивания и отжимания. На время.",t:{type:"fortime",cap:0},ex:[["Прыжки на тумбу",1,20,0],["Отжимания от пола",1,20,0]]},
- {name:"Отбор БК",fmt:"AMRAP 10 мин",desc:"Десять минут непрерывной работы: тяга, броски мяча и скакалка. Считай круги.",t:{type:"amrap",sec:600},ex:[["Становая тяга",1,15,70],["Броски медбола",1,20,9],["Прыжки на скакалке",1,25,0]]},
- {name:"Домашний вызов",fmt:"Интервалы · +2 повтора/раунд",desc:"Интервальная работа: новый круг стартует по сигналу таймера каждые две минуты. Добавляй по 2 повтора к каждому движению.",t:{type:"emom",period:120,rounds:0},ex:[["Воздушные приседания",1,14,0],["Ситапы",1,14,0],["Отжимания от пола",1,14,0]]},
- {name:"Кулак веры",fmt:"Чиппер · на время",desc:"Чиппер: пройди весь список сверху вниз по одному разу. На время, без пропусков.",t:{type:"fortime",cap:0},ex:[["Воздушные приседания",1,100,0],["Махи гирей",1,90,24],["Отжимания от пола",1,80,0],["Прыжковые выпады",1,70,0],["Ситапы",1,60,0],["Гоблет-присед",1,50,24],["Прыжки на тумбу",1,40,0],["Толчок гири одной рукой",1,30,24],["Бёрпи",1,20,0],["Выпады над головой",1,10,24]]},
- {name:"Молот Тора",fmt:"3 раунда · на время",desc:"Три тяжёлых раунда со штангой. На время, следи за техникой.",t:{type:"fortime",cap:0},ex:[["Взятие штанги на грудь",3,20,40],["Фронтальные приседания",3,20,40],["Жимовой швунг",3,20,40]]},
- {name:"CrossFit Open 15.5",fmt:"Лесенка 27-21-15-9 · на время",desc:"Лесенка 27-21-15-9: гребля (калории) и трастеры. На время.",t:{type:"fortime",cap:0},ex:[["Гребля",1,27,0],["Трастеры со штангой",1,27,43]]},
- {name:"Fight Gone Bad",fmt:"3×5 станций по 1 мин",desc:"Три раунда по пять станций, минута на каждую станцию и минута отдыха между раундами. Таймер отбивает каждую минуту — меняй станцию по сигналу.",t:{type:"emom",period:60,rounds:17},ex:[["Броски медбола",1,0,9],["Тяга штанги к подбородку",1,0,35],["Прыжки на тумбу",1,0,0],["Жимовой швунг",1,0,35],["Гребля",1,0,0]]},
- {name:"CrossFit Total",fmt:"Сумма 1ПМ · 12 мин",desc:"Три силовых блока по четыре минуты: присед, жим стоя и становая. В каждом блоке найди свой максимум на 1 повтор.",t:{type:"emom",period:240,rounds:3},ex:[["Приседания со штангой",1,1,0],["Жим штанги стоя",1,1,0],["Становая тяга",1,1,0]]},
- {name:"Nicole",fmt:"AMRAP 20 мин",desc:"Двадцать минут: круг бега и максимум подтягиваний. Записывай число подтягиваний в каждом круге.",t:{type:"amrap",sec:1200},ex:[["Бег на дорожке",1,400,0],["Подтягивания",1,0,0]]},
- {name:"Одинокая сестра",fmt:"AMRAP 18 мин",desc:"Восемнадцать минут: подъёмы ног к перекладине, запрыгивания и рывок гантели. Максимум кругов.",t:{type:"amrap",sec:1080},ex:[["Подъём ног к перекладине",1,6,0],["Прыжки на тумбу",1,7,0],["Рывок гантели",1,8,22]]},
- {name:"Hotshots 19",fmt:"6 раундов · на время",desc:"Шесть тяжёлых раундов: приседания, взятия на грудь, подтягивания и бег. На время.",t:{type:"fortime",cap:0},ex:[["Воздушные приседания",6,30,0],["Взятие штанги на грудь",6,19,60],["Подтягивания",6,7,0],["Бег на дорожке",6,400,0]]},
- {name:"The 540",fmt:"на время",desc:"Один большой круг на 540 повторов суммарно. На время, разбивай подходы как удобно.",t:{type:"fortime",cap:0},ex:[["Выпады над головой",1,50,20],["Подтягивания",1,40,0],["Трастеры со штангой",1,30,43],["Бёрпи",1,20,0],["Взятие штанги на грудь",1,10,60]]},
-];
-function renderCross(){const w=el("crossDays");w.innerHTML="";
-  CROSS.forEach(d=>{const b=document.createElement("button");b.className="disc";
-    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${d.name}</span><span class="disc-sub">${d.fmt}</span></span><span class="go">›</span>`;
-    b.onclick=()=>openWod(d);w.appendChild(b);});}
-renderCross();
 document.querySelectorAll(".disc[data-disc]").forEach(b=>b.onclick=()=>{
   const d=b.dataset.disc;
   if(d==="Стритлифтинг")show("street");else if(d==="Кроссфит")show("cross");
@@ -2873,48 +2909,308 @@ document.querySelectorAll(".disc[data-disc]").forEach(b=>b.onclick=()=>{
 el("pclose").addEventListener("click",closeMedia);
 
 /* ===================== КРОССФИТ: описание + таймер ===================== */
-let currentWod=null;
-function openWod(d){currentWod=d;d.cf=1;subLoad(d);
-  el("wodName").textContent=d.name;
-  el("wodFmt").textContent=d.fmt;
-  el("wodDesc").textContent=d.desc||"";
+/* ===================== КРОССФИТ: проверенные комплексы ===================== */
+/* Источники: CrossFit Journal (Benchmark Workouts 2003, New Girls 2004, Girls for Grandmas 2004),
+   посты crossfit.com с официальными вариантами Rx / Intermediate / Beginner, games.crossfit.com (Open 15.5).
+   Веса в источниках — в фунтах; в приложении показываем кг (округление до 0,5) и фунты в скобках. */
+const CF_LB=0.45359237;
+const cfKg=lb=>{const k=Math.round(lb*CF_LB*2)/2;return (k%1?String(k).replace(".",","):k)+" кг";};
+const LB=(m,f)=>({m:cfKg(m)+" ("+m+" lb)",f:cfKg(f)+" ("+f+" lb)"});
+const KG=(m,f)=>({m:m+" кг",f:f+" кг"});
+const BALL=(ml,mft,fl,fft)=>({m:cfKg(ml)+" мяч, цель "+(mft===10?"3 м":mft===9?"2,7 м":"2,4 м"),f:cfKg(fl)+" мяч"+(fft?", цель "+(fft===10?"3 м":fft===9?"2,7 м":"2,4 м"):"")});
+const BOX=(mi,fi)=>({m:"тумба "+Math.round(mi*2.54)+" см",f:"тумба "+Math.round(fi*2.54)+" см"});
+const CF_LVLS=["Новичок","Продвинутый","Профи","Мастер"];
+const CF_VN={rx:"Rx · как в оригинале",int:"Средний",beg:"Новичок",sc:"Scaled"};
+const FT={type:"fortime",cap:0},AM=s=>({type:"amrap",sec:s}),EM=(p,r)=>({type:"emom",period:p,rounds:r});
+/* ex: [название, повторы/дистанция, нагрузка {m,f} или null, ключ анимации (если отличается от названия)] */
+const CFW=[
+ {id:"cindy",name:"Cindy",kind:"Girl",lvl:"Новичок",score:"rr",src:"https://www.crossfit.com/260509",about:"Классика на собственном весе: 20 минут кругов подтягиваний, отжиманий и приседаний.",
+  v:{rx:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Подтягивания","5"],["Отжимания от пола","10"],["Воздушные приседания","15"]]},
+     int:{fmt:"AMRAP 20 мин · как Rx",t:AM(1200),ex:[["Подтягивания","5"],["Отжимания от пола","10"],["Воздушные приседания","15"]]},
+     beg:{fmt:"Каждые 2 мин × 10 (20 мин)",t:EM(120,10),score:"rounds",ex:[["Подтягивания с резиной, строгие","3",null,"Подтягивания"],["Отжимания с руками на возвышении","6"],["Воздушные приседания","9"]]}}},
+ {id:"annie",name:"Annie",kind:"Girl",lvl:"Новичок",score:"time",src:"https://www.crossfit.com/260317",about:"Лесенка 50-40-30-20-10: скакалка и пресс.",
+  v:{rx:{fmt:"50-40-30-20-10 · на время",t:FT,ex:[["Двойные прыжки на скакалке","50-40-30-20-10",null,"Прыжки на скакалке"],["Ситапы (с ковриком AbMat)","50-40-30-20-10",null,"Ситапы"]]},
+     int:{fmt:"Как Rx",t:FT,ex:[["Двойные прыжки на скакалке","50-40-30-20-10",null,"Прыжки на скакалке"],["Ситапы (с ковриком AbMat)","50-40-30-20-10",null,"Ситапы"]]},
+     beg:{fmt:"30-20-10 · на время",t:FT,ex:[["Прыжки на скакалке (одинарные)","30-20-10",null,"Прыжки на скакалке"],["Ситапы с фиксацией ног","30-20-10",null,"Ситапы"]]}}},
+ {id:"karen",name:"Karen",kind:"Girl",lvl:"Новичок",score:"time",src:"https://www.crossfit.com/250423",about:"150 бросков мяча в мишень с полным приседом. Ориентир из CrossFit Journal — 4:52.",
+  v:{rx:{fmt:"150 повторов · на время",t:FT,ex:[["Броски мяча в мишень (wall ball)","150",BALL(20,10,14,9)]]},
+     int:{fmt:"150 повторов · на время",t:FT,ex:[["Броски мяча в мишень (wall ball)","150",BALL(14,10,10,9)]]},
+     beg:{fmt:"75 повторов · на время",t:FT,ex:[["Броски мяча в мишень (wall ball)","75",BALL(10,9,6,0)]]}}},
+ {id:"jackie",name:"Jackie",kind:"Girl",lvl:"Новичок",score:"time",src:"https://www.crossfit.com/240913",about:"Гребля, трастеры с лёгкой штангой и подтягивания — один раз по списку.",
+  v:{rx:{fmt:"На время",t:FT,ex:[["Гребля","1000 м"],["Трастеры со штангой","50",LB(45,35)],["Подтягивания","30"]]},
+     int:{fmt:"На время",t:FT,ex:[["Гребля","1000 м"],["Трастеры со штангой","50",LB(35,25)],["Подтягивания","30"]]},
+     beg:{fmt:"На время",t:FT,ex:[["Гребля","800 м"],["Трастеры со штангой","30",LB(25,15)],["Тяга на кольцах (австралийские подтягивания)","20",null,"Австралийские подтягивания"]]}}},
+ {id:"helen",name:"Helen",kind:"Girl",lvl:"Новичок",score:"time",src:"https://www.crossfit.com/250625",about:"3 раунда: бег, махи гирей, подтягивания.",
+  v:{rx:{fmt:"3 раунда · на время",t:FT,ex:[["Бег","400 м"],["Махи гирей","21",LB(53,35)],["Подтягивания","12"]]},
+     int:{fmt:"3 раунда · на время",t:FT,ex:[["Бег","400 м"],["Махи гирей","21",LB(35,26)],["Подтягивания","6"]]},
+     beg:{fmt:"3 раунда · на время",t:FT,ex:[["Бег","200 м"],["Махи гирей","15",LB(26,18)],["Подтягивания в прыжке","9",null,"Подтягивания"]]}}},
+ {id:"fran",name:"Fran",kind:"Girl",lvl:"Продвинутый",score:"time",src:"https://www.crossfit.com/261005",about:"Самый известный бенчмарк: 21-15-9 трастеров и подтягиваний. Короткий и очень интенсивный.",
+  v:{rx:{fmt:"21-15-9 · на время",t:FT,ex:[["Трастеры со штангой","21-15-9",LB(95,65)],["Подтягивания","21-15-9"]]},
+     int:{fmt:"15-12-9 · на время",t:FT,ex:[["Трастеры со штангой","15-12-9",LB(95,65)],["Подтягивания","15-12-9"]]},
+     beg:{fmt:"15-12-9 · на время",t:FT,ex:[["Трастеры со штангой","15-12-9",LB(45,35)],["Тяга на кольцах (австралийские подтягивания)","15-12-9",null,"Австралийские подтягивания"]]}}},
+ {id:"nancy",name:"Nancy",kind:"Girl",lvl:"Продвинутый",score:"time",src:"https://www.crossfit.com/241026",about:"5 раундов: бег и приседания со штангой над головой.",
+  v:{rx:{fmt:"5 раундов · на время",t:FT,ex:[["Бег","400 м"],["Приседания со штангой над головой","15",LB(95,65)]]},
+     int:{fmt:"5 раундов · на время",t:FT,ex:[["Бег","400 м"],["Приседания со штангой над головой","10",LB(95,65)]]},
+     beg:{fmt:"5 раундов · на время",t:FT,ex:[["Бег","200 м"],["Приседания со штангой над головой","10",LB(45,35)]]}}},
+ {id:"kelly",name:"Kelly",kind:"Girl",lvl:"Продвинутый",score:"time",src:"https://www.crossfit.com/260410",about:"Длинная работа: бег, запрыгивания на тумбу, броски мяча.",
+  v:{rx:{fmt:"5 раундов · на время",t:FT,ex:[["Бег","400 м"],["Прыжки на тумбу","30",BOX(24,20)],["Броски мяча в мишень (wall ball)","30",BALL(20,10,14,9)]]},
+     int:{fmt:"4 раунда · на время",t:FT,ex:[["Бег","400 м"],["Прыжки на тумбу","20",BOX(24,20)],["Броски мяча в мишень (wall ball)","30",BALL(14,10,10,9)]]},
+     beg:{fmt:"4 раунда · на время",t:FT,ex:[["Бег","200 м"],["Прыжки на тумбу","20",BOX(12,12)],["Броски мяча в мишень (wall ball)","20",BALL(10,9,6,8)]]}}},
+ {id:"angie",name:"Angie",kind:"Girl",lvl:"Продвинутый",score:"time",src:"https://www.crossfit.com/251202",about:"По 100 повторов четырёх движений, строго по порядку: следующее — только после всех повторов предыдущего.",
+  v:{rx:{fmt:"На время",t:FT,ex:[["Подтягивания","100"],["Отжимания от пола","100"],["Ситапы","100"],["Воздушные приседания","100"]]},
+     int:{fmt:"На время",t:FT,ex:[["Подтягивания","60"],["Отжимания от пола","60"],["Ситапы","100"],["Воздушные приседания","100"]]},
+     beg:{fmt:"На время",t:FT,ex:[["Тяга на кольцах (австралийские подтягивания)","50",null,"Австралийские подтягивания"],["Отжимания с колен","50"],["Ситапы","50"],["Воздушные приседания","50"]]}}},
+ {id:"barbara",name:"Barbara",kind:"Girl",lvl:"Продвинутый",score:"time",src:"https://www.crossfit.com/251001",about:"5 раундов с отдыхом 3 минуты между раундами (отдых входит во время).",
+  v:{rx:{fmt:"5 раундов · отдых 3 мин · на время",t:FT,ex:[["Подтягивания","20"],["Отжимания от пола","30"],["Ситапы","40"],["Воздушные приседания","50"]]},
+     int:{fmt:"5 раундов · отдых 3 мин · на время",t:FT,ex:[["Подтягивания","10"],["Отжимания от пола","20"],["Ситапы","30"],["Воздушные приседания","40"]]},
+     beg:{fmt:"3 раунда · отдых 3 мин · на время",t:FT,ex:[["Тяга на кольцах (австралийские подтягивания)","10",null,"Австралийские подтягивания"],["Отжимания с колен","15"],["Ситапы","20"],["Воздушные приседания","25"]]}}},
+ {id:"chelsea",name:"Chelsea",kind:"Girl",lvl:"Продвинутый",score:"rounds",src:"https://www.crossfit.com/230327",about:"Каждую минуту — один круг. Отстал от таймера — продолжай до конца и считай, сколько кругов уложил.",
+  v:{rx:{fmt:"EMOM 30 мин",t:EM(60,30),ex:[["Подтягивания","5"],["Отжимания от пола","10"],["Воздушные приседания","15"]]},
+     int:{fmt:"EMOM 30 мин · продолжай после срыва",t:EM(60,30),ex:[["Подтягивания","5"],["Отжимания от пола","10"],["Воздушные приседания","15"]]},
+     beg:{fmt:"EMOM 20 мин",t:EM(60,20),ex:[["Подтягивания в прыжке","3",null,"Подтягивания"],["Отжимания с колен","6"],["Воздушные приседания","9"]]}}},
+ {id:"jack",name:"Jack",kind:"Girl",lvl:"Продвинутый",score:"rr",src:"https://www.crossfit.com/241213",about:"20 минут: жимовой швунг, махи гирей, запрыгивания.",
+  v:{rx:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Жимовой швунг","10",LB(115,75)],["Махи гирей","10",LB(53,35)],["Прыжки на тумбу","10",BOX(24,20)]]},
+     int:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Жимовой швунг","10",LB(95,65)],["Махи гирей","10",LB(53,35)],["Прыжки на тумбу","10",BOX(24,20)]]},
+     beg:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Жимовой швунг","10",LB(45,35)],["Махи гирей","10",LB(26,18)],["Зашагивания на тумбу","10",BOX(20,12),"Прыжки на тумбу"]]}}},
+ {id:"grace",name:"Grace",kind:"Girl",lvl:"Профи",score:"time",src:"https://www.crossfit.com/260113",about:"30 взятий на грудь с толчком. Можно бросать штангу между повторами.",
+  v:{rx:{fmt:"30 повторов · на время",t:FT,ex:[["Взятие на грудь и толчок","30",LB(135,95)]]},
+     int:{fmt:"30 повторов · на время",t:FT,ex:[["Взятие на грудь и толчок","30",LB(95,65)]]},
+     beg:{fmt:"30 повторов · на время",t:FT,ex:[["Взятие на грудь и толчок","30",LB(65,45)]]}}},
+ {id:"isabel",name:"Isabel",kind:"Girl",lvl:"Профи",score:"time",src:"https://www.crossfit.com/251223",about:"30 рывков штанги на время.",
+  v:{rx:{fmt:"30 повторов · на время",t:FT,ex:[["Рывок штанги","30",LB(135,95)]]},
+     int:{fmt:"30 повторов · на время",t:FT,ex:[["Рывок штанги","30",LB(115,75)]]},
+     beg:{fmt:"30 повторов · на время",t:FT,ex:[["Рывок штанги","30",LB(75,55)]]}}},
+ {id:"elizabeth",name:"Elizabeth",kind:"Girl",lvl:"Профи",score:"time",src:"https://www.crossfit.com/250530",about:"21-15-9: взятия на грудь и отжимания на кольцах.",
+  v:{rx:{fmt:"21-15-9 · на время",t:FT,ex:[["Взятие штанги на грудь","21-15-9",LB(135,95)],["Отжимания на кольцах","21-15-9",null,"Отжимания на брусьях"]]},
+     int:{fmt:"21-15-9 · на время",t:FT,ex:[["Взятие штанги на грудь","21-15-9",LB(95,65)],["Отжимания на кольцах в прыжке","21-15-9",null,"Отжимания на брусьях"]]},
+     beg:{fmt:"15-12-9 · на время",t:FT,ex:[["Взятие штанги на грудь","15-12-9",LB(45,35)],["Отжимания на кольцах с опорой ногами","15-12-9",null,"Отжимания на брусьях"]]}}},
+ {id:"diane",name:"Diane",kind:"Girl",lvl:"Профи",score:"time",src:"https://www.crossfit.com/240906",about:"21-15-9: тяжёлая становая и отжимания в стойке на руках.",
+  v:{rx:{fmt:"21-15-9 · на время",t:FT,ex:[["Становая тяга","21-15-9",LB(225,155)],["Отжимания в стойке на руках","21-15-9"]]},
+     int:{fmt:"21-15-9 / 12-9-6 · на время",t:FT,ex:[["Становая тяга","21-15-9",LB(155,105)],["Отжимания в стойке на руках","12-9-6"]]},
+     beg:{fmt:"21-15-9 / 12-9-6 · на время",t:FT,ex:[["Становая тяга","21-15-9",LB(75,55)],["Отжимания уголком (пайк)","12-9-6"]]}}},
+ {id:"dt",name:"DT",kind:"Hero",lvl:"Профи",score:"time",src:"https://www.crossfit.com/240221",about:"Hero WOD в честь сержанта ВВС США Тимоти Дэвиса. Одна штанга на весь комплекс.",
+  v:{rx:{fmt:"5 раундов · на время",t:FT,ex:[["Становая тяга","12",LB(155,105)],["Взятие штанги на грудь с виса","9",LB(155,105),"Взятие штанги на грудь"],["Толчковый швунг","6",LB(155,105)]]},
+     int:{fmt:"5 раундов · на время",t:FT,ex:[["Становая тяга","12",LB(115,75)],["Взятие штанги на грудь с виса","9",LB(115,75),"Взятие штанги на грудь"],["Толчковый швунг","6",LB(115,75)]]},
+     beg:{fmt:"5 раундов · на время",t:FT,ex:[["Становая тяга","12",LB(45,35)],["Взятие штанги на грудь с виса","9",LB(45,35),"Взятие штанги на грудь"],["Толчковый швунг","6",LB(45,35)]]}}},
+ {id:"open155",name:"Open 15.5",kind:"Open",lvl:"Профи",score:"time",src:"https://games.crossfit.com/workouts/open/2015",about:"Финальное задание CrossFit Open 2015: гребля на калории и трастеры.",
+  v:{rx:{fmt:"27-21-15-9 · на время",t:FT,ex:[["Гребля (калории)","27-21-15-9",null,"Гребля"],["Трастеры со штангой","27-21-15-9",LB(95,65)]]},
+     sc:{fmt:"27-21-15-9 · на время",t:FT,ex:[["Гребля (калории)","27-21-15-9",null,"Гребля"],["Трастеры со штангой","27-21-15-9",LB(65,45)]]}}},
+ {id:"fgb",name:"Fight Gone Bad",kind:"Benchmark",lvl:"Профи",score:"reps",src:"https://www.crossfit.com/260831",about:"3 раунда по 5 станций, минута на станцию, минута отдыха. Результат — сумма всех повторов (гребля — в калориях).",
+  v:{rx:{fmt:"3 × 5 станций по 1 мин · максимум повторов",t:EM(60,18),ex:[["Броски мяча в мишень (wall ball)","1 мин",{m:cfKg(20)+" мяч, цель 3 м",f:cfKg(14)+" мяч, цель 2,7 м"}],["Сумо-тяга к подбородку","1 мин",LB(75,55)],["Прыжки на тумбу","1 мин",BOX(20,20)],["Жимовой швунг","1 мин",LB(75,55)],["Гребля (калории)","1 мин",null,"Гребля"],["Отдых","1 мин"]]},
+     int:{fmt:"Как Rx",t:EM(60,18),ex:[["Броски мяча в мишень (wall ball)","1 мин",{m:cfKg(20)+" мяч, цель 3 м",f:cfKg(14)+" мяч, цель 2,7 м"}],["Сумо-тяга к подбородку","1 мин",LB(75,55)],["Прыжки на тумбу","1 мин",BOX(20,20)],["Жимовой швунг","1 мин",LB(75,55)],["Гребля (калории)","1 мин",null,"Гребля"],["Отдых","1 мин"]]},
+     beg:{fmt:"3 × 5 станций по 1 мин",t:EM(60,18),ex:[["Броски мяча в мишень (wall ball)","1 мин",{m:cfKg(10)+" мяч, цель 3 м",f:cfKg(6)+" мяч, цель 2,7 м"}],["Сумо-тяга к подбородку","1 мин",LB(45,35)],["Зашагивания на тумбу","1 мин",BOX(20,12),"Прыжки на тумбу"],["Жимовой швунг","1 мин",LB(45,35)],["Гребля (калории)","1 мин",null,"Гребля"],["Отдых","1 мин"]]}}},
+ {id:"eva",name:"Eva",kind:"Girl",lvl:"Мастер",score:"time",src:"https://www.crossfit.com/220411",about:"Длинный и тяжёлый: 5 раундов бега 800 м, махов тяжёлой гирей и подтягиваний.",
+  v:{rx:{fmt:"5 раундов · на время",t:FT,ex:[["Бег","800 м"],["Махи гирей","30",KG(32,24)],["Подтягивания","30"]]},
+     int:{fmt:"4 раунда · на время",t:FT,ex:[["Бег","800 м"],["Махи гирей","30",KG(24,16)],["Подтягивания","30"]]},
+     beg:{fmt:"3 раунда · на время",t:FT,ex:[["Бег трусцой","400 м",null,"Бег"],["Махи гирей","20",KG(16,12)],["Подтягивания","20"]]}}},
+ {id:"mary",name:"Mary",kind:"Girl",lvl:"Мастер",score:"rr",src:"https://www.crossfit.com/251209",about:"Гимнастика высокого уровня: отжимания в стойке, пистолетики, подтягивания. Ориентир из CrossFit Journal — 12⅔ раунда.",
+  v:{rx:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Отжимания в стойке на руках","5"],["Пистолетики (поочерёдно)","10"],["Подтягивания","15"]]},
+     int:{fmt:"AMRAP 20 мин",t:AM(1200),ex:[["Отжимания уголком (пайк)","5"],["Пистолетики до опоры (поочерёдно)","10"],["Подтягивания","10"]]},
+     beg:{fmt:"AMRAP 10 мин",t:AM(600),ex:[["Отжимания с руками на тумбе 60 см","5",null,"Отжимания с руками на возвышении"],["Воздушные приседания","10"],["Тяга на кольцах (австралийские подтягивания)","15",null,"Австралийские подтягивания"]]}}},
+ {id:"murph",name:"Murph",kind:"Hero",lvl:"Мастер",score:"time",src:"https://www.crossfit.com/260525",about:"Hero WOD в честь лейтенанта ВМС США Майкла Мёрфи. Подтягивания, отжимания и приседания можно дробить как угодно; бег — в начале и в конце.",
+  v:{rx:{fmt:"На время · жилет 9 / 6 кг по желанию",t:FT,ex:[["Бег","1,6 км (1 миля)"],["Подтягивания","100"],["Отжимания от пола","200"],["Воздушные приседания","300"],["Бег","1,6 км (1 миля)"]]},
+     int:{fmt:"На время · 2-й бег не позже 25 мин",t:{type:"fortime",cap:0},ex:[["Бег","1,6 км"],["Подтягивания","50"],["Отжимания от пола","100"],["Воздушные приседания","150"],["Бег","1,6 км"]]},
+     beg:{fmt:"На время · 2-й бег не позже 20 мин",t:FT,ex:[["Бег","800 м"],["Тяга на кольцах (австралийские подтягивания) — 10 раундов","5",null,"Австралийские подтягивания"],["Отжимания с руками на возвышении — 10 раундов","10"],["Воздушные приседания — 10 раундов","15",null,"Воздушные приседания"],["Бег","800 м"]]}}},
+ {id:"hotshots19",name:"Hotshots 19",kind:"Hero",lvl:"Мастер",score:"time",src:"https://www.crossfit.com/workout/2018/06/29",about:"Hero WOD в честь 19 пожарных-хотшотов из Аризоны (2013).",
+  v:{rx:{fmt:"6 раундов · на время",t:FT,ex:[["Воздушные приседания","30"],["Силовое взятие штанги на грудь","19",LB(135,95),"Взятие штанги на грудь"],["Строгие подтягивания","7",null,"Подтягивания"],["Бег","400 м"]]},
+     int:{fmt:"6 раундов · на время",t:FT,ex:[["Воздушные приседания","30"],["Силовое взятие штанги на грудь","19",LB(115,75),"Взятие штанги на грудь"],["Подтягивания","7"],["Бег","400 м"]]},
+     beg:{fmt:"4 раунда · на время",t:FT,ex:[["Воздушные приседания","15"],["Силовое взятие штанги на грудь","10",LB(75,55),"Взятие штанги на грудь"],["Тяга на кольцах (австралийские подтягивания)","5",null,"Австралийские подтягивания"],["Бег","400 м"]]}}}];
+/* «Девочки» для бабушек (CrossFit Journal №26, 2004) — пример масштабирования для пожилых и самых начинающих */
+const CF_GRANDMA={angie:"25 тяг на кольцах, 25 отжиманий с колен, 25 ситапов, 25 приседаний — на время",
+  barbara:"3 раунда (отдых 3 мин): 20 тяг на кольцах, 30 отжиманий, 40 ситапов, 50 приседаний",
+  chelsea:"EMOM 20 мин: 5 тяг на кольцах, 10 отжиманий, 15 приседаний",
+  diane:"21-15-9: становая "+cfKg(50)+" и жим гантелей стоя по "+cfKg(10),
+  elizabeth:"21-15-9: взятие на грудь "+cfKg(25)+" и обратные отжимания от скамьи",
+  fran:"21-15-9: трастеры "+cfKg(25)+" и тяга на кольцах"};
+/* ---------- хранение: настройки, результаты, свои тренировки ---------- */
+const CFK="gym45_cf_v1";
+function cfGet(){try{const v=JSON.parse(localStorage.getItem(CFK)||"null");if(v&&typeof v==="object")return Object.assign({sex:"m",res:[],my:[],del:{},cycle:0},v);}catch(e){}return {sex:"m",res:[],my:[],del:{},cycle:0};}
+function cfSave(s){s.upd=Date.now();try{localStorage.setItem(CFK,JSON.stringify(s));}catch(e){toast("Не удалось сохранить");}try{cloudPush();}catch(e){}}
+function mergeCf(a,b){a=a||{};b=b||{};const del=Object.assign({},b.del||{},a.del||{});const u=(x,y)=>{const m={};[...(y||[]),...(x||[])].forEach(i=>{if(i&&i.id&&!del[i.id])m[i.id]=Object.assign({},m[i.id]||{},i);});return Object.values(m);};
+  const newer=(a.upd||0)>=(b.upd||0)?a:b;return {sex:newer.sex||"m",cycle:Math.max(a.cycle||0,b.cycle||0),res:u(a.res,b.res).sort((x,y)=>(x.ts||0)-(y.ts||0)),my:u(a.my,b.my),del,upd:Math.max(a.upd||0,b.upd||0)};}
+/* ---------- результат: формат и сравнение ---------- */
+const cfMmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+function cfScoreTxt(r){if(!r)return "";if(r.sc==="time")return cfMmss(r.t)+(r.capped?" (лимит, "+r.reps+" повт.)":"");if(r.sc==="rr")return r.r+" р. + "+(r.reps||0);if(r.sc==="rounds")return r.r+" р.";if(r.sc==="reps")return r.reps+" повт.";if(r.sc==="load")return String(r.kg).replace(".",",")+" кг";return "";}
+function cfVal(r){return r.sc==="time"?(r.capped?1e9-(r.reps||0):r.t):r.sc==="rr"?r.r*1000+(r.reps||0):r.sc==="rounds"?r.r:r.sc==="reps"?r.reps:r.kg;}
+const cfBetter=(a,b)=>a.sc==="time"?cfVal(a)<cfVal(b):cfVal(a)>cfVal(b);
+function cfResOf(id,vk){return cfGet().res.filter(r=>r.wod===id&&(!vk||r.v===vk));}
+function cfPR(id,vk){const l=cfResOf(id,vk);return l.reduce((b,r)=>!b||cfBetter(r,b)?r:b,null);}
+/* ---------- список ---------- */
+function cfVariants(d){return Object.keys(d.v);}
+function renderCross(){const w=el("crossDays");w.innerHTML="";const s=cfGet();
+  const top=document.createElement("div");top.className="cf-top";
+  top.innerHTML=`<button class="btn" type="button" id="cfBuild">＋ Составить свою тренировку</button>`;w.appendChild(top);el("cfBuild").onclick=()=>cfbOpen(null);
+  if(s.my.length){const h=document.createElement("div");h.className="cf-lvl";h.innerHTML=`<b>Мои тренировки</b><span>${s.my.length}</span>`;w.appendChild(h);
+    s.my.slice().reverse().forEach(m=>w.appendChild(cfDisc(cfMyToWod(m))));}
+  CF_LVLS.forEach(L=>{const list=CFW.filter(d=>d.lvl===L);if(!list.length)return;const h=document.createElement("div");h.className="cf-lvl";h.innerHTML=`<b>${L}</b><span>${list.length}</span>`;w.appendChild(h);list.forEach(d=>w.appendChild(cfDisc(d)));});
+  const n=document.createElement("p");n.className="street-note";n.innerHTML=`Комплексы и варианты Rx / Средний / Новичок — из CrossFit Journal и официальных постов crossfit.com; источник указан в каждом комплексе.`;w.appendChild(n);}
+function cfDisc(d){const b=document.createElement("button");b.className="disc";const pr=cfPR(d.id,"rx")||cfPR(d.id);
+  const first=d.v[cfVariants(d)[0]];
+  b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="cf-pr">${pr?"PR "+cfScoreTxt(pr):""}</span><span class="go">›</span>`;
+  b.querySelector("span span").textContent=d.name+(d.kind&&d.kind!=="my"?" · "+(d.kind==="Hero"?"Hero":d.kind==="Open"?"Open":d.kind==="Girl"?"Girl":"Benchmark"):"");
+  b.querySelector(".disc-sub").textContent=first.fmt;b.onclick=()=>openWod(d);return b;}
+/* ---------- экран комплекса ---------- */
+let currentWod=null,cfVar="rx";
+function openWod(d,vk){currentWod=d;d.cf=1;const vs=cfVariants(d);cfVar=vk&&d.v[vk]?vk:(d.lastVar&&d.v[d.lastVar]?d.lastVar:vs[0]);d.lastVar=cfVar;
+  const V=d.v[cfVar],s=cfGet();
+  el("wodName").textContent=d.name;el("wodFmt").textContent=V.fmt;
+  el("wodDesc").textContent=d.about||"";
+  const vb=el("cfVarBox");vb.innerHTML="";vb.hidden=vs.length<2;
+  vs.forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=CF_VN[k]||k;b.className=k===cfVar?"on":"";b.onclick=()=>openWod(d,k);vb.appendChild(b);});
+  const sb=el("cfSexBox");sb.hidden=!V.ex.some(e=>e[2]);
+  sb.querySelectorAll("button").forEach(b=>{b.className=b.dataset.s===s.sex?"on":"";b.onclick=()=>{const t=cfGet();t.sex=b.dataset.s;cfSave(t);openWod(d,cfVar);};});
+  // для subName/subOpen используем ключ комплекса+варианта
+  d.name0=d.name0||d.name;subLoad(d);
   const mv=el("wodMoves");mv.innerHTML="";
-  d.ex.forEach(e=>{
-    const row=document.createElement("div");row.className="wod-mvrow";
-    let rep;
-    if(e[2]>0)rep=e[1]>1?(e[1]+"×"+e[2]):(""+e[2]);
-    else rep=e[1]>1?(e[1]+" раунд"):"по станции";
-    const wt=e[3]>0?" · "+e[3]+" кг":"";
-    const disp=subName(d,e[0]);const s1=document.createElement("span");s1.textContent=disp;
-    if(disp!==e[0]){const sm=document.createElement("small");sm.textContent="вместо: "+e[0];s1.appendChild(sm);}
-    const s2=document.createElement("span");s2.className="num";s2.textContent=rep+wt;
-    row.appendChild(s1);row.appendChild(s2);
-    if(subCat(e[0])){const sb=document.createElement("button");sb.type="button";sb.className="sw-swap";sb.textContent="⇄";sb.title="Заменить упражнение";sb.onclick=()=>subOpen(d,e[0],()=>openWod(d));row.appendChild(sb);}
-    mv.appendChild(row);
-  });
-  setupTimer(d);
-  show("wod");
-}
+  V.ex.forEach(e=>{const row=document.createElement("div");row.className="wod-mvrow cf-mv";const disp=subName(d,e[0]);const subbed=disp!==e[0];
+    const mk=subbed?disp.split(": ")[0]:(e[3]||e[0]);const m=MEDIA[mk];
+    row.innerHTML=`<span class="th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"•"}</span><span class="nm"></span><span class="num"></span>`;
+    const nm=row.querySelector(".nm");nm.textContent=disp;
+    if(e[2]){const sm=document.createElement("small");sm.textContent=e[2][s.sex];nm.appendChild(sm);}
+    if(subbed){const sm=document.createElement("small");sm.textContent="вместо: "+e[0];nm.appendChild(sm);}
+    row.querySelector(".num").textContent=e[1];
+    if(m){row.querySelector(".th").onclick=()=>openMedia(mk);}
+    if(subCat(e[0])&&e[0]!=="Отдых"){const sw=document.createElement("button");sw.type="button";sw.className="sw-swap";sw.textContent="⇄";sw.title="Заменить упражнение";sw.onclick=()=>subOpen(d,e[0],()=>openWod(d,cfVar));row.appendChild(sw);}
+    mv.appendChild(row);});
+  const extra=el("cfExtra");let h="";
+  if(d.kind==="my"){h+=`<div class="cf-myact"><button type="button" class="tm-reset" id="cfEdit">✎ Изменить</button><button type="button" class="tm-reset" id="cfDel">Удалить</button></div>`;}
+  if(CF_GRANDMA[d.id])h+=`<p class="cf-note"><b>Ещё проще («Девочки» для бабушек, CrossFit Journal):</b> ${CF_GRANDMA[d.id]}</p>`;
+  if(d.src)h+=`<p class="cf-src">Источник: <a href="${d.src}" target="_blank" rel="noopener">${d.src.replace(/^https:\/\/(www\.)?/,"")}</a></p>`;
+  extra.innerHTML=h;
+  if(d.kind==="my"){el("cfEdit").onclick=()=>cfbOpen(d.my);el("cfDel").onclick=()=>{const b=el("cfDel");if(Date.now()-(b._arm||0)>3000){b._arm=Date.now();b.textContent="Нажми ещё раз";return;}const t=cfGet();t.my=t.my.filter(x=>x.id!==d.my.id);t.del[d.my.id]=Date.now();cfSave(t);toast("Тренировка удалена");goBack();renderCross();};}
+  cfRenderResults(d);
+  setupTimer(V.t?Object.assign({},V,{t:V.t}):d);
+  show("wod");}
+function cfRenderResults(d){const box=el("cfResults");const all=cfResOf(d.id).slice().reverse();
+  if(!all.length){box.innerHTML=`<p class="cf-sub">Результатов пока нет. После тренировки нажми «Завершить» и запиши время или раунды — здесь появятся личный рекорд и сравнение с прошлой попыткой.</p>`;return;}
+  const vs=cfVariants(d);let h=`<div class="cf-prs">`;vs.forEach(k=>{const p=cfPR(d.id,k);if(p)h+=`<div><span>${CF_VN[k]||k}</span><b class="num">${cfScoreTxt(p)}</b><small>${fmtDate(p.date)}</small></div>`;});h+=`</div>`;
+  h+=`<div class="cf-hist">`+all.slice(0,10).map(r=>`<div><span>${fmtDate(r.date)} · ${CF_VN[r.v]||r.v}${r.sex==="f"?" · Ж":""}</span><b class="num">${cfScoreTxt(r)}</b>${r.pr?`<i>PR</i>`:""}</div>`).join("")+`</div>`;box.innerHTML=h;}
+/* ---------- завершение: запись результата ---------- */
 /* завершённые раунды: для AMRAP/For Time — ручной счётчик, для EMOM/Tabata/Interval — по времени */
 function wodRounds(){const c=TIMER.cfg,t=TIMER.type,ms=TIMER.lastElapsed||0;
   if(t==="amrap"||t==="fortime")return TIMER.count;
   if(t==="emom"){const r=Math.floor(ms/((c.period||60)*1000));return c.rounds>0?Math.min(r,c.rounds):r;}
   const per=((c.work||0)+(c.rest||0))*1000;const r=per>0?Math.floor(ms/per):0;
   return c.rounds>0?Math.min(r,c.rounds):r;}
-function finishCross(){
-  const secs=Math.round((TIMER.lastElapsed||0)/1000);
+function cfScoreType(d){const V=d.v[cfVar];return V.score||d.score||(V.t&&V.t.type==="amrap"?"rr":V.t&&V.t.type==="emom"?"rounds":"time");}
+function finishCross(){const d=currentWod;if(!d)return;const sc=cfScoreType(d),secs=Math.round((TIMER.lastElapsed||0)/1000);
+  const sh=el("cfResSheet"),f=el("cfResForm");sh.querySelector(".sub-h").textContent=d.name+" · "+(CF_VN[cfVar]||cfVar);
   const rounds=wodRounds();
-  const tp=TIMER.type;
-  subClearNow(currentWod);
-  resetTimer();resetCount();
-  const h=safe.get();
-  h.push({date:localDate(),name:currentWod?currentWod.name:"Кроссфит",
-    cross:true,rounds:rounds,tmtype:tp,secs:secs});
-  safe.set(h);
-  toast("Тренировка завершена");
-  show("progress");
-}
+  f.innerHTML=sc==="time"?`<label class="cf-lab">Время (мин:сек)<input id="cfT" class="food-in" inputmode="numeric" value="${secs?cfMmss(secs):""}" placeholder="7:45"></label><label class="cf-chk"><input type="checkbox" id="cfCap"> Не уложился в лимит — записать повторы</label><label class="cf-lab" id="cfCapW" hidden>Сделано повторов<input id="cfCapR" class="food-in" inputmode="numeric"></label>`
+   :sc==="rr"?`<div class="cf-grid"><label>Полных раундов<input id="cfR" class="food-in" inputmode="numeric" value="${rounds||""}"></label><label>+ повторов<input id="cfRp" class="food-in" inputmode="numeric" value="0"></label></div>`
+   :sc==="rounds"?`<label class="cf-lab">Раундов выполнено<input id="cfR" class="food-in" inputmode="numeric" value="${rounds||""}"></label>`
+   :sc==="reps"?`<label class="cf-lab">Всего повторов (калории гребли — как повторы)<input id="cfRp" class="food-in" inputmode="numeric"></label>`
+   :`<label class="cf-lab">Лучший вес, кг<input id="cfKg" class="food-in" inputmode="decimal"></label>`;
+  const cap=el("cfCap");if(cap)cap.onchange=()=>{el("cfCapW").hidden=!cap.checked;};
+  el("cfResSave").onclick=()=>{const num=id=>{const x=el(id);return x?Number(String(x.value).replace(",",".")):NaN;};const r={id:Date.now()+"-"+Math.floor(Math.random()*1e4),wod:d.id,name:d.name,v:cfVar,sex:cfGet().sex,sc,date:localDate(),ts:Date.now()};
+    if(sc==="time"){if(el("cfCap").checked){r.capped=true;r.reps=num("cfCapR");r.t=secs;if(!(r.reps>=0)){toast("Введи число повторов");return;}}else{const m=String(el("cfT").value).trim().match(/^(\d{1,3})(?::(\d{1,2}))?$/);if(!m){toast("Время в формате мин:сек, напр. 7:45");return;}r.t=m[2]!=null?(+m[1])*60+(+m[2]):+m[1]*60;if(m[2]!=null&&+m[2]>59){toast("Секунд не больше 59");return;}}}
+    else if(sc==="rr"){r.r=num("cfR");r.reps=num("cfRp")||0;if(!(r.r>=0)){toast("Введи число раундов");return;}}
+    else if(sc==="rounds"){r.r=num("cfR");if(!(r.r>=0)){toast("Введи число раундов");return;}}
+    else if(sc==="reps"){r.reps=num("cfRp");if(!(r.reps>=0)){toast("Введи число повторов");return;}}
+    else{r.kg=num("cfKg");if(!(r.kg>0)){toast("Введи вес");return;}}
+    const prev=cfPR(d.id,cfVar),last=cfResOf(d.id,cfVar).slice(-1)[0];r.pr=!prev||cfBetter(r,prev);
+    const t=cfGet();t.res.push(r);cfSave(t);
+    subClearNow(d);resetTimer();resetCount();
+    const hh=safe.get();hh.push({date:r.date,name:d.name+(cfVar!=="rx"&&cfVar!=="my"?" ("+(CF_VN[cfVar]||cfVar)+")":""),cross:true,rounds:r.r||0,tmtype:TIMER.type,secs:r.sc==="time"?r.t:secs,score:cfScoreTxt(r),pr:r.pr});safe.set(hh);
+    cfCloseRes();let msg="Результат записан";if(r.pr&&prev)msg="🏆 Новый рекорд! Было "+cfScoreTxt(prev);else if(r.pr)msg="Первый результат — это твой рекорд";else if(last){const dv=cfVal(r)-cfVal(last);msg=(r.sc==="time"?(dv<0?"Быстрее прошлого на ":"Медленнее прошлого на ")+cfMmss(Math.abs(dv)):(dv>0?"Лучше прошлого":dv<0?"Хуже прошлого":"Как в прошлый раз"));}
+    toast(msg);cfRenderResults(d);renderCross();};
+  sh.hidden=false;document.body.classList.add("sub-open");}
+function cfCloseRes(){el("cfResSheet").hidden=true;document.body.classList.remove("sub-open");}
+el("cfResSheet").addEventListener("click",e=>{if(e.target.id==="cfResSheet"||e.target.classList.contains("sub-x"))cfCloseRes();});
 el("wodFinishBtn").onclick=finishCross;
+/* ===================== КОНСТРУКТОР: своя тренировка по шаблону CrossFit ===================== */
+/* Методика — CrossFit Level 1 Training Guide / CrossFit Journal №6 (2003) «Теоретический шаблон программирования»:
+   цикл 3 дня работы / 1 день отдыха; модальности M (метаболическая: бег, гребля, скакалка…),
+   G (гимнастика: собственный вес), W (тяжёлая атлетика и снаряды); один элемент — одна модальность,
+   пара (2 элемента) — 3–5 раундов на время, тройка (3 элемента) — 20 мин на количество кругов.
+   Масштабирование: сохраняй стимул; сначала снижай нагрузку/объём, затем упрощай движение, замена — в последнюю очередь.
+   Принцип: механика → стабильность → интенсивность. */
+CF_VN.my="Моя тренировка";
+const CF_MOD={M:"M · метаболическая",G:"G · гимнастика",W:"W · тяжёлая атлетика"};
+const CF_LIB={ // [название, единица по умолчанию, ключ анимации]
+ M:[["Бег","м","Бег"],["Гребля","м","Гребля"],["Гребля (калории)","кал","Гребля"],["Велотренажёр / эйрбайк","кал",""],["Прыжки на скакалке","раз","Прыжки на скакалке"],["Двойные прыжки на скакалке","раз","Прыжки на скакалке"],["Плавание","м",""]],
+ G:[["Воздушные приседания","повт","Воздушные приседания"],["Подтягивания","повт","Подтягивания"],["Отжимания от пола","повт","Отжимания от пола"],["Отжимания на брусьях","повт","Отжимания на брусьях"],["Отжимания в стойке на руках","повт",""],["Выход силой","повт","Выход силой"],["Лазание по канату","раз",""],["Гиперэкстензия","повт","Гиперэкстензия"],["Ситапы","повт","Ситапы"],["Подъём ног к перекладине","повт","Подъём ног к перекладине"],["Прыжки на тумбу","повт","Прыжки на тумбу"],["Выпады","повт","Выпады"],["Бёрпи","повт","Бёрпи"],["Пистолетики","повт",""],["Стойка на руках у стены","сек","Стойка на руках у стены"],["Тяга на кольцах (австралийские подтягивания)","повт","Австралийские подтягивания"]],
+ W:[["Становая тяга","повт","Становая тяга"],["Взятие штанги на грудь","повт","Взятие штанги на грудь"],["Жим штанги стоя","повт","Жим штанги стоя"],["Жимовой швунг","повт","Жимовой швунг"],["Толчковый швунг","повт",""],["Рывок штанги","повт",""],["Взятие на грудь и толчок","повт",""],["Фронтальные приседания","повт","Фронтальные приседания"],["Приседания со штангой над головой","повт",""],["Присед со штангой","повт","Присед со штангой"],["Трастеры со штангой","повт","Трастеры со штангой"],["Сумо-тяга к подбородку","повт",""],["Махи гирей","повт","Махи гирей"],["Броски мяча в мишень (wall ball)","повт",""],["Взятие медбола","повт",""]]};
+/* 12-дневный шаблон «3 через 1» (CrossFit Journal №6) */
+const CF_TPL=[["M"],["G","W"],["M","G","W"],null,["G"],["W","M"],["G","W","M"],null,["W"],["M","G"],["W","M","G"],null];
+let CFB=null;
+function cfbBlank(mods){mods=mods||["G","W"];return {id:null,name:"",els:mods.map(m=>cfbEl(m)),fmt:cfbFmtFor(mods)};}
+function cfbEl(m){const e=CF_LIB[m][0];return {mod:m,ex:e[0],amt:m==="M"?"400":m==="W"?"5":"10",unit:e[1],kg:m==="W"?"40":""};}
+function cfbFmtFor(mods){const n=mods.length;if(n===3)return {type:"amrap",min:20,rounds:5,cap:0,scheme:""};if(n===2)return {type:"fortime",rounds:5,min:12,cap:0,scheme:""};
+  return mods[0]==="W"?{type:"heavy",scheme:"5-5-5-5-5",rounds:5,min:0,cap:0}:mods[0]==="G"?{type:"skill",rounds:5,min:15,cap:0,scheme:""}:{type:"fortime",rounds:1,min:0,cap:0,scheme:""};}
+function cfbOpen(my){const s=cfGet();if(my)CFB=JSON.parse(JSON.stringify(my));else{let i=s.cycle%12;if(!CF_TPL[i])i=(i+1)%12;CFB=cfbBlank(CF_TPL[i]);CFB.tplDay=i;}
+  cfbRender();show("cfb");}
+function cfbMods(){return CFB.els.map(e=>e.mod);}
+function cfbRender(){const s=cfGet(),box=el("cfbBody");const cyc=s.cycle%12;
+  let h=`<div class="card"><h3>Шаблон CrossFit «3 через 1»</h3><p class="cf-sub">3 дня работы, 1 день отдыха. Каждый новый день добавляет элемент: 1 → пара → тройка. M — бег, гребля, скакалка; G — свой вес; W — штанга, гиря, мяч.</p><div class="cf-tpl">`+
+    CF_TPL.map((d,i)=>`<button type="button" data-i="${i}" class="${i===cyc?"cur":""}${d?"":" rest"}"><small>День ${i+1}</small><b>${d?d.join("+"):"отдых"}</b></button>`).join("")+`</div><p class="cf-sub">Подсвечен следующий день по твоему циклу. Нажми на день — структура подставится.</p></div>`;
+  h+=`<div class="card cf-form"><h3>Структура</h3><div class="sk-lvl" id="cfbN"><span>Элементов в тренировке</span><button type="button" data-v="1">1 · одна модальность</button><button type="button" data-v="2">2 · пара</button><button type="button" data-v="3">3 · тройка</button></div>`;
+  CFB.els.forEach((e,i)=>{h+=`<div class="cfb-el"><div class="sk-lvl cfb-mod" data-i="${i}"><span>Элемент ${i+1}</span>${["M","G","W"].map(m=>`<button type="button" data-v="${m}" class="${e.mod===m?"on":""}">${CF_MOD[m]}</button>`).join("")}</div>
+    <label class="cf-lab">Упражнение<select class="food-in cfb-ex" data-i="${i}">${CF_LIB[e.mod].map(x=>`<option${x[0]===e.ex?" selected":""}>${x[0]}</option>`).join("")}</select></label>
+    <div class="cf-grid"><label>${CFB.fmt.type==="heavy"?"Схема подходов":"Количество"}<input class="food-in cfb-amt" data-i="${i}" ${CFB.fmt.type==="heavy"?"disabled":""} value="${CFB.fmt.type==="heavy"?CFB.fmt.scheme:e.amt}" inputmode="${e.mod==="M"?"numeric":"text"}"></label><label>${e.mod==="W"?"Вес, кг":"Единица"}${e.mod==="W"?`<input class="food-in cfb-kg" data-i="${i}" value="${e.kg}" inputmode="decimal">`:`<select class="food-in cfb-unit" data-i="${i}">${(e.mod==="M"?["м","кал","раз","мин"]:["повт","раз","сек"]).map(u=>`<option${u===e.unit?" selected":""}>${u}</option>`).join("")}</select>`}</label></div></div>`;});
+  h+=`</div><div class="card cf-form"><h3>Формат</h3><div class="sk-lvl" id="cfbF"><span>Как выполнять</span>${[["fortime","На время (раунды)"],["amrap","AMRAP — max кругов"],["emom","EMOM — каждую минуту"],["tabata","Tabata 8×20/10"],["heavy","Тяжёлые подходы"],["skill","Практика навыка"]].map(([v,l])=>`<button type="button" data-v="${v}">${l}</button>`).join("")}</div>`;
+  const F=CFB.fmt;
+  if(F.type==="fortime")h+=`<div class="cf-grid"><label>Раундов<input class="food-in" id="cfbRounds" inputmode="numeric" value="${F.rounds}"></label><label>Лимит, мин (0 — без)<input class="food-in" id="cfbCap" inputmode="numeric" value="${F.cap||0}"></label></div>`;
+  if(F.type==="amrap"||F.type==="emom")h+=`<label class="cf-lab">Минут<input class="food-in" id="cfbMin" inputmode="numeric" value="${F.min}"></label>`;
+  if(F.type==="heavy")h+=`<label class="cf-lab">Схема подходов (повторы через дефис)<input class="food-in" id="cfbScheme" value="${F.scheme||"5-5-5-5-5"}"></label><p class="cf-sub">Типично: 5-5-5-5-5, 3-3-3-3-3 или 1-1-1-1-1, отдых 2–3 мин. Результат — лучший вес.</p>`;
+  if(F.type==="skill")h+=`<div class="cf-grid"><label>Подходов<input class="food-in" id="cfbRounds" inputmode="numeric" value="${F.rounds}"></label><label>Минут на практику<input class="food-in" id="cfbMin" inputmode="numeric" value="${F.min}"></label></div>`;
+  h+=`</div><div class="card cfb-tips" id="cfbTips"></div>`;
+  h+=`<div class="card cf-form"><h3>Сохранить</h3><input id="cfbName" class="food-in" placeholder="Название, напр. «Пятничная пара»" value="${(CFB.name||"").replace(/"/g,"&quot;")}"><button type="button" class="btn" id="cfbSave">${CFB.id?"Сохранить изменения":"Сохранить в «Мои тренировки»"}</button><button type="button" class="btn btn-alt" id="cfbGo">Сохранить и начать</button></div>`;
+  h+=`<details class="card wod-card cf-info"><summary>Рекомендации CrossFit по составлению</summary>
+   <p><b>Цикл.</b> 3 дня работы — 1 день отдыха (или 5 через 2 под рабочую неделю). Чередуй модальности, не повторяй один и тот же день: разнообразие — основа программы.</p>
+   <p><b>1 элемент.</b> M — длинная ровная работа (бег, гребля); G — практика одного сложного навыка без спешки; W — один тяжёлый подъём с малым числом повторов (1–5) и полным отдыхом.</p>
+   <p><b>2 элемента (пара).</b> Два упражнения разных модальностей, 3–5 раундов на время. Первый раунд — тяжёлый, но выполнимый; если второй раунд даётся легко — вес мал. Важно распределять работу и отдых.</p>
+   <p><b>3 элемента (тройка).</b> Три упражнения полегче, 20 минут на максимум кругов. Нагрузку создаёт не отдельное упражнение, а повторение кругов — держи ровный темп.</p>
+   <p><b>Время.</b> Чередуй короткие (до 5 мин), средние (5–15) и длинные (15+) тренировки.</p>
+   <p><b>Механика → стабильность → интенсивность.</b> Сначала правильная техника, затем её повторяемость и только потом скорость и вес.</p>
+   <p><b>Масштабирование.</b> Сохраняй задуманный стимул. Сначала уменьши вес, повторы или дистанцию; если мало — упрости движение (часть упражнения, меньшая амплитуда); замена — в последнюю очередь (например, бег → гребля при травме). Не выбирай всегда одну и ту же облегчённую версию — двигайся к полной.</p>
+   <p class="cf-src">Источники: CrossFit Level 1 Training Guide; CrossFit Journal №6 «A Theoretical Template for CrossFit’s Programming»; crossfit.com — Professional Training: Scaling.</p></details>`;
+  box.innerHTML=h;
+  box.querySelectorAll(".cf-tpl button").forEach(b=>b.onclick=()=>{const d=CF_TPL[+b.dataset.i];if(!d){toast("День отдыха — восстановление тоже часть программы");return;}cfbSync();const keep=CFB.name,id=CFB.id;CFB=cfbBlank(d);CFB.name=keep;CFB.id=id;CFB.tplDay=+b.dataset.i;cfbRender();});
+  ntChipsCf("cfbN",String(CFB.els.length),v=>{cfbSync();const n=+v,m=cfbMods();while(m.length<n)m.push(["M","G","W"].find(x=>!m.includes(x)));m.length=n;CFB.els=m.map((x,i)=>CFB.els[i]&&CFB.els[i].mod===x?CFB.els[i]:cfbEl(x));CFB.fmt=cfbFmtFor(m);cfbRender();});
+  box.querySelectorAll(".cfb-mod").forEach(g=>g.querySelectorAll("button").forEach(b=>b.onclick=()=>{cfbSync();const i=+g.dataset.i;CFB.els[i]=cfbEl(b.dataset.v);cfbRender();}));
+  box.querySelectorAll(".cfb-ex").forEach(s=>s.onchange=()=>{cfbSync();const e=CFB.els[+s.dataset.i];const x=CF_LIB[e.mod].find(y=>y[0]===s.value);e.ex=s.value;if(e.mod!=="W")e.unit=x[1];cfbRender();});
+  ntChipsCf("cfbF",F.type,v=>{cfbSync();CFB.fmt.type=v;if(v==="amrap"&&!CFB.fmt.min)CFB.fmt.min=20;if(v==="emom"&&!CFB.fmt.min)CFB.fmt.min=12;if(v==="skill"&&!CFB.fmt.min)CFB.fmt.min=15;if(!CFB.fmt.rounds)CFB.fmt.rounds=5;cfbRender();});
+  box.querySelectorAll("input,select").forEach(i=>i.addEventListener("input",()=>{cfbSync();cfbTips();}));
+  el("cfbSave").onclick=()=>cfbSave(false);el("cfbGo").onclick=()=>cfbSave(true);
+  cfbTips();}
+function ntChipsCf(id,val,on){el(id).querySelectorAll("button").forEach(b=>{b.classList.toggle("on",b.dataset.v===String(val));b.onclick=()=>on(b.dataset.v);});}
+function cfbSync(){const q=s=>el("cfbBody").querySelectorAll(s);
+  q(".cfb-amt").forEach(i=>{if(!i.disabled)CFB.els[+i.dataset.i].amt=i.value.trim();});q(".cfb-kg").forEach(i=>CFB.els[+i.dataset.i].kg=i.value.trim());q(".cfb-unit").forEach(i=>CFB.els[+i.dataset.i].unit=i.value);
+  const v=id=>{const x=el(id);return x?x.value.trim():null;};const F=CFB.fmt;
+  if(v("cfbRounds")!=null)F.rounds=Math.max(1,parseInt(v("cfbRounds"))||1);if(v("cfbCap")!=null)F.cap=Math.max(0,parseInt(v("cfbCap"))||0);if(v("cfbMin")!=null)F.min=Math.max(1,parseInt(v("cfbMin"))||1);if(v("cfbScheme")!=null)F.scheme=v("cfbScheme");
+  if(v("cfbName")!=null)CFB.name=v("cfbName");}
+/* подсказки по шаблону и масштабированию — пересчитываются на лету */
+function cfbTips(){const m=cfbMods(),n=m.length,F=CFB.fmt,t=[],ok=[];
+  if(n>1&&new Set(m).size<n)t.push("В шаблоне CrossFit элементы пары и тройки — из разных модальностей (M, G, W). Два упражнения одной модальности дают однобокую нагрузку.");
+  if(n===2&&F.type==="fortime"&&(F.rounds<3||F.rounds>5))t.push("Пару обычно делают 3–5 раундов на время.");
+  if(n===2&&F.type!=="fortime")t.push("Для пары в шаблоне — раунды на время: так видно, как ты распределяешь работу и отдых.");
+  if(n===3&&!(F.type==="amrap"&&F.min===20))t.push("Тройку в шаблоне выполняют 20 минут на максимум кругов (AMRAP 20).");
+  if(n===1&&m[0]==="W"&&F.type!=="heavy")t.push("Одиночный W-день — тяжёлый подъём с малым числом повторов (1–5) и полным отдыхом: выбери «Тяжёлые подходы».");
+  if(n===1&&m[0]==="W"&&F.type==="heavy"&&String(F.scheme).split("-").some(x=>+x>5))t.push("В тяжёлых подходах держи 1–5 повторов в подходе.");
+  if(n===1&&m[0]==="G"&&F.type!=="skill")t.push("Одиночный G-день — спокойная практика одного сложного навыка (стойка, выход силой, канат), без гонки за временем.");
+  if(n===1&&m[0]==="M"&&!(F.type==="fortime"&&F.rounds===1))t.push("Одиночный M-день — одна длинная ровная работа на время, например 5 км бега или 5000 м гребли.");
+  if(F.type==="tabata"&&n>1)t.push("Tabata (8 × 20 с / 10 с) рассчитана на одно движение на отрезок; с несколькими движениями чередуй их по отрезкам.");
+  CFB.els.forEach(e=>{if(e.mod==="W"&&!(parseFloat(String(e.kg).replace(",","."))>0))t.push(`Укажи вес для «${e.ex}».`);if(F.type!=="heavy"&&!String(e.amt).trim())t.push(`Укажи количество для «${e.ex}».`);});
+  const est=cfbEstimate();if(est)ok.push(`Ориентировочная длительность: ${est}.`);
+  if(CFB.tplDay!=null&&CF_TPL[CFB.tplDay]&&CF_TPL[CFB.tplDay].join()===m.join())ok.push(`Соответствует дню ${CFB.tplDay+1} шаблона «3 через 1».`);
+  el("cfbTips").innerHTML=`<h3>Проверка по рекомендациям</h3>`+(t.length?`<ul class="cf-notes cf-warn">${t.map(x=>`<li>${x}</li>`).join("")}</ul>`:`<p class="cf-ok">✓ Тренировка соответствует шаблону CrossFit</p>`)+ok.map(x=>`<p class="cf-sub">${x}</p>`).join("")+`<p class="cf-sub">Помни: механика → стабильность → интенсивность. Если тяжело — сначала уменьши вес или повторы.</p>`;}
+function cfbEstimate(){const F=CFB.fmt;if(F.type==="amrap"||F.type==="emom")return F.min+" мин";if(F.type==="tabata")return "4 мин";if(F.type==="skill")return F.min+" мин";if(F.type==="heavy")return "≈"+(String(F.scheme).split("-").length*3)+" мин с отдыхом";
+  const per=CFB.els.reduce((s,e)=>{const a=parseFloat(String(e.amt).split("-")[0])||0;return s+(e.mod==="M"?(e.unit==="м"?a/200*60/ (e.ex.startsWith("Гребля")?1.1:1):e.unit==="кал"?a*4:e.unit==="мин"?a*60:a*0.6):a*(e.mod==="W"?3:2.5));},0)*(F.rounds||1);
+  if(!per)return "";const m=Math.round(per/60);const dom=m<5?"короткая":m<=15?"средняя":"длинная";return "≈"+Math.max(1,m)+" мин ("+dom+")";}
+function cfbSave(go){cfbSync();const t=[];if(!CFB.name)CFB.name=CFB.els.map(e=>e.ex.split(" (")[0]).join(" + ");
+  for(const e of CFB.els){if(e.mod==="W"&&!(parseFloat(String(e.kg).replace(",","."))>0)){toast("Укажи вес для «"+e.ex+"»");return;}if(CFB.fmt.type!=="heavy"&&!String(e.amt).trim()){toast("Укажи количество для «"+e.ex+"»");return;}}
+  const s=cfGet();const isNew=!CFB.id;if(isNew){CFB.id="my_"+Date.now();CFB.created=Date.now();s.cycle=(s.cycle||0)+(CF_TPL[(s.cycle+1)%12]?1:2);}
+  CFB.upd=Date.now();s.my=s.my.filter(x=>x.id!==CFB.id).concat([JSON.parse(JSON.stringify(CFB))]);cfSave(s);toast(isNew?"Сохранено в «Мои тренировки»":"Изменения сохранены");renderCross();
+  goBack();if(go)openWod(cfMyToWod(CFB));}
+/* своя тренировка → формат комплекса для общего экрана и таймера */
+function cfMyToWod(m){const F=m.fmt;const ex=m.els.map(e=>{const kg=e.mod==="W"?String(e.kg).replace(".",",")+" кг":"";const lib=CF_LIB[e.mod].find(x=>x[0]===e.ex);
+    return [e.ex,F.type==="heavy"?F.scheme:(e.amt+" "+e.unit).replace(" повт",""),kg?{m:kg,f:kg}:null,lib&&lib[2]?lib[2]:e.ex];});
+  const t=F.type==="amrap"?{type:"amrap",sec:F.min*60}:F.type==="emom"?{type:"emom",period:60,rounds:F.min}:F.type==="tabata"?{type:"tabata",work:20,rest:10,rounds:8}:F.type==="skill"?{type:"amrap",sec:F.min*60}:F.type==="heavy"?{type:"fortime",cap:0}:{type:"fortime",cap:(F.cap||0)*60};
+  const fmt=F.type==="fortime"?(F.rounds>1?F.rounds+" раундов · на время":"На время")+(F.cap?" · лимит "+F.cap+" мин":""):F.type==="amrap"?"AMRAP "+F.min+" мин":F.type==="emom"?"EMOM "+F.min+" мин":F.type==="tabata"?"Tabata 8 × 20/10 с":F.type==="heavy"?"Тяжёлые подходы "+F.scheme:"Практика навыка · "+F.rounds+" подходов · "+F.min+" мин";
+  const score=F.type==="amrap"?"rr":F.type==="emom"?"rounds":F.type==="tabata"?"reps":F.type==="heavy"?"load":F.type==="skill"?"reps":"time";
+  return {id:m.id,name:m.name,kind:"my",lvl:"",score,about:"Моя тренировка · "+m.els.map(e=>CF_MOD[e.mod].split(" ")[0]).join("+")+" · составлена по шаблону CrossFit",v:{my:{fmt,t,ex,score}},my:m};}
+renderCross();
 
 /* ===================== СТРИТ ВОРКАУТ: круги + общее время ===================== */
 /* ---- отдельные комплексы по уровням ---- */
@@ -4041,7 +4337,7 @@ el("fAdd").addEventListener("click",()=>{
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false;
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
-function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),at:Date.now()};}
+function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()};}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -4054,6 +4350,7 @@ function cloudRefreshUI(){
       if(currentScreen==="food")renderFood();
       if(currentScreen==="onerm")rmLoadLift(rmLift);
       if(currentScreen==="gvt")g2Render();
+      if(currentScreen==="cross")renderCross();
       if(currentScreen==="sotka")renderSotka();if(currentScreen==="sw")renderSw();}catch(e){}
 }
 function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;}
@@ -4077,6 +4374,7 @@ async function cloudInit(){
       try{if(d.pp)localStorage.setItem(PPK,JSON.stringify(mergePP(ppAll(),d.pp)))}catch(e){}
       try{if(d.rr&&(d.rr.upd||0)>(rrGet().upd||0))localStorage.setItem(RRK,JSON.stringify(d.rr))}catch(e){}
       try{if(d.hc&&(d.hc.upd||0)>(hcGet().upd||0))localStorage.setItem(HCK,JSON.stringify(d.hc))}catch(e){}
+      try{if(d.cf)localStorage.setItem(CFK,JSON.stringify(mergeCf(cfGet(),d.cf)))}catch(e){}
       try{if(d.parch)localStorage.setItem(PARK,JSON.stringify(mergePar(parGet(),d.parch)))}catch(e){}
       try{if(d.sub){const a=subAll();Object.keys(d.sub).forEach(k=>{a[k]=Object.assign({},d.sub[k],a[k]||{});});localStorage.setItem(SUBK,JSON.stringify(a));}}catch(e){}
       cloudRefreshUI();
