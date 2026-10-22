@@ -177,6 +177,38 @@
   .gvt-mbox p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
   .gvt-rate{display:flex;flex-direction:column;gap:10px}
   .gvt-rate .btn small{display:block;font-family:var(--body);text-transform:none;letter-spacing:0;font-weight:500;font-size:12px;opacity:.85;margin-top:2px}
+  /* GVT 2.0 · окно суперсета */
+  .g2-card{padding:10px 12px}
+  .g2-head{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:none}
+  .g2-ex{border:1px solid var(--line);border-radius:12px;padding:6px;background:var(--surface);opacity:.72;min-width:0}
+  .g2-ex.on{opacity:1;border-color:var(--gold-ink);box-shadow:0 0 0 2px var(--panel-line)}
+  .g2-media{height:clamp(70px,14vh,130px)!important;aspect-ratio:auto!important;margin-bottom:4px!important;padding:2px!important}
+  .g2-media img,.g2-media video{width:100%;height:100%;object-fit:contain;background:#fff}
+  .g2-nomedia{font-size:11px;color:var(--faint)}
+  .g2-code{font-family:var(--dsp);font-weight:800;font-size:12px;color:var(--accent)}
+  .g2-name{font-family:var(--dsp);font-weight:700;font-size:13px;line-height:1.2;max-height:2.4em;overflow:hidden}
+  .g2-plan{font-size:11.5px;color:var(--muted);font-weight:600}
+  .g2-cnt{font-size:11.5px;font-weight:700;color:var(--accent-ink)}
+  .g2-swap{margin-top:4px;font-size:11px;font-weight:700;color:var(--accent-ink);background:none;border:1px solid var(--line);border-radius:8px;padding:4px 6px}
+  .g2-next{font-size:12.5px;color:var(--fg);background:var(--accent-weak);border-radius:9px;padding:6px 9px;margin:8px 0 4px;flex:none}
+  .g2-row{display:grid;grid-template-columns:22px 1fr 1fr;gap:6px;align-items:center;padding:4px 0;border-top:1px solid var(--line)}
+  .g2-row.head{border-top:none;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700}
+  .g2-cell{display:grid;grid-template-columns:1fr 34px 32px;gap:3px;align-items:center;border-radius:9px;padding:2px}
+  .g2-cell.on{background:var(--panel-top);box-shadow:0 0 0 1.5px var(--gold)}
+  .g2-cell input{width:100%;font-family:inherit;font-size:14px;text-align:center;color:var(--fg);background:var(--surface-2);border:1px solid transparent;border-radius:8px;padding:7px 2px;min-width:0}
+  .g2-cell .chk{width:32px;height:32px}
+  .g2-su{border-top:1px solid var(--line);padding:10px 0}
+  .g2-su-n{font-weight:700;font-size:14px;margin-bottom:6px}.g2-su-n small{color:var(--muted);font-weight:500}
+  .g2-su-r{display:flex;flex-wrap:wrap;gap:8px}
+  .g2-su-r label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);font-weight:600;flex:1 1 90px}
+  .g2-su-r input,.g2-su-r select{font-family:inherit;font-size:15px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 6px;width:100%;min-width:0}
+  .g2-su-r input.bad{border-color:#b5452f}
+  .g2-wt{overflow-x:auto}
+  .g2-wr{display:grid;grid-template-columns:minmax(90px,1.4fr) repeat(6,1fr);gap:4px;align-items:center;font-size:12px;padding:4px 0;border-top:1px solid var(--line)}
+  .g2-wr.head{border-top:none;color:var(--faint);font-weight:700}
+  .g2-wr span{text-align:center}.g2-wr .nm{text-align:left;font-weight:600;font-size:11.5px;line-height:1.2}
+  .g2-wr small{display:block;color:var(--faint);font-size:9.5px}
+  .g2-wr .cur{background:var(--panel-top);border-radius:6px}.g2-wr .ok{opacity:.55}
   /* GVT · строки подходов */
   .set-row.g5{grid-template-columns:38px 1fr 1fr 58px 40px;gap:6px}
   .set-row .sn small{display:block;font-family:var(--body);font-size:10px;font-weight:600;color:var(--faint);line-height:1.1}
@@ -685,13 +717,13 @@
   <!-- БОДИБИЛДИНГ · GVT · персональный цикл (алгоритм «ШТУРМ: Режим силы») -->
   <section class="screen" id="scr-gvt" hidden>
     <div class="hd">
-      <div><p class="eyebrow">Бодибилдинг · программа</p><h1>GVT · 6 недель</h1></div>
+      <div><p class="eyebrow">Бодибилдинг · программа</p><h1>German Volume Training</h1></div>
       <button class="icon-btn back-btn" title="Назад">←</button>
     </div>
     <div class="stack">
       <div class="card wod-card">
-        <span class="tag">Немецкий объёмный · 10×10</span>
-        <p class="wod-desc">Персональный цикл: 42 дня, 14 занятий по кругу А → Б → В, занятие раз в три дня (тренировка + два дня отдыха). В основных движениях 10 подходов по 10: первые идут лесенкой от 30 % к рабочему проценту, остальные — на рабочем. Рабочий процент стартует с 70 % твоего 1ПМ и меняется по твоей оценке после занятия, отдельно для дней А, Б и В.</p>
+        <span class="tag">German Volume Training · 5 этапов</span>
+        <p class="wod-desc">Пять этапов одной программы: <b>I</b> 10×10 → <b>II</b> снижение объёма → <b>III</b> 10×6 → <b>IV</b> Advanced GVT → <b>V</b> метод 4 %. Основные упражнения — суперсетом A1/A2 в одном окне, у каждого этапа свой расчёт веса. По умолчанию день отдыха между тренировками; можно начинать раньше.</p>
       </div>
       <div class="stack" id="gvtBody"></div>
     </div>
@@ -1030,7 +1062,7 @@ function applyScreen(name){
   if(currentScreen==="workout"&&name!=="workout")document.querySelectorAll("#exList video").forEach(v=>{try{v.pause()}catch(e){}});
   for(const k in scr)scr[k].hidden=(k!==name);
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
-  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day"||name==="swc");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof renderGvt==="function")renderGvt();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
+  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day"||name==="swc");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof g2Render==="function")g2Render();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
 function show(name){if(currentScreen&&name!==currentScreen)histStack.push(currentScreen);applyScreen(name);}
 function goBack(){
   let prev=histStack.pop()||"home";
@@ -1112,13 +1144,13 @@ function renderDay(){
   p.ex.forEach((e,i)=>{const pl=p.preset?gvtPlanOf(p,i):planOf(e);
     const sets=act?current.sets[i].filter(s=>!s.warm):null,ns=sets?sets.length:pl.sets;tot+=ns;
     const nd=sets?sets.filter(s=>s.done).length:0,fin=sets&&(nd===ns||!!(current.stop&&current.stop[i]));
-    const m=MEDIA[e[0]];
+    const m=p.g2&&p.gx[i]&&G2X[p.gx[i].key]&&G2X[p.gx[i].key].m?{p:"media/"+G2X[p.gx[i].key].m+".jpg"}:(p.g2?null:MEDIA[e[0]]);
     const b=document.createElement("button");b.type="button";b.className="day-row"+(fin?" done":"");
     b.innerHTML=`<span class="day-n">${i+1}</span><span class="day-th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"🏋"}</span>
       <span class="day-tx"><b></b><span>${ns} ${plural(ns,"подход","подхода","подходов")} · ${pl.reps} повт.${pl.w?" · "+pl.w:""}${pl.extra||""}</span></span>
       <span class="day-st">${act?(fin?"✓":nd+"/"+ns):(m?"▶":"")}</span>`;
     b.querySelector("b").textContent=e[0];
-    b.onclick=()=>{if(act){current.idx=i;saveDraft();renderWorkout();show("workout");}else if(m)openMedia(e[0]);};
+    b.onclick=()=>{if(act){current.idx=p.g2?Math.floor(i/2):i;saveDraft();renderWorkout();show("workout");}else if(p.g2&&p.gx[i]&&G2X[p.gx[i].key]&&G2X[p.gx[i].key].m)g2OpenMedia(p.gx[i].key);else if(m)openMedia(e[0]);};
     w.appendChild(b);});
   el("daySum").textContent=`${p.ex.length} ${plural(p.ex.length,"упражнение","упражнения","упражнений")} · ${tot} ${plural(tot,"подход","подхода","подходов")} · готовность: ${act?current.readiness:readiness}`;
   el("dayStart").textContent=act?"Продолжить программу":"Начать программу";
@@ -1260,6 +1292,7 @@ function markCur(){const rows=el("exList").querySelectorAll(".wk-sets .set-row:n
   const cr=el("exList").querySelector(".set-row.cur"),box=el("exList").querySelector(".wk-sets");
   if(cr&&box){const t=cr.offsetTop-box.offsetTop-40;box.scrollTo({top:Math.max(0,t),behavior:"smooth"});}}
 function renderWorkout(){
+  if(current&&current.program&&current.program.g2)return g2RenderPair();
   const wrap=el("exList");
   if(window.__io)wrap.querySelectorAll("video").forEach(v=>{try{window.__io.unobserve(v)}catch(e){}});
   wrap.innerHTML="";
@@ -1334,8 +1367,11 @@ function renderWorkout(){
   const allDone=nextUndone(i)<0&&exDone(i);
   el("wkNext").textContent=(i<n-1&&!allDone)?"Следующее →":"Завершить ✓";
 }
-el("wkPrev").addEventListener("click",()=>{if(current&&current.idx>0)goEx(current.idx-1);});
-el("wkNext").addEventListener("click",()=>{if(!current)return;const n=current.program.ex.length,i=current.idx;
+el("wkPrev").addEventListener("click",()=>{if(current&&current.idx>0){if(current.program.g2){current.idx--;saveDraft();renderWorkout();}else goEx(current.idx-1);}});
+el("wkNext").addEventListener("click",()=>{if(!current)return;
+  if(current.program.g2){const U=current.program.g2.units;if(current.idx<U.length-1){current.idx++;saveDraft();renderWorkout();}
+    else{renderDay();show("day");if(U.every(g2UnitDone))finishWorkout();else toast("Проверь отметки ✓ и нажми «Завершить программу»");}return;}
+  const n=current.program.ex.length,i=current.idx;
   if(i<n-1&&!(nextUndone(i)<0&&exDone(i)))goEx(i+1);
   else {renderDay();show("day");if(nextUndone(i)<0&&exDone(i))finishWorkout();else toast("Проверь отметки ✓ и нажми «Завершить программу»");}});
 /* ---------- таймер отдыха между подходами ---------- */
@@ -1352,7 +1388,7 @@ function restTick(){const left=Math.ceil((restEnd-Date.now())/1000);
   const passed=Math.floor((restTotal*1000-(restEnd-Date.now()))/1000);
   el("wkRestHand").style.transform="rotate("+(((passed%60)+60)%60)*6+"deg)";
   el("wkRestArc").setAttribute("stroke-dasharray",Math.max(0,Math.min(100,left/restTotal*100)).toFixed(2)+" 100");}
-function restStart(){const d=restDefault();restEnd=Date.now()+d*1000;restTotal=d;el("wkRest").hidden=false;scr.workout.classList.add("resting");
+function restStart(sec){const d=sec>0?sec:restDefault();restEnd=Date.now()+d*1000;restTotal=d;el("wkRest").hidden=false;scr.workout.classList.add("resting");
   if(restIv)clearInterval(restIv);restIv=setInterval(restTick,250);restTick();}
 function restStop(){if(restIv)clearInterval(restIv);restIv=null;el("wkRest").hidden=true;scr.workout.classList.remove("resting");}
 /* ±1 мин меняет только текущий отдых; следующий снова начнётся с нормы раздела */
@@ -1366,6 +1402,7 @@ function finishWorkout(){
   current.sets.forEach(se=>se.forEach(s=>{if(s.done&&!s.warm){anyDone=true;vol+=(s.w||0)*s.r;}}));
   if(!anyDone){toast(current.program.gvt?"Нет выполненных подходов — занятие не сохранено":"Отметьте выполненные подходы ✓");return;} // считаем только отмеченное
   const gRec=current.program.gvt?gvtRecord():null;
+  const g2Rec=current.program.g2?g2Record():null;if(g2Rec)vol=g2Rec.ton;
   const prog=current.program;
   // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
   const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(x=>({r:x.r,w:x.w,done:x.done}));log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
@@ -1389,9 +1426,11 @@ function finishWorkout(){
     if(full<sets.length)short.push(e[0]);});
   const uniqShort=[...new Set(short)];
   let note=rmMsg;
-  if(uniqShort.length&&!gRec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
+  if(uniqShort.length&&!gRec&&!g2Rec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
   window.__coachPending=note||"";
   clearDraft();current=null;restStop();
+  if(g2Rec){toast(g2Rec.status==="full"?"Занятие выполнено полностью":"Результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
+    show("gvt");g2Summary(g2Rec.uid);return;}
   if(gRec){toast(gRec.full?"Занятие выполнено полностью":"Частичный результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     show("gvt");gvtRateOpen(gRec.uid);return;}
   toast("Тренировка сохранена");show("progress");
@@ -1578,7 +1617,7 @@ function progButton(p,eyebrow){const b=document.createElement("button");b.classN
 function renderBody(){const w=el("bodyProgs");w.innerHTML="";
   BODY.forEach(p=>w.appendChild(progButton(p,"Бодибилдинг · программа")));
   const g=document.createElement("button");g.className="disc";
-  g.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Немецкий объёмный (GVT)</span><span class="disc-sub">6 недель · 10×10 · от 1ПМ</span></span><span class="go">›</span>`;
+  g.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>German Volume Training</span><span class="disc-sub">5 этапов · 10×10 → метод 4 %</span></span><span class="go">›</span>`;
   g.onclick=()=>show("gvt");w.appendChild(g);}
 renderBody();
 /* ---------- GVT · персональный цикл (алгоритм «ШТУРМ: Режим силы», перенос владельцем) ----------
@@ -1801,6 +1840,495 @@ function gvtArchiveHTML(v,w){const arch=v.cycles.filter(c=>c.closedAt);if(!arch.
     return `<div class="rm-row"><span class="k">Старт ${gvtDD(c.start)}</span><span class="v">${f}/${GVT_N} <small>занятий · ${c.recs.length} записей</small></span></div>`;}).join("")}</div>`;
   w.appendChild(d);}
 /* экран рисуется при открытии (applyScreen → renderGvt) */
+
+/* ===================== GERMAN VOLUME TRAINING 2.0 — пять этапов (ТЗ «Штурм 30» v2.0) ===================== */
+const G2K="gym45_gvt2_v1",G2VER="2.0";
+/* каталог упражнений: m — id анимации; db — сколько гантелей; bw — собственный вес (вес = доп. отягощение) */
+const G2X={
+ dDecl:{n:"Жим гантелей с отрицательным наклоном",m:"0301",db:2},
+ pull:{n:"Подтягивания",m:"0652",bw:1},
+ flyInc:{n:"Разведение гантелей на наклонной скамье",m:"0316",db:2},
+ rowDb:{n:"Тяга гантели одной рукой",m:"0292",db:1},
+ squat:{n:"Приседания со штангой",m:"0043"},
+ lcurl:{n:"Сгибание ног лёжа",m:"0586"},
+ cblCr:{n:"Скручивания на нижнем блоке"},
+ calfS:{n:"Подъём на носки сидя",m:"0594"},
+ dips:{n:"Отжимания на брусьях",m:"0251",bw:1},
+ hammer:{n:"Молотковые сгибания гантелей",m:"0313",db:2},
+ rearDelt:{n:"Махи гантелями в наклоне",m:"0383",db:2},
+ latSeat:{n:"Махи гантелями в стороны сидя",m:"0396",db:2},
+ dInc:{n:"Жим гантелей на наклонной скамье",m:"0314",db:2},
+ pullW:{n:"Подтягивания широким хватом",m:"1429",bw:1},
+ flyFlat:{n:"Разведение гантелей лёжа",m:"0308",db:2},
+ ezRow:{n:"Тяга EZ-штанги в наклоне"},
+ dlBent:{n:"Становая тяга с согнутыми коленями",m:"0032"},
+ lcurlSeat:{n:"Сгибание ног сидя",m:"0599"},
+ twist:{n:"Скручивания с поворотом корпуса",m:"0262",bw:1},
+ calfSt:{n:"Подъём на носки стоя",m:"0108"},
+ cgBench:{n:"Жим лёжа узким хватом",m:"0030"},
+ incCurl:{n:"Сгибание гантелей на наклонной скамье",m:"0318",db:2},
+ latSeat3:{n:"Разведение гантелей в стороны сидя",m:"0396",db:2},
+ revCurl:{n:"Обратные сгибания рук",m:"0110"},
+ bInc:{n:"Жим штанги на наклонной скамье",m:"0047"},
+ pullLean:{n:"Подтягивания с отклонением",bw:1},
+ arcRow:{n:"Тяга гантели одной рукой по дуге",db:1},
+ lunge:{n:"Выпады с гантелями",m:"0336",db:2},
+ rdl:{n:"Румынская тяга",m:"0085"},
+ offCurl:{n:"Сгибание гантелей на наклонной скамье со смещённым хватом",m:"0318",db:2},
+ tbRev:{n:"Обратные сгибания с толстым грифом",m:"0110"},
+ ezFr:{n:"Французский жим с EZ-грифом сидя",m:"0453"},
+ bInc30:{n:"Жим штанги на наклонной скамье 30°",m:"0047"},
+ pullCN:{n:"Подтягивания узким параллельным хватом",m:"0253",bw:1},
+ dFlat:{n:"Жим гантелей лёжа",m:"0289",db:2},
+ elbRow:{n:"Тяга гантели «локтем» одной рукой",db:1},
+ frSq:{n:"Фронтальный присед с подкладкой под пятки",m:"0042"},
+ lcurlOut:{n:"Сгибание ног лёжа, носки от себя",m:"0586"},
+ lcurlIn:{n:"Сгибание ног лёжа, носки внутрь",m:"0586"},
+ farmer:{n:"Прогулка фермера",m:"2133",db:2},
+ ghr:{n:"Ягодично-икроножный подъём",bw:1},
+ zott:{n:"Сгибание Зоттмана сидя",m:"0439",db:2},
+ cgDecl:{n:"Жим лёжа узким хватом на скамье с наклоном вниз"},
+ scottRev:{n:"Обратные сгибания на скамье Скотта узким хватом",m:"0081"},
+ cblFr:{n:"Французский жим на нижнем блоке"},
+ bench:{n:"Жим штанги лёжа",m:"0025"},
+ latSt:{n:"Разведение гантелей в стороны",m:"0334",db:2},
+ lcurlCbl:{n:"Сгибание одной ноги на нижнем блоке"},
+ lcurlSl:{n:"Сгибание ног со слайдерами",bw:1},
+ lcurlDb:{n:"Сгибание ног с гантелью лёжа",m:"0339",db:1},
+};
+/* замены: до 6 альтернатив — та же мышечная группа, близкая механика */
+const G2ALT={
+ lcurl:["lcurlSeat","lcurlCbl","lcurlSl","lcurlDb"],lcurlOut:["lcurlSeat","lcurlCbl","lcurlSl","lcurlDb"],lcurlIn:["lcurlSeat","lcurlCbl","lcurlSl","lcurlDb"],
+ lcurlSeat:["lcurl","lcurlCbl","lcurlSl","lcurlDb"],
+ pull:["pullW","pullCN"],pullW:["pull","pullCN"],pullLean:["pull","pullCN","pullW"],pullCN:["pull","pullW"],
+ dDecl:["dFlat","dInc","bench"],dInc:["bInc","dFlat"],bench:["dFlat","bInc"],bInc:["dInc","bInc30"],bInc30:["dInc","bInc"],dFlat:["bench","dInc"],
+ squat:["frSq"],frSq:["squat"],dlBent:["rdl"],
+ dips:["cgBench","cgDecl"],cgBench:["dips","cgDecl"],cgDecl:["cgBench","dips"],
+ hammer:["incCurl","zott"],incCurl:["hammer","zott","offCurl"],offCurl:["incCurl","hammer"],zott:["hammer","incCurl"],
+ rowDb:["arcRow","elbRow","ezRow"],arcRow:["rowDb","elbRow"],elbRow:["rowDb","arcRow"],ezRow:["rowDb"],
+ flyInc:["flyFlat"],flyFlat:["flyInc"],latSeat:["latSt","latSeat3"],latSeat3:["latSt","latSeat"],latSt:["latSeat3"],
+ calfS:["calfSt"],calfSt:["calfS"],revCurl:["tbRev","scottRev"],tbRev:["revCurl","scottRev"],scottRev:["revCurl","tbRev"],
+ ezFr:["cblFr"],cblFr:["ezFr"],rdl:["dlBent","ghr"],ghr:["rdl","lcurl"],cblCr:["twist"],twist:["cblCr"],
+};
+/* этапы */
+const G2S=[
+ {k:"I",name:"10×10",title:"German Volume Training 10×10",n:18,days:36,algo:"rm",rm:20,inc:5,rest:[90,60],
+  d:[{name:"А · грудь и спина",A:[["dDecl",10,10],["pull",10,10]],B:[["flyInc",3,"10–12"],["rowDb",3,"10–12"]]},
+     {name:"Б · ноги и пресс",A:[["squat",10,10],["lcurl",10,10]],B:[["cblCr",3,"15–20"],["calfS",3,"15–20"]]},
+     {name:"В · руки и плечи",A:[["dips",10,10],["hammer",10,10]],B:[["rearDelt",3,"10–12"],["latSeat",3,"10–12"]]}]},
+ {k:"II",name:"Снижение объёма",title:"Снижение объёма · 6–8 повторов",n:11,days:21,algo:"range",top:8,inc:5,rest:[90,60],
+  d:[{name:"А · грудь и спина",A:[["dDecl",4,"6–8"],["pull",4,"6–8"]],B:[["flyInc",2,"6–8"],["rowDb",2,"6–8"]]},
+     {name:"Б · ноги и пресс",A:[["squat",4,"6–8"],["lcurl",4,"6–8"]],B:[["cblCr",2,"6–8"],["calfS",2,"6–8"]]},
+     {name:"В · руки и плечи",A:[["dips",4,"6–8"],["hammer",4,"6–8"]],B:[["rearDelt",2,"6–8"],["latSeat",2,"6–8"]]}]},
+ {k:"III",name:"10×6",title:"German Volume Training 10×6",n:21,days:42,algo:"rm",rm:12,inc:5,rest:[90,60],
+  d:[{name:"А · грудь и спина",A:[["dInc",10,6],["pullW",10,6]],B:[["flyFlat",3,6],["ezRow",3,6]]},
+     {name:"Б · ноги и пресс",A:[["dlBent",10,6],["lcurlSeat",10,6]],B:[["twist",3,"12–15"],["calfSt",3,"12–15"]]},
+     {name:"В · руки и плечи",A:[["cgBench",10,6],["incCurl",10,6]],B:[["latSeat3",3,"10–12"],["revCurl",3,"10–12"]]}]},
+ {k:"IV",name:"Advanced GVT",title:"Advanced GVT · 10×5/4/3",adv:true,n:36,days:72,algo:"agvt",rest:[100,90],
+  d:[{name:"Грудь и спина · вариант 1",A:[["bInc",10,0,"40X0"],["pullLean",10,0,"40X0"]],B:[["dips",3,"6–8","40X0"],["arcRow",3,"6–8","40X0"]]},
+     {name:"Ноги · вариант 1",A:[["squat",10,0,"40X0"],["lcurlOut",10,0,"40X0"]],B:[["lunge",3,"6–8","30X0"],["rdl",3,"6–8","40X0"]]},
+     {name:"Руки · вариант 1",A:[["offCurl",10,0,"30X0"],["cgBench",10,0,"30X0"]],B:[["tbRev",3,"6–8","30X0"],["ezFr",3,"6–8","30X0"]]},
+     {name:"Грудь и спина · вариант 2",A:[["bInc30",10,0,"40X0"],["pullCN",10,0,"40X0"]],B:[["dFlat",3,"6–8","40X0"],["elbRow",3,"6–8","30X0"]]},
+     {name:"Ноги · вариант 2",A:[["frSq",10,0,"40X0"],["lcurlIn",10,0,"30X0"]],B:[["farmer",3,"45 м"],["ghr",3,"6–8","40X0"]]},
+     {name:"Руки · вариант 2",A:[["zott",10,0,"30X0"],["cgDecl",10,0,"30X0"]],B:[["scottRev",3,"6–8","30X0"],["cblFr",3,"6–8","30X0"]]}]},
+ {k:"V",name:"Метод 4 %",title:"Метод 4 % · волны",adv:true,n:18,tests:3,days:42,algo:"p4",rest:[100,90],
+  d:[{name:"А · грудь и спина",A:[["bench",10,0],["pull",10,0]],B:[["flyFlat",3,"6–8"],["rowDb",3,"6–8"]]},
+     {name:"Б · ноги",A:[["squat",10,0],["lcurl",10,0]],B:[["lunge",3,"6–8"],["calfSt",3,"10–12"]]},
+     {name:"В · руки и плечи",A:[["cgBench",10,0],["incCurl",10,0]],B:[["latSt",3,"8–10"],["rearDelt",3,"8–10"]]}]},
+];
+const G2ST={not:"Не начат",plan:"Запланирован",active:"Активен",done:"Завершён",stop:"Прерван",skip:"Пропущен по решению пользователя"};
+const AG_REPS=[5,4,3,5,4,3],P4_REPS={"543":[5,4,3,5,4,3],"654":[6,5,4,6,5,4]},P4_K=[0,1,2,1,2,3];
+
+/* ---------- хранилище ---------- */
+function g2Store(){try{const v=JSON.parse(localStorage.getItem(G2K));if(v&&Array.isArray(v.progs))return v;}catch(e){}return {progs:[],activeId:null};}
+function g2Save(v){try{localStorage.setItem(G2K,JSON.stringify(v))}catch(e){}cloudPush();}
+function g2Active(v){v=v||g2Store();return v.progs.find(p=>p.id===v.activeId&&p.status!=="done"&&p.status!=="arch")||null;}
+function g2Now(){return new Date().toISOString();}
+function g2Uid(p){return p+"-"+Date.now().toString(36)+Math.floor(Math.random()*1e5).toString(36);}
+/* резервная копия перед внедрением новой методики */
+(function(){try{if(!localStorage.getItem("gym45_backup_pre_gvt2"))localStorage.setItem("gym45_backup_pre_gvt2",JSON.stringify({at:g2Now(),gvt1:localStorage.getItem("gym45_gvt_v1"),history:localStorage.getItem("gym45_history_v1"),rm:localStorage.getItem("gym45_rm_v1")}));}catch(e){}})();
+function mergeG2(a,b){a=a&&a.progs?a:{progs:[],activeId:null};b=b&&b.progs?b:{progs:[],activeId:null};const m={};
+  [...b.progs,...a.progs].forEach(p=>{const o=m[p.id];if(!o){m[p.id]=JSON.parse(JSON.stringify(p));return;}
+    const recs={};[...o.recs,...p.recs].forEach(r=>{const x=recs[r.uid];if(!x||(r.updatedAt||"")>(x.updatedAt||""))recs[r.uid]=r;});
+    const newer=(p.updatedAt||"")>(o.updatedAt||"")?p:o;
+    m[p.id]=Object.assign({},JSON.parse(JSON.stringify(newer)),{recs:Object.values(recs).sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||""))});});
+  const progs=Object.values(m).sort((x,y)=>(x.createdAt||"").localeCompare(y.createdAt||""));
+  const cand=[a.activeId,b.activeId].map(id=>progs.find(p=>p.id===id&&p.status==="active")).filter(Boolean).sort((x,y)=>(y.createdAt||"").localeCompare(x.createdAt||""));
+  return {progs:progs,activeId:cand.length?cand[0].id:(a.activeId||b.activeId||null)};}
+
+/* ---------- вес, округление, тоннаж ---------- */
+function g2Step(P,key){const st=P.st[P.stage],o=st&&st.step&&st.step[key];if(o)return o;return G2X[key]&&G2X[key].db?P.stepDb:P.step;}
+function g2R(x,step){if(!(x>0))return 0;return Math.round(Math.ceil(x/step-1e-9)*step*100)/100;}
+function g2Load(P,key,w){return G2X[key]&&G2X[key].bw&&P.bw>0?P.bw+(w||0):(w||0);}  // полная нагрузка (для % расчётов)
+function g2FromLoad(P,key,L){const st=g2Step(P,key);if(G2X[key]&&G2X[key].bw&&P.bw>0)return Math.round((g2R(L,st)-P.bw)*100)/100;return g2R(L,st);}
+function g2Pct(a,b){return b>0?Math.round((a/b-1)*1000)/10:0;}
+function g2Ton(P,key,s){if(!s.done||!(s.r>0))return 0;const X=G2X[key]||{};return X.bw?((P.bw||0)+(s.w||0))*s.r:(s.w||0)*(X.db||1)*s.r;}
+function g2Fmt(w,key){const X=G2X[key]||{};return fmtW(w)+" кг"+(X.db===2?" × 2":X.db===1?" (1 гантель)":"")+(X.bw?" доп.":"");}
+
+/* ---------- календарь ---------- */
+function g2DateOf(iso){return (iso||"").slice(0,10);}
+function g2LastRec(P){return P.recs.filter(r=>r.status!=="skip").slice(-1)[0]||null;}
+function g2NextDate(P){const L=P.recs.length?P.recs.reduce((a,r)=>(r.date||"")>a?r.date:a,""):"";return L?addDays(L,P.rest+1):P.start;}
+function g2StageFirst(P,si){const r=P.recs.find(x=>x.stage===si);return r?r.date:null;}
+
+/* ---------- подстановки ---------- */
+function g2Key(P,si,key){const s=P.subs&&P.subs[si];return s&&s[key]?s[key]:key;}
+function g2Mains(si){const out=[];G2S[si].d.forEach(d=>d.A.forEach(a=>{if(!out.includes(a[0]))out.push(a[0]);}));return out;}
+
+/* ---------- новая программа ---------- */
+function g2New(opts){const now=g2Now();
+  return {id:g2Uid("gvt2"),ver:G2VER,createdAt:now,updatedAt:now,start:opts.start||localDate(),rest:opts.rest!=null?opts.rest:1,
+    step:opts.step||1.5,stepDb:opts.stepDb||2,bw:opts.bw||0,status:"active",stage:opts.stage||0,
+    st:G2S.map((S,i)=>({status:i<(opts.stage||0)?"skip":i===(opts.stage||0)?"active":"plan",setup:false,pos:0,tpos:0,ws:{},step:{},rest:S.rest.slice(),d2:6.5,d3:8.5,p4d:5,doneAt:null,startedAt:null})),
+    subs:{},subLog:[],recs:[]};}
+
+/* ---------- этап: условия завершения ---------- */
+function g2MainKeysOf(P,si){return g2Mains(si).map(k=>g2Key(P,si,k));}
+function g2StageDone(P,si){const S=G2S[si],st=P.st[si];
+  if(S.algo==="rm"||S.algo==="range")return st.pos>=S.n;
+  const keys=g2MainKeysOf(P,si);const wavesDone=keys.every(k=>st.ws[k]&&st.ws[k].ptr>6);
+  if(S.algo==="agvt")return wavesDone;
+  return wavesDone&&st.tpos>=3;}
+function g2Advance(P){
+  for(let g=0;g<6;g++){const si=P.stage,st=P.st[si];if(!st||st.status!=="active"||!g2StageDone(P,si))break;
+    st.status="done";st.doneAt=g2Now();
+    if(si+1<G2S.length){P.stage=si+1;if(P.st[si+1].status==="plan")P.st[si+1].status="active";}else break;}
+  if(P.st.every(s=>["done","skip","stop"].includes(s.status))){P.status="done";P.doneAt=P.doneAt||g2Now();}
+  P.updatedAt=g2Now();}
+/* ---------- следующая тренировка ---------- */
+function g2NextSlot(P){const si=P.stage,S=G2S[si],st=P.st[si];if(!S||st.status!=="active")return null;
+  if(S.algo==="rm"||S.algo==="range"){if(st.pos>=S.n)return null;return {si:si,day:st.pos%S.d.length,kind:"train",num:st.pos+1,of:S.n};}
+  const wavesDone=g2MainKeysOf(P,si).every(k=>st.ws[k]&&st.ws[k].ptr>6);
+  if(S.algo==="p4"&&wavesDone){if(st.tpos>=3)return null;return {si:si,day:st.tpos,kind:"test",num:st.tpos+1,of:3};}
+  const nd=S.d.length;
+  for(let t=0;t<nd;t++){const day=(st.pos+t)%nd;const keys=S.d[day].A.map(a=>g2Key(P,si,a[0]));
+    if(keys.some(k=>!st.ws[k]||st.ws[k].ptr<=6)){return {si:si,day:day,kind:"train",num:st.pos+1,of:S.n,skipTo:st.pos+t};}}
+  return null;}
+
+/* план весов для этапов IV/V */
+function g2PlanAG(P,si,key,W0){const st=P.st[si],L=g2Load(P,key,W0);
+  const w2=g2FromLoad(P,key,L*(1+st.d2/100)),w3=g2FromLoad(P,key,L*(1+st.d3/100));
+  return {1:W0,2:w2,3:w3,4:w2,5:w3,6:null,raw:{2:L*(1+st.d2/100),3:L*(1+st.d3/100)}};}
+function g2PlanP4(P,si,key,W0){const st=P.st[si],L=g2Load(P,key,W0),d=st.p4d/100,plan={raw:{}};
+  [1,2,3,4,5,6].forEach(k=>{const raw=L*(1+P4_K[k-1]*d);plan.raw[k]=Math.round(raw*100)/100;});
+  plan[1]=W0;plan[2]=g2FromLoad(P,key,plan.raw[2]);plan[3]=g2FromLoad(P,key,plan.raw[3]);plan[4]=plan[2];plan[5]=plan[3];plan[6]=g2FromLoad(P,key,plan.raw[6]);
+  return plan;}
+
+/* последняя запись упражнения в этом этапе (для вспомогательных и памяти) */
+function g2PrevEx(P,si,key){for(let i=P.recs.length-1;i>=0;i--){const r=P.recs[i];if(r.stage!==si||r.kind!=="train")continue;
+    const e=r.ex.find(x=>x.key===key);if(e&&e.sets.some(s=>s.done))return e;}return null;}
+
+/* ---------- сборка тренировки ---------- */
+function g2Build(P,slot){const si=slot.si,S=G2S[si],st=P.st[si],D=S.d[slot.day];
+  const ex=[],preset=[],gx=[],prevShow=[];
+  const rows=[...D.A.map((a,i)=>({a:a,role:"A",code:"A"+(i+1)})),...D.B.map((a,i)=>({a:a,role:"B",code:"B"+(i+1)}))];
+  rows.forEach(({a,role,code})=>{const key=g2Key(P,si,a[0]),X=G2X[key]||{n:key};const ws=st.ws[key];const main=role==="A";
+    let nSets=a[1],reps=a[2],target=typeof reps==="number"?reps:parseInt(reps)||0,w=0,src="manual",ptr=null,note="";
+    if(main){
+      if(S.algo==="rm"){w=ws?ws.w:0;src=ws?"plan":"manual";}
+      else if(S.algo==="range"){w=ws?ws.w:0;target=S.top;src=ws?"plan":"manual";}
+      else if(S.algo==="agvt"){ptr=ws?Math.min(ws.ptr,6):1;reps=AG_REPS[ptr-1];target=reps;w=ws&&ws.plan?(ws.plan[ptr]!=null?ws.plan[ptr]:ws.sug6):0;src="plan";if(ptr===6&&!ws.conf6)note="вес 6-го появления — подтверди";}
+      else if(S.algo==="p4"){ptr=ws?Math.min(ws.ptr,6):1;const sch=ws?ws.scheme:"543";reps=P4_REPS[sch][ptr-1];target=reps;w=ws&&ws.plan?ws.plan[ptr]:0;src="plan";}
+    }else{const pe=g2PrevEx(P,si,key);if(pe){const d=pe.sets.filter(s=>s.done);if(d.length){w=d[d.length-1].w;src="prev";}}}
+    const sets=[];for(let j=0;j<nSets;j++)sets.push({w:w,pw:w,r:target||0,pr:reps,done:false,src:src});
+    const pe=g2PrevEx(P,si,key);prevShow.push(pe?pe.sets.filter(s=>s.done&&s.r>0).map(s=>({r:s.r,w:s.w})):[]);
+    ex.push([X.n,nSets,String(reps)+(a[3]?" · темп "+a[3]:""),main?w:(X.bw?0:null)]);
+    preset.push(sets);gx.push({id:key,key:key,base:a[0],main:main,role:role,code:code,db:X.db===2,bw:!!X.bw,ptr:ptr,tempo:a[3]||"",note:note,target:target});});
+  const units=[[0,1],[2,3]];
+  const sub=S.algo==="agvt"||S.algo==="p4"?(()=>{const p=gx.filter(g=>g.main).map(g=>g.ptr);const lbl=S.algo==="agvt"?"появление":"волна";return " · "+lbl+" "+(p[0]===p[1]?p[0]:p.join("/"))+" из 6";})():"";
+  return {name:"GVT · "+S.k+" · "+D.name,focus:"Этап "+S.k+" · "+S.name+" · занятие "+slot.num+" из "+S.n+sub,ex:ex,sec:"body",preset:preset,gx:gx,prevShow:prevShow,
+    g2:{progId:P.id,stage:si,day:slot.day,pos:slot.skipTo!=null?slot.skipTo:st.pos,num:slot.num,units:units,rest:st.rest.slice(),algo:S.algo,planned:g2NextDate(P),ver:G2VER}};}
+
+/* ---------- запись занятия и прогрессия ---------- */
+function g2Record(){const p=current.program,g=p.g2,v=g2Store(),P=v.progs.find(x=>x.id===g.progId);if(!P)return null;
+  const si=g.stage,S=G2S[si],st=P.st[si],now=g2Now();
+  const ex=p.gx.map((G,i)=>({key:G.key,base:G.base,name:p.ex[i][0],main:G.main,role:G.role,code:G.code,ptr:G.ptr,
+    sets:current.sets[i].map((s,j)=>({n:j+1,pw:s.pw,w:s.w,pr:s.pr,r:s.r,done:!!s.done,at:s.at||null,rest:G.main?g.rest[0]:g.rest[1]}))}));
+  let ton=0,reps=0,planned=0,doneN=0;
+  ex.forEach(e=>e.sets.forEach(s=>{planned++;if(s.done){doneN++;reps+=s.r||0;ton+=g2Ton(P,e.key,s);}}));
+  const st0=current.startedAt||now;
+  const rec={uid:g2Uid(P.id+"-"+si),ver:G2VER,progId:P.id,stage:si,day:g.day,variant:S.d[g.day].name,kind:"train",pos:g.pos,num:g.num,
+    plannedDate:g.planned,date:localDate(),startedAt:st0,finishedAt:now,updatedAt:now,durMin:Math.max(1,Math.round((Date.parse(now)-Date.parse(st0))/60000)),
+    ex:ex,ton:Math.round(ton),reps:reps,setsPlanned:planned,setsDone:doneN,status:doneN===planned?"full":"partial",dec:[]};
+  if(!st.startedAt)st.startedAt=now;
+  st.pos=(g.pos||0)+1;
+  ex.filter(e=>e.main).forEach(e=>g2Progress(P,si,e,rec));
+  ex.filter(e=>!e.main).forEach(e=>{if(!st.ws[e.key]){const d=e.sets.filter(s=>s.done);if(d.length)st.ws[e.key]={w:d[d.length-1].w};}});
+  P.recs.push(rec);g2Advance(P);P.updatedAt=now;g2Save(v);return rec;}
+function g2Full(e,target){const T=target||0;return e.sets.length>0&&e.sets.every(s=>s.done&&s.r>=T);}
+function g2Progress(P,si,e,rec){const S=G2S[si],st=P.st[si],key=e.key,X=G2X[key]||{n:key};
+  const last=[...e.sets].reverse().find(s=>s.done)||e.sets[e.sets.length-1];const aw=last?last.w:0;
+  let ws=st.ws[key];
+  if(S.algo==="rm"||S.algo==="range"){
+    const T=S.algo==="rm"?(typeof e.sets[0].pr==="number"?e.sets[0].pr:parseInt(e.sets[0].pr)):S.top;
+    if(!ws)ws=st.ws[key]={w:aw};
+    if(g2Full(e,T)){const L=g2Load(P,key,aw),nw=g2FromLoad(P,key,L*(1+S.inc/100)),pc=g2Pct(g2Load(P,key,nw),L);
+      if(S.algo==="range")rec.dec.push({key:key,type:"inc_confirm",cur:aw,sug:nw,pct:pc,txt:X.n+": верх диапазона во всех подходах — можно +5 %: "+g2Fmt(aw,key)+" → "+g2Fmt(nw,key)+" (+"+fmtW(pc)+" %)."});
+      else if(pc>S.inc+1)rec.dec.push({key:key,type:"inc_confirm",cur:aw,sug:nw,pct:pc,txt:X.n+": 10×"+T+" выполнено. Ближайший доступный вес "+g2Fmt(nw,key)+" — это +"+fmtW(pc)+" % вместо +5 %. Подтверди."});
+      else{ws.w=nw;rec.dec.push({key:key,type:"inc",done:true,txt:X.n+": 10×"+T+" выполнено → "+g2Fmt(aw,key)+" → "+g2Fmt(nw,key)+" (+"+fmtW(pc)+" %)."});}
+    }else{ws.w=aw||ws.w;rec.dec.push({key:key,type:"keep",done:true,txt:X.n+": план не выполнен ("+e.sets.map(s=>s.done?s.r:"–").join(", ")+") — вес остаётся "+g2Fmt(ws.w,key)+"."});}
+    return;}
+  /* IV / V — волны */
+  if(!ws||!ws.plan){const W0=aw;ws=st.ws[key]=Object.assign(ws||{},{ptr:1,plan:S.algo==="agvt"?g2PlanAG(P,si,key,W0):g2PlanP4(P,si,key,W0),scheme:(ws&&ws.scheme)||"543"});}
+  const ptr=e.ptr||ws.ptr,T=S.algo==="agvt"?AG_REPS[ptr-1]:P4_REPS[ws.scheme||"543"][ptr-1];
+  const lbl=S.algo==="agvt"?"Появление":"Волна";
+  if(g2Full(e,T)){ws.ptr=ptr+1;
+    if(ws.ptr===6&&S.algo==="agvt"&&!ws.conf6){ws.sug6=ws.plan[5];rec.dec.push({key:key,type:"ag6",sug:ws.sug6,txt:X.n+": впереди 6-е появление (10×3). Авторской формулы веса нет — подтверди вес. Предложение по прошлым результатам: "+g2Fmt(ws.sug6,key)+"."});}
+    else rec.dec.push({key:key,type:"wave_ok",done:true,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+" выполнена"+(ws.ptr<=6?" → далее 10×"+(S.algo==="agvt"?AG_REPS[ws.ptr-1]:P4_REPS[ws.scheme||"543"][ws.ptr-1])+" · "+g2Fmt(ws.plan[ws.ptr]!=null?ws.plan[ws.ptr]:ws.sug6||ws.plan[5],key):" → все 6 пройдены")+"."});
+  }else{const nx=ptr+1;const nw=nx<=6?(ws.plan[nx]!=null?ws.plan[nx]:ws.plan[5]):null;
+    rec.dec.push({key:key,type:"wave_fail",ptr:ptr,cur:aw,next:nx<=6?nx:null,sug:nw,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+" не выполнена ("+e.sets.map(s=>s.done?s.r:"–").join(", ")+"). Вес автоматически не повышается — выбери, как дальше."});}}
+function g2Resolve(uid,i,opt,val){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid),d=rec.dec[i];if(!d||d.done)return;
+  const st=P.st[rec.stage],ws=st.ws[d.key];
+  if(d.type==="inc_confirm"){if(opt==="yes")ws.w=d.sug;else if(opt==="keep")ws.w=d.cur;else if(opt==="man"&&val>0)ws.w=val;}
+  else if(d.type==="ag6"){ws.plan[6]=opt==="man"&&val>0?val:d.sug;ws.conf6=true;}
+  else if(d.type==="wave_fail"){
+    if(opt==="repeat"){ws.ptr=d.ptr;}
+    else{const nx=d.ptr+1;ws.ptr=nx;
+      if(nx<=6){let w=ws.plan[nx];if(opt==="keepw")w=d.cur;else if(opt==="man"&&val>0)w=val;
+        if(nx===6&&G2S[rec.stage].algo==="agvt"){ws.plan[6]=w!=null?w:d.sug;ws.conf6=opt!=="plan";if(!ws.conf6)ws.sug6=ws.plan[5];}
+        else ws.plan[nx]=w;
+        if(nx===2)ws.plan[4]=ws.plan[2];if(nx===3)ws.plan[5]=ws.plan[3];}}}
+  d.done=true;d.choice=opt+(val?":"+val:"");rec.updatedAt=g2Now();g2Advance(P);P.updatedAt=g2Now();g2Save(v);}
+
+/* ---------- тест (этап V) ---------- */
+function g2E1(w,r){return r>1?w*(1+r/30):w;}
+function g2OpenTest(){const P=g2Active(),slot=P&&g2NextSlot(P);if(!slot||slot.kind!=="test")return;
+  const si=slot.si,S=G2S[si],st=P.st[si],D=S.d[slot.day];
+  const items=D.A.map(a=>{const key=g2Key(P,si,a[0]),ws=st.ws[key]||{},b=ws.base||{w:ws.plan?ws.plan[1]:0,r:10};
+    return {key:key,name:(G2X[key]||{n:key}).n,base:b,w:ws.plan?ws.plan[5]:b.w,r:b.r};});
+  const box=el("gvtMbox");
+  box.innerHTML=`<h3>Контроль · ${D.name}</h3><p>Отдельная попытка после разминки: один подход на повторный максимум, без 10 подходов. Цель — тот же результат по повторам с весом 3-й/5-й волны. Это ориентир, а не гарантия.</p>`+
+    items.map((it,i)=>`<div class="card" style="padding:12px"><b>${it.name}</b><p class="gvt-note">До программы: ${g2Fmt(it.base.w,it.key)} × ${it.base.r}</p>
+      <div class="gvt-rm"><label>Контрольный вес, кг</label><input id="g2tw${i}" inputmode="decimal" value="${it.w}"><label>Повторов выполнено</label><input id="g2tr${i}" inputmode="numeric" placeholder="${it.r}"></div></div>`).join("")+
+    `<button class="btn" type="button" id="g2tSave">Сохранить результат</button><button class="btn btn-alt" type="button" id="g2tSkip">Пропустить тест</button><button class="tm-mini" type="button" id="g2tLater">Позже</button>`;
+  el("gvtModal").hidden=false;
+  const finish=skip=>{const v=g2Store(),PP=v.progs.find(x=>x.id===P.id),stt=PP.st[si],now=g2Now();
+    const res=items.map((it,i)=>{if(skip)return {key:it.key,name:it.name,base:it.base,skipped:true};
+      const w=parseFloat(String(el("g2tw"+i).value).replace(",",".")),r=parseInt(el("g2tr"+i).value);
+      if(!(w>0&&r>0))return {key:it.key,name:it.name,base:it.base,skipped:true};
+      const L0=g2Load(PP,it.key,it.base.w),L1=g2Load(PP,it.key,w),e0=g2E1(L0,it.base.r),e1=g2E1(L1,r);
+      return {key:it.key,name:it.name,base:it.base,w:w,r:r,e1Before:Math.round(e0*10)/10,e1After:Math.round(e1*10)/10,chg:g2Pct(e1,e0)};});
+    PP.recs.push({uid:g2Uid(PP.id+"-t"),ver:G2VER,progId:PP.id,stage:si,day:slot.day,variant:D.name,kind:"test",date:localDate(),startedAt:now,finishedAt:now,updatedAt:now,
+      status:res.every(x=>x.skipped)?"skipped":"done",tests:res,ex:[]});
+    stt.tpos++;g2Advance(PP);PP.updatedAt=now;g2Save(v);el("gvtModal").hidden=true;
+    toast(skip?"Тест пропущен пользователем":"Результат теста сохранён");g2Render();};
+  el("g2tSave").onclick=()=>finish(false);el("g2tSkip").onclick=()=>finish(true);el("g2tLater").onclick=()=>{el("gvtModal").hidden=true;};}
+
+/* ---------- итог занятия: решения ---------- */
+function g2Summary(uid){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid),S=G2S[rec.stage];
+  const box=el("gvtMbox");
+  const head=`<h3>Итог · ${rec.variant}</h3><p>Этап ${S.k} · ${rec.status==="full"?"все подходы выполнены":"выполнено "+rec.setsDone+" из "+rec.setsPlanned+" подходов"} · тоннаж ${fmtW(rec.ton/1000)} т · ${rec.durMin} мин</p>`;
+  const rows=rec.dec.map((d,i)=>{if(d.done)return `<p class="gvt-note">✓ ${d.txt}${d.choice?" <b>("+g2ChoiceTxt(d.choice)+")</b>":""}</p>`;
+    let opts="";
+    if(d.type==="inc_confirm")opts=`<button class="btn" data-o="yes" data-i="${i}" type="button">Подтвердить ${g2Fmt(d.sug,d.key)}</button><button class="btn btn-alt" data-o="keep" data-i="${i}" type="button">Оставить ${g2Fmt(d.cur,d.key)}</button>`;
+    else if(d.type==="ag6")opts=`<button class="btn" data-o="yes" data-i="${i}" type="button">Подтвердить ${g2Fmt(d.sug,d.key)}</button>`;
+    else if(d.type==="wave_fail")opts=`<button class="btn btn-alt" data-o="repeat" data-i="${i}" type="button">1. Повторить текущую волну</button>`+
+      (d.next?`<button class="btn btn-alt" data-o="keepw" data-i="${i}" type="button">2. Дальше с прежним весом ${g2Fmt(d.cur,d.key)}</button><button class="btn" data-o="plan" data-i="${i}" type="button">3. Запланированный вес ${d.sug!=null?g2Fmt(d.sug,d.key):""}</button>`:`<button class="btn" data-o="plan" data-i="${i}" type="button">Завершить волны</button>`);
+    const man=d.type!=="wave_fail"||d.next?`<div class="gvt-opt"><input class="food-in" style="max-width:110px" inputmode="decimal" id="g2man${i}" placeholder="кг"><button class="seg-b" data-o="man" data-i="${i}" type="button">${d.type==="wave_fail"?"4. ":""}Вручную</button></div>`:"";
+    return `<div class="card gvt-rate" style="padding:12px"><p style="color:var(--fg)">${d.txt}</p>${opts}${man}</div>`;}).join("");
+  box.innerHTML=head+rows+`<button class="tm-mini" type="button" id="g2sClose">${rec.dec.some(d=>!d.done)?"Решу позже":"Готово"}</button>`;
+  el("gvtModal").hidden=false;
+  box.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,o=b.dataset.o;let val=0;
+    if(o==="man"){val=parseFloat(String(el("g2man"+i).value).replace(",","."));if(!(val>0)){toast("Введи вес");return;}}
+    g2Resolve(uid,i,o,val);g2Summary(uid);});
+  el("g2sClose").onclick=()=>{el("gvtModal").hidden=true;g2Render();};}
+function g2ChoiceTxt(c){const [o,v]=c.split(":");return {yes:"подтверждено",keep:"оставлен прежний",man:"вручную "+(v||"")+" кг",repeat:"повтор волны",keepw:"дальше с прежним весом",plan:"запланированный вес"}[o]||o;}
+
+/* ---------- окно суперсета ---------- */
+function g2Unit(){const p=current.program;return p.g2.units[Math.max(0,Math.min(p.g2.units.length-1,current.idx||0))];}
+function g2UnitDone(u){return p2done(u[0])&&p2done(u[1]);}
+function p2done(i){const st=current.sets[i];return st.length>0&&st.every(s=>s.done);}
+function g2Active2(u){const a=current.sets[u[0]],b=current.sets[u[1]],n=Math.max(a.length,b.length);
+  for(let j=0;j<n;j++){if(a[j]&&!a[j].done)return {i:u[0],j:j};if(b[j]&&!b[j].done)return {i:u[1],j:j};}return null;}
+function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math.max(0,Math.min(U.length-1,current.idx||0)),u=U[ui];
+  const wrap=el("exList");wrap.querySelectorAll("video").forEach(v=>{try{window.__io&&window.__io.unobserve(v)}catch(e){}});wrap.innerHTML="";
+  el("wkTitle").textContent=p.name;el("wkEyebrow").textContent=p.focus;
+  const act=g2Active2(u),lbl=p.gx[u[0]].role==="A"?"Основной суперсет A1 / A2":"Вспомогательный суперсет B1 / B2";
+  el("wkStep").textContent=lbl;
+  const dots=el("wkDots");dots.innerHTML="";U.forEach((uu,k)=>{const d=document.createElement("button");d.type="button";d.className="wk-dot"+(k===ui?" cur":"")+(g2UnitDone(uu)?" done":"");d.onclick=()=>{current.idx=k;saveDraft();renderWorkout();};dots.appendChild(d);});
+  const c=document.createElement("div");c.className="card ex-card wk-card g2-card";
+  const head=u.map(i=>{const G=p.gx[i],X=G2X[G.key]||{},isA=act&&act.i===i,m=X.m;
+    const media=m?(isA?`<video src="media/${m}.mp4?v=2" poster="media/${m}.jpg" muted loop autoplay playsinline preload="auto"></video>`:`<img src="media/${m}.jpg" alt="">`):`<span class="g2-nomedia">без анимации</span>`;
+    const st=current.sets[i],nd=st.filter(s=>s.done).length;
+    return `<div class="g2-ex${isA?" on":""}"><div class="ex-media g2-media" data-key="${G.key}">${media}</div>
+      <div class="g2-code">${G.code}${G.tempo?" · "+G.tempo:""}</div><div class="g2-name"></div>
+      <div class="g2-plan">${st.length}×${p.ex[i][2].split(" ·")[0]}${G.main||st[0].pw?" · "+(st[0].pw?g2Fmt(st[0].pw,G.key):"вес ?"):""}</div>
+      <div class="g2-cnt">${nd}/${st.length}${G.note?' · <span style="color:var(--gold-ink)">'+G.note+"</span>":""}</div>
+      <button class="g2-swap" type="button" data-sw="${i}">⇄ Заменить</button></div>`;}).join("");
+  const n=Math.max(current.sets[u[0]].length,current.sets[u[1]].length);
+  let rows=`<div class="g2-row head"><span>#</span><span>${p.gx[u[0]].code}: вес · повт</span><span>${p.gx[u[1]].code}: вес · повт</span></div>`;
+  for(let j=0;j<n;j++){rows+=`<div class="g2-row">`+`<span class="sn num">${j+1}</span>`+u.map(i=>{const s=current.sets[i][j];if(!s)return "<span></span>";
+      const G=p.gx[i],isA=act&&act.i===i&&act.j===j;
+      return `<div class="g2-cell${isA?" on":""}${s.done?" ok":""}"><input class="num" inputmode="decimal" data-i="${i}" data-s="${j}" data-f="w" value="${s.w||""}" placeholder="${G.bw?"доп":"кг"}"><input class="num" inputmode="numeric" data-i="${i}" data-s="${j}" data-f="r" value="${s.r||""}"><button class="chk ${s.done?"on":""}" data-i="${i}" data-s="${j}" type="button">${s.done?"✓":""}</button></div>`;}).join("")+`</div>`;}
+  const nxt=act?`Сейчас: <b>${p.gx[act.i].code} · подход ${act.j+1}</b> — ${current.sets[act.i][act.j].pw?g2Fmt(current.sets[act.i][act.j].pw,p.gx[act.i].key)+" × ":""}${current.sets[act.i][act.j].pr}`:(ui<U.length-1?"Суперсет готов — дальше "+p.gx[U[ui+1][0]].code+" / "+p.gx[U[ui+1][1]].code:"Все суперсеты выполнены — заверши занятие");
+  c.innerHTML=`<div class="g2-head">${head}</div><div class="g2-next">${nxt}</div><div class="wk-sets g2-sets">${rows}</div>`;
+  wrap.appendChild(c);
+  u.forEach((i,k)=>{c.querySelectorAll(".g2-name")[k].textContent=p.ex[i][0];});
+  c.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{const{i,s,f}=e.target.dataset;current.sets[i][s][f]=parseFloat(String(e.target.value).replace(",","."))||0;saveDraft();});
+  c.querySelectorAll(".chk").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,j=+b.dataset.s,s=current.sets[i][j];s.done=!s.done;s.at=s.done?g2Now():null;saveDraft();
+    if(s.done){const G=p.gx[i];restStart(G.main?p.g2.rest[0]:p.g2.rest[1]);
+      if(g2UnitDone(u)&&ui<U.length-1){renderWorkout();setTimeout(()=>{if(current&&current.idx===ui){current.idx=ui+1;saveDraft();renderWorkout();toast("Дальше: блок "+p.gx[U[ui+1][0]].code+" / "+p.gx[U[ui+1][1]].code);}},700);return;}
+      if(g2UnitDone(u)&&ui===U.length-1){restStop();toast("Все подходы выполнены 💪");}}
+    renderWorkout();});
+  c.querySelectorAll(".g2-media").forEach(b=>b.onclick=()=>{if(G2X[b.dataset.key]&&G2X[b.dataset.key].m)g2OpenMedia(b.dataset.key);});
+  c.querySelectorAll(".g2-swap").forEach(b=>b.onclick=()=>g2SwapOpen(+b.dataset.sw));
+  c.querySelectorAll("video").forEach(v=>{v.muted=true;v.addEventListener("canplay",()=>mediaSync());if(window.__io)window.__io.observe(v);});
+  setTimeout(mediaSync,0);
+  el("wkPrev").disabled=ui===0;el("wkNext").textContent=ui<U.length-1?"Следующее →":"Завершить ✓";
+  const on=c.querySelector(".g2-cell.on"),box=c.querySelector(".g2-sets");if(on&&box)box.scrollTo({top:Math.max(0,on.offsetTop-box.offsetTop-50),behavior:"smooth"});}
+function g2OpenMedia(key){const X=G2X[key];if(!X||!X.m)return;const v=el("pvideo");el("pname").textContent=X.n;el("pcred").textContent="ID: edb-"+X.m+" · "+MEDIA_CREDIT;
+  v.poster="media/"+X.m+".jpg";v.src="media/"+X.m+".mp4?v=2";el("player").hidden=false;mediaSync();try{v.currentTime=0;v.play().catch(()=>{});}catch(e){}}
+/* замена упражнения */
+function g2SwapOpen(i){const p=current.program,G=p.gx[i],alts=(G2ALT[G.key]||[]).filter(k=>k!==G.key).slice(0,6);const box=el("gvtMbox");
+  if(!alts.length){toast("Для этого упражнения нет подходящих замен");return;}
+  box.innerHTML=`<h3>Замена: ${(G2X[G.key]||{n:G.key}).n}</h3><p>Подбор по той же мышечной группе и близкой механике. У замены — своя история весов; прежние килограммы не переносятся.</p>
+    <div class="gvt-opt"><span>Применить</span><div class="seg"><button class="seg-b on" id="g2scT" type="button">Только сегодня</button><button class="seg-b" id="g2scA" type="button">Во всех следующих</button></div></div>
+    <div class="stack">${alts.map(k=>`<button class="disc" data-k="${k}" type="button"><span>${G2X[k].n}</span><span class="disc-sub">${G2X[k].m?"":"без анимации"}</span></button>`).join("")}</div>
+    <button class="tm-mini" type="button" id="g2scX">Отмена</button>`;
+  el("gvtModal").hidden=false;let all=false;
+  el("g2scT").onclick=()=>{all=false;el("g2scT").classList.add("on");el("g2scA").classList.remove("on");};
+  el("g2scA").onclick=()=>{all=true;el("g2scA").classList.add("on");el("g2scT").classList.remove("on");};
+  el("g2scX").onclick=()=>{el("gvtModal").hidden=true;};
+  box.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const k=b.dataset.k,X=G2X[k],v=g2Store(),P=v.progs.find(x=>x.id===p.g2.progId);
+    const si=p.g2.stage,ws=P&&P.st[si].ws[k];
+    p.ex[i][0]=X.n;G.key=k;G.db=X.db===2;G.bw=!!X.bw;
+    let w=0;if(ws){if(G.main&&ws.plan)w=ws.plan[Math.min(ws.ptr||1,6)]||0;else w=ws.w||0;}
+    if(G.main&&ws&&ws.plan){G.ptr=Math.min(ws.ptr||1,6);}
+    current.sets[i].forEach(s=>{if(!s.done){s.w=w;s.pw=w;}});
+    if(all&&P){P.subs[si]=P.subs[si]||{};P.subs[si][G.base]=k;P.subLog.push({date:localDate(),stage:si,from:G.base,to:k,scope:"all"});P.updatedAt=g2Now();g2Save(v);}
+    else if(P){P.subLog.push({date:localDate(),stage:si,from:G.base,to:k,scope:"day"});P.updatedAt=g2Now();g2Save(v);}
+    el("gvtModal").hidden=true;saveDraft();renderWorkout();toast("Заменено: "+X.n+(all?" (во всех следующих)":" (сегодня)"));});}
+
+/* ---------- настройка этапа (стартовые веса) ---------- */
+function g2SetupHTML(P,si){const S=G2S[si],st=P.st[si],keys=g2MainKeysOf(P,si);
+  const lab={rm:S.rm+"ПМ, кг",range:"Вес под 6–8, кг",agvt:"10ПМ, кг",p4:"W₀, кг"}[S.algo];
+  const hint={rm:S.rm===20?"Вес, с которым делаешь 20 повторов. Не знаешь — введи 1ПМ, возьмём 60 %.":"Вес, с которым делаешь 12 повторов (12ПМ).",
+    range:"Подбери вес заново под 6–8 повторов — вес из 10×10 не подходит автоматически.",
+    agvt:"Вес на 10 правильных повторов (10ПМ). Знаешь только 1ПМ — возьмём ~75 % как предварительную оценку.",
+    p4:"Стартовый вес W₀ для каждого упражнения. Для 5/4/3 ориентир — 10ПМ (или ~75 % 1ПМ); для 6/5/4 — индивидуально."}[S.algo];
+  const helper=S.algo==="rm"&&S.rm===20?60:(S.algo==="agvt"||S.algo==="p4")?75:0;
+  return `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Этап ${S.k} · стартовые веса</h3><p class="gvt-note" style="margin-bottom:10px">${hint} Расчёт отдельно для каждого упражнения. Для подтягиваний и брусьев — дополнительный вес (0 — без отягощения).</p>
+   ${keys.map(k=>{const X=G2X[k]||{n:k},ws=st.ws[k]||{};const cur=ws.plan?ws.plan[1]:ws.w;
+     return `<div class="g2-su"><div class="g2-su-n">${X.n}${X.db===2?' <small>· вес одной гантели</small>':""}${X.bw?' <small>· доп. вес</small>':""}</div>
+      <div class="g2-su-r"><label>${lab}<input id="g2w_${k}" inputmode="decimal" value="${cur!=null&&cur!==""?cur:""}"></label>
+      ${helper&&!X.bw?`<label>или 1ПМ → ${helper} %<input id="g2rm_${k}" inputmode="decimal"></label>`:""}
+      ${S.algo==="p4"?`<label>Схема<select id="g2sch_${k}"><option value="543"${ws.scheme!=="654"?" selected":""}>5/4/3</option><option value="654"${ws.scheme==="654"?" selected":""}>6/5/4</option></select></label>
+        <label>До программы: вес × повт<span style="display:flex;gap:4px"><input id="g2bw_${k}" inputmode="decimal" placeholder="кг" value="${ws.base?ws.base.w:""}"><input id="g2br_${k}" inputmode="numeric" placeholder="10" value="${ws.base?ws.base.r:""}"></span></label>`:""}
+      <label>Шаг, кг<select id="g2st_${k}"><option value="">по умолч. (${fmtW(X.db?P.stepDb:P.step)})</option>${[0.5,1,1.25,1.5,2,2.5,5].map(s=>`<option value="${s}"${st.step[k]===s?" selected":""}>${fmtW(s)}</option>`).join("")}</select></label></div></div>`;}).join("")}
+   ${S.algo==="agvt"?`<div class="gvt-opt"><span>Прибавка появления 2</span><div class="seg">${[6,6.5,7].map(x=>`<button class="seg-b${st.d2===x?" on":""}" data-d2="${x}" type="button">+${fmtW(x)}%</button>`).join("")}</div></div>
+     <div class="gvt-opt"><span>Прибавка появления 3</span><div class="seg">${[8,8.5,9].map(x=>`<button class="seg-b${st.d3===x?" on":""}" data-d3="${x}" type="button">+${fmtW(x)}%</button>`).join("")}</div></div>`:""}
+   ${S.algo==="p4"?`<div class="gvt-opt"><span>Шаг волны Δ</span><div class="seg">${[4,4.5,5].map(x=>`<button class="seg-b${st.p4d===x?" on":""}" data-p4="${x}" type="button">${fmtW(x)}%</button>`).join("")}</div></div>`:""}
+   <div id="g2Preview"></div>
+   <button class="btn" type="button" id="g2SetGo">Сохранить веса этапа</button></div>`;}
+function g2SetupBind(P,si){const S=G2S[si];
+  const read=()=>{const v=g2Store(),PP=v.progs.find(x=>x.id===P.id),st=PP.st[si],keys=g2MainKeysOf(PP,si),out=[];let bad=false;
+    keys.forEach(k=>{let w=parseFloat(String(el("g2w_"+k).value).replace(",","."));const rmI=el("g2rm_"+k);const rm=rmI?parseFloat(String(rmI.value).replace(",",".")):NaN;
+      const sv=el("g2st_"+k).value;if(sv)st.step[k]=parseFloat(sv);else delete st.step[k];
+      const X=G2X[k]||{};
+      if(String(el("g2w_"+k).value).trim()===""&&rm>0&&!X.bw){const pct=S.algo==="rm"?60:75;w=g2R(rm*pct/100,g2Step(PP,k));el("g2w_"+k).value=w;}
+      const ok=X.bw?w>=0:w>0;if(!ok||!isFinite(w)){bad=true;el("g2w_"+k).classList.add("bad");}else el("g2w_"+k).classList.remove("bad");
+      out.push({k:k,w:w});});
+    return {v:v,PP:PP,st:st,out:out,bad:bad};};
+  el("gvtBody").querySelectorAll("[data-d2]").forEach(b=>b.onclick=()=>{const v=g2Store(),PP=v.progs.find(x=>x.id===P.id);PP.st[si].d2=+b.dataset.d2;g2Save(v);g2Render();});
+  el("gvtBody").querySelectorAll("[data-d3]").forEach(b=>b.onclick=()=>{const v=g2Store(),PP=v.progs.find(x=>x.id===P.id);PP.st[si].d3=+b.dataset.d3;g2Save(v);g2Render();});
+  el("gvtBody").querySelectorAll("[data-p4]").forEach(b=>b.onclick=()=>{const v=g2Store(),PP=v.progs.find(x=>x.id===P.id);PP.st[si].p4d=+b.dataset.p4;g2Save(v);g2Render();});
+  let armed=0;
+  el("g2SetGo").onclick=()=>{const R=read();if(R.bad){toast("Заполни стартовый вес для каждого упражнения");return;}
+    const warn=[];
+    R.out.forEach(({k,w})=>{const st=R.st;
+      if(S.algo==="rm"||S.algo==="range"){st.ws[k]=Object.assign(st.ws[k]||{},{w:w});}
+      else{const plan=S.algo==="agvt"?g2PlanAG(R.PP,si,k,w):g2PlanP4(R.PP,si,k,w);
+        const sch=S.algo==="p4"?el("g2sch_"+k).value:"543";
+        let base=null;if(S.algo==="p4"){const bw_=parseFloat(String(el("g2bw_"+k).value).replace(",",".")),br=parseInt(el("g2br_"+k).value);base={w:bw_>0?bw_:w,r:br>0?br:10};}
+        st.ws[k]=Object.assign(st.ws[k]||{},{ptr:1,plan:plan,scheme:sch,base:base,W0:w});
+        [2,3,6].forEach(n=>{if(plan[n]==null||!plan.raw||!plan.raw[n])return;const L0=g2Load(R.PP,k,w)||1,want=S.algo==="agvt"?(n===2?st.d2:st.d3):P4_K[n-1]*st.p4d,act=g2Pct(g2Load(R.PP,k,plan[n]),L0);if(act>want+1.5)warn.push((G2X[k]||{n:k}).n+": волна "+n+" +"+fmtW(act)+" % вместо +"+fmtW(want)+" %");});}});
+    if(warn.length&&Date.now()-armed>5000){armed=Date.now();const pv=el("g2Preview");pv.innerHTML=`<p class="gvt-stop">Доступный шаг даёт прибавку больше расчётной:<br>${warn.join("<br>")}<br>Нажми «Сохранить» ещё раз для подтверждения или выбери меньший шаг.</p>`;return;}
+    R.st.setup=true;R.st.startedAt=R.st.startedAt||g2Now();R.PP.updatedAt=g2Now();g2Save(R.v);toast("Веса этапа "+S.k+" сохранены");g2Render();};}
+
+/* ---------- экран программы ---------- */
+let g2NewArm=0,g2NextArm=0;
+function g2PlanTable(P,si){const S=G2S[si],st=P.st[si];if(S.algo!=="agvt"&&S.algo!=="p4")return "";
+  const keys=g2MainKeysOf(P,si).filter(k=>st.ws[k]&&st.ws[k].plan);if(!keys.length)return "";
+  return `<div class="card"><h3 style="margin:0 0 8px;font-family:var(--dsp)">${S.algo==="agvt"?"Появления":"Волны"} 1–6</h3><div class="g2-wt"><div class="g2-wr head"><span></span>${[1,2,3,4,5,6].map(n=>`<span>${n}</span>`).join("")}</div>
+   ${keys.map(k=>{const ws=st.ws[k],reps=S.algo==="agvt"?AG_REPS:P4_REPS[ws.scheme||"543"];
+     return `<div class="g2-wr"><span class="nm">${(G2X[k]||{n:k}).n}</span>${[1,2,3,4,5,6].map(n=>{const w=ws.plan[n]!=null?ws.plan[n]:(n===6?ws.sug6:null);const cur=ws.ptr===n;
+       return `<span class="${cur?"cur":""}${ws.ptr>n?" ok":""}">${reps[n-1]}×<b>${w!=null?fmtW(w):"?"}</b>${ws.plan.raw&&ws.plan.raw[n]&&S.algo==="p4"?`<small>${fmtW(Math.round(ws.plan.raw[n]*10)/10)}</small>`:""}</span>`;}).join("")}</div>`;}).join("")}
+   </div><p class="gvt-note">${S.algo==="p4"?"Мелким — расчёт до округления; 4-я и 5-я волны повторяют фактические веса 2-й и 3-й.":"4-е и 5-е появления повторяют фактические веса 2-го и 3-го; вес 6-го подтверждается отдельно."}</p></div>`;}
+function g2Stats(P){const by=G2S.map(()=>({n:0,ton:0,reps:0,sp:0,sd:0,dur:0}));const exw={};
+  P.recs.forEach(r=>{if(r.kind!=="train")return;const b=by[r.stage];b.n++;b.ton+=r.ton||0;b.reps+=r.reps||0;b.sp+=r.setsPlanned||0;b.sd+=r.setsDone||0;b.dur+=r.durMin||0;
+    r.ex.forEach(e=>{if(!e.main)return;const d=e.sets.filter(s=>s.done&&s.w!=null);if(!d.length)return;const k=r.stage+"|"+e.key;
+      if(!exw[k])exw[k]={stage:r.stage,name:e.name,first:d[0].w,last:d[d.length-1].w,key:e.key};else exw[k].last=d[d.length-1].w;});});
+  return {by:by,exw:Object.values(exw),tests:P.recs.filter(r=>r.kind==="test")};}
+function g2StatsHTML(P){const s=g2Stats(P);const tot=s.by.reduce((a,b)=>({n:a.n+b.n,ton:a.ton+b.ton,reps:a.reps+b.reps,sp:a.sp+b.sp,sd:a.sd+b.sd,dur:a.dur+b.dur}),{n:0,ton:0,reps:0,sp:0,sd:0,dur:0});
+  const next=g2NextDate(P),today=localDate(),over=next<today?Math.round((new Date(today+"T12:00")-new Date(next+"T12:00"))/864e5):0,missed=over?Math.floor(over/(P.rest+1)):0;
+  return `<div class="rm-list">${G2S.map((S,i)=>{const b=s.by[i];return `<div class="rm-row"><span class="k">${S.k} · ${S.name}</span><span class="v">${b.n}/${S.n}${S.tests?"+"+S.tests:""} <small>· ${b.sp?Math.round(b.sd/b.sp*100):0}% подх. · ${fmtW(Math.round(b.ton/100)/10)} т</small></span></div>`;}).join("")}
+   <div class="rm-row"><span class="k">Всего</span><span class="v">${tot.n} зан. <small>· ${tot.reps} повт. · ${fmtW(Math.round(tot.ton/100)/10)} т · ср. ${tot.n?Math.round(tot.dur/tot.n):0} мин</small></span></div>
+   <div class="rm-row"><span class="k">Пропущено (по плану)</span><span class="v">${missed} <small>${over?"· просрочка "+over+" дн.":""}</small></span></div></div>
+   ${s.exw.length?`<div class="wod-mv-h" style="margin-top:8px">Рабочие веса: первый → последний</div><div class="rm-list">${s.exw.map(x=>`<div class="rm-row"><span class="k">${G2S[x.stage].k} · ${x.name}</span><span class="v">${fmtW(x.first)} → ${fmtW(x.last)} <small>кг</small></span></div>`).join("")}</div>`:""}
+   ${s.tests.length?`<div class="wod-mv-h" style="margin-top:8px">Контрольные тесты</div><div class="rm-list">${s.tests.flatMap(t=>t.tests.map(x=>`<div class="rm-row"><span class="k">${x.name}</span><span class="v">${x.skipped?"Пропущен пользователем":`${fmtW(x.base.w)}×${x.base.r} → ${fmtW(x.w)}×${x.r} <small>· 1ПМ≈ ${fmtW(x.e1Before)}→${fmtW(x.e1After)} (${x.chg>0?"+":""}${fmtW(x.chg)} %)</small>`}</span></div>`)).join("")}</div>`:""}`;}
+function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Active(v);
+  if(!P){const done=v.progs.filter(p=>p.status==="done").slice(-1)[0];
+    w.innerHTML=(done&&!g2NewArm?`<div class="card gvt-sum"><h3>Программа завершена ✓</h3><p class="gvt-note">Старт ${gvtDD(done.start)} · завершена ${done.doneAt?gvtDD(done.doneAt.slice(0,10)):""}</p>${g2StatsHTML(done)}<button class="btn btn-alt" id="g2Pick" type="button">Выбрать следующую программу</button></div>`:"")+
+     `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Начать German Volume Training</h3><p class="gvt-note" style="margin-bottom:10px">Пять этапов подряд: 10×10 → снижение объёма → 10×6 → Advanced GVT → метод 4 %. Стартовые веса вводятся перед каждым этапом.</p>
+      <div class="field"><label for="g2Start">Дата начала</label><input id="g2Start" type="date" value="${localDate()}"></div>
+      <div class="gvt-rm"><label>Дней отдыха между тренировками</label><input id="g2Rest" inputmode="numeric" value="1">
+       <label>Шаг веса штанга/тренажёр, кг</label><input id="g2Step" inputmode="decimal" value="1.5">
+       <label>Шаг веса гантели, кг</label><input id="g2StepDb" inputmode="decimal" value="2">
+       <label>Масса тела, кг<small>для подтягиваний и брусьев</small></label><input id="g2Bw" inputmode="decimal" placeholder="необязательно"></div>
+      <button class="btn" id="g2Go" type="button">Начать программу</button></div>`+g2ArchiveHTML(v);
+    if(el("g2Pick"))el("g2Pick").onclick=()=>show("body");
+    el("g2Go").onclick=()=>{const num=(id,d)=>{const x=parseFloat(String(el(id).value).replace(",","."));return isFinite(x)?x:d;};
+      const v2=g2Store();const P2=g2New({start:el("g2Start").value||localDate(),rest:Math.max(0,Math.round(num("g2Rest",1))),step:num("g2Step",1.5)||1.5,stepDb:num("g2StepDb",2)||2,bw:num("g2Bw",0)});
+      v2.progs.push(P2);v2.activeId=P2.id;g2Save(v2);g2NewArm=0;toast("Программа создана");g2Render();};
+    return;}
+  const si=P.stage,S=G2S[si],st=P.st[si],slot=g2NextSlot(P),next=g2NextDate(P),today=localDate();
+  const first=g2StageFirst(P,si),winEnd=first?addDays(first,S.days-1):null,winOver=winEnd&&today>winEnd&&slot;
+  const pend=P.recs.filter(r=>r.dec&&r.dec.some(d=>!d.done)).slice(-1)[0];
+  let h=`<div class="card gvt-sum"><h3>Этап ${S.k} · ${S.name}${S.adv?' <span class="tag">Для продвинутых</span>':""}</h3>
+    <div class="gvt-bar"><i style="width:${Math.round(Math.min(1,(st.pos)/S.n)*100)}%"></i></div>
+    <div class="gvt-kv"><span>Занятие ${Math.min(st.pos+1,S.n)} из ${S.n}${S.tests?" + "+S.tests+" теста":""}</span><span>Отдых ${P.rest} дн.</span><span>Шаг ${fmtW(P.step)} / ${fmtW(P.stepDb)} кг</span></div>
+    ${winEnd?`<p class="gvt-note">Окно этапа: ${gvtDD(first)} – ${gvtDD(winEnd)} (${S.days} дн.)</p>`:""}</div>`;
+  if(pend)h+=`<div class="gvt-pend"><span>Итог занятия: нужно решение по весу</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="g2Pend">Открыть</button></div>`;
+  if(winOver)h+=`<div class="card"><p class="gvt-stop">Плановый срок этапа ${S.k} истёк, осталось занятий: ${S.n-st.pos}. Невыполненное не удаляется.</p><div class="row2"><button class="btn btn-alt" id="g2Cont" type="button">Продолжить этап</button><button class="btn" id="g2Skip" type="button">К следующему этапу</button></div></div>`;
+  if(!st.setup)h+=g2SetupHTML(P,si);
+  else if(slot){const D=S.d[slot.day];
+    h+=`<div class="card"><p class="gvt-note">${slot.kind==="test"?"Контрольное занятие":"Следующая тренировка"} · рекомендовано ${gvtDD(next)}${next>today?" (можно раньше)":""}</p>
+      <h3 style="margin:2px 0 10px;font-family:var(--dsp)">${slot.kind==="test"?"Тест · ":""}${D.name}</h3>
+      <button class="btn" id="g2Open" type="button">${slot.kind==="test"?"Открыть тест":"Открыть тренировку"}</button></div>`;
+    h+=g2PlanTable(P,si);
+    if(slot.kind==="train"){const up=[];let d=next;let pos=st.pos;for(let k=0;k<5&&pos<S.n;k++,pos++){up.push(`<div class="rm-row"><span class="k">${gvtDD(d)}</span><span class="v">${S.d[pos%S.d.length].name}</span></div>`);d=addDays(d,P.rest+1);}
+      if(up.length)h+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Ближайшие занятия</h3><div class="rm-list">${up.join("")}</div></div>`;}}
+  h+=`<div class="card"><h3 style="margin:0 0 8px;font-family:var(--dsp)">Этапы</h3><div class="rm-list">${G2S.map((SS,i)=>{const s2=P.st[i];return `<div class="rm-row"><span class="k">${SS.k} · ${SS.name}${SS.adv?" · для продвинутых":""}</span><span class="v"><small>${G2ST[s2.status]}</small></span></div>`;}).join("")}</div>
+    <div class="row2" style="margin-top:10px"><button class="btn btn-alt" id="g2NextSt" type="button">${S.adv?"Пропустить этап":"Завершить этап досрочно"}</button></div></div>`;
+  h+=`<div class="card rm-fold"><button class="rm-fold-h" type="button"><span>Настройки<small class="rm-cur">отдых, шаг веса, таймеры, масса тела</small></span><span class="rm-caret">▾</span></button><div class="rm-fold-b" hidden>
+    <div class="gvt-opt"><span>Дней отдыха между тренировками</span><div class="seg">${[0,1,2,3].map(x=>`<button class="seg-b${P.rest===x?" on":""}" data-rest="${x}" type="button">${x}</button>`).join("")}</div></div>
+    <div class="gvt-opt"><span>Таймер основных / вспомогательных, с</span><div class="seg"><button class="seg-b" data-rt="-10" type="button">−10</button><b style="align-self:center">${st.rest[0]} / ${st.rest[1]}</b><button class="seg-b" data-rt="10" type="button">+10</button></div></div>
+    <div class="gvt-rm"><label>Шаг штанга/тренажёр, кг</label><input id="g2sStep" inputmode="decimal" value="${P.step}"><label>Шаг гантели, кг</label><input id="g2sStepDb" inputmode="decimal" value="${P.stepDb}"><label>Масса тела, кг</label><input id="g2sBw" inputmode="decimal" value="${P.bw||""}"></div>
+    <button class="btn btn-alt" id="g2sSave" type="button">Сохранить настройки</button>
+    ${st.setup?`<button class="tm-mini" id="g2ReSetup" type="button" style="margin-top:8px">Изменить стартовые веса этапа</button>`:""}</div></div>`;
+  h+=`<div class="card rm-fold"><button class="rm-fold-h" type="button"><span>Аналитика<small class="rm-cur">этапы, веса, тоннаж, тесты</small></span><span class="rm-caret">▾</span></button><div class="rm-fold-b" hidden>${g2StatsHTML(P)}</div></div>`;
+  h+=`<button class="btn btn-alt" id="g2NewP" type="button">Начать программу заново (новый экземпляр)</button>`+g2ArchiveHTML(v);
+  w.innerHTML=h;
+  w.querySelectorAll(".rm-fold-h").forEach(b=>b.onclick=()=>{const x=b.nextElementSibling;x.hidden=!x.hidden;b.querySelector(".rm-caret").textContent=x.hidden?"▾":"▴";});
+  if(!st.setup)g2SetupBind(P,si);
+  if(el("g2Pend"))el("g2Pend").onclick=()=>g2Summary(pend.uid);
+  if(el("g2Open"))el("g2Open").onclick=()=>{const PP=g2Active(),sl=g2NextSlot(PP);if(!sl)return;if(sl.kind==="test")return g2OpenTest();startWorkout(g2Build(PP,sl),true);};
+  if(el("g2Cont"))el("g2Cont").onclick=()=>{toast("Продолжаем этап "+S.k);};
+  const toNext=(status)=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.st[si].status=status;PP.st[si].doneAt=g2Now();
+    if(si+1<G2S.length){PP.stage=si+1;PP.st[si+1].status="active";}else{PP.status="done";PP.doneAt=g2Now();}PP.updatedAt=g2Now();g2Save(v2);g2Render();};
+  if(el("g2Skip"))el("g2Skip").onclick=()=>toNext("stop");
+  el("g2NextSt").onclick=()=>{if(Date.now()-g2NextArm>4000){g2NextArm=Date.now();toast(S.adv?"Нажми ещё раз — этап будет отмечен «Пропущен по решению пользователя»":"Нажми ещё раз — этап будет отмечен «Прерван», история сохранится");return;}g2NextArm=0;toNext(st.pos===0&&S.adv?"skip":"stop");};
+  w.querySelectorAll("[data-rest]").forEach(b=>b.onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.rest=+b.dataset.rest;PP.updatedAt=g2Now();g2Save(v2);g2Render();});
+  w.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id),r=PP.st[si].rest,d=+b.dataset.rt;r[0]=Math.max(30,Math.min(300,r[0]+d));r[1]=Math.max(30,Math.min(300,r[1]+d));PP.updatedAt=g2Now();g2Save(v2);g2Render();});
+  el("g2sSave").onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id),n=id=>parseFloat(String(el(id).value).replace(",","."));
+    if(n("g2sStep")>0)PP.step=n("g2sStep");if(n("g2sStepDb")>0)PP.stepDb=n("g2sStepDb");PP.bw=n("g2sBw")>0?n("g2sBw"):0;PP.updatedAt=g2Now();g2Save(v2);toast("Настройки сохранены");g2Render();};
+  if(el("g2ReSetup"))el("g2ReSetup").onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.st[si].setup=false;g2Save(v2);g2Render();};
+  el("g2NewP").onclick=()=>{if(Date.now()-g2NewArm>4000){g2NewArm=Date.now();toast("Нажми ещё раз — текущая программа уйдёт в архив со всей историей");return;}
+    const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.status="arch";PP.updatedAt=g2Now();v2.activeId=null;g2Save(v2);g2Render();};}
+function g2ArchiveHTML(v){const old=(typeof gvtStore==="function"?gvtStore().cycles:[]),arch=v.progs.filter(p=>p.status==="arch"||p.status==="done");
+  if(!old.length&&!arch.length)return "";
+  return `<div class="card"><h3 style="margin:0 0 8px;font-family:var(--dsp)">Архив</h3><div class="rm-list">${arch.map(p=>`<div class="rm-row"><span class="k">GVT 2.0 · старт ${gvtDD(p.start)}</span><span class="v">${p.recs.filter(r=>r.kind==="train").length} <small>зан. · ${p.status==="done"?"завершена":"в архиве"}</small></span></div>`).join("")}
+   ${old.map(c=>`<div class="rm-row"><span class="k">GVT прежней версии · старт ${gvtDD(c.start)}</span><span class="v">${c.recs.length} <small>записей</small></span></div>`).join("")}</div></div>`;}
 
 /* ---------- ПАУЭРЛИФТИНГ · «Руки титана» (МакРоберт), 7 этапов ---------- */
 const PWR=[
@@ -2303,7 +2831,7 @@ el("fAdd").addEventListener("click",()=>{
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false;
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
-function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),at:Date.now()};}
+function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),at:Date.now()};}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -2315,7 +2843,7 @@ function cloudRefreshUI(){
   try{if(currentScreen==="progress")renderProgress();
       if(currentScreen==="food")renderFood();
       if(currentScreen==="onerm")rmLoadLift(rmLift);
-      if(currentScreen==="gvt")renderGvt();}catch(e){}
+      if(currentScreen==="gvt")g2Render();}catch(e){}
 }
 function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;}
 async function cloudInit(){
@@ -2333,6 +2861,7 @@ async function cloudInit(){
       try{localStorage.setItem(FOODK,JSON.stringify(mergeFood(foodGet(),d.food)))}catch(e){}
       try{localStorage.setItem(RMK,JSON.stringify(mergeRm(rmReg(),d.rm)))}catch(e){}
       try{if(d.gvt)localStorage.setItem(GVTK,JSON.stringify(mergeGvt(gvtStore(),d.gvt)))}catch(e){}
+      try{if(d.gvt2)localStorage.setItem(G2K,JSON.stringify(mergeG2(g2Store(),d.gvt2)))}catch(e){}
       cloudRefreshUI();
       cloudReady=true;
       try{await cloudDoc().set(cloudSnapshot());}catch(e){} // пишем объединённый результат обратно
