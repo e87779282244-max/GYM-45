@@ -642,6 +642,9 @@
   .hc-goal{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;font-size:13.5px}
   .hc-goal b{font-family:var(--dsp);color:var(--accent-ink)}
   .hc-goal button{border:1px solid var(--line);background:var(--accent);color:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px}
+  .pu-st{align-items:center}
+  .pu-n{font-size:11.5px;letter-spacing:.06em;color:var(--accent);font-family:var(--dsp);font-weight:700}
+  .pu-on{outline:2.5px solid var(--accent);outline-offset:2px}
   .sw-group{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--accent);margin:4px 0 -2px}
   .sw-circlenow{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.25);font-size:14px;font-weight:600;line-height:1.45;text-align:center}
   .sw-circlenow .k{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.08em;font-size:11.5px;opacity:.85}
@@ -1144,6 +1147,27 @@
     </div>
   </section>
 
+  <!-- СТРИТ ВОРКАУТ · ПУТЬ ПОДТЯГИВАНИЙ -->
+  <section class="screen" id="scr-pu" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Стрит воркаут · по методике Лайфхакера</p><h1>Подтягивания: с нуля до 25</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <p class="street-note">Три программы одной цепочкой. С нуля до 5 подтягиваний — «Первые подтягивания», от 5 до 11 — лесенки Павла Цацулина, от 12 — программа морпеха Армстронга. Тест в конце каждой ступени показывает, куда идти дальше.</p>
+    <div class="stack">
+      <div class="card wod-card">
+        <div class="sk-max pp-fields"><label><span>Сколько раз подтягиваюсь подряд</span><input type="number" inputmode="numeric" min="0" id="puMax"></label></div>
+        <p class="sk-note" id="puRec"></p>
+      </div>
+      <div class="stack" id="puList"></div>
+      <div class="card wod-card sk-rules">
+        <p><b>Ступень 1 → 2.</b> После 4 недель «Первых подтягиваний» — 1–2 дня отдыха и тест: 5 строгих подтягиваний — переход к Fighter Pull-up, иначе повтори 4-ю неделю.</p>
+        <p><b>Ступень 2 → 3.</b> После 30 дней лесенок — 2–3 дня отдыха и тест. Обычно результат 12–15 — переход к Армстронгу. Меньше — ещё цикл лесенок со старта от нового максимума.</p>
+        <p><b>Ступень 3.</b> Армстронг 4–8 недель, тренировочный подход начинается с 3 повторов. Через 4 недели — тест: при подходе в 3 повтора обычно выходит 25–27 подтягиваний.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-swc" hidden>
     <div class="hd">
       <div><p class="eyebrow" id="swcEyebrow">Стрит воркаут · комплекс</p><h1 id="swcName">—</h1></div>
@@ -1303,7 +1327,7 @@ function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","ма�
   return d.getDate()+" "+m[d.getMonth()];}
 
 /* ---------- navigation ---------- */
-const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),workout:el("scr-workout"),progress:el("scr-progress")};
+const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),pu:el("scr-pu"),workout:el("scr-workout"),progress:el("scr-progress")};
 function el(id){return document.getElementById(id);}
 let histStack=[],currentScreen=null;
 function applyScreen(name){
@@ -3077,7 +3101,7 @@ function renderPP(){const id=ppCur,P=PP[id];if(!P)return;const s=ppGet(id);const
   if(el("ppGo"))el("ppGo").onclick=()=>{if(need())return;openSw(p.w);};
   card.querySelectorAll(".sw-opt button").forEach(b=>b.onclick=()=>{if(need())return;const q=P.plan(+b.dataset.d,s);if(q.w){const w=Object.assign({},q.w,{ppDay:day,name:q.w.name+" (пт)"});openSw(w);}});
   if(el("ppMark"))el("ppMark").onclick=()=>{if(need())return;const t=ppGet(id);t.t=t.t||{};t.done=t.done||{};
-    if(p.type==="test"){const v=el("ppTest").value;if(v===""){toast("Введи результат");return;}t.t[p.key]=+v;t.done[day]=1;toast("Результат сохранён");}
+    if(p.type==="test"){const v=el("ppTest").value;if(v===""){toast("Введи результат");return;}t.t[p.key]=+v;t.done[day]=1;toast("Результат сохранён");if(id==="lh"||id==="fighter")setTimeout(()=>puAfterTest(id,+v),1200);}
     else{if(t.done[day])delete t.done[day];else t.done[day]=1;}ppSave(id,t);renderPP();};
   const cal=el("ppCal");cal.innerHTML="";
   for(let d=1;d<=P.total;d++){const q=P.plan(d,s);const b=document.createElement("button");b.type="button";
@@ -3316,6 +3340,26 @@ el("hcReset").addEventListener("click",()=>{const b=el("hcReset");if(Date.now()-
   try{localStorage.removeItem(HCK);}catch(e){}renderHC();toast("Прогресс сброшен");});
 function hcFinished(day){const t=hcGet();t.sessions++;t.next=day==="A"?"B":"A";hcSave(t);}
 
+/* --- Путь «Подтягивания: с нуля до 25» --- */
+const PU_ST=[{id:"lh",lo:0,hi:4,lbl:"0–4 раза"},{id:"fighter",lo:5,hi:11,lbl:"5–11 раз"},{id:"armstrong",lo:12,hi:999,lbl:"12 и больше"}];
+function puStage(m){if(m==null||m==="")return null;m=+m;return PU_ST.find(x=>m>=x.lo&&m<=x.hi).id;}
+function puMax(){const p=ppGet("pupath");return (p.t||{}).max;}
+function renderPU(){const m=puMax();const rec=puStage(m);el("puMax").value=m??"";
+  el("puRec").innerHTML=rec?`Твоя программа сейчас: <b>${PP[rec].title}</b>`:"Введи, сколько раз подтягиваешься подряд, — приложение подберёт программу.";
+  const L=el("puList");L.innerHTML="";
+  PU_ST.forEach((x,i)=>{const P=PP[x.id],s=ppGet(x.id);const done=Object.keys(s.done||{}).length;
+    const st=s.start?(done>=P.total?"пройдена":"идёт · день "+ppToday(s,P.total)+" из "+P.total):"не начата";
+    const d=document.createElement("button");d.type="button";d.className="disc sw-folder pu-st"+(x.id===rec?" pu-on":"");
+    d.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span class="pu-n">Ступень ${i+1} · ${x.lbl}</span><span>${P.title}</span><span class="disc-sub">${P.author} · ${st}</span></span><span class="go">›</span>`;
+    d.onclick=()=>{puPrefill(x.id);openPP(x.id);};L.appendChild(d);});}
+function puPrefill(id){const m=puMax();if(m==null||m==="")return;const s=ppGet(id);if(s.start)return;s.t=s.t||{};
+  if(id==="fighter"&&s.t.max==null){s.t.max=Math.max(5,Math.min(11,+m));ppSave(id,s);}
+  if(id==="armstrong"&&s.t.tr==null){s.t.tr=3;ppSave(id,s);}}
+function puAfterTest(id,v){const p=ppGet("pupath");p.t=p.t||{};p.t.max=v;ppSave("pupath",p);
+  if(id==="lh"){if(v>=5){toast("5+ подтягиваний — следующая ступень: Fighter Pull-up");const f=ppGet("fighter");if(!f.start){f.t=f.t||{};f.t.max=Math.min(11,v);ppSave("fighter",f);}}else toast("Меньше 5 — повтори 4-ю неделю");}
+  if(id==="fighter"){if(v>=12){toast(v+" подтягиваний — следующая ступень: Armstrong Pull-up");const a=ppGet("armstrong");if(!a.start){a.t=a.t||{};a.t.tr=a.t.tr||3;ppSave("armstrong",a);}}else toast("Пройди ещё цикл Fighter Pull-up со стартом от "+v);}}
+el("puMax").addEventListener("change",()=>{const p=ppGet("pupath");p.t=p.t||{};const v=el("puMax").value;if(v==="")delete p.t.max;else p.t.max=+v;ppSave("pupath",p);setTimeout(renderPU,0);});
+
 /* ---- движок тренировки: круги / подходы, общий секундомер ---- */
 const SWS={cur:null,run:false,acc:0,t0:0,laps:[],iv:null,capHit:false};
 function swElapsed(){return SWS.acc+(SWS.run?performance.now()-SWS.t0:0);}
@@ -3334,7 +3378,8 @@ function renderSw(){const w=el("swList");w.innerHTML="";
   const sk=skGet();const sb=swBtn("Сотка · 100-дневный воркаут",sk.start?"Антон Кучумов · сейчас день "+skToday(sk)+" из 100":"Антон Кучумов · 100 дней, 3 блока");sb.classList.add("sw-folder");sb.onclick=()=>{skView=null;renderSotka();show("sotka");};w.appendChild(sb);
   const hb=swBtn("Hannibal For King","Вокруг света, круг и лесенка Ганнибала · "+HFK.length+" программ");hb.classList.add("sw-folder");hb.onclick=()=>{renderHfk();show("hfk");};w.appendChild(hb);
   const g=document.createElement("div");g.className="sw-group";g.textContent="Программы с прогрессией";w.appendChild(g);
-  Object.keys(PP).forEach(id=>{const P=PP[id],s=ppGet(id);const b=swBtn(P.title,P.author+(s.start?" · день "+ppToday(s,P.total)+" из "+P.total:""));b.classList.add("sw-folder");b.onclick=()=>openPP(id);w.appendChild(b);});
+  const pub=swBtn("Подтягивания: с нуля до 25","Лайфхакер → Цацулин → Армстронг · 3 ступени");pub.classList.add("sw-folder");pub.onclick=()=>{renderPU();show("pu");};w.appendChild(pub);
+  Object.keys(PP).filter(id=>!["lh","fighter","armstrong"].includes(id)).forEach(id=>{const P=PP[id],s=ppGet(id);const b=swBtn(P.title,P.author+(s.start?" · день "+ppToday(s,P.total)+" из "+P.total:""));b.classList.add("sw-folder");b.onclick=()=>openPP(id);w.appendChild(b);});
   const rb=swBtn("Recommended Routine","r/bodyweightfitness · всё тело, 3 раза в неделю");rb.classList.add("sw-folder");rb.onclick=()=>{renderRR();show("rr");};w.appendChild(rb);
   const hcb=swBtn("Hybrid Calisthenics","Хэмптон Лю · 5 лестниц от лёгкого к мастерскому");hcb.classList.add("sw-folder");hcb.onclick=()=>{renderHC();show("hc");};w.appendChild(hcb);
   const g2=document.createElement("div");g2.className="sw-group";g2.textContent="Отдельные комплексы";w.appendChild(g2);
