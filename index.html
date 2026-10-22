@@ -334,6 +334,14 @@
   .nt-ctl{margin-top:8px}
   .nt-soft{color:var(--accent-ink);background:var(--accent-weak);border-radius:10px;padding:8px 10px;font-size:13.5px;margin:6px 0}
   .nt-days button.near::after{background:#9bb04a}
+  .nt-hits{display:flex;flex-direction:column;gap:6px}
+  .nt-hits[hidden],#ntPickBox[hidden]{display:none}
+  .nt-hit{display:flex;justify-content:space-between;gap:10px;align-items:baseline;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 12px;font-size:14.5px;font-weight:600}
+  .nt-hit small{flex:none;color:var(--muted);font-size:12px}
+  .nt-pick{font-size:14px;margin:8px 0;line-height:1.45}
+  .nt-pick small{color:var(--muted)}
+  .nt-x{border:none;background:none;color:var(--faint);font-size:14px;padding:0 4px}
+  .fitems{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.35}
   .food-empty{color:var(--faint);font-size:13px;text-align:center;padding:10px 0}
 
   /* ---- workout ---- */
@@ -1054,8 +1062,27 @@
         </div>
         <div id="ntVsNorm" hidden></div>
       </div>
+      <div class="card nt-form" id="ntBuilder">
+        <h3>Собрать приём пищи</h3>
+        <p class="nt-sub">Найди продукт, укажи сколько съел — КБЖУ посчитается само.</p>
+        <label class="nt-lab">Приём<select id="ntMeal" class="food-in"><option>Завтрак</option><option>Обед</option><option>Ужин</option><option>Перекус</option></select></label>
+        <input id="ntQ" class="food-in" placeholder="Продукт: яйцо, стейк, гречка варёная…" autocomplete="off" enterkeyhint="search">
+        <div id="ntHits" class="nt-hits" hidden></div>
+        <div id="ntPickBox" hidden>
+          <div class="nt-grid"><label>Количество<input id="ntQAmt" class="food-in" type="text" inputmode="decimal" value="1"></label><label>Мера<select id="ntQUnit" class="food-in"></select></label></div>
+          <p id="ntPickRes" class="nt-pick"></p>
+          <button type="button" class="btn btn-alt" id="ntQAdd">＋ В приём</button>
+        </div>
+        <div id="ntDraft"></div>
+        <button type="button" class="btn" id="ntDraftSave" hidden>Записать</button>
+        <details class="nt-info" id="ntCustomWrap"><summary>＋ Свой продукт (КБЖУ с упаковки)</summary>
+          <input id="ntCName" class="food-in" placeholder="Название, напр. Протеиновый батончик X" autocomplete="off" style="margin-top:8px">
+          <div class="nt-grid" style="margin-top:8px"><label>Ккал / 100 г<input id="ntCK" class="food-in" type="text" inputmode="decimal" placeholder="авто"></label><label>Белки / 100 г<input id="ntCP" class="food-in" type="text" inputmode="decimal"></label><label>Жиры / 100 г<input id="ntCF" class="food-in" type="text" inputmode="decimal"></label><label>Углев. / 100 г<input id="ntCC" class="food-in" type="text" inputmode="decimal"></label><label>1 шт., г (если есть)<input id="ntCPiece" class="food-in" type="text" inputmode="decimal" placeholder="—"></label></div>
+          <button type="button" class="btn btn-alt" id="ntCSave" style="margin-top:8px">Сохранить продукт</button>
+        </details>
+      </div>
       <div class="card">
-        <h3 style="margin:0 0 10px">Добавить приём пищи</h3>
+        <h3 style="margin:0 0 10px">Добавить вручную (ккал и БЖУ)</h3>
         <div class="food-form">
           <input id="fName" class="food-in" placeholder="Название (напр. овсянка)" autocomplete="off">
           <div class="food-grid">
@@ -4820,12 +4847,102 @@ function ntRealistic(days,T){const N=NTN(),K=["kcal","p","f","c"],W={kcal:4,p:2,
       else if(dv("c")<-.2)reason=`Углеводов меньше нормы на ${Math.abs(Math.round(dv("c")*100))}% — за 3 приёма столько не съесть: добавь перекус (банан, хлеб, мёд, крупа) или выбери коктейль на молоке.`;}
     return {...d,meals,total,error,macroError,fitted:error<=.05&&macroError<=.1,pr9Warnings:warnings,realistic:true,reason};});}
 /*</nt-realistic>*/
+/* ---- Gym 45 · «Собрать приём пищи»: свободный ввод съеденного с пересчётом КБЖУ ----
+   Справочник = продукты движка ШТУРМ 30 (сырые/сухие, на 100 г) + дополнительные продукты Gym 45
+   (усреднённые значения на 100 г, в основном по USDA FoodData Central; это ориентиры, не этикетка)
+   + «свои продукты» пользователя с КБЖУ с упаковки (ключ gym45_nutrition_custom_v1, синхронизируется).
+   Ккал справочных продуктов = 4Б + 9Ж + 4У, как в движке; у своих продуктов — как на этикетке. */
+const NTK_C="gym45_nutrition_custom_v1";
+const NT_EXTRA=[ // id, название, Б, Ж, У на 100 г, {piece: г за 1 шт и подпись}
+ ["x_steak","Стейк говяжий (рибай), сырой",19,18,0,{piece:250,pl:"стейк ≈250 г"}],
+ ["x_steakc","Стейк говяжий, жареный/гриль",25,20,0,{piece:180,pl:"стейк ≈180 г"}],
+ ["x_pork","Свинина (шея), сырая",16,21,0],
+ ["x_lamb","Баранина, сырая",17,19,0],
+ ["x_mince","Фарш говяжий 15%, сырой",18,15,0],
+ ["x_chickc","Куриная грудка, готовая (варёная/гриль)",31,3.6,0,{piece:150,pl:"филе ≈150 г"}],
+ ["x_sausage","Колбаса варёная",12,25,2,{piece:20,pl:"ломтик ≈20 г"}],
+ ["x_frank","Сосиски",11,24,2,{piece:50,pl:"сосиска ≈50 г"}],
+ ["x_dumpl","Пельмени (готовые, отварные)",12,12,29,{piece:12,pl:"пельмень ≈12 г"}],
+ ["x_ricec","Рис варёный",2.7,.3,28],
+ ["x_buckc","Гречка варёная",3.4,.6,20],
+ ["x_pastac","Макароны варёные",5.8,.9,31],
+ ["x_oatc","Овсяная каша на воде",2.5,1.5,12],
+ ["x_potc","Картофель отварной",2,.1,20,{piece:100,pl:"картофелина ≈100 г"}],
+ ["x_fries","Картофель фри",3.4,15,41],
+ ["x_wbread","Хлеб белый",8,3,49,{piece:30,pl:"ломтик ≈30 г"}],
+ ["x_lavash","Лаваш тонкий",9,1.2,56],
+ ["x_kefir","Кефир 2,5% (на 100 мл)",2.9,2.5,4,{volume:true}],
+ ["x_yogurt","Йогурт греческий 2%",10,2,4],
+ ["x_milk32","Молоко 3,2% (на 100 мл)",3,3.2,4.7,{volume:true}],
+ ["x_butter","Масло сливочное 82%",.5,82,.8],
+ ["x_mayo","Майонез 67%",1,67,3],
+ ["x_sugar","Сахар",0,0,100,{piece:5,pl:"ч. л. ≈5 г"}],
+ ["x_choc","Шоколад молочный",7,30,57],
+ ["x_cookies","Печенье",6,18,70],
+ ["x_pizza","Пицца (средняя)",11,10,30,{piece:110,pl:"кусок ≈110 г"}],
+ ["x_plov","Плов с мясом",7,9,24],
+ ["x_borsch","Борщ",2.5,2.5,5],
+ ["x_tuna","Тунец консервированный в собственном соку",24,1,0],
+ ["x_cheese45","Сыр 45% (российский, гауда)",24,29,0,{piece:20,pl:"ломтик ≈20 г"}],
+ ["x_curd9","Творог 9%",16,9,2],
+ ["x_avocado","Авокадо",2,15,9]];
+function ntCustom(){const a=ntRead(NTK_C,null);return Array.isArray(a&&a.items)?a:{items:[],updatedAt:0};}
+function ntAllFoods(){const N=NTN(),out=[];
+  Object.values(N.foods).forEach(f=>{if(f.id==="wheyScoop")return;out.push({id:f.id,name:f.name,p:f.p,f:f.f,c:f.c,kcal:f.kcal,piece:f.piece||null,pl:f.piece?"яйцо ≈"+f.piece+" г без скорлупы":"",cup:f.cup||null,scoop:f.scoop||null,volume:!!f.volume,src:"Справочник ШТУРМ 30"});});
+  NT_EXTRA.forEach(([id,name,p,fa,c,x])=>{x=x||{};out.push({id,name,p,f:fa,c,kcal:4*p+9*fa+4*c,piece:x.piece||null,pl:x.pl||"",volume:!!x.volume,src:"Справочник Gym 45 (USDA, усреднённо)"});});
+  ntCustom().items.forEach(f=>out.push({...f,custom:true,src:"Мой продукт (этикетка)"}));return out;}
+const ntNorm=s=>String(s).toLocaleLowerCase("ru").replace(/ё/g,"е");
+let NT_DRAFT=[],NT_PICK=null;
+function ntDraftMeal(){const s=el("ntMeal");return s?s.value:"Завтрак";}
+function ntSearch(){const q=ntNorm(el("ntQ").value.trim()),box=el("ntHits");box.innerHTML="";if(!q){box.hidden=true;return;}
+  const words=q.split(/\s+/),hits=ntAllFoods().filter(f=>words.every(w=>ntNorm(f.name).includes(w))).slice(0,8);
+  box.hidden=false;if(!hits.length){box.innerHTML=`<p class="nt-sub">Нет в справочнике — добавь свой продукт ниже (КБЖУ с упаковки).</p>`;return;}
+  hits.forEach(f=>{const b=document.createElement("button");b.type="button";b.className="nt-hit";b.innerHTML=`<span></span><small class="num">${ntF(f.kcal)} ккал / 100 ${f.volume?"мл":"г"}</small>`;b.querySelector("span").textContent=f.name;b.onclick=()=>ntPick(f);box.appendChild(b);});}
+function ntPick(f){NT_PICK=f;el("ntHits").hidden=true;el("ntQ").value=f.name;const u=el("ntQUnit");
+  u.innerHTML=(f.piece?`<option value="piece">Штуки</option>`:"")+(f.cup?`<option value="cup">Стаканы 250 мл</option>`:"")+(f.scoop?`<option value="scoop">Скупы</option>`:"")+`<option value="g">${f.volume?"мл":"граммы"}</option>`+(ntImp()?`<option value="oz">${f.volume?"fl oz":"oz"}</option>`:"");
+  el("ntQAmt").value=f.piece?"1":"100";el("ntPickBox").hidden=false;ntPickCalc();}
+function ntPickGrams(){const f=NT_PICK;if(!f)return NaN;const n=Number(String(el("ntQAmt").value).replace(",","."));const u=el("ntQUnit").value;
+  if(!Number.isFinite(n)||n<=0||n>5000)return NaN;return u==="piece"?n*f.piece:u==="cup"?n*f.cup:u==="scoop"?n*f.scoop:u==="oz"?n*(f.volume?NT_FLOZ:NT_OZ):n;}
+function ntMac(f,g){return {kcal:f.kcal*g/100,p:f.p*g/100,f:f.f*g/100,c:f.c*g/100};}
+function ntPickCalc(){const f=NT_PICK,g=ntPickGrams(),o=el("ntPickRes");if(!f)return;
+  if(!Number.isFinite(g)){o.textContent="Введи количество больше нуля.";return;}
+  const m=ntMac(f,g);o.innerHTML=`<b class="num">${ntMass(g,f.volume)}</b> → <b class="num">${ntF(m.kcal)} ккал</b> · Б ${ntF(m.p,1)} · Ж ${ntF(m.f,1)} · У ${ntF(m.c,1)}${f.pl?`<br><small>1 шт.: ${f.pl}</small>`:""}<br><small>${f.src}</small>`;}
+function ntDraftAdd(){const f=NT_PICK,g=ntPickGrams();if(!f||!Number.isFinite(g)){toast("Выбери продукт и количество");return;}
+  const u=el("ntQUnit").value,n=Number(String(el("ntQAmt").value).replace(",","."));
+  NT_DRAFT.push({id:f.id,name:f.name,g:Math.round(g*10)/10,qty:u==="piece"?n+" шт.":u==="cup"?n+" стак.":u==="scoop"?n+" скуп.":"",vol:f.volume,...ntMac(f,g)});
+  NT_PICK=null;el("ntQ").value="";el("ntPickBox").hidden=true;ntDraftRender();el("ntQ").focus();}
+function ntDraftRender(){const box=el("ntDraft");if(!NT_DRAFT.length){box.innerHTML=`<p class="nt-sub">Пока пусто. Найди продукт, укажи количество и нажми «＋ В приём».</p>`;el("ntDraftSave").hidden=true;return;}
+  const s=NT_DRAFT.reduce((a,i)=>{["kcal","p","f","c"].forEach(k=>a[k]+=i[k]);return a;},{kcal:0,p:0,f:0,c:0});
+  box.innerHTML=`<ul class="nt-shop">${NT_DRAFT.map((i,k)=>`<li><span></span><b class="num">${ntF(i.kcal)} ккал</b><small>${i.qty?i.qty+" · ":""}${ntMass(i.g,i.vol)} · Б ${ntF(i.p,1)} · Ж ${ntF(i.f,1)} · У ${ntF(i.c,1)} <button type="button" class="nt-x" data-k="${k}" aria-label="Убрать">✕</button></small></li>`).join("")}</ul><p class="nt-eb">Итого за приём</p>${ntMacros(s)}`;
+  box.querySelectorAll("li > span").forEach((sp,k)=>sp.textContent=NT_DRAFT[k].name);
+  box.querySelectorAll(".nt-x").forEach(b=>b.onclick=()=>{NT_DRAFT.splice(+b.dataset.k,1);ntDraftRender();});
+  el("ntDraftSave").hidden=false;el("ntDraftSave").textContent=`Записать «${ntDraftMeal()}» · ${ntF(s.kcal)} ккал`;}
+function ntDraftSave(){if(!NT_DRAFT.length)return;const s=NT_DRAFT.reduce((a,i)=>{["kcal","p","f","c"].forEach(k=>a[k]+=i[k]);return a;},{kcal:0,p:0,f:0,c:0});
+  const meal=ntDraftMeal(),list=foodGet();
+  list.push({id:Date.now()+"-"+Math.floor(Math.random()*1000),date:foodToday(),name:meal+": "+NT_DRAFT.map(i=>i.name.split(",")[0].replace(/ \(.*\)/,"")+(i.qty?" "+i.qty:" "+Math.round(i.g)+(i.vol?" мл":" г"))).join(", "),
+    kcal:Math.round(s.kcal),p:ntR1(s.p),f:ntR1(s.f),c:ntR1(s.c),src:"builder",meal,items:NT_DRAFT.map(i=>({id:i.id,name:i.name,g:i.g,qty:i.qty,kcal:Math.round(i.kcal),p:ntR1(i.p),f:ntR1(i.f),c:ntR1(i.c)}))});
+  foodSet(list);NT_DRAFT=[];ntDraftRender();renderFood();toast(meal+" записан в дневник");}
+function ntCustomSave(){const name=el("ntCName").value.trim(),v=k=>Number(String(el(k).value).replace(",","."));const p=v("ntCP"),fa=v("ntCF"),c=v("ntCC");let kc=el("ntCK").value.trim()?v("ntCK"):4*p+9*fa+4*c;
+  if(!name||![p,fa,c,kc].every(x=>Number.isFinite(x)&&x>=0)||p+fa+c>100||kc>1000){toast("Проверь название и КБЖУ на 100 г (Б+Ж+У ≤ 100)");return;}
+  const pc=v("ntCPiece"),a=ntCustom();const f={id:"c_"+Date.now(),name,p,f:fa,c,kcal:kc,piece:Number.isFinite(pc)&&pc>0?pc:null,pl:Number.isFinite(pc)&&pc>0?"1 шт. ≈"+pc+" г":""};
+  a.items.push(f);a.updatedAt=Date.now();ntWrite(NTK_C,a);["ntCName","ntCK","ntCP","ntCF","ntCC","ntCPiece"].forEach(k=>el(k).value="");el("ntCustomWrap").open=false;ntPick(f);toast("Продукт сохранён");}
+/* в дневнике под записью «собранного» приёма — его состав */
+function ntDiaryItems(){const all=foodGet();el("foodList").querySelectorAll(".fdel").forEach(b=>{const x=all.find(r=>String(r.id)===b.dataset.id);if(!x||!Array.isArray(x.items))return;
+  const row=b.closest(".frow"),fm=row&&row.querySelector(".fm");if(!fm||row.querySelector(".fitems"))return;const d=document.createElement("div");d.className="fitems";
+  d.textContent=x.items.map(i=>`${i.name.split(",")[0]} ${i.qty||Math.round(i.g)+" г"} — ${i.kcal} ккал`).join(" · ");fm.after(d);});}
+el("ntQ").addEventListener("input",()=>{NT_PICK=null;el("ntPickBox").hidden=true;ntSearch();});
+["ntQAmt","ntQUnit"].forEach(k=>el(k).addEventListener("input",ntPickCalc));
+el("ntQAdd").addEventListener("click",ntDraftAdd);el("ntDraftSave").addEventListener("click",ntDraftSave);el("ntCSave").addEventListener("click",ntCustomSave);
+el("ntMeal").addEventListener("change",ntDraftRender);
+{const h=new Date().getHours();el("ntMeal").value=h<11?"Завтрак":h<16?"Обед":h<21?"Ужин":"Перекус";}
+ntDraftRender();
+const _ntRenderFood2=renderFood;renderFood=function(){_ntRenderFood2();ntDiaryItems();};
 
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
 /* CLOUD_EXTRA — поля облачного документа, которых эта версия не знает: сохраняем их, а не стираем */
-function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),at:Date.now()});}
+function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),at:Date.now()});}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -4856,7 +4973,7 @@ async function cloudInit(){
       // объединяем, а не затираем: сохранится и локальное, и облачное
       try{localStorage.setItem(KEY,JSON.stringify(mergeHistory(safe.get(),d.history)))}catch(e){}
       try{localStorage.setItem(FOODK,JSON.stringify(mergeFood(foodGet(),d.food)))}catch(e){}
-      try{if(d.nutrition){const n=d.nutrition;if(n.target&&(n.target.updatedAt||0)>((ntT()||{}).updatedAt||0))localStorage.setItem(NTK_T,JSON.stringify(n.target));if(n.options&&(n.options.updatedAt||0)>(ntRead(NTK_O,{}).updatedAt||0))localStorage.setItem(NTK_O,JSON.stringify(n.options));}}catch(e){}
+      try{if(d.nutrition){const n=d.nutrition;if(n.target&&(n.target.updatedAt||0)>((ntT()||{}).updatedAt||0))localStorage.setItem(NTK_T,JSON.stringify(n.target));if(n.options&&(n.options.updatedAt||0)>(ntRead(NTK_O,{}).updatedAt||0))localStorage.setItem(NTK_O,JSON.stringify(n.options));if(n.custom&&Array.isArray(n.custom.items)){const a=ntCustom(),ids=new Set(a.items.map(i=>i.id));n.custom.items.forEach(i=>{if(i&&i.id&&!ids.has(i.id))a.items.push(i);});a.updatedAt=Math.max(a.updatedAt||0,n.custom.updatedAt||0);localStorage.setItem(NTK_C,JSON.stringify(a));}}}catch(e){}
       try{localStorage.setItem(RMK,JSON.stringify(mergeRm(rmReg(),d.rm)))}catch(e){}
       try{if(d.gvt)localStorage.setItem(GVTK,JSON.stringify(mergeGvt(gvtStore(),d.gvt)))}catch(e){}
       try{if(d.gvt2)localStorage.setItem(G2K,JSON.stringify(mergeG2(g2Store(),d.gvt2)))}catch(e){}
