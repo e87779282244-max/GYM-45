@@ -135,6 +135,7 @@
   #scr-body .cross-logo{width:min(280px,74%)}
   #scr-pwr .cross-logo{width:min(280px,74%)}
   #scr-street .cross-logo{width:min(220px,58%)}
+  #scr-sw .cross-logo{width:min(240px,62%)}
 
   /* ---- выбор направления ---- */
   .disc{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;
@@ -897,9 +898,10 @@
 
   <!-- СТРИТ ВОРКАУТ: круговые комплексы -->
   <section class="screen" id="scr-sw" hidden>
-    <div class="hd">
-      <div><p class="eyebrow">Стрит воркаут</p><h1>Круговые комплексы</h1></div>
-      <button class="icon-btn back-btn" title="Назад">←</button>
+    <div class="cross-head">
+      <button class="icon-btn back-btn cross-back" title="Назад">←</button>
+      <img class="cross-logo" src="media/swlogo.png?v=1" alt="Street Workout" width="1187" height="661">
+      <h1 class="cross-h1">Круговые комплексы</h1>
     </div>
     <p class="street-note">Турник, брусья и собственный вес. Проходи упражнения круга подряд, без отдыха между ними, и повторяй круг нужное число раз. Секундомер считает общее время, кнопка «+1 круг» — пройденные круги.</p>
     <div class="stack" id="swList"></div>
