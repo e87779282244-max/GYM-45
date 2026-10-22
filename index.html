@@ -677,6 +677,22 @@
   .sub-ask[hidden]{display:none}
   .sub-q{font-weight:700;font-size:15px;margin:2px 0 4px}
   .wod-mvrow .sw-swap{margin-left:8px}
+  .mp-card{padding:14px;display:flex;flex-direction:column;gap:8px}
+  .mp-h{display:flex;justify-content:space-between;align-items:center;font-family:var(--dsp)}
+  .mp-h b{font-size:17px}
+  .mp-h span{background:var(--accent);color:#fff;border-radius:999px;padding:2px 10px;font-weight:800;font-size:13px}
+  .mp-row{display:flex;gap:8px;align-items:stretch}
+  .mp-open{flex:1;min-width:0;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:2px}
+  .mp-open b{font-family:var(--dsp);font-size:15.5px}
+  .mp-open small{font-size:12.5px;color:var(--muted)}
+  .mp-open i{font-style:normal;font-size:12px;font-weight:700;color:var(--accent-ink)}
+  .mp-open i:empty{display:none}
+  .mp-end{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:12px;padding:0 10px;font-size:12.5px;font-weight:700}
+  .mp-end.arm{background:#c9a227;color:#2a2e1b;border-color:transparent}
+  .mp-note,.mp-warn{font-size:12.5px;color:var(--muted);margin:2px 0 0;line-height:1.35}
+  .mp-warn{color:#8a4a2c}
+  .mp-cf{display:flex;flex-direction:column;gap:8px}
+  .mp-endin{margin-top:10px;width:100%}
   .cf-top{margin-bottom:4px}
   .cf-cats{display:flex;flex-direction:column;gap:10px;margin-top:6px}
   .cf-cat{display:grid;grid-template-columns:1fr auto;gap:4px 12px;text-align:left;width:100%;border:1px solid var(--line);border-left:6px solid var(--accent);background:linear-gradient(180deg,var(--card-top),var(--card-bot));color:var(--fg);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
@@ -843,11 +859,7 @@
       </div>
     </div>
 
-    <button class="dash-card" id="dashActive" type="button" hidden>
-      <span class="dc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M15 4v16M4 9h16M4 15h16"/></svg></span>
-      <span class="dc-body"><b>Активная программа</b><span id="dashActiveTxt"></span></span>
-      <span class="dc-go">›</span>
-    </button>
+    <div class="card mp-card" id="dashActive" hidden></div>
 
 
     <div class="dash-two">
@@ -2333,11 +2345,6 @@ function gvtArchiveHTML(v,w){const arch=v.cycles.filter(c=>c.closedAt);if(!arch.
   w.appendChild(d);}
 /* экран рисуется при открытии (applyScreen → renderGvt) */
 /* карточка «Активная программа» на главном: только если программа активирована */
-function renderDashActive(){const c=el("dashActive");if(!c)return;const P=typeof g2Active==="function"?g2Active():null;
-  if(!P){c.hidden=true;return;}
-  const S=G2S[P.stage],st=P.st[P.stage],slot=g2NextSlot(P),nd=g2NextDate(P);
-  el("dashActiveTxt").textContent="German Volume Training · этап "+S.k+" · "+S.name+(st.setup?(slot?" · занятие "+Math.min(st.pos+1,S.n)+" из "+S.n+" · рекомендовано "+gvtDD(nd):""):" · введи стартовые веса");
-  c.hidden=false;c.onclick=()=>show("gvt");}
 
 /* ===================== GERMAN VOLUME TRAINING 2.0 — пять этапов (ТЗ «Штурм 30» v2.0) ===================== */
 const G2K="gym45_gvt2_v1",G2VER="2.0";
@@ -3131,7 +3138,7 @@ const CFK="gym45_cf_v1";
 function cfGet(){try{const v=JSON.parse(localStorage.getItem(CFK)||"null");if(v&&typeof v==="object")return Object.assign({sex:"m",res:[],my:[],del:{},cycle:0},v);}catch(e){}return {sex:"m",res:[],my:[],del:{},cycle:0};}
 function cfSave(s){s.upd=Date.now();try{localStorage.setItem(CFK,JSON.stringify(s));}catch(e){toast("Не удалось сохранить");}try{cloudPush();}catch(e){}}
 function mergeCf(a,b){a=a||{};b=b||{};const del=Object.assign({},b.del||{},a.del||{});const u=(x,y)=>{const m={};[...(y||[]),...(x||[])].forEach(i=>{if(i&&i.id&&!del[i.id])m[i.id]=Object.assign({},m[i.id]||{},i);});return Object.values(m);};
-  const newer=(a.upd||0)>=(b.upd||0)?a:b;return {sex:newer.sex||"m",cycle:Math.max(a.cycle||0,b.cycle||0),res:u(a.res,b.res).sort((x,y)=>(x.ts||0)-(y.ts||0)),my:u(a.my,b.my),del,upd:Math.max(a.upd||0,b.upd||0)};}
+  const newer=(a.upd||0)>=(b.upd||0)?a:b;return {prog:newer.prog||null,sex:newer.sex||"m",cycle:Math.max(a.cycle||0,b.cycle||0),res:u(a.res,b.res).sort((x,y)=>(x.ts||0)-(y.ts||0)),my:u(a.my,b.my),del,upd:Math.max(a.upd||0,b.upd||0)};}
 /* ---------- результат: формат и сравнение ---------- */
 const cfMmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
 function cfScoreTxt(r){if(!r)return "";if(r.sc==="time")return cfMmss(r.t)+(r.capped?" (лимит, "+r.reps+" повт.)":"");if(r.sc==="rr")return r.r+" р. + "+(r.reps||0);if(r.sc==="rounds")return r.r+" р.";if(r.sc==="reps")return r.reps+" повт.";if(r.sc==="load")return String(r.kg).replace(".",",")+" кг";if(r.sc==="done")return "выполнено";return "";}
@@ -4112,7 +4119,7 @@ function skArchive(){const s=skGet();const r=parRecord("sotka","sotka","Сотк
   const t=skGet();t.start=null;t.done={};skView=null;skSave(t);return r?"Цикл «Сотки» сохранён в аналитику":"«Сотка» сброшена";}
 function renderPar(){const box=el("parList");if(!box)return;const a=parGet().slice().reverse();el("parCard").hidden=!a.length;box.innerHTML="";
   a.forEach(r=>{const c=document.createElement("div");c.className="par-row";
-    c.innerHTML=`${ringHTML(r.avg)}<div class="sch-t"><small>${fmtD(r.start)} — ${fmtD(r.end)}</small><b></b><i>Выполнено ${r.done} / ${r.total} дн.${r.avg!=null?" · среднее "+r.avg+"%":""}</i><small class="par-v"></small></div>`;
+    c.innerHTML=`${ringHTML(r.avg)}<div class="sch-t"><small>${fmtD(r.start)} — ${fmtD(r.end)}</small><b></b><i>Выполнено ${r.done} / ${r.total} ${r.unit||"дн."}${r.avg!=null?" · среднее "+r.avg+"%":""}</i><small class="par-v"></small></div>`;
     c.querySelector(".sch-t b").textContent=r.title;c.querySelector(".par-v").textContent=r.verdict||"";
     const pc=Object.values(r.days||{});if(pc.length){const bars=document.createElement("div");bars.className="par-bars";
       Object.keys(r.days).sort((x,y)=>x-y).forEach(k=>{const v=r.days[k];const i=document.createElement("i");i.style.height=Math.max(8,v)+"%";i.title="День "+k+": "+v+"%";if(v<50)i.className="lo";else if(v<100)i.className="mid";bars.appendChild(i);});
@@ -4508,6 +4515,64 @@ el("fAdd").addEventListener("click",()=>{
   renderFood();toast("Добавлено");
 });
 
+/* ===================== НЕСКОЛЬКО АКТИВНЫХ ПРОГРАММ ===================== */
+/* Каждая программа хранит своё состояние отдельно (GVT, Сотка, программы стрит-воркаута, RR, HC, кроссфит-уровень),
+   поэтому их можно вести параллельно. Здесь — общий список на главном и единое досрочное завершение с архивом в аналитику. */
+function mpArch(r){const a=parGet();a.push(Object.assign({id:Date.now(),end:localDate(),avg:null,days:{},res:{}},r));parSet(a);}
+function mpDD(iso){return iso?fmtDate(iso):"";}
+/* кроссфит как программа: активный уровень, прогресс — результаты с момента активации */
+function cfProg(){const p=cfGet().prog;return p&&p.lvl?p:null;}
+function cfProgList(p){return CFW.filter(d=>cfCatOf(d)===p.lvl);}
+function cfProgDone(p){const ids=new Set(cfProgList(p).map(d=>d.id));return cfGet().res.filter(r=>(r.ts||0)>=p.ts&&ids.has(r.wod));}
+function cfProgNext(p){const list=cfProgList(p),done=new Set(cfProgDone(p).map(r=>r.wod));return list.find(d=>!done.has(d.id))||list[cfProgDone(p).length%Math.max(1,list.length)];}
+function cfProgStart(lvl){const s=cfGet();s.prog={lvl,ts:Date.now(),start:localDate()};cfSave(s);toast("Кроссфит «"+CF_CATS.find(c=>c.k===lvl).t+"» — активная программа");}
+/* все активные программы */
+function mpList(){const out=[];
+  try{const P=g2Active();if(P){const S=G2S[P.stage],st=P.st[P.stage],nd=g2NextDate(P);const tot=G2S.reduce((s,x)=>s+(x.n||0),0),tr=P.recs.filter(r=>r.kind==="train").length;
+    out.push({k:"gvt2",t:"German Volume Training",s:"Этап "+S.k+" · "+S.name+(st.setup?" · занятие "+Math.min(st.pos+1,S.n)+" из "+S.n:" · введи стартовые веса"),next:nd,start:P.start,
+      open:()=>show("gvt"),fin:()=>{const v=g2Store(),X=v.progs.find(x=>x.id===P.id);X.status="done";X.early=true;X.doneAt=g2Now();X.updatedAt=g2Now();v.activeId=null;g2Save(v);
+        mpArch({kind:"gvt2",prog:"gvt2",title:"German Volume Training",start:(P.start||"").slice(0,10),total:tot,done:tr,unit:"зан.",verdict:"Завершена досрочно на этапе "+S.k+" ("+S.name+")."});}});}}catch(e){}
+  try{const s=skGet();if(s.start){const d=skToday(s);out.push({k:"sotka",t:"Сотка",s:"День "+d+" из 100 · выполнено "+Object.keys(s.done||{}).length,next:(s.done||{})[d]?null:localDate(),start:s.start,
+    open:()=>{skView=null;renderSotka();show("sotka");},fin:()=>skArchive()});}}catch(e){}
+  try{const all=ppAll();Object.keys(all).forEach(id=>{const s=all[id],P=PP[id];if(!P||!s||!s.start)return;const d=ppToday(s,P.total);
+    out.push({k:"pp:"+id,t:P.title,s:"День "+d+" из "+P.total+" · выполнено "+Object.keys(s.done||{}).length,next:(s.done||{})[d]?null:localDate(),start:s.start,open:()=>openPP(id),fin:()=>ppArchive(id)});});}catch(e){}
+  try{const s=rrGet();if(s.sessions>0)out.push({k:"rr",t:"Recommended Routine",s:"Тренировок: "+s.sessions,start:s.start||"",
+    open:()=>{renderRR();show("rr");},fin:()=>{mpArch({kind:"rr",prog:"rr",title:"Recommended Routine",start:s.start||"",total:s.sessions,done:s.sessions,unit:"трен.",verdict:"Завершена вручную. Ступени упражнений сброшены к началу."});try{localStorage.removeItem(RRK);}catch(e){}cloudPush();}});}catch(e){}
+  try{const s=hcGet();if(s.sessions>0)out.push({k:"hc",t:"Hybrid Calisthenics",s:"Тренировок: "+s.sessions+" · следующая "+(s.next||"A"),start:s.start||"",
+    open:()=>{renderHC();show("hc");},fin:()=>{mpArch({kind:"hc",prog:"hc",title:"Hybrid Calisthenics",start:s.start||"",total:s.sessions,done:s.sessions,unit:"трен.",verdict:"Завершена вручную. Ступени сброшены к началу."});try{localStorage.removeItem(HCK);}catch(e){}cloudPush();}});}catch(e){}
+  try{const p=cfProg();if(p){const c=CF_CATS.find(x=>x.k===p.lvl),dn=cfProgDone(p),nx=cfProgNext(p);
+    out.push({k:"cf",t:"Кроссфит · "+c.t,s:"Выполнено комплексов: "+dn.length+(nx?" · следующий: "+nx.name:""),start:p.start,
+      open:()=>cfOpenCat(p.lvl),fin:()=>{const list=cfProgList(p);mpArch({kind:"cf",prog:"cf:"+p.lvl,title:"Кроссфит · "+c.t,start:p.start,total:list.length,done:new Set(dn.map(r=>r.wod)).size,unit:"компл.",verdict:"Выполнено тренировок: "+dn.length+", рекордов: "+dn.filter(r=>r.pr).length+"."});
+        const s=cfGet();s.prog=null;cfSave(s);}});}}catch(e){}
+  return out;}
+function mpFinish(k){const it=mpList().find(x=>x.k===k);if(!it)return;it.fin();toast("«"+it.t+"» завершена досрочно — итог в «Прогрессе»");renderDashActive();if(typeof renderPar==="function")renderPar();}
+/* главный: блок «Активные программы» */
+function renderDashActive(){const c=el("dashActive");if(!c)return;const L=mpList();
+  if(!L.length){c.hidden=true;return;}
+  c.hidden=false;const today=localDate();
+  c.innerHTML=`<div class="mp-h"><b>Активные программы</b><span class="num">${L.length}</span></div>`+L.map((x,i)=>`<div class="mp-row" data-i="${i}"><button type="button" class="mp-open"><b></b><small></small><i>${x.next?(x.next<=today?"Сегодня по плану":"Следующая: "+mpDD(x.next)):""}</i></button><button type="button" class="mp-end" data-i="${i}">Завершить</button></div>`).join("")+
+    (L.length>3?`<p class="mp-warn">Больше трёх программ одновременно — следи за восстановлением: тяжёлые дни разных программ не ставь подряд.</p>`:`<p class="mp-note">Программы идут параллельно: например, GVT в зале, а в дни отдыха — кроссфит или стрит-воркаут дома.</p>`);
+  c.querySelectorAll(".mp-row").forEach(r=>{const x=L[+r.dataset.i];r.querySelector("b").textContent=x.t;r.querySelector("small").textContent=x.s;r.querySelector(".mp-open").onclick=()=>x.open();});
+  c.querySelectorAll(".mp-end").forEach(b=>b.onclick=()=>{const x=L[+b.dataset.i];if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();b.textContent="Точно?";b.classList.add("arm");toast("Нажми ещё раз — «"+x.t+"» завершится, итог сохранится в «Прогрессе»");setTimeout(()=>{if(b.isConnected){b.textContent="Завершить";b.classList.remove("arm");}},4200);return;}mpFinish(x.k);});}
+/* кнопка досрочного завершения внутри экрана программы */
+function mpEndBtn(k,label){const b=document.createElement("button");b.type="button";b.className="tm-reset sk-reset mp-endin";b.textContent=label||"Завершить программу досрочно · итог в «Прогресс»";
+  b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — программа завершится, итог сохранится в «Прогрессе»");return;}mpFinish(k);
+    if(k==="gvt2")g2Render();else if(k==="rr")renderRR();else if(k==="hc")renderHC();else if(k==="cf")cfRenderCat();};return b;}
+/* встроить кнопки «Завершить досрочно» в экраны программ */
+{const _g2R=g2Render;g2Render=function(){_g2R();try{if(g2Active()&&!el("gvtBody").querySelector(".mp-endin"))el("gvtBody").appendChild(mpEndBtn("gvt2"));}catch(e){}};}
+{const _rr=renderRR;renderRR=function(){_rr();const b=el("rrReset"),s=rrGet();const o=b.parentNode.querySelector(".mp-endin");if(o)o.remove();if(s.sessions>0)b.after(mpEndBtn("rr"));};}
+{const _hc=renderHC;renderHC=function(){_hc();const b=el("hcReset"),s=hcGet();const o=b.parentNode.querySelector(".mp-endin");if(o)o.remove();if(s.sessions>0)b.after(mpEndBtn("hc"));};}
+{const _rf=rrFinished;rrFinished=function(){const t=rrGet();if(!t.start){t.start=localDate();rrSave(t);}_rf();};}
+{const _hf=hcFinished;hcFinished=function(d){const t=hcGet();if(!t.start){t.start=localDate();hcSave(t);}_hf(d);};}
+/* кроссфит: активировать уровень как программу */
+{const _cr=cfRenderCat;cfRenderCat=function(){_cr();const k=CF_CUR_CAT;if(!k||k==="my")return;const w=el("cfCatList"),p=cfProg(),c=CF_CATS.find(x=>x.k===k);
+  const box=document.createElement("div");box.className="card mp-cf";
+  if(p&&p.lvl===k){const dn=cfProgDone(p),nx=cfProgNext(p);
+    box.innerHTML=`<b>Активная программа с ${mpDD(p.start)}</b><p class="cf-sub">Выполнено комплексов: ${dn.length} · рекордов: ${dn.filter(r=>r.pr).length}. Иди по списку сверху вниз — результаты считаются автоматически.</p>${nx?`<button type="button" class="btn" id="mpCfNext">Следующий: ${nx.name}</button>`:""}`;
+    w.prepend(box);if(nx)el("mpCfNext").onclick=()=>openWod(nx,cfVariants(nx)[0]);box.appendChild(mpEndBtn("cf"));}
+  else{box.innerHTML=`<p class="cf-sub">${p?"Сейчас активна программа «"+CF_CATS.find(x=>x.k===p.lvl).t+"». ":""}Сделай этот уровень активной программой — он появится на главном рядом с другими программами (GVT, стрит-воркаут), а выполненные комплексы и рекорды будут считаться в ней.</p><button type="button" class="btn btn-alt" id="mpCfGo">${p?"Переключиться на «"+c.t+"»":"Сделать «"+c.t+"» активной программой"}</button>`;
+    w.prepend(box);el("mpCfGo").onclick=()=>{const b=el("mpCfGo");if(p){if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — «"+CF_CATS.find(x=>x.k===p.lvl).t+"» завершится с сохранением итога");return;}mpFinish("cf");}cfProgStart(k);cfRenderCat();};}};}
+
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false;
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
@@ -4524,6 +4589,7 @@ function cloudRefreshUI(){
       if(currentScreen==="food")renderFood();
       if(currentScreen==="onerm")rmLoadLift(rmLift);
       if(currentScreen==="gvt")g2Render();
+      if(currentScreen==="home")renderDashActive();
       if(currentScreen==="cross")renderCross();
       if(currentScreen==="cfcat")cfRenderCat();
       if(currentScreen==="sotka")renderSotka();if(currentScreen==="sw")renderSw();}catch(e){}
