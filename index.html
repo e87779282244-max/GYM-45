@@ -343,6 +343,8 @@
   .dc-ico{width:44px;height:44px;border-radius:10px;flex:none;display:grid;place-items:center;background:var(--gold)}
   .dc-ico svg{width:24px;height:24px}
   .dc-body{flex:1;min-width:0}
+  .dash-tile.dash-soon{opacity:.45;cursor:default;box-shadow:none}
+  .dash-tile.dash-soon:active{transform:none}
   .dc-body b{font-family:var(--dsp);font-weight:800;font-size:18px;display:block}
   .dc-body span{color:var(--muted);font-size:12.5px}
   .dc-go{margin-left:auto;color:var(--gold-ink);font-size:24px;flex:none}
@@ -628,9 +630,9 @@
         <span class="dt-ico">+</span>
         <span class="dt-body"><b>Выбрать программу</b><span>Готовые и собственные</span></span>
       </button>
-      <button class="dash-tile" data-go="onerm">
-        <span class="dt-ico">%</span>
-        <span class="dt-body"><b>Таблица 1ПМ</b><span>Расчёт рабочих весов</span></span>
+      <button class="dash-tile dash-soon" id="dashReserved" type="button" disabled aria-disabled="true">
+        <span class="dt-ico">…</span>
+        <span class="dt-body"><b>Скоро</b><span>Новый раздел</span></span>
       </button>
     </div>
 
