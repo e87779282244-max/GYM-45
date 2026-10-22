@@ -673,6 +673,9 @@
   .sub-opt .nm{flex:1;min-width:0;font-weight:700;font-size:14.5px}
   .sub-opt .eq{flex:none;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:4px 8px}
   .sub-reset{width:100%;margin-top:12px}
+  .sub-ask{display:flex;flex-direction:column;gap:10px}
+  .sub-ask[hidden]{display:none}
+  .sub-q{font-weight:700;font-size:15px;margin:2px 0 4px}
   .wod-mvrow .sw-swap{margin-left:8px}
   .wod-mvrow small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
   body.sub-open{overflow:hidden}
@@ -1204,6 +1207,12 @@
       <div class="sub-top"><b class="sub-h">Замена</b><button type="button" class="sub-x" aria-label="Закрыть">✕</button></div>
       <p class="sub-m"></p>
       <div class="sub-list"></div>
+      <div class="sub-ask" hidden>
+        <p class="sub-q"></p>
+        <button type="button" class="btn" data-s="once">Только в этой тренировке</button>
+        <button type="button" class="btn btn-alt" data-s="all">Во всех следующих тренировках</button>
+        <button type="button" class="tm-reset sub-back">← Выбрать другое упражнение</button>
+      </div>
       <button type="button" class="tm-reset sub-reset" hidden>↺ Вернуть исходное упражнение</button>
     </div>
   </div>
@@ -2810,7 +2819,7 @@ el("pclose").addEventListener("click",closeMedia);
 
 /* ===================== КРОССФИТ: описание + таймер ===================== */
 let currentWod=null;
-function openWod(d){currentWod=d;d.cf=1;d._subs=subAll()[subKey(d)]||{};
+function openWod(d){currentWod=d;d.cf=1;subLoad(d);
   el("wodName").textContent=d.name;
   el("wodFmt").textContent=d.fmt;
   el("wodDesc").textContent=d.desc||"";
@@ -2841,6 +2850,7 @@ function finishCross(){
   const secs=Math.round((TIMER.lastElapsed||0)/1000);
   const rounds=wodRounds();
   const tp=TIMER.type;
+  subClearNow(currentWod);
   resetTimer();resetCount();
   const h=safe.get();
   h.push({date:localDate(),name:currentWod?currentWod.name:"Кроссфит",
@@ -3414,7 +3424,7 @@ const LS=[
   l:[["7 кругов: переноска (или рывок 20 м) + 20 махов ногами + 10 отжиманий","7 кругов","Отжимания от пола"],["Тест: бёрпи на время — сравни с 6-м днём","50","Бёрпи"],["Бег","5 км","Бег"]]},
  {t:"Отжимания — наше всё",sum:"13 км и 350 отжиманий",b:[["Бег: 10 км медленно + 3 км «с форсажем»","13 км","Бег"],["Отжимания лесенкой 1→18→1 + 8","350","Отжимания от пола"]],l:[["Бег: 5 км медленно + 1,5 км быстро","6,5 км","Бег"],["Отжимания лесенкой 1→10→1","100","Отжимания от пола"]]},
  {t:"«Налегке»",sum:"28 км, из них 9 км в жилете 22 кг",b:[["Бег","19 км","Бег"],["Бег в жилете 22 кг: 5 км + 4 км","9 км","Бег"]],l:[["Бег","7 км","Бег"],["Бег с утяжелением (рюкзак/жилет) — по желанию","3 км","Бег"]]},
- {t:"Террористы-смертники",sum:"3 км, 465 отжиманий, 50 подъёмов корпуса, 50 махов",b:[["Отжимания лесенкой 1→30 (в книге — 41 минута)","465","Отжимания от пола"],["Подъёмы корпуса","50","Подъёмы корпуса"],["Махи ногами лёжа, по 4 с каждый","50","Подъёмы корпуса"],["Жим гантелей лёжа лесенкой: 15-12-10-8-6 с ростом веса (в книге 15 → 25 кг)","51","Жим гантелей лёжа"],["Тяга нижнего блока, средний вес: 15-12-10-8-6","51",""],["Жим над головой: 4 подхода по 10","40","Жим гантелей"],["Разгибания на трицепс: 15-12-10","37",""],["Сгибания на бицепс: 15-12-10","37",""],["Бег","3 км","Бег"]],
+ {t:"Террористы-смертники",sum:"3 км, 465 отжиманий, 50 подъёмов корпуса, 50 махов",b:[["Отжимания лесенкой 1→30 (в книге — 41 минута)","465","Отжимания от пола"],["Подъёмы корпуса","50","Подъёмы корпуса"],["Махи ногами лёжа, по 4 с каждый","50","Подъёмы корпуса"],["Жим гантелей лёжа лесенкой: 15-12-10-8-6 с ростом веса (в книге 15 → 25 кг)","51","Жим гантелей лёжа"],["Австралийские подтягивания вместо тяги нижнего блока: 15-12-10-8-6","51","Австралийские подтягивания"],["Жим над головой: 4 подхода по 10","40","Жим гантелей"],["Отжимания на брусьях вместо разгибаний на трицепс: 15-12-10","37","Отжимания на брусьях"],["Сгибания на бицепс: 15-12-10","37",""],["Бег","3 км","Бег"]],
   l:[["Отжимания лесенкой 1→15","120","Отжимания от пола"],["Подъёмы корпуса","25","Подъёмы корпуса"],["Махи ногами лёжа","25","Подъёмы корпуса"],["Бег","1,5 км","Бег"]]},
  {t:"Судьбоносные пять минут",sum:"364 отжимания, 30 подтягиваний, 100 махов",b:[["12 отжиманий каждые 45 с в течение 22 мин","22 мин","Отжимания от пола"],["15 подтягиваний, отдых 2 мин","15","Подтягивания"],["5 подходов: 20 отжиманий + 3 подтягивания","5 подходов","Подтягивания"],["Махи ногами","100","Подъёмы корпуса"]],
   l:[["6 отжиманий каждые 45 с в течение 15 мин","15 мин","Отжимания от пола"],["Подтягивания, отдых 2 мин","8","Подтягивания"],["3 подхода: 10 отжиманий + 2 подтягивания","3 подхода","Подтягивания"],["Махи ногами","50","Подъёмы корпуса"]]},
@@ -3490,22 +3500,38 @@ function subAll(){try{return JSON.parse(localStorage.getItem(SUBK)||"{}")||{};}c
 function subKey(d){return d.pp?"pp:"+d.pp:d.skDay?"sotka":d.rr?"rr":d.hc?"hc":d.cf?"cf:"+d.name:"sw:"+d.name;}
 function subCat(n){if(!n||/ \+ /.test(n))return null;const base=n.split(": ")[0];return SUBC.find(c=>c.re.test(base))||null;}
 function subApply(orig,alt){const i=orig.indexOf(": ");return i>0?alt+orig.slice(i):alt;}
-function subName(d,n){const s=d&&d._subs;return s&&s[n]?subApply(n,s[n]):n;}
-function subSet(d,orig,alt){const a=subAll(),k=subKey(d);a[k]=a[k]||{};if(alt)a[k][orig]=alt;else delete a[k][orig];
-  try{localStorage.setItem(SUBK,JSON.stringify(a));}catch(e){}d._subs=a[k];try{if(typeof cloudPush==="function")cloudPush();}catch(e){}}
-function subOpen(d,orig,after){const c=subCat(orig);if(!c)return;const cur=(d._subs||{})[orig];const base=orig.split(": ")[0];
+function subOnceKey(d){return subKey(d)+"#"+(d.ppDay||d.skDay||"now");}
+function subName(d,n){const o=d&&d._once,s=d&&d._subs;const a=(o&&o[n])||(s&&s[n]);return a?subApply(n,a):n;}
+function subLoad(d){const a=subAll();d._subs=a[subKey(d)]||{};d._once=a[subOnceKey(d)]||{};}
+function subSet(d,orig,alt,scope){const a=subAll(),k=subKey(d),ko=subOnceKey(d);a[k]=a[k]||{};a[ko]=a[ko]||{};
+  if(!alt){delete a[k][orig];delete a[ko][orig];}
+  else if(scope==="once"){a[ko][orig]=alt;}
+  else{a[k][orig]=alt;delete a[ko][orig];}
+  if(!Object.keys(a[ko]).length)delete a[ko];
+  try{localStorage.setItem(SUBK,JSON.stringify(a));}catch(e){}subLoad(d);try{if(typeof cloudPush==="function")cloudPush();}catch(e){}}
+function subClearNow(d){if(!d)return;const a=subAll(),ko=subKey(d)+"#now";if(a[ko]){delete a[ko];try{localStorage.setItem(SUBK,JSON.stringify(a));}catch(e){}}d._once={};}
+function subOpen(d,orig,after){const c=subCat(orig);if(!c)return;subLoad(d);const once=(d._once||{})[orig],perm=(d._subs||{})[orig];const cur=once||perm;const base=orig.split(": ")[0];
+  const daily=!!(d.ppDay||d.skDay);
   const sh=el("subSheet");sh.querySelector(".sub-h").textContent="Замена: "+base;sh.querySelector(".sub-m").textContent="Мышцы: "+c.m+". Повторы и схема остаются прежними — вес подбери так, чтобы выполнить их чисто.";
   const L=sh.querySelector(".sub-list");L.innerHTML="";
   c.alt.filter(a=>a[0].toLowerCase()!==base.toLowerCase()).slice(0,6).forEach(([n,eq])=>{const m=MEDIA[n];const b=document.createElement("button");b.type="button";b.className="sub-opt"+(cur===n?" on":"");
     b.innerHTML=`<span class="th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"•"}</span><span class="nm"></span><span class="eq"></span>`;
     b.querySelector(".nm").textContent=n;b.querySelector(".eq").textContent=eq;
-    b.onclick=()=>{subSet(d,orig,n);subClose();after();toast("Заменено: "+n);};L.appendChild(b);});
-  const r=sh.querySelector(".sub-reset");r.hidden=!cur;r.onclick=()=>{subSet(d,orig,null);subClose();after();toast("Вернул исходное упражнение");};
+    b.onclick=()=>{subAsk(d,orig,n,daily,after);};L.appendChild(b);});
+  const r=sh.querySelector(".sub-reset");r.hidden=!cur;r.textContent=once?"↺ Вернуть исходное (в этой тренировке)":"↺ Вернуть исходное упражнение";r.onclick=()=>{subSet(d,orig,null);subClose();after();toast("Вернул исходное упражнение");};
+  const q=sh.querySelector(".sub-ask");q.hidden=true;L.hidden=false;
+  sh.querySelector(".sub-m").textContent="Мышцы: "+c.m+". Повторы и схема остаются прежними — вес подбери так, чтобы выполнить их чисто."+(cur?" Сейчас: "+cur+(once?" (только в этой тренировке)":" (во всех тренировках программы)")+".":"");
   sh.hidden=false;document.body.classList.add("sub-open");}
+function subAsk(d,orig,alt,daily,after){const sh=el("subSheet");const q=sh.querySelector(".sub-ask");sh.querySelector(".sub-list").hidden=true;sh.querySelector(".sub-reset").hidden=true;
+  q.hidden=false;q.querySelector(".sub-q").textContent="Заменить «"+orig.split(": ")[0]+"» на «"+alt+"»:";
+  q.querySelector('[data-s="once"]').textContent=daily?"Только в этот день":"Только в этой тренировке";
+  q.querySelector('[data-s="all"]').textContent=daily?"В этот и все следующие дни программы":"Во всех следующих тренировках";
+  q.querySelectorAll("button[data-s]").forEach(b=>b.onclick=()=>{const sc=b.dataset.s;subSet(d,orig,alt,sc);subClose();after();toast(sc==="once"?"Заменено только на эту тренировку":"Заменено во всей программе");});
+  q.querySelector(".sub-back").onclick=()=>{q.hidden=true;sh.querySelector(".sub-list").hidden=false;};}
 function subClose(){el("subSheet").hidden=true;document.body.classList.remove("sub-open");}
 el("subSheet").addEventListener("click",e=>{if(e.target.id==="subSheet"||e.target.classList.contains("sub-x"))subClose();});
 
-function subDisp(w,n){const s=subAll()[subKey(w)]||{};return s[n]?subApply(n,s[n]):n;}
+function subDisp(w,n){const A=subAll();const o=A[subOnceKey(w)]||{},s=A[subKey(w)]||{};const a=o[n]||s[n];return a?subApply(n,a):n;}
 /* ---- движок тренировки: круги / подходы, общий секундомер ---- */
 const SWS={cur:null,run:false,acc:0,t0:0,laps:[],iv:null,capHit:false};
 function swElapsed(){return SWS.acc+(SWS.run?performance.now()-SWS.t0:0);}
@@ -3592,7 +3618,7 @@ function swOpts(d){const o=el("swcOpts");o.innerHTML="";
   if(d.capChoices)mk("Время",d.capChoices,Math.round(d.cap/60),v=>{d.cap=v*60;},v=>v+" мин");
   if(d.circleChoices)mk("Круги",d.circleChoices,d.circles,v=>{d.circles=v;d.fmt=v+" "+plU(v,"круг")+" · на время";},v=>String(v));}
 function openSw(d){
-  d._subs=subAll()[subKey(d)]||{};
+  subLoad(d);
   if(SWS.cur&&SWS.cur!==d&&(SWS.run||SWS.acc>0)){toast("Сначала заверши или сбрось «"+SWS.cur.name+"»");d=SWS.cur;}
   else if(SWS.cur!==d){SWS.cur=d;swReset();}
   el("swcName").textContent=d.name;el("swcEyebrow").textContent="Стрит воркаут · "+(d.lvl||"").toLowerCase();
@@ -3635,7 +3661,7 @@ el("swFinish").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
   if(d.onFinish)try{d.onFinish(n);}catch(e){}
   if(d.rr)rrFinished();
   if(d.hc)hcFinished(d.hc);
-  swReset();SWS.cur=null;toast("Тренировка сохранена");show("progress");});
+  subClearNow(d);swReset();SWS.cur=null;toast("Тренировка сохранена");show("progress");});
 
 /* ---- звук (Web Audio) ---- */
 let AC=null;
