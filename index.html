@@ -131,8 +131,10 @@
   :root[data-theme="dark"] .cross-logo{filter:drop-shadow(0 0 1px rgba(236,223,178,.5)) drop-shadow(0 6px 16px rgba(0,0,0,.5))}
   .cross-head .eyebrow{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.14em;
     font-size:12px;color:var(--accent);font-weight:600;margin:4px 0 2px}
-  .cross-h1{font-family:var(--dsp);font-weight:700;font-size:26px;line-height:1;margin:0}
+  .cross-h1{font-family:var(--dsp);font-weight:700;font-size:26px;line-height:1;margin:8px 0 0}
   #scr-body .cross-logo{width:min(280px,74%)}
+  #scr-pwr .cross-logo{width:min(280px,74%)}
+  #scr-street .cross-logo{width:min(220px,58%)}
 
   /* ---- выбор направления ---- */
   .disc{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;
@@ -672,9 +674,10 @@
 
   <!-- СТРИТЛИФТИНГ (программа) -->
   <section class="screen" id="scr-street" hidden>
-    <div class="hd">
-      <div><p class="eyebrow">Стритлифтинг</p><h1>Классический цикл</h1></div>
-      <button class="icon-btn back-btn" title="Назад">←</button>
+    <div class="cross-head">
+      <button class="icon-btn back-btn cross-back" title="Назад">←</button>
+      <img class="cross-logo" src="media/streetlogo.png?v=1" alt="Streetlifting" width="827" height="656">
+      <h1 class="cross-h1">Классический цикл</h1>
     </div>
     <p class="street-note">4 тренировки в неделю. База — подтягивания и брусья с весом: рабочий подход, затем 3×5 на −10%. Адаптировано из программы WSF.</p>
     <div class="stack" id="streetDays"></div>
@@ -693,9 +696,10 @@
 
   <!-- ПАУЭРЛИФТИНГ · список программ -->
   <section class="screen" id="scr-pwr" hidden>
-    <div class="hd">
-      <div><p class="eyebrow">Пауэрлифтинг</p><h1>Программы</h1></div>
-      <button class="icon-btn back-btn" title="Назад">←</button>
+    <div class="cross-head">
+      <button class="icon-btn back-btn cross-back" title="Назад">←</button>
+      <img class="cross-logo" src="media/powerlogo.png?v=1" alt="Powerlifting" width="1149" height="679">
+      <h1 class="cross-h1">Программы</h1>
     </div>
     <p class="street-note">Силовые программы. Выбери программу, затем этап и день тренировки.</p>
     <div class="stack" id="pwrPrograms"></div>
