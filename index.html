@@ -576,6 +576,55 @@
   .sw-lapnow{margin-top:6px;font-family:var(--dsp);font-weight:700;font-size:17px;opacity:.92;font-variant-numeric:tabular-nums}
   .sw-rest{font-size:13px;font-weight:600;color:var(--muted);padding:2px 0 2px 58px}
   .sw-moves .wod-mv-h{margin-top:6px}
+  .sw-folder{border-left-width:6px!important}
+  .sw-opts{display:flex;flex-direction:column;gap:8px;margin:2px 0 6px}
+  .sw-opt{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .sw-opt span{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:4px}
+  .sw-opt button,.sk-lvl button{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13.5px}
+  .sw-opt button.on,.sk-lvl button.on{background:var(--accent);color:#fff;border-color:transparent}
+  .sw-opt button:disabled{opacity:.5}
+  .sk-prog{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+  .sk-prog span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+  .sk-prog b{font-family:var(--dsp);font-size:18px;color:var(--accent-ink)}
+  .sk-dayhead{display:flex;align-items:center;gap:10px}
+  .sk-dayhead>div{flex:1;text-align:center}
+  .sk-dayhead .tag{white-space:nowrap;font-size:11px}
+  .hfk-first{margin-top:0}
+  .sk-dayhead h3{font-family:var(--dsp);font-size:28px;margin:6px 0 0;line-height:1}
+  .sk-dayhead .tm-icon{width:44px;height:44px;font-size:26px;font-weight:700}
+  .sk-dayhead .tm-icon:disabled{opacity:.3}
+  .sk-title{margin:4px 0 0;font-weight:700;color:var(--accent-ink)}
+  .sk-note{background:var(--accent-weak);border-radius:10px;padding:8px 10px;font-size:13.5px;font-weight:600;margin:10px 0 0}
+  .sk-fmt{font-size:13px;color:var(--muted);font-weight:600;margin:12px 0 4px}
+  .sk-rows{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
+  .sk-rows>div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+  .sk-rows b{font-family:var(--dsp);color:var(--accent-ink);white-space:nowrap}
+  .sk-cal{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:6px}
+  .sk-c{aspect-ratio:1;border-radius:7px;border:1px solid var(--line);font-size:11.5px;font-weight:700;padding:0;color:var(--fg);background:var(--surface);position:relative}
+  .sk-c.t-train{background:#e6dfc3}.sk-c.t-turbo{background:#e7c9a6}.sk-c.t-stretch{background:#d8e4ea}.sk-c.t-rest{background:var(--surface);color:var(--faint)}.sk-c.t-test{background:#d9cf8a}
+  .sk-c.adv{background:#d6dcb8}
+  .sk-c.done{background:var(--accent)!important;color:#fff!important;border-color:transparent}
+  .sk-c.cur{outline:2.5px solid var(--accent-ink);outline-offset:1px}
+  .sk-c.today::after{content:"";position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#b0593a}
+  .sk-legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:12px;color:var(--muted)}
+  .sk-legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+  .sk-legend .t-train::before{background:#e6dfc3}.sk-legend .t-adv::before{background:#d6dcb8}.sk-legend .t-turbo::before{background:#e7c9a6}.sk-legend .t-stretch::before{background:#d8e4ea}.sk-legend .t-rest::before{background:var(--surface)}.sk-legend .t-test::before{background:#d9cf8a}
+  .sk-set summary{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--accent-ink);cursor:pointer}
+  .sk-hint{font-size:13px;color:var(--muted);line-height:1.45;margin:8px 0}
+  .sk-step{display:grid;grid-template-columns:1fr 40px 44px 40px;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:600}
+  .sk-step button{height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:20px;font-weight:700;color:var(--fg)}
+  .sk-step b{text-align:center;font-family:var(--dsp);font-size:18px}
+  .sk-chk{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;margin-top:10px}
+  .sk-chk input{margin-top:2px;width:18px;height:18px;accent-color:var(--accent)}
+  .sk-lvl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px}
+  .sk-lvl span{width:100%;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .sk-max{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+  .sk-max label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--muted)}
+  .sk-max input{height:42px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:17px;font-weight:700;text-align:center;color:var(--fg);width:100%}
+  .sk-rules p{font-size:13.5px;line-height:1.45;margin:8px 0}
+  .sk-reset{width:100%}
+  .hfk-steps{margin:8px 0 0;padding-left:20px;font-size:13.5px;line-height:1.45}
+  .hfk-steps li{margin-bottom:6px}
   .sw-circlenow{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.25);font-size:14px;font-weight:600;line-height:1.45;text-align:center}
   .sw-circlenow .k{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.08em;font-size:11.5px;opacity:.85}
   .sw-prev{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 4px}
@@ -923,8 +972,79 @@
       <img class="cross-logo" src="media/swlogo.png?v=1" alt="Street Workout" width="1187" height="661">
       <h1 class="cross-h1">Круговые комплексы</h1>
     </div>
-    <p class="street-note">Турник, брусья, бег и собственный вес. Четыре уровня — от новичка до мастера. Проходи упражнения круга подряд, после каждого круга нажимай «+1 круг»: секундомер считает общее время и время каждого круга.</p>
+    <p class="street-note">Турник, брусья и собственный вес. «Сотка» Антона Кучумова, программы Hannibal For King и отдельные комплексы. Проходи упражнения круга подряд и нажимай «+1» после каждого круга: секундомер считает общее время и время каждого круга.</p>
     <div class="stack" id="swList"></div>
+  </section>
+
+  <!-- СТРИТ ВОРКАУТ · СОТКА -->
+  <section class="screen" id="scr-sotka" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Стрит воркаут · Антон Кучумов</p><h1>Сотка</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <p class="street-note">100-дневный воркаут: базовый блок (дни 1–49, круги), продвинутый (50–91, подходы и продвинутые техники), турбо-блок (92–98, каждый день новый комплекс) и финал. Неделя: 5 тренировок, день отдыха и день растяжки.</p>
+    <div class="stack">
+      <div class="card wod-card" id="skStatus"></div>
+      <div class="card wod-card sk-daycard" id="skDay"></div>
+      <div class="card wod-card">
+        <div class="wod-mv-h">Все 100 дней</div>
+        <div class="sk-cal" id="skCal"></div>
+        <div class="sk-legend"><span class="t-train">круги</span><span class="t-adv">подходы</span><span class="t-turbo">турбо</span><span class="t-stretch">растяжка</span><span class="t-rest">отдых</span><span class="t-test">тест</span></div>
+      </div>
+      <details class="card wod-card sk-set" open>
+        <summary>Мои повторы в круге</summary>
+        <p class="sk-hint">Повторы одинаковые во всех кругах и подходах. Не знаешь свой уровень — начни с 1-2-2-2 и каждый день, если было легко, добавляй ещё 1-2-2-2, пока не найдёшь рабочий (например, 3-6-6-6 или 5-10-10-10). Первые 1–2 недели — поиск уровня. Не сравнивай себя ни с кем.</p>
+        <div id="skReps"></div>
+        <label class="sk-chk"><input type="checkbox" id="skVpu"> Австралийские подтягивания вместо обычных (повторы ×2)</label>
+        <label class="sk-chk"><input type="checkbox" id="skVps"> Отжимания с колен вместо обычных (повторы ×2)</label>
+        <label class="sk-chk"><input type="checkbox" id="skFem"> Облегчённый старт: на 2 круга меньше (для девушек)</label>
+        <div class="sk-lvl" id="skLvl"><span>Уровень для турбо-блока</span><button type="button" data-l="b">Новичок</button><button type="button" data-l="a">Продвинутый</button><button type="button" data-l="m">Мастер</button></div>
+      </details>
+      <details class="card wod-card sk-set">
+        <summary>Максимумы на старте</summary>
+        <p class="sk-hint">Перед началом проверь максимум в каждом упражнении — на 49-й и 100-й день сравнишь.</p>
+        <div class="sk-max" id="skMax0"><label><span>Подтягивания</span><input type="number" inputmode="numeric" min="0" data-k="pu"></label><label><span>Отжимания</span><input type="number" inputmode="numeric" min="0" data-k="ps"></label><label><span>Приседания</span><input type="number" inputmode="numeric" min="0" data-k="sq"></label></div>
+      </details>
+      <details class="card wod-card sk-set">
+        <summary>Правила программы</summary>
+        <div class="sk-rules">
+          <p><b>Качество.</b> Каждое упражнение — идеально. Не получается — снижай нагрузку.</p>
+          <p><b>Количество.</b> Во всех кругах одинаковое число повторов. Не выходит — бери облегчённые варианты или комбинируй (например, 3 обычных + 2 австралийских подтягивания).</p>
+          <p><b>Время.</b> Отдых между кругами не меньше 30 и не больше 60 секунд. Не восстанавливаешься — уменьши повторы.</p>
+          <p><b>Правило ×2.</b> Заменил упражнение на облегчённое — делай вдвое больше повторов.</p>
+          <p><b>Запас.</b> Ни один круг не «до отказа» — ни первый, ни последний.</p>
+          <p><b>Прогрессия.</b> Каждые 3 недели +1 круг (22-й и 43-й день). Если несколько дней подряд остаются силы — добавь повторы. В круге не больше 10 подтягиваний и 20 отжиманий — дальше усложняй вариант упражнения.</p>
+          <p><b>С 29-го дня</b> вместо второй порции приседаний — выпады, 10 на каждую ногу.</p>
+          <p><b>Продвинутый блок (50–91).</b> 6 подходов на упражнение по тем же повторам, отдых 30–60 с. Каждую неделю новая техника: паузы, перемещение, нестабильные повторы, половинки, плиометрика. Можно чередовать с обычными кругами.</p>
+          <p><b>Турбо-блок (92–98)</b> — без выходных, каждый день свой комплекс.</p>
+          <p>Перед каждой тренировкой — разминка, после — заминка.</p>
+        </div>
+      </details>
+      <button class="tm-reset sk-reset" id="skReset" type="button">Начать «Сотку» заново</button>
+    </div>
+  </section>
+
+  <!-- СТРИТ ВОРКАУТ · ГАННИБАЛ -->
+  <section class="screen" id="scr-hfk" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Стрит воркаут · программы</p><h1>Hannibal For King</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <p class="street-note">Тренировки одного из самых известных уличных атлетов: «Вокруг света» — круг подтягивания → брусья → отжимания на время, полнотелый круг и лесенка на выносливость.</p>
+    <div class="stack">
+      <div class="card wod-card">
+        <div class="wod-mv-h">Прогрессия по Ганнибалу</div>
+        <ol class="hfk-steps">
+          <li><b>База.</b> Обычные подтягивания, брусья и отжимания. Ганнибал советует 8–12 месяцев отрабатывать базовые движения, прежде чем усложнять.</li>
+          <li><b>Узкий хват и алмазные.</b> Подтягивания узким хватом и алмазные отжимания.</li>
+          <li><b>Стабилизация.</b> Алмазные отжимания с одной ногой поверх другой, ногу меняй каждый круг.</li>
+          <li><b>Брусья с наклоном.</b> Наклон корпуса вперёд сильно грузит плечи — только когда база крепкая.</li>
+          <li><b>Время и объём.</b> Увеличивай длительность «Вокруг света» (20 → 30 → 45 → 60 мин) и число кругов за то же время.</li>
+        </ol>
+        <p class="sk-hint">Техника: подтягивания — из полного виса до подбородка над перекладиной, без раскачки; брусья — опускайся подконтрольно, вверх взрывно.</p>
+      </div>
+      <div class="stack" id="hfkList"></div>
+    </div>
   </section>
 
   <section class="screen" id="scr-swc" hidden>
@@ -937,6 +1057,7 @@
         <span class="tag" id="swcFmt"></span>
         <p class="wod-desc" id="swcDesc"></p>
         <div id="swcPrev"></div>
+        <div class="sw-opts" id="swcOpts"></div>
         <div class="sw-moves" id="swcMoves"></div>
       </div>
       <div class="tm-stage sw-stage" id="swStage" data-ph="idle">
@@ -948,9 +1069,9 @@
       </div>
       <div class="tm-counter">
         <button class="tm-cbig" id="swLap" type="button">
-          <span class="cl">Кругов пройдено</span>
+          <span class="cl" id="swLapLbl">Кругов пройдено</span>
           <span class="cn num" id="swLapN">0 / 5</span>
-          <span class="ch">нажми +1 после каждого круга</span>
+          <span class="ch" id="swLapHint">нажми +1 после каждого круга</span>
         </button>
         <button class="tm-creset" id="swLapUndo" type="button" title="Отменить последний круг">↺</button>
       </div>
@@ -1085,7 +1206,7 @@ function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","ма�
   return d.getDate()+" "+m[d.getMonth()];}
 
 /* ---------- navigation ---------- */
-const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),workout:el("scr-workout"),progress:el("scr-progress")};
+const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),workout:el("scr-workout"),progress:el("scr-progress")};
 function el(id){return document.getElementById(id);}
 let histStack=[],currentScreen=null;
 function applyScreen(name){
@@ -1267,6 +1388,15 @@ const MEDIA={
   "Подъём ног к перекладине":{p:"media/0475.jpg",v:"media/0475.mp4?v=2",id:"edb-0475",name:"Подъём прямых ног в висе"},
   "Толчок гири одной рукой":{p:"media/0538.jpg",v:"media/0538.mp4?v=2",id:"edb-0538",name:"Толчок гири одной рукой"},
   "Бег на дорожке":{p:"media/0684.jpg",v:"media/0684.mp4?v=2",id:"edb-0684",name:"Бег на тренажёре"},
+  "Выпады":{p:"media/3470.jpg",v:"media/3470.mp4?v=2",id:"edb-3470",name:"Выпад вперёд"},
+  "Отжимания в планке":{p:"media/0662.jpg",v:"media/0662.mp4?v=2",id:"edb-0662",name:"Отжимания"},
+  "Индийские отжимания":{p:"media/3217.jpg",v:"media/3217.mp4?v=2",id:"edb-3217",name:"Индийские отжимания"},
+  "Подтягивания с согнутыми ногами":{p:"media/0652.jpg",v:"media/0652.mp4?v=2",id:"edb-0652",name:"Подтягивания"},
+  "Медленные отжимания":{p:"media/0662.jpg",v:"media/0662.mp4?v=2",id:"edb-0662",name:"Отжимания"},
+  "Медленные приседания":{p:"media/cfair.jpg",v:"media/cfair.mp4?v=2",id:"crossfit-air",name:"Приседания без веса"},
+  "Медленные подтягивания":{p:"media/0652.jpg",v:"media/0652.mp4?v=2",id:"edb-0652",name:"Подтягивания"},
+  "Отжимания с ногами на возвышении":{p:"media/0279.jpg",v:"media/0279.mp4?v=2",id:"edb-0279",name:"Отжимания с ногами на возвышении"},
+  "Отжимания с руками на возвышении":{p:"media/0493.jpg",v:"media/0493.mp4?v=2",id:"edb-0493",name:"Отжимания с руками на возвышении"},
   "Австралийские подтягивания":{p:"media/0499.jpg",v:"media/0499.mp4?v=2",id:"edb-0499",name:"Австралийские подтягивания"},
   "Отжимания с колен":{p:"media/3211.jpg",v:"media/3211.mp4?v=2",id:"edb-3211",name:"Отжимания с колен"},
   "Выход силой":{p:"media/0631.jpg",v:"media/0631.mp4?v=2",id:"edb-0631",name:"Выход силой"},
@@ -2552,27 +2682,8 @@ function finishCross(){
 el("wodFinishBtn").onclick=finishCross;
 
 /* ===================== СТРИТ ВОРКАУТ: круги + общее время ===================== */
+/* ---- отдельные комплексы по уровням ---- */
 const SW=[
- {lvl:"Новичок",name:"Сотка · старт",fmt:"4 круга · на время",circles:4,
-  desc:"Базовый блок «100-дневного воркаута» в облегчённом варианте: австралийские подтягивания вместо обычных и отжимания с колен. Четыре упражнения подряд без отдыха — это один круг. Между кругами 30–60 секунд, пока не восстановится дыхание. Ни один круг не делай «до отказа». Девушкам можно начать с 2 кругов.",
-  ex:[["Австралийские подтягивания","5"],["Приседания","10"],["Отжимания с колен","10"],["Приседания","10"]],rest:"Отдых 30–60 с между кругами"},
- {lvl:"Новичок",name:"Сотка · база",fmt:"4 круга · на время",circles:4,
-  desc:"Классическая схема базового блока «Сотки» — 5-10-10-10. Повторы одинаковые в каждом круге, техника чистая; если в последнем круге техника ломается — остановись. Каждые три недели добавляй по одному кругу.",
-  ex:[["Подтягивания","5"],["Приседания","10"],["Отжимания от пола","10"],["Приседания","10"]],rest:"Отдых 30–60 с между кругами"},
- {lvl:"Новичок",name:"Круг Ганнибала · 2",fmt:"2 круга · на время",circles:2,
-  desc:"Круговая тренировка Ганнибала для начинающих: тяга, брусья, алмазные отжимания и приседания со стопами вместе. Повторы — нижняя граница его рекомендаций.",
-  ex:[["Подтягивания узким хватом","5"],["Отжимания на брусьях","10"],["Алмазные отжимания","10"],["Приседания, стопы вместе","20"]]},
-
- {lvl:"Продвинутый",name:"Сотка · 6 кругов",fmt:"6 кругов · на время",circles:6,
-  desc:"Та же схема 5-10-10-10, но после двух прибавок по кругу — шесть кругов. Отдых между кругами по-прежнему 30–60 секунд. Когда станет легко, переходи на более сложные варианты упражнений, а не на большие повторы: не больше 10 подтягиваний и 20 отжиманий в круге.",
-  ex:[["Подтягивания","5"],["Приседания","10"],["Отжимания от пола","10"],["Приседания","10"]],rest:"Отдых 30–60 с между кругами"},
- {lvl:"Продвинутый",name:"Круг Ганнибала · 3",fmt:"3 круга · на время",circles:3,
-  desc:"Полная версия круговой тренировки Ганнибала: три круга с верхней границей повторов.",
-  ex:[["Подтягивания узким хватом","10"],["Отжимания на брусьях","10"],["Алмазные отжимания","15"],["Приседания, стопы вместе","20"]]},
-
- {lvl:"Профи",name:"Вечерняя сотка",fmt:"10 кругов · на время",circles:10,
-  desc:"Схема Антона Кучумова для тех, у кого мало времени: 100 подтягиваний и 100 отжиманий на брусьях за тренировку. Отдых между кругами 1–3 минуты, с ростом формы сокращай его до минуты.",
-  ex:[["Подтягивания","10"],["Отжимания на брусьях","10"]],rest:"Отдых 1–3 мин между кругами"},
  {lvl:"Профи",name:"Круг Адама Рава",fmt:"4 круга · на время",circles:4,
   desc:"Круговая тренировка на турнике чешского уличного атлета Адама Рава. В каждом круге свой хват и свои варианты упражнений; внутри круга — без отдыха, между кругами — 4 минуты.",
   circ:[
@@ -2581,50 +2692,204 @@ const SW=[
    [["Подтягивания хватом на ширине плеч","5"],["Подъём ног в стороны на брусьях","13"],["Отжимания, широкая постановка","20"],["Приседания с выпрыгиванием","10"]],
    [["Подтягивания обратным хватом","5"],["Подъём ног в упоре на брусьях","10"],["Отжимания от пола","20"],["Приседания с выпрыгиванием","10"]]],
   rest:"Отдых 4 мин между кругами"},
-
- {lvl:"Мастер",name:"Лесенка Ганнибала",fmt:"11 кругов · на время",circles:11,
-  desc:"Тренировка Hannibal For King на выносливость верха тела: 11 кругов, в каждом повторы уменьшаются. Всего 275 отжиманий, 165 на брусьях, 70 подтягиваний и 70 подтягиваний обратным хватом. Пауз — минимум, задача пройти всё как можно быстрее.",
-  ex:[["Отжимания от пола","30→20",[30,29,28,27,26,25,24,23,22,21,20]],["Отжимания на брусьях","20→10",[20,19,18,17,16,15,14,13,12,11,10]],["Подтягивания","10→5",[10,9,8,7,6,5,5,5,5,5,5]],["Подтягивания обратным хватом","10→5",[10,9,8,7,6,5,5,5,5,5,5]]]},
  {lvl:"Мастер",name:"Вызов Bar Brothers",fmt:"1 круг · лимит 3 мин",circles:1,cap:180,
   desc:"Финальный тест начальной программы Bar Brothers: весь список подряд за 3 минуты. Уложился — переходи к их продвинутой системе.",
   ex:[["Выход силой","4"],["Отжимания на брусьях","15"],["Отжимания от пола","20"],["Приседания с выпрыгиванием","10"],["Подъём ног в висе","10"],["Выход силой","4"]]},
 ];
+
+/* ---- ГАННИБАЛ ---- */
+const HFK=[
+ {name:"Вокруг света · база",fmt:"Максимум кругов за выбранное время",circles:0,cap:1200,capChoices:[20,30,45,60],
+  desc:"«Around The World» Hannibal For King в базовом варианте: подтягивания → брусья → отжимания, и снова по кругу до конца времени. Отдыхай после круга сколько нужно, но старайся, чтобы пауз было как можно меньше. Ганнибал сам работает так час.",
+  ex:[["Подтягивания","5"],["Отжимания на брусьях","5"],["Отжимания от пола","10"]],tag:"Шаг 1"},
+ {name:"Вокруг света · версия Ганнибала",fmt:"Максимум кругов за выбранное время",circles:0,cap:1800,capChoices:[20,30,45,60],
+  desc:"Тот же круг, но так, как делает сам Ганнибал: подтягивания узким хватом и алмазные отжимания с одной ногой поверх другой — в каждом следующем круге меняй ногу. Подтягивания — от полного виса до подбородка над перекладиной, без раскачки.",
+  ex:[["Подтягивания узким хватом","5"],["Отжимания на брусьях","5"],["Алмазные отжимания","10"]],tag:"Шаг 2"},
+ {name:"Вокруг света · 10-20-20",fmt:"Максимум кругов за 1 час",circles:0,cap:3600,capChoices:[30,45,60],
+  desc:"Объёмный вариант для часовой тренировки: 10 подтягиваний, 20 на брусьях, 20 отжиманий в каждом круге. Брусья — сначала строго вертикально; наклон вперёд добавляй только когда база отработана.",
+  ex:[["Подтягивания","10"],["Отжимания на брусьях","20"],["Отжимания от пола","20"]],tag:"Шаг 3"},
+ {name:"Круг Ганнибала",fmt:"1–3 круга · на время",circles:2,circleChoices:[1,2,3],
+  desc:"Круговая тренировка Ганнибала на всё тело: подтягивания узким хватом, брусья, алмазные отжимания и приседания со стопами вместе. Начни с одного круга, доводи до трёх. Повторы — в пределах диапазона, по силам.",
+  ex:[["Подтягивания узким хватом","5–10"],["Отжимания на брусьях","10"],["Алмазные отжимания","10–15"],["Приседания, стопы вместе","20"]],tag:"Всё тело"},
+ {name:"Лесенка Ганнибала",fmt:"11 кругов · на время",circles:11,
+  desc:"Тренировка на выносливость верха тела: 11 кругов, в каждом повторы уменьшаются. Всего 275 отжиманий, 165 на брусьях, 70 подтягиваний и 70 обратным хватом. Пауз — минимум. Если не тянешь — снизь повторы, но сохрани технику.",
+  ex:[["Отжимания от пола","30→20",[30,29,28,27,26,25,24,23,22,21,20]],["Отжимания на брусьях","20→10",[20,19,18,17,16,15,14,13,12,11,10]],["Подтягивания","10→5",[10,9,8,7,6,5,5,5,5,5,5]],["Подтягивания обратным хватом","10→5",[10,9,8,7,6,5,5,5,5,5,5]]],tag:"Выносливость"},
+];
+function renderHfk(){const w=el("hfkList");w.innerHTML="";
+  HFK.forEach(d=>{const b=document.createElement("button");b.className="disc";b.type="button";
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="go">›</span>`;
+    const s=b.querySelectorAll("span span");s[0].textContent=d.name;s[1].textContent=(d.tag?d.tag+" · ":"")+d.fmt;
+    b.onclick=()=>{d.lvl="Ганнибал";openSw(d);};w.appendChild(b);});}
+
+/* ---- СОТКА: 100-дневный воркаут ---- */
+const SKK="gym45_sotka_v1";
+function skGet(){try{const s=JSON.parse(localStorage.getItem(SKK)||"null");if(s&&typeof s==="object")return s;}catch(e){}
+  return {start:null,reps:{pu:5,sq:10,ps:10,lu:10},v:{pu:0,ps:0},lvl:"b",fem:0,done:{},max:{},upd:0};}
+function skSave(s){s.upd=Date.now();try{localStorage.setItem(SKK,JSON.stringify(s));}catch(e){}try{if(typeof cloudPush==="function")cloudPush();}catch(e){}}
+function mergeSk(a,b){if(!a||!a.start)return b||a;if(!b||!b.start)return a;const m=(a.upd||0)>=(b.upd||0)?Object.assign({},a):Object.assign({},b);
+  m.done=Object.assign({},b.done||{},a.done||{});m.max=Object.assign({},b.max||{},a.max||{});return m;}
+let skView=null;
+function skToday(s){if(!s.start)return 0;const d=Math.floor((new Date(localDate())-new Date(s.start))/86400000)+1;return Math.max(1,Math.min(100,d));}
+const SK_TECH=[[50,"Обычная техника","Подходы вместо кругов: все подходы одного упражнения, затем следующее."],
+ [57,"Паузы","На каждом повторе пауза 1–2 с в верхней или нижней точке, мышцы в напряжении, суставы не «запирать». Если в подходе больше 20 повторов — пауза 5 с каждые 5 повторов."],
+ [64,"Перемещение в пространстве","После каждого повтора — шаг в сторону (вперёд/назад): на турнике перехват вбок по перекладине, в отжиманиях и приседаниях — шаг."],
+ [71,"Нестабильные повторения","Работа на балансе: вес на опорной руке/ноге, свободную ставь первой и только потом переноси вес. В приседаниях и выпадах подтягивай колено к груди (или хотя бы до прямого угла)."],
+ [78,"Половинки","К каждому повтору добавь половинку: например, в отжиманиях — вниз, вверх наполовину, снова вниз, затем вверх полностью. Это один повтор."],
+ [85,"Плиометрика","Взрывные повторы: в приседаниях выпрыгивай, в отжиманиях — отрыв рук от пола, в подтягиваниях — мощный рывок вверх."]];
+function skTech(day){let t=SK_TECH[0];SK_TECH.forEach(x=>{if(day>=x[0])t=x;});return t;}
+function skPu(s){return s.v.pu?["Австралийские подтягивания",s.reps.pu*2]:["Подтягивания",s.reps.pu];}
+function skPs(s){return s.v.ps?["Отжимания с колен",s.reps.ps*2]:["Отжимания от пола",s.reps.ps];}
+const SK_LV={b:"Новичок",a:"Продвинутый",m:"Мастер"};
+function skPlan(day,s){
+  const blk=day<=49?"Базовый блок":day<=91?"Продвинутый блок":day<=98?"Турбо-блок":"Финал";
+  const week=Math.ceil(day/7);const dow=(day-1)%7;
+  const base={day,block:blk,week};
+  if(day===49)return Object.assign(base,{type:"test",title:"Тест максимумов",key:"d49",text:"Завершение базового блока. Разомнись и проверь новые максимумы — только в тех упражнениях, где хотел вырасти. Перед попыткой 1–2 разминочных подхода на 25–50% от ожидаемого максимума (ждёшь 10 подтягиваний — разминка 3 и 6). Накануне — отдых или лёгкая тренировка."});
+  if(day===100)return Object.assign(base,{type:"test",title:"Финальный тест",key:"d100",text:"Последний день. После 90+ дней и пары дней отдыха — проверь максимумы и сравни со стартом. Сними рекорд на видео."});
+  if(day===99)return Object.assign(base,{type:"rest",title:"Отдых",text:"Полный отдых перед финальным тестом."});
+  if(day<=91&&dow===6)return Object.assign(base,{type:"stretch",title:"Растяжка",text:"Последний день недели — гибкость вместо кругов. Каждое растяжение держи 30–60 с в крайней комфортной точке, 2–3 подхода на мышцу, выходи из положения медленно. До лёгкого дискомфорта, не до боли. Дыши ровно."});
+  if(day<=91&&dow===5)return Object.assign(base,{type:"rest",title:"День отдыха",text:"Полный отдых. Его можно поменять местами с любым тренировочным днём недели — по самочувствию, но не пропускай совсем."});
+  if(day<=48){
+    const circ=Math.max(2,(day<=21?4:day<=42?5:6)-(s.fem?2:0));
+    const pu=skPu(s),ps=skPs(s);
+    const ex=[[pu[0],String(pu[1])],["Приседания",String(s.reps.sq)],[ps[0],String(ps[1])],day>=29?["Выпады",s.reps.lu+" на ногу"]:["Приседания",String(s.reps.sq)]];
+    const notes=[];if(day===22||day===43)notes.push("Сегодня добавляется круг.");if(day===29)notes.push("Новое упражнение: выпады вместо второй порции приседаний — 10 на каждую ногу.");
+    return Object.assign(base,{type:"train",title:circ+" "+plU(circ,"круг"),notes,
+      w:{name:"Сотка · день "+day,lvl:"Сотка",fmt:circ+" "+plU(circ,"круг")+" · отдых 30–60 с",circles:circ,skDay:day,
+        desc:"Все упражнения подряд, без отдыха — это один круг. Между кругами 30–60 с, пока не восстановится дыхание. Повторы одинаковые во всех кругах, техника идеальная, ни один круг не «до отказа».",
+        ex,rest:"Отдых 30–60 с между кругами"}});}
+  if(day<=91){
+    const t=skTech(day),pu=skPu(s),ps=skPs(s);
+    const list=[[pu[0],pu[1]],["Приседания",s.reps.sq],[ps[0],ps[1]],["Выпады",s.reps.lu]];
+    const circ=[];list.forEach(([n,r])=>{for(let i=0;i<6;i++)circ.push([[n,String(r)+(n==="Выпады"?" на ногу":"")]]);});
+    return Object.assign(base,{type:"train",title:"6 подходов · "+t[1],notes:day===t[0]&&day>50?["С сегодняшнего дня — новая техника: "+t[1]+"."]:[],
+      w:{name:"Сотка · день "+day,lvl:"Сотка",fmt:"6 подходов на упражнение · "+t[1],circles:24,unit:"подход",skDay:day,
+        desc:t[2]+" Порядок: подтягивания → приседания → отжимания → выпады. Отдых между подходами и упражнениями 30–60 с. Не получилось нужное число повторов — этот подход последний для упражнения (нажми +1 и переходи дальше). Если нагрузка чрезмерная — можно на несколько дней вернуться к кругам и обычной технике.",
+        circ,show:list.map(([n,r])=>[n,"6 × "+r+(n==="Выпады"?"/нога":"")]),circHead:i=>list[Math.floor(i/6)][0]+" · подход "+(i%6+1)+" из 6",rest:"Отдых 30–60 с"}});}
+  // турбо
+  const L=s.lvl||"b",lv=SK_LV[L];
+  const T={
+   92:{t:"Турбо: вход",w:{fmt:"Максимум кругов · "+(s.fem?"10":"15")+" мин",circles:0,cap:s.fem?600:900,pre:[["Всадник","30–60 с"]],
+      desc:"Турбо-блок — квинтэссенция программы: 7 дней подряд, каждый день новый комплекс. После разминки — «всадник» (стопы на две ширины плеч, присед до параллели, держать). Отдышись и работай по кругу без остановок, ровным темпом, до конца времени. Не тянешь — возвращайся к своим кругам.",
+      ex:[["Отжимания в планке","4"],["Выпады","2 на ногу"],["Подтягивания","1"]]}},
+   93:{t:"Фристайл «Турник»",w:{fmt:"5 подходов · отдых 3–5 мин · "+lv,circles:5,unit:"подход",pre:[["Всадник","30–60 с"]],
+      desc:"Пять подходов на турнике, старайся не спрыгивать в течение подхода. Сорвался — отдышись и продолжи. Отдых между подходами 3–5 минут.",
+      circ:(()=>{const X={b:3,a:5,m:7}[L],XY={b:[2,5],a:[3,7],m:[4,10]}[L];return [
+        [["Нижние половинки → верхние половинки → полные подтягивания","по "+X]],
+        [["Лесенка хвата: по 3 подтягивания, после каждых 3 расширяй хват на 2 ладони","до края"]],
+        [["5 раз: "+XY[0]+" подтягиваний + вис "+XY[1]+" с (подбородок над → 90° → прямые руки → 90° → подбородок над)",XY[0]+" + "+XY[1]+" с"]],
+        [["Смена хвата: 3 прямым → 3 смешанным → 3 обратным → 3 смешанным → 3 прямым","по 3"]],
+        [["Подтягивания параллельным хватом","максимум"]]];})(),
+      rest:"Отдых 3–5 мин между подходами"}},
+   94:{t:"Турбо «Бета»",w:{fmt:"5 кругов",circles:5,pre:[["Всадник","30–60 с"]],
+      desc:"Пять кругов из трёх упражнений без отдыха между ними. Спартанские наклоны — стоя на одной ноге, держись руками за опору, спина прямая. Подтягивания — ноги согнуты под 90°, подтянуты к груди или «уголком», без раскачки.",
+      ex:[["Индийские отжимания","5–10"],["Спартанские наклоны","5–10 на ногу"],["Подтягивания с согнутыми ногами","5–10"]]}},
+   95:{t:"Фристайл «Жёваный крот»",w:{fmt:"5 подходов · отдых до 3 мин",circles:5,unit:"подход",pre:[["Планка","3 × 30–60 с, отдых 10–20 с"]],
+      desc:"Связка «стульчик 1 минута + 10 выпрыгиваний из приседа» повторяется в подходах 3-2-1-2-3 раза. Отдых между подходами не больше 3 минут. Высоту прыжка подбирай по уровню, приземляйся мягко.",
+      circ:[3,2,1,2,3].map(k=>[["Стульчик 1 мин + 10 выпрыгиваний",k+" "+plU(k,"раз")]])}},
+   96:{t:"Турбо «Гамма»",w:{fmt:"5 кругов · темп 5-0-5",circles:5,pre:[["Всадник","30–60 с"]],
+      desc:"Пять кругов медленных повторов: 5 секунд вниз, без паузы, 5 секунд вверх (в подтягиваниях — 5 с вверх и 5 с вниз). Между упражнениями отдыха нет, между кругами — по самочувствию. Строгая техника на каждом повторе.",
+      ex:[["Медленные отжимания","5–10"],["Медленные приседания","10–20"],["Медленные подтягивания","2–5"]]}},
+   97:{t:"Фристайл «Обратный ход конём»",w:(()=>{const R={b:5,a:7,m:10}[L],RS={b:"1 мин",a:"1–2 мин",m:"2–3 мин"}[L];return {fmt:"5 подходов · "+R+" повторов · "+lv,circles:5,unit:"подход",
+      desc:"В каждом подходе пять вариантов отжиманий подряд, без отдыха между ними. Отдых — только между подходами ("+RS+").",
+      ex:[["Отжимания с ногами на возвышении",String(R)],["Отжимания от пола",String(R)],["Отжимания с руками на возвышении",String(R)],["Отжимания от пола",String(R)],["Отжимания с ногами на возвышении",String(R)]],rest:"Отдых "+RS+" между подходами"};})()},
+   98:{t:"Турбо «Дельта»",w:{fmt:"Лесенки · 1 раз",circles:3,unit:"упражнение",
+      desc:"Каждое упражнение — лесенка вверх до максимума и обратно вниз, без отдыха между ступенями (слез, встряхнул руки — дальше). Между упражнениями 5–7 минут. Не можешь сделать ступень целиком — добирай несколькими подходами. Сними попытку на видео: часто это не повторяют.",
+      circ:[[["Подтягивания: 1, 2, 3… до максимума и обратно до 1","+1"]],[["Отжимания: 2, 4, 6… до максимума и обратно до 2","+2"]],[["Приседания: 10, 20, 30… до максимума и обратно","+5–10"]]],
+      rest:"Отдых 5–7 мин между упражнениями"}}};
+  const x=T[day];
+  return Object.assign(base,{type:"turbo",title:x.t,notes:[],w:Object.assign({name:"Сотка · день "+day+" · "+x.t,lvl:"Сотка",skDay:day},x.w)});}
+function plU(n,u){const m=n%10,h=n%100,one=m===1&&h!==11,few=m>=2&&m<=4&&(h<10||h>=20);
+  const F={"круг":["круг","круга","кругов"],"подход":["подход","подхода","подходов"],"упражнение":["упражнение","упражнения","упражнений"],"раз":["раз","раза","раз"]}[u]||[u,u,u];
+  return one?F[0]:few?F[1]:F[2];}
+function skStep(k,d){const s=skGet();const lim={pu:[1,30],sq:[2,60],ps:[2,60],lu:[2,40]}[k];s.reps[k]=Math.max(lim[0],Math.min(lim[1],(s.reps[k]||0)+d));skSave(s);renderSotka();}
+function renderSotka(){const s=skGet();const today=skToday(s);const day=s.start?(skView||today):1;
+  const st=el("skStatus");
+  if(!s.start){st.innerHTML=`<p class="wod-desc">Программа ещё не начата. Перед стартом проверь максимумы (подтягивания, отжимания, приседания) — потом будет с чем сравнить.</p><button class="btn" id="skBegin" type="button">Начать «Сотку» сегодня</button>`;
+    el("skBegin").onclick=()=>{const t=skGet();t.start=localDate();t.done={};skView=null;skSave(t);toast("День 1 — поехали!");renderSotka();};}
+  else{const doneN=Object.keys(s.done||{}).length;
+    st.innerHTML=`<div class="sk-prog"><div><span>Сегодня</span><b class="num">День ${today}</b></div><div><span>Выполнено</span><b class="num">${doneN} / 100</b></div><div><span>Старт</span><b class="num">${s.start.split("-").reverse().join(".")}</b></div></div>`;}
+  const p=skPlan(day,s);const card=el("skDay");
+  const isT=day===today&&s.start;
+  let h=`<div class="sk-dayhead"><button class="tm-icon" id="skPrev" type="button" ${day<=1?"disabled":""}>‹</button><div><span class="tag">${p.block.replace(" блок","")} · неделя ${p.week}</span><h3>День ${day}${isT?" · сегодня":""}</h3><p class="sk-title">${p.title}</p></div><button class="tm-icon" id="skNext" type="button" ${day>=100?"disabled":""}>›</button></div>`;
+  (p.notes||[]).forEach(n=>h+=`<p class="sk-note">${n}</p>`);
+  if(p.w){const rows=p.w.show||(p.w.circ?null:p.w.ex);h+=`<p class="sk-fmt">${p.w.fmt}</p>`;
+    if(p.w.pre)h+=`<div class="sk-rows">${p.w.pre.map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join("")}</div>`;
+    if(rows)h+=`<div class="sk-rows">${rows.map(r=>`<div><span>${r[0]}</span><b class="num">${r[1]}</b></div>`).join("")}</div>`;
+    else h+=`<div class="sk-rows">${p.w.circ.map((c,i)=>`<div><span>${i+1}. ${c[0][0]}</span><b class="num">${c[0][1]}</b></div>`).join("")}</div>`;
+    h+=`<button class="btn" id="skGo" type="button">${s.done&&s.done[day]?"Повторить тренировку":"Начать тренировку"}</button>`;}
+  else{h+=`<p class="wod-desc">${p.text}</p>`;
+    if(p.type==="test"){const m=(s.max&&s.max[p.key])||{},m0=(s.max&&s.max.start)||{};
+      h+=`<div class="sk-max">${[["pu","Подтягивания"],["ps","Отжимания"],["sq","Приседания"]].map(([k,n])=>`<label><span>${n}</span><input type="number" inputmode="numeric" min="0" data-k="${k}" value="${m[k]??""}" placeholder="${m0[k]!=null?"старт: "+m0[k]:"повторы"}"></label>`).join("")}</div>`;}
+    h+=`<button class="btn ${s.done&&s.done[day]?"btn-alt":""}" id="skMark" type="button">${s.done&&s.done[day]?"✓ Выполнено":"Отметить выполненным"}</button>`;}
+  card.innerHTML=h;
+  el("skPrev").onclick=()=>{skView=Math.max(1,day-1);renderSotka();};el("skNext").onclick=()=>{skView=Math.min(100,day+1);renderSotka();};
+  if(el("skGo"))el("skGo").onclick=()=>{if(!s.start){toast("Сначала нажми «Начать „Сотку“»");return;}openSw(p.w);};
+  if(el("skMark"))el("skMark").onclick=()=>{if(!s.start){toast("Сначала нажми «Начать „Сотку“»");return;}const t=skGet();
+    if(p.type==="test"){t.max=t.max||{};const v={};card.querySelectorAll(".sk-max input").forEach(i=>{if(i.value!=="")v[i.dataset.k]=+i.value;});t.max[p.key]=v;}
+    t.done=t.done||{};if(t.done[day]&&p.type!=="test")delete t.done[day];else t.done[day]=1;skSave(t);renderSotka();};
+  // календарь
+  const cal=el("skCal");cal.innerHTML="";
+  for(let d=1;d<=100;d++){const q=skPlan(d,s);const b=document.createElement("button");b.type="button";
+    b.className="sk-c t-"+q.type+(q.type==="train"&&d>=50?" adv":"")+(s.done&&s.done[d]?" done":"")+(d===day?" cur":"")+(s.start&&d===today?" today":"");b.textContent=d;
+    b.onclick=()=>{skView=d;renderSotka();window.scrollTo({top:0,behavior:"smooth"});};cal.appendChild(b);}
+  // настройки
+  const r=s.reps;el("skReps").innerHTML=[["pu",s.v.pu?"Австралийские подтягивания (×2)":"Подтягивания",r.pu],["sq","Приседания",r.sq],["ps",s.v.ps?"Отжимания с колен (×2)":"Отжимания",r.ps],["lu","Выпады, на ногу (с 29-го дня)",r.lu]]
+    .map(([k,n,v])=>`<div class="sk-step"><span>${n}</span><button type="button" data-k="${k}" data-d="-1">−</button><b class="num">${v}</b><button type="button" data-k="${k}" data-d="1">+</button></div>`).join("");
+  el("skReps").querySelectorAll("button").forEach(b=>b.onclick=()=>skStep(b.dataset.k,+b.dataset.d));
+  [["skVpu","pu"],["skVps","ps"]].forEach(([id,k])=>{const c=el(id);c.checked=!!s.v[k];c.onchange=()=>{const t=skGet();t.v[k]=c.checked?1:0;skSave(t);renderSotka();};});
+  const fe=el("skFem");fe.checked=!!s.fem;fe.onchange=()=>{const t=skGet();t.fem=fe.checked?1:0;skSave(t);renderSotka();};
+  el("skLvl").querySelectorAll("button").forEach(b=>{b.classList.toggle("on",b.dataset.l===(s.lvl||"b"));b.onclick=()=>{const t=skGet();t.lvl=b.dataset.l;skSave(t);renderSotka();};});
+  const m0=(s.max&&s.max.start)||{};el("skMax0").querySelectorAll("input").forEach(i=>{i.value=m0[i.dataset.k]??"";i.onchange=()=>{const t=skGet();t.max=t.max||{};t.max.start=t.max.start||{};if(i.value==="")delete t.max.start[i.dataset.k];else t.max.start[i.dataset.k]=+i.value;skSave(t);};});
+}
+el("skReset").addEventListener("click",()=>{if(Date.now()-(el("skReset")._arm||0)>3000){el("skReset")._arm=Date.now();toast("Нажми ещё раз — прогресс «Сотки» обнулится (история тренировок останется)");return;}
+  const t=skGet();t.start=null;t.done={};skView=null;skSave(t);renderSotka();toast("«Сотка» сброшена");});
+
+/* ---- движок тренировки: круги / подходы, общий секундомер ---- */
 const SWS={cur:null,run:false,acc:0,t0:0,laps:[],iv:null,capHit:false};
 function swElapsed(){return SWS.acc+(SWS.run?performance.now()-SWS.t0:0);}
 function swFmt(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
   return (h?h+":"+String(m).padStart(2,"0"):String(m).padStart(2,"0"))+":"+String(x).padStart(2,"0");}
-function plCircle(n){const m=n%10,h=n%100;return (m===1&&h!==11)?"круг":(m>=2&&m<=4&&(h<10||h>=20))?"круга":"кругов";}
-function swDone(){const d=SWS.cur;if(!d)return false;return SWS.laps.length>=d.circles||SWS.capHit;}
+function plCircle(n){return plU(n,"круг");}
+function swU(d){return d.unit||"круг";}
+function swDone(){const d=SWS.cur;if(!d)return false;return (d.circles>0&&SWS.laps.length>=d.circles)||SWS.capHit;}
 function swVaries(d){return !!(d.circ||d.ex&&d.ex.some(e=>e[2]));}
 function swCircleList(d,i){if(d.circ)return d.circ[Math.min(i,d.circ.length-1)];
   return d.ex.map(e=>[e[0],e[2]?String(e[2][Math.min(i,e[2].length-1)]):e[1]]);}
-function renderSw(){const w=el("swList");w.innerHTML="";let lvl="";
+function swBtn(d,sub){const b=document.createElement("button");b.className="disc";b.type="button";
+  b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="go">›</span>`;
+  const s=b.querySelectorAll("span span");s[0].textContent=d;s[1].textContent=sub;return b;}
+function renderSw(){const w=el("swList");w.innerHTML="";
+  const sk=skGet();const sb=swBtn("Сотка · 100-дневный воркаут",sk.start?"Антон Кучумов · сейчас день "+skToday(sk)+" из 100":"Антон Кучумов · 100 дней, 3 блока");sb.classList.add("sw-folder");sb.onclick=()=>{skView=null;renderSotka();show("sotka");};w.appendChild(sb);
+  const hb=swBtn("Hannibal For King","Вокруг света, круг и лесенка Ганнибала · "+HFK.length+" программ");hb.classList.add("sw-folder");hb.onclick=()=>{renderHfk();show("hfk");};w.appendChild(hb);
+  let lvl="";
   SW.forEach(d=>{if(d.lvl!==lvl){lvl=d.lvl;const h=document.createElement("div");h.className="sw-lvl";h.textContent=lvl;w.appendChild(h);}
-    const b=document.createElement("button");b.className="disc";b.type="button";
-    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="go">›</span>`;
-    const s=b.querySelectorAll("span span");s[0].textContent=d.name;s[1].textContent=d.fmt;
-    b.onclick=()=>openSw(d);w.appendChild(b);});}
+    const b=swBtn(d.name,d.fmt);b.onclick=()=>openSw(d);w.appendChild(b);});}
 function swSplits(){return SWS.laps.map((t,i)=>t-(i?SWS.laps[i-1]:0));}
-function swUI(){const d=SWS.cur;if(!d)return;const n=SWS.laps.length,done=swDone(),el_=swElapsed(),act=SWS.run||SWS.acc>0;
+function swUI(){const d=SWS.cur;if(!d)return;const n=SWS.laps.length,done=swDone(),el_=swElapsed(),act=SWS.run||SWS.acc>0,u=swU(d);
+  const U=u.charAt(0).toUpperCase()+u.slice(1);
   el("swTime").textContent=swFmt(el_);
-  el("swLapN").textContent=n+" / "+d.circles;
+  el("swLapN").textContent=d.circles>0?n+" / "+d.circles:String(n);
+  el("swLapLbl").textContent=plU(5,u).charAt(0).toUpperCase()+plU(5,u).slice(1)+" пройдено";
+  el("swLapHint").textContent="нажми +1 после каждого "+(u==="круг"?"круга":u==="подход"?"подхода":"упражнения");
   let rt;
-  if(done)rt=n>=d.circles?"Все круги пройдены":"Время вышло · "+n+" "+plCircle(n);
-  else if(d.cap)rt=act?"Осталось "+swFmt(Math.max(0,d.cap*1000-el_)):"Лимит "+swFmt(d.cap*1000);
-  else rt=act?"Круг "+(n+1)+" из "+d.circles:d.circles+" "+plCircle(d.circles)+" · на время";
+  if(done)rt=SWS.capHit?"Время вышло · "+n+" "+plU(n,u):"Всё пройдено";
+  else if(d.cap)rt=act?"Осталось "+swFmt(Math.max(0,d.cap*1000-el_))+(d.circles>0?"":" · "+u+" "+(n+1)):(d.circles>0?"Лимит ":"Максимум "+plU(5,u)+" за ")+swFmt(d.cap*1000);
+  else rt=act?U+" "+(n+1)+" из "+d.circles:d.circles+" "+plU(d.circles,u)+" · на время";
   el("swRoundTxt").textContent=rt;
   const ln=el("swLapNow");
-  if(act&&!done&&d.circles>1){ln.hidden=false;ln.textContent="Текущий круг · "+swFmt(el_-(n?SWS.laps[n-1]:0));}else ln.hidden=true;
+  if(act&&!done&&d.circles!==1){ln.hidden=false;ln.textContent="Текущий "+u+" · "+swFmt(el_-(n?SWS.laps[n-1]:0));}else ln.hidden=true;
   const cn=el("swCircleNow");
-  if(swVaries(d)&&!done){cn.hidden=false;cn.innerHTML="";const h=document.createElement("div");h.className="k";h.textContent="Круг "+(n+1)+":";cn.appendChild(h);
+  if(swVaries(d)&&!done){cn.hidden=false;cn.innerHTML="";const h=document.createElement("div");h.className="k";h.textContent=d.circHead?d.circHead(n):U+" "+(n+1)+":";cn.appendChild(h);
     swCircleList(d,n).forEach(([nm,r])=>{const s=document.createElement("div");s.textContent=nm+" — "+r;cn.appendChild(s);});}else cn.hidden=true;
   el("swStage").dataset.ph=done?"done":(SWS.run?"run":"idle");
   el("swStart").textContent=done?"Пройдено ✓":SWS.run?"Пауза":(SWS.acc>0?"Продолжить":"Старт");
+  el("swcOpts").querySelectorAll("button").forEach(b=>b.disabled=act);
   const L=el("swLaps");L.hidden=!n;
   if(n){const sp=swSplits(),mx=Math.max(...sp),mn=Math.min(...sp),avg=sp.reduce((a,b)=>a+b,0)/n;
     let html=`<div class="sw-an"><div><span>Лучший</span><b class="num">${swFmt(mn)}</b></div><div><span>Средний</span><b class="num">${swFmt(avg)}</b></div><div><span>Худший</span><b class="num">${swFmt(mx)}</b></div></div>`;
     html+=sp.map((t,i)=>{const cls=n>1&&t===mn?" best":n>1&&t===mx?" worst":"";const w=Math.max(6,Math.round(t/mx*100));
-      return `<div class="sw-lap${cls}"><span class="k">Круг ${i+1}</span><span class="bar"><i style="width:${w}%"></i></span><span class="v num">${swFmt(t)}</span></div>`;}).join("");
+      return `<div class="sw-lap${cls}"><span class="k">${U} ${i+1}</span><span class="bar"><i style="width:${w}%"></i></span><span class="v num">${swFmt(t)}</span></div>`;}).join("");
     L.innerHTML=html;}else L.innerHTML="";}
 function swTick(){const d=SWS.cur;
   if(d&&d.cap&&SWS.run&&!SWS.capHit&&swElapsed()>=d.cap*1000){
@@ -2640,22 +2905,32 @@ function swMoveRow(mv,name,rp){const m=MEDIA[name];const b=document.createElemen
   if(m)b.onclick=()=>openMedia(name);mv.appendChild(b);}
 function swHead(mv,t){const h=document.createElement("div");h.className="wod-mv-h";h.textContent=t;mv.appendChild(h);}
 function swPrev(d){const h=safe.get().filter(x=>x.sw&&x.name===d.name&&x.circles);if(!h.length)return null;
-  const last=h[h.length-1];const full=h.filter(x=>x.circles>=d.circles&&x.secs);const best=full.length?full.reduce((a,b)=>b.secs<a.secs?b:a):null;return {last,best,count:h.length};}
-function swPrevHTML(d){const p=swPrev(d);if(!p)return "";const l=p.last;
+  const last=h[h.length-1];const full=h.filter(x=>d.circles>0&&x.circles>=d.circles&&x.secs);const best=full.length?full.reduce((a,b)=>b.secs<a.secs?b:a):null;
+  const most=d.circles>0?null:h.reduce((a,b)=>b.circles>a.circles?b:a);return {last,best,most};}
+function swPrevHTML(d){const p=swPrev(d);if(!p)return "";const l=p.last,u=swU(d);
   const lp=(l.laps||[]).filter(x=>x>0);const avg=lp.length?Math.round(lp.reduce((a,b)=>a+b,0)/lp.length):0;
-  let s=`<div class="sw-prev"><div><span>Прошлый раз</span><b class="num">${l.circles} ${plCircle(l.circles)} · ${mmss(l.secs||0)}</b>${avg?`<small>средний круг ${mmss(avg)}</small>`:""}</div>`;
+  let s=`<div class="sw-prev"><div><span>Прошлый раз</span><b class="num">${l.circles} ${plU(l.circles,u)} · ${mmss(l.secs||0)}</b>${avg?`<small>средний ${u} ${mmss(avg)}</small>`:""}</div>`;
   if(p.best)s+=`<div><span>Лучшее время</span><b class="num">${mmss(p.best.secs)}</b><small>${p.best.date||""}</small></div>`;
+  else if(p.most)s+=`<div><span>Рекорд</span><b class="num">${p.most.circles} ${plU(p.most.circles,u)}</b><small>${p.most.date||""}</small></div>`;
   return s+`</div>`;}
+function swOpts(d){const o=el("swcOpts");o.innerHTML="";
+  const mk=(lbl,vals,cur,set,fmt)=>{const w=document.createElement("div");w.className="sw-opt";w.innerHTML=`<span>${lbl}</span>`;
+    vals.forEach(v=>{const b=document.createElement("button");b.type="button";b.textContent=fmt(v);if(v===cur)b.classList.add("on");
+      b.onclick=()=>{if(SWS.run||SWS.acc>0)return;set(v);openSw(d);};w.appendChild(b);});o.appendChild(w);};
+  if(d.capChoices)mk("Время",d.capChoices,Math.round(d.cap/60),v=>{d.cap=v*60;},v=>v+" мин");
+  if(d.circleChoices)mk("Круги",d.circleChoices,d.circles,v=>{d.circles=v;d.fmt=v+" "+plU(v,"круг")+" · на время";},v=>String(v));}
 function openSw(d){
   if(SWS.cur&&SWS.cur!==d&&(SWS.run||SWS.acc>0)){toast("Сначала заверши или сбрось «"+SWS.cur.name+"»");d=SWS.cur;}
   else if(SWS.cur!==d){SWS.cur=d;swReset();}
-  el("swcName").textContent=d.name;el("swcEyebrow").textContent="Стрит воркаут · "+d.lvl.toLowerCase();
-  el("swcFmt").textContent=d.fmt;
+  el("swcName").textContent=d.name;el("swcEyebrow").textContent="Стрит воркаут · "+(d.lvl||"").toLowerCase();
+  el("swcFmt").textContent=d.cap&&d.capChoices&&!d.circles?"Максимум кругов за "+Math.round(d.cap/60)+" мин":d.fmt;
   el("swcDesc").textContent=d.desc;
-  el("swcPrev").innerHTML=swPrevHTML(d);
-  const mv=el("swcMoves");mv.innerHTML="";
-  if(d.circ){d.circ.forEach((c,i)=>{swHead(mv,"Круг "+(i+1));c.forEach(([n,r])=>swMoveRow(mv,n,r));});}
-  else{swHead(mv,d.circles>1?"Один круг · "+d.circles+" "+plCircle(d.circles):"Весь комплекс подряд");d.ex.forEach(e=>swMoveRow(mv,e[0],e[1]));}
+  el("swcPrev").innerHTML=swPrevHTML(d);swOpts(d);
+  const mv=el("swcMoves");mv.innerHTML="";const u=swU(d);
+  if(d.pre){swHead(mv,"Перед началом");d.pre.forEach(([n,r])=>swMoveRow(mv,n,r));}
+  if(d.show){swHead(mv,"Упражнения по порядку");d.show.forEach(([n,r])=>swMoveRow(mv,n,r));}
+  else if(d.circ){d.circ.forEach((c,i)=>{swHead(mv,u.charAt(0).toUpperCase()+u.slice(1)+" "+(i+1));c.forEach(([n,r])=>swMoveRow(mv,n,r));});}
+  else{swHead(mv,d.circles>1?"Один "+u+" · "+d.circles+" "+plU(d.circles,u):d.circles===1?"Весь комплекс подряд":"Один "+u+" · повторяй до конца времени");d.ex.forEach(e=>swMoveRow(mv,e[0],e[1]));}
   if(d.rest){const r=document.createElement("div");r.className="sw-rest";r.textContent=d.rest+" — секундомер не останавливай";mv.appendChild(r);}
   swUI();show("swc");}
 function swBeep(){try{if(typeof beep==="function"){ac();beep(1046,0.18,0.35);setTimeout(()=>beep(1320,0.3,0.4),220);}}catch(e){}}
@@ -2663,24 +2938,25 @@ el("swStart").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
   if(swDone()){toast("Тренировка окончена — нажми «Завершить» или «Сброс»");return;}
   if(SWS.run){swStop();}else{try{ac();}catch(e){}SWS.t0=performance.now();SWS.run=true;if(!SWS.iv)SWS.iv=setInterval(swTick,250);}
   swUI();});
-el("swReset").addEventListener("click",()=>{if((SWS.run||SWS.acc>0)&&Date.now()-(SWS.rArm||0)>3000){SWS.rArm=Date.now();toast("Нажми «Сброс» ещё раз — время и круги обнулятся");return;}SWS.rArm=0;swReset();});
+el("swReset").addEventListener("click",()=>{if((SWS.run||SWS.acc>0)&&Date.now()-(SWS.rArm||0)>3000){SWS.rArm=Date.now();toast("Нажми «Сброс» ещё раз — время и счётчик обнулятся");return;}SWS.rArm=0;swReset();});
 el("swLap").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
   if(swDone())return;
   if(!SWS.run){toast(SWS.acc>0?"Секундомер на паузе — нажми «Продолжить»":"Сначала нажми «Старт»");return;}
   SWS.laps.push(swElapsed());
   try{navigator.vibrate&&navigator.vibrate(60);}catch(e){}
-  const n=SWS.laps.length;
-  if(n>=d.circles){swStop();swBeep();toast("Готово: "+n+" "+plCircle(n)+" за "+swFmt(SWS.laps[n-1]));}
-  else toast("Круг "+n+" · "+swFmt(SWS.laps[n-1]-(n>1?SWS.laps[n-2]:0)));
+  const n=SWS.laps.length,u=swU(d);
+  if(d.circles>0&&n>=d.circles){swStop();swBeep();toast("Готово: "+n+" "+plU(n,u)+" за "+swFmt(SWS.laps[n-1]));}
+  else toast(u.charAt(0).toUpperCase()+u.slice(1)+" "+n+" · "+swFmt(SWS.laps[n-1]-(n>1?SWS.laps[n-2]:0)));
   swUI();});
 el("swLapUndo").addEventListener("click",()=>{if(!SWS.laps.length||SWS.capHit)return;const d=SWS.cur;
-  const wasDone=SWS.laps.length>=d.circles;SWS.laps.pop();
-  if(wasDone&&SWS.acc>0)toast("Последний круг отменён — нажми «Продолжить»");swUI();});
+  const wasDone=d.circles>0&&SWS.laps.length>=d.circles;SWS.laps.pop();
+  if(wasDone&&SWS.acc>0)toast("Последнее отменено — нажми «Продолжить»");swUI();});
 el("swFinish").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
-  const n=SWS.laps.length;if(!n){toast("Нет пройденных кругов — тренировка не сохранена");return;}
-  swStop();const secs=Math.round((n>=d.circles?SWS.laps[n-1]:swElapsed())/1000);
+  const n=SWS.laps.length;if(!n){toast("Ничего не отмечено — тренировка не сохранена");return;}
+  swStop();const secs=Math.round((d.circles>0&&n>=d.circles?SWS.laps[n-1]:swElapsed())/1000);
   const prev=swSplits().map(t=>Math.round(t/1000));
-  const h=safe.get();h.push({date:localDate(),name:d.name,sw:true,circles:n,target:d.circles,cap:d.cap||0,secs:secs,laps:prev});safe.set(h);
+  const h=safe.get();h.push({date:localDate(),name:d.name,sw:true,circles:n,target:d.circles||null,unit:swU(d),cap:d.cap||0,secs:secs,laps:prev});safe.set(h);
+  if(d.skDay){const t=skGet();t.done=t.done||{};t.done[d.skDay]=1;skSave(t);}
   swReset();SWS.cur=null;toast("Тренировка сохранена");show("progress");});
 
 /* ---- звук (Web Audio) ---- */
@@ -2943,7 +3219,7 @@ el("fAdd").addEventListener("click",()=>{
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false;
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
-function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),at:Date.now()};}
+function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),sotka:skGet(),at:Date.now()};}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -2955,7 +3231,8 @@ function cloudRefreshUI(){
   try{if(currentScreen==="progress")renderProgress();
       if(currentScreen==="food")renderFood();
       if(currentScreen==="onerm")rmLoadLift(rmLift);
-      if(currentScreen==="gvt")g2Render();}catch(e){}
+      if(currentScreen==="gvt")g2Render();
+      if(currentScreen==="sotka")renderSotka();if(currentScreen==="sw")renderSw();}catch(e){}
 }
 function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;}
 async function cloudInit(){
@@ -2974,6 +3251,7 @@ async function cloudInit(){
       try{localStorage.setItem(RMK,JSON.stringify(mergeRm(rmReg(),d.rm)))}catch(e){}
       try{if(d.gvt)localStorage.setItem(GVTK,JSON.stringify(mergeGvt(gvtStore(),d.gvt)))}catch(e){}
       try{if(d.gvt2)localStorage.setItem(G2K,JSON.stringify(mergeG2(g2Store(),d.gvt2)))}catch(e){}
+      try{if(d.sotka)localStorage.setItem(SKK,JSON.stringify(mergeSk(skGet(),d.sotka)))}catch(e){}
       cloudRefreshUI();
       cloudReady=true;
       try{await cloudDoc().set(cloudSnapshot());}catch(e){} // пишем объединённый результат обратно
