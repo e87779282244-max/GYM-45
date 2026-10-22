@@ -678,6 +678,14 @@
   .sub-q{font-weight:700;font-size:15px;margin:2px 0 4px}
   .wod-mvrow .sw-swap{margin-left:8px}
   .cf-top{margin-bottom:4px}
+  .cf-cats{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .cf-cat{display:grid;grid-template-columns:1fr auto;gap:4px 12px;text-align:left;width:100%;border:1px solid var(--line);border-left:6px solid var(--accent);background:linear-gradient(180deg,var(--card-top),var(--card-bot));color:var(--fg);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+  .cf-cat.c0{border-left-color:#7fa04a}.cf-cat.c1{border-left-color:#c9a227}.cf-cat.c2{border-left-color:#c4772f}.cf-cat.c3{border-left-color:#a8432f}.cf-cat.my{border-left-color:var(--gold)}
+  .cf-cat-h{display:flex;flex-direction:column;gap:1px}
+  .cf-cat-h b{font-family:var(--dsp);font-size:20px;font-weight:800;line-height:1.1}
+  .cf-cat-h small{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em}
+  .cf-cat-n{align-self:center;font-family:var(--dsp);font-weight:800;font-size:22px;color:var(--accent-ink);background:var(--accent-weak);border-radius:12px;padding:4px 10px;min-width:44px;text-align:center}
+  .cf-cat-d{grid-column:1/-1;font-size:13px;color:var(--muted);line-height:1.4}
   .cf-lvl{display:flex;justify-content:space-between;align-items:baseline;margin:14px 2px 2px;font-family:var(--dsp)}
   .cf-lvl b{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent)}
   .cf-lvl span{font-size:12px;color:var(--muted);font-weight:700}
@@ -1053,7 +1061,7 @@
       <p class="eyebrow">Кроссфит</p>
       <h1 class="cross-h1">Бенчмарки и свои тренировки</h1>
     </div>
-    <p class="street-note">Классические бенчмарки CrossFit по уровням: у каждого — варианты Rx / Средний / Новичок, веса для мужчин и женщин, таймер и журнал результатов с личным рекордом. Или составь свою тренировку по шаблону CrossFit.</p>
+    <p class="street-note">Выбери свой уровень — откроются подходящие комплексы. В каждом: версии Rx / Опытный / Новичок, веса для мужчин и женщин, таймер и журнал результатов с личным рекордом. Или составь свою тренировку по шаблону CrossFit.</p>
     <div class="stack" id="crossDays"></div>
   </section>
 
@@ -1116,6 +1124,13 @@
       <button type="button" class="btn" id="cfResSave">Записать результат</button>
     </div>
   </div>
+
+  <!-- КРОССФИТ: комплексы выбранного уровня -->
+  <section class="screen" id="scr-cfcat" hidden>
+    <div class="hd"><div><p class="eyebrow" id="cfCatEb">Кроссфит</p><h1 id="cfCatTitle">Уровень</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button></div>
+    <div class="stack"><p class="cf-sub" id="cfCatDesc" style="margin:0 2px"></p><div class="stack" id="cfCatList" style="padding:0"></div></div>
+  </section>
 
   <!-- КРОССФИТ: конструктор своей тренировки -->
   <section class="screen" id="scr-cfb" hidden>
@@ -1500,7 +1515,7 @@ function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","ма�
   return d.getDate()+" "+m[d.getMonth()];}
 
 /* ---------- navigation ---------- */
-const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),pu:el("scr-pu"),workout:el("scr-workout"),progress:el("scr-progress"),cfb:el("scr-cfb")};
+const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),pu:el("scr-pu"),workout:el("scr-workout"),progress:el("scr-progress"),cfb:el("scr-cfb"),cfcat:el("scr-cfcat")};
 function el(id){return document.getElementById(id);}
 let histStack=[],currentScreen=null;
 function applyScreen(name){
@@ -3126,18 +3141,11 @@ function cfResOf(id,vk){return cfGet().res.filter(r=>r.wod===id&&(!vk||r.v===vk)
 function cfPR(id,vk){const l=cfResOf(id,vk);return l.reduce((b,r)=>!b||cfBetter(r,b)?r:b,null);}
 /* ---------- список ---------- */
 function cfVariants(d){return Object.keys(d.v);}
-function renderCross(){const w=el("crossDays");w.innerHTML="";const s=cfGet();
-  const top=document.createElement("div");top.className="cf-top";
-  top.innerHTML=`<button class="btn" type="button" id="cfBuild">＋ Составить свою тренировку</button>`;w.appendChild(top);el("cfBuild").onclick=()=>cfbOpen(null);
-  if(s.my.length){const h=document.createElement("div");h.className="cf-lvl";h.innerHTML=`<b>Мои тренировки</b><span>${s.my.length}</span>`;w.appendChild(h);
-    s.my.slice().reverse().forEach(m=>w.appendChild(cfDisc(cfMyToWod(m))));}
-  CF_LVLS.forEach(L=>{const list=CFW.filter(d=>d.lvl===L);if(!list.length)return;const h=document.createElement("div");h.className="cf-lvl";h.innerHTML=`<b>${L}</b><span>${list.length}</span>`;w.appendChild(h);list.forEach(d=>w.appendChild(cfDisc(d)));});
-  const n=document.createElement("p");n.className="street-note";n.innerHTML=`Бенчмарки и варианты Rx / Средний / Новичок — из CrossFit Journal и официальных постов crossfit.com; источник указан в каждом комплексе. «Руководство CrossFit L1» — тренировки и облегчённые версии из книги. «Ещё комплексы» — прежний список Gym 45.`;w.appendChild(n);}
-function cfDisc(d){const b=document.createElement("button");b.className="disc";const pr=cfPR(d.id,"rx")||cfPR(d.id);
-  const first=d.v[cfVariants(d)[0]];
+function cfDisc(d,vk,req){const b=document.createElement("button");b.className="disc";const pr=vk?cfPR(d.id,vk):(cfPR(d.id,"rx")||cfPR(d.id));
+  const first=d.v[vk&&d.v[vk]?vk:cfVariants(d)[0]];
   b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="cf-pr">${pr?"PR "+cfScoreTxt(pr):""}</span><span class="go">›</span>`;
   b.querySelector("span span").textContent=d.name+(d.kind&&!["my","legacy","book"].includes(d.kind)?" · "+(d.kind==="Hero"?"Hero":d.kind==="Open"?"Open":d.kind==="Girl"?"Girl":"Benchmark"):"");
-  b.querySelector(".disc-sub").textContent=first.fmt;b.onclick=()=>openWod(d);return b;}
+  b.querySelector(".disc-sub").textContent=first.fmt+(vk?" · версия «"+(CF_VN[vk]||vk)+"»":"")+(req?" · "+req:"");b.onclick=()=>openWod(d,vk||cfVariants(d)[0]);return b;}
 /* ---------- экран комплекса ---------- */
 let currentWod=null,cfVar="rx";
 function openWod(d,vk){currentWod=d;d.cf=1;const vs=cfVariants(d);cfVar=vk&&d.v[vk]?vk:(d.lastVar&&d.v[d.lastVar]?d.lastVar:vs[0]);d.lastVar=cfVar;
@@ -3169,7 +3177,7 @@ function openWod(d,vk){currentWod=d;d.cf=1;const vs=cfVariants(d);cfVar=vk&&d.v[
   if(d.kind==="legacy")h+=`<p class="cf-src">Комплекс из прежнего списка Gym 45.</p>`;
   if(d.src)h+=`<p class="cf-src">Источник: ${/^https?:/.test(d.src)?`<a href="${d.src}" target="_blank" rel="noopener">${d.src.replace(/^https:\/\/(www\.)?/,"")}</a>`:d.src}${d.src2?" · "+d.src2:""}</p>`;
   extra.innerHTML=h;
-  if(d.kind==="my"){el("cfEdit").onclick=()=>cfbOpen(d.my);el("cfDel").onclick=()=>{const b=el("cfDel");if(Date.now()-(b._arm||0)>3000){b._arm=Date.now();b.textContent="Нажми ещё раз";return;}const t=cfGet();t.my=t.my.filter(x=>x.id!==d.my.id);t.del[d.my.id]=Date.now();cfSave(t);toast("Тренировка удалена");goBack();renderCross();};}
+  if(d.kind==="my"){el("cfEdit").onclick=()=>cfbOpen(d.my);el("cfDel").onclick=()=>{const b=el("cfDel");if(Date.now()-(b._arm||0)>3000){b._arm=Date.now();b.textContent="Нажми ещё раз";return;}const t=cfGet();t.my=t.my.filter(x=>x.id!==d.my.id);t.del[d.my.id]=Date.now();cfSave(t);toast("Тренировка удалена");goBack();renderCross();if(CF_CUR_CAT)cfRenderCat();};}
   cfRenderResults(d);
   setupTimer(V.t?Object.assign({},V,{t:V.t}):d);
   show("wod");}
@@ -3206,7 +3214,7 @@ function finishCross(){const d=currentWod;if(!d)return;const sc=cfScoreType(d),s
     subClearNow(d);resetTimer();resetCount();
     const hh=safe.get();hh.push({date:r.date,name:d.name+(cfVar!=="rx"&&cfVar!=="my"?" ("+(CF_VN[cfVar]||cfVar)+")":""),cross:true,rounds:r.r||0,tmtype:TIMER.type,secs:r.sc==="time"?r.t:secs,score:cfScoreTxt(r),pr:r.pr});safe.set(hh);
     cfCloseRes();let msg="Результат записан";if(r.pr&&prev)msg="🏆 Новый рекорд! Было "+cfScoreTxt(prev);else if(r.pr)msg="Первый результат — это твой рекорд";else if(last){const dv=cfVal(r)-cfVal(last);msg=(r.sc==="time"?(dv<0?"Быстрее прошлого на ":"Медленнее прошлого на ")+cfMmss(Math.abs(dv)):(dv>0?"Лучше прошлого":dv<0?"Хуже прошлого":"Как в прошлый раз"));}
-    toast(msg);cfRenderResults(d);renderCross();};
+    toast(msg);cfRenderResults(d);renderCross();if(CF_CUR_CAT)cfRenderCat();};
   sh.hidden=false;document.body.classList.add("sub-open");}
 function cfCloseRes(){el("cfResSheet").hidden=true;document.body.classList.remove("sub-open");}
 el("cfResSheet").addEventListener("click",e=>{if(e.target.id==="cfResSheet"||e.target.classList.contains("sub-x"))cfCloseRes();});
@@ -3311,7 +3319,7 @@ function cfbEstimate(){const F=CFB.fmt;if(F.type==="amrap"||F.type==="emom")retu
 function cfbSave(go){cfbSync();const t=[];if(!CFB.name)CFB.name=CFB.els.map(e=>e.ex.split(" (")[0]).join(" + ");
   for(const e of CFB.els){if(e.mod==="W"&&!(parseFloat(String(e.kg).replace(",","."))>0)){toast("Укажи вес для «"+e.ex+"»");return;}if(CFB.fmt.type!=="heavy"&&!String(e.amt).trim()){toast("Укажи количество для «"+e.ex+"»");return;}}
   const s=cfGet();const isNew=!CFB.id;if(isNew){CFB.id="my_"+Date.now();CFB.created=Date.now();s.cycle=(s.cycle||0)+(CF_TPL[(s.cycle+1)%12]?1:2);}
-  CFB.upd=Date.now();s.my=s.my.filter(x=>x.id!==CFB.id).concat([JSON.parse(JSON.stringify(CFB))]);cfSave(s);toast(isNew?"Сохранено в «Мои тренировки»":"Изменения сохранены");renderCross();
+  CFB.upd=Date.now();s.my=s.my.filter(x=>x.id!==CFB.id).concat([JSON.parse(JSON.stringify(CFB))]);cfSave(s);toast(isNew?"Сохранено в «Мои тренировки»":"Изменения сохранены");renderCross();if(CF_CUR_CAT)cfRenderCat();
   goBack();if(go)openWod(cfMyToWod(CFB));}
 /* своя тренировка → формат комплекса для общего экрана и таймера */
 function cfMyToWod(m){const F=m.fmt;const ex=m.els.map(e=>{const kg=e.mod==="W"?String(e.kg).replace(".",",")+" кг":"";const lib=CF_LIB[e.mod].find(x=>x[0]===e.ex);
@@ -3328,6 +3336,54 @@ function cfMyToWod(m){const F=m.fmt;const ex=m.els.map(e=>{const kg=e.mod==="W"?
     const fmt2=F.type==="fortime"?(F2.rounds>1?F2.rounds+" раундов · на время":"На время"):F.type==="amrap"?"AMRAP "+F2.min+" мин":F.type==="emom"?"EMOM "+F2.min+" мин":F.type==="skill"?"Практика навыка · "+F2.min+" мин":fmt;
     v.beg={fmt:fmt2+" · вес и объём вдвое",t:t2,ex:ex2,score};}
   return {id:m.id,name:m.name,kind:"my",lvl:"",score,stim:m.stim||"",about:"Моя тренировка · "+m.els.map(e=>CF_MOD[e.mod].split(" ")[0]).join("+")+" · составлена по шаблону CrossFit",v,my:m};}
+/* ===================== Уровни атлета (по Rx-версии комплекса) ===================== */
+CF_VN.int="Опытный";CF_VN.beg="Новичок";
+const CF_CATS=[
+ {k:"beg",t:"Новичок",en:"Beginner",d:"Базовые движения: обычные приседания, простые отжимания, пресс, лёгкие махи гирей. Акцент — постановка техники и адаптация сердечно-сосудистой системы."},
+ {k:"int",t:"Опытный",en:"Intermediate",d:"Уверенная базовая гимнастика (подтягивания, прыжки, скакалка) и работа с отягощениями; понимаешь структуру WOD и держишь высокий темп."},
+ {k:"adv",t:"Продвинутый",en:"Advanced",d:"Сложная гимнастика (выходы силой, подтягивания «баттерфляем», стойка и ходьба на руках, пистолетики) и солидные веса в тяжёлой атлетике (рывок, взятие на грудь)."},
+ {k:"elite",t:"Профи / Элита",en:"Rx'd / Elite",d:"Уровень соревнующихся атлетов (включая CrossFit Games): комплексы с предписанными (Rx) максимальными весами и объёмом без масштабирования."}];
+/* распределение по Rx-версии: [уровень, что требует Rx] */
+const CF_CAT={
+ old_домашний_вызов:["beg","приседания, пресс, отжимания"],old_susan:["beg","бег, отжимания, приседания"],old_anderson:["beg","бёрпи, отжимания, пресс, приседания"],
+ old_death_by_отжимания:["beg","отжимания по нарастающей"],old_клаус:["beg","отжимания, пресс, приседания"],l1_dl5:["beg","становая 5×5 с техникой — по книге подходит всем"],l1_squat5:["beg","присед 5×5 с техникой — по книге подходит всем"],
+ cindy:["int","100 подтягиваний за 20 мин"],annie:["int","двойные прыжки на скакалке"],karen:["int","150 бросков мяча 9 кг"],jackie:["int","трастер 20 кг, 30 подтягиваний"],
+ helen:["int","бег, гиря 24 кг, подтягивания"],kelly:["int","бег, тумба 60 см, мяч 9 кг — большой объём"],jack:["int","жимовой швунг 52 кг, гиря 24 кг"],fgb:["int","штанга 34 кг, мяч, тумба, гребля"],
+ old_отбор_бк:["int","становая 70 кг, мяч, скакалка"],old_кулак_веры:["int","чиппер: гиря 24 кг, выпады, бёрпи"],old_одинокая_сестра:["int","ноги к перекладине, рывок гантели 22 кг"],
+ old_infernal_duo:["int","по 100 бёрпи и подтягиваний"],old_junior:["int","по 210 прыжков на тумбу и отжиманий"],
+ l1_wb_box:["int","по 150 бросков мяча 9 кг и прыжков на 61 см"],l1_t1:["int","бег 10 км"],l1_t3:["int","бег, подтягивания, трастер 50% веса тела"],l1_t6:["int","жим лёжа 75% веса тела, гребля"],
+ l1_t7:["int","выпады, швунг 50% веса тела, гребля"],l1_t10:["int","бег, прыжки на ящик 76 см"],l1_t11:["int","становая 50% веса тела, велотренажёр, отжимания"],
+ fran:["adv","трастер 43 кг + подтягивания на скорость"],nancy:["adv","присед над головой 43 кг"],angie:["adv","100 подтягиваний подряд по списку"],barbara:["adv","100 подтягиваний, 150 отжиманий"],
+ chelsea:["adv","150 подтягиваний на EMOM"],mary:["adv","отжимания в стойке, пистолетики"],old_молот_тора:["adv","взятие, фронтальный присед, швунг 40 кг × 60"],
+ old_the_540:["adv","трастер 43 кг, взятие 60 кг"],old_hooper:["adv","125 подтягиваний, швунг 60 кг"],old_crossfit_total:["adv","максимум в приседе, жиме и становой"],
+ l1_sdhp_jerk:["adv","толчковый швунг 34 кг × 84"],l1_t5:["adv","стойка на руках — сложный навык"],l1_t9:["adv","становая до максимума в 1 повторе"],
+ grace:["elite","30 толчков 61 кг"],isabel:["elite","30 рывков 61 кг"],elizabeth:["elite","взятие 61 кг + отжимания на кольцах"],diane:["elite","становая 102 кг + отжимания в стойке"],
+ dt:["elite","штанга 70 кг × 135 повторов"],open155:["elite","задание CrossFit Open"],eva:["elite","гиря 32 кг, 150 подтягиваний, 4 км бега"],murph:["elite","300 подтягиваний/отжиманий/приседаний + 3,2 км, жилет"],
+ hotshots19:["elite","114 силовых взятий 61 кг, строгие подтягивания"],l1_clean_mu:["elite","взятие 84 кг + выходы силой"],l1_amrap20:["elite","толчок 93 кг, подтягивания с уголком"],l1_t2:["elite","отжимания в стойке + становая от 102 кг"]};
+function cfCatOf(d){return (CF_CAT[d.id]||[d.kind==="my"?"my":"int"])[0];}
+let CF_CUR_CAT=null;
+function renderCross(){const w=el("crossDays");w.innerHTML="";const s=cfGet();
+  const top=document.createElement("div");top.className="cf-top";top.innerHTML=`<button class="btn" type="button" id="cfBuild">＋ Составить свою тренировку</button>`;w.appendChild(top);el("cfBuild").onclick=()=>cfbOpen(null);
+  const g=document.createElement("div");g.className="cf-cats";
+  CF_CATS.forEach((c,i)=>{const own=CFW.filter(d=>cfCatOf(d)===c.k);const b=document.createElement("button");b.type="button";b.className="cf-cat c"+i;
+    b.innerHTML=`<span class="cf-cat-h"><b>${c.t}</b><small>${c.en}</small></span><span class="cf-cat-n num">${own.length}</span><span class="cf-cat-d">${c.d}</span>`;b.onclick=()=>cfOpenCat(c.k);g.appendChild(b);});
+  if(s.my.length){const b=document.createElement("button");b.type="button";b.className="cf-cat my";b.innerHTML=`<span class="cf-cat-h"><b>Мои тренировки</b><small>составлены в конструкторе</small></span><span class="cf-cat-n num">${s.my.length}</span>`;b.onclick=()=>cfOpenCat("my");g.appendChild(b);}
+  w.appendChild(g);
+  const n=document.createElement("p");n.className="street-note";n.textContent="Уровень определён по Rx-версии: какие движения, веса и объём нужны, чтобы выполнить комплекс как в оригинале. Внутри каждого комплекса можно выбрать облегчённую версию.";w.appendChild(n);}
+function cfOpenCat(k){CF_CUR_CAT=k;cfRenderCat();show("cfcat");}
+function cfRenderCat(){const k=CF_CUR_CAT,w=el("cfCatList");w.innerHTML="";const s=cfGet();
+  if(k==="my"){el("cfCatTitle").textContent="Мои тренировки";el("cfCatEb").textContent="Кроссфит";el("cfCatDesc").textContent="Тренировки, составленные в конструкторе. В каждой есть вариант «Новичок».";
+    s.my.slice().reverse().forEach(m=>w.appendChild(cfDisc(cfMyToWod(m))));return;}
+  const c=CF_CATS.find(x=>x.k===k);el("cfCatTitle").textContent=c.t;el("cfCatEb").textContent="Кроссфит · "+c.en;el("cfCatDesc").textContent=c.d;
+  const own=CFW.filter(d=>cfCatOf(d)===k);
+  const grp=[["Бенчмарки CrossFit",d=>!["legacy","book"].includes(d.kind)],["Из руководства CrossFit L1",d=>d.kind==="book"],["Комплексы Gym 45",d=>d.kind==="legacy"]];
+  grp.forEach(([t,f])=>{const l=own.filter(f);if(!l.length)return;const h=document.createElement("div");h.className="cf-lvl";h.innerHTML=`<b>${t}</b><span>${l.length}</span>`;w.appendChild(h);l.forEach(d=>w.appendChild(cfDisc(d,null,CF_CAT[d.id]&&CF_CAT[d.id][1])));});
+  /* классика в облегчённой версии: более сложные комплексы, у которых есть официальная версия этого уровня */
+  const order=["beg","int","adv","elite"],lv=order.indexOf(k);
+  if(k==="beg"||k==="int"){const easy=CFW.filter(d=>order.indexOf(cfCatOf(d))>lv&&d.v[k]);
+    if(easy.length){const h=document.createElement("div");h.className="cf-lvl";h.innerHTML=`<b>Классика в версии «${c.t}»</b><span>${easy.length}</span>`;w.appendChild(h);
+      const p=document.createElement("p");p.className="cf-sub";p.style.margin="0 2px 6px";p.textContent="Сложные комплексы в официальном облегчённом варианте — откроются сразу в нём.";w.appendChild(p);
+      easy.forEach(d=>w.appendChild(cfDisc(d,k)));}}}
 renderCross();
 
 /* ===================== СТРИТ ВОРКАУТ: круги + общее время ===================== */
@@ -4469,6 +4525,7 @@ function cloudRefreshUI(){
       if(currentScreen==="onerm")rmLoadLift(rmLift);
       if(currentScreen==="gvt")g2Render();
       if(currentScreen==="cross")renderCross();
+      if(currentScreen==="cfcat")cfRenderCat();
       if(currentScreen==="sotka")renderSotka();if(currentScreen==="sw")renderSw();}catch(e){}
 }
 function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;}
