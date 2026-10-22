@@ -1071,7 +1071,7 @@ function goBack(){
   if(prev==="workout"&&!current)prev="home";
   applyScreen(prev);}
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
-  if(t.dataset.scr==="workout"){if(current)show("workout");else if(dayView)show("day");else startWorkout(PROGRAMS[0]);}
+  if(t.dataset.scr==="workout"){if(current)show("workout");else if(dayView)show("day");else{show("programs");toast("Выбери программу — тренировка откроется оттуда");}}
   else show(t.dataset.scr);});
 document.querySelectorAll(".back-btn").forEach(b=>b.addEventListener("click",goBack));
 
@@ -1530,7 +1530,7 @@ document.querySelectorAll("#scr-home [data-go]").forEach(b=>b.onclick=()=>{
   if(g==="home")return;
   if(g==="programs")show("programs");
   else if(g==="progress")show("progress");
-  else if(g==="workout")startWorkout(PROGRAMS[0]);
+  else if(g==="workout"){if(current)show("workout");else show("programs");}
   else if(g==="nutrition"){renderFood();show("food");}
   else if(g==="onerm")show("onerm");
 });
