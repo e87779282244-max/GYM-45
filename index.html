@@ -653,6 +653,29 @@
   .pu-st{align-items:center}
   .pu-n{font-size:11.5px;letter-spacing:.06em;color:var(--accent);font-family:var(--dsp);font-weight:700}
   .pu-on{outline:2.5px solid var(--accent);outline-offset:2px}
+  .sw-mv{cursor:default}
+  .sw-mv .th,.sw-mv .nm{cursor:pointer}
+  .sw-mv .nm small{display:block;font-size:11.5px;font-weight:600;color:var(--muted)}
+  .sw-mv.subbed .th{border-color:var(--accent)}
+  .sw-swap{flex:none;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--accent-ink);font-size:17px;font-weight:800;line-height:1}
+  .sub-sheet{position:fixed;inset:0;z-index:90;background:rgba(20,18,10,.45);display:flex;align-items:flex-end;justify-content:center}
+  .sub-sheet[hidden]{display:none}
+  .sub-card{width:min(560px,100%);max-height:86dvh;overflow:auto;background:var(--bg);border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+  .sub-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .sub-top b{font-family:var(--dsp);font-size:19px}
+  .sub-x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:16px;color:var(--fg)}
+  .sub-m{font-size:13px;color:var(--muted);line-height:1.4;margin:6px 0 10px}
+  .sub-list{display:flex;flex-direction:column;gap:8px}
+  .sub-opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:8px 10px;color:var(--fg)}
+  .sub-opt.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+  .sub-opt .th{width:48px;height:48px;flex:none;border-radius:9px;border:1px solid var(--line);background:#fff;overflow:hidden;display:grid;place-items:center;color:var(--faint)}
+  .sub-opt .th img{width:100%;height:100%;object-fit:contain}
+  .sub-opt .nm{flex:1;min-width:0;font-weight:700;font-size:14.5px}
+  .sub-opt .eq{flex:none;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:4px 8px}
+  .sub-reset{width:100%;margin-top:12px}
+  .wod-mvrow .sw-swap{margin-left:8px}
+  .wod-mvrow small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
+  body.sub-open{overflow:hidden}
   .sw-group{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--accent);margin:4px 0 -2px}
   .sw-circlenow{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.25);font-size:14px;font-weight:600;line-height:1.45;text-align:center}
   .sw-circlenow .k{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.08em;font-size:11.5px;opacity:.85}
@@ -1175,6 +1198,15 @@
       </div>
     </div>
   </section>
+
+  <div class="sub-sheet" id="subSheet" hidden>
+    <div class="sub-card" role="dialog" aria-label="Замена упражнения">
+      <div class="sub-top"><b class="sub-h">Замена</b><button type="button" class="sub-x" aria-label="Закрыть">✕</button></div>
+      <p class="sub-m"></p>
+      <div class="sub-list"></div>
+      <button type="button" class="tm-reset sub-reset" hidden>↺ Вернуть исходное упражнение</button>
+    </div>
+  </div>
 
   <section class="screen" id="scr-swc" hidden>
     <div class="hd">
@@ -2778,7 +2810,7 @@ el("pclose").addEventListener("click",closeMedia);
 
 /* ===================== КРОССФИТ: описание + таймер ===================== */
 let currentWod=null;
-function openWod(d){currentWod=d;
+function openWod(d){currentWod=d;d.cf=1;d._subs=subAll()[subKey(d)]||{};
   el("wodName").textContent=d.name;
   el("wodFmt").textContent=d.fmt;
   el("wodDesc").textContent=d.desc||"";
@@ -2789,9 +2821,12 @@ function openWod(d){currentWod=d;
     if(e[2]>0)rep=e[1]>1?(e[1]+"×"+e[2]):(""+e[2]);
     else rep=e[1]>1?(e[1]+" раунд"):"по станции";
     const wt=e[3]>0?" · "+e[3]+" кг":"";
-    const s1=document.createElement("span");s1.textContent=e[0];
+    const disp=subName(d,e[0]);const s1=document.createElement("span");s1.textContent=disp;
+    if(disp!==e[0]){const sm=document.createElement("small");sm.textContent="вместо: "+e[0];s1.appendChild(sm);}
     const s2=document.createElement("span");s2.className="num";s2.textContent=rep+wt;
-    row.appendChild(s1);row.appendChild(s2);mv.appendChild(row);
+    row.appendChild(s1);row.appendChild(s2);
+    if(subCat(e[0])){const sb=document.createElement("button");sb.type="button";sb.className="sw-swap";sb.textContent="⇄";sb.title="Заменить упражнение";sb.onclick=()=>subOpen(d,e[0],()=>openWod(d));row.appendChild(sb);}
+    mv.appendChild(row);
   });
   setupTimer(d);
   show("wod");
@@ -2949,9 +2984,9 @@ function renderSotka(){const s=skGet();const today=skToday(s);const day=skView||
   let h=`<div class="sk-dayhead"><button class="tm-icon" id="skPrev" type="button" ${day<=1?"disabled":""}>‹</button><div><span class="tag">${p.block.replace(" блок","")} · неделя ${p.week}</span><h3>День ${day}${isT?" · сегодня":""}</h3><p class="sk-title">${p.title}</p></div><button class="tm-icon" id="skNext" type="button" ${day>=100?"disabled":""}>›</button></div>`;
   (p.notes||[]).forEach(n=>h+=`<p class="sk-note">${n}</p>`);
   if(p.w){const rows=p.w.show||(p.w.circ?null:p.w.ex);h+=`<p class="sk-fmt">${p.w.fmt}</p>`;
-    if(p.w.pre)h+=`<div class="sk-rows">${p.w.pre.map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join("")}</div>`;
-    if(rows)h+=`<div class="sk-rows">${rows.map(r=>`<div><span>${r[0]}</span><b class="num">${r[1]}</b></div>`).join("")}</div>`;
-    else h+=`<div class="sk-rows">${p.w.circ.map((c,i)=>`<div><span>${i+1}. ${c[0][0]}</span><b class="num">${c[0][1]}</b></div>`).join("")}</div>`;
+    if(p.w.pre)h+=`<div class="sk-rows">${p.w.pre.map(r=>`<div><span>${subDisp(p.w,r[0])}</span><b>${r[1]}</b></div>`).join("")}</div>`;
+    if(rows)h+=`<div class="sk-rows">${rows.map(r=>`<div><span>${subDisp(p.w,r[0])}</span><b class="num">${r[1]}</b></div>`).join("")}</div>`;
+    else h+=`<div class="sk-rows">${p.w.circ.map((c,i)=>`<div><span>${i+1}. ${subDisp(p.w,c[0][0])}</span><b class="num">${c[0][1]}</b></div>`).join("")}</div>`;
     h+=`<button class="btn" id="skGo" type="button">${s.done&&s.done[day]?"Повторить тренировку":"Начать тренировку"}</button>`;}
   else{h+=`<p class="wod-desc">${p.text}</p>`;
     if(p.type==="test"){const m=(s.max&&s.max[p.key])||{},m0=(s.max&&s.max.start)||{};
@@ -3100,7 +3135,7 @@ function renderPP(){const id=ppCur,P=PP[id];if(!P)return;const s=ppGet(id);const
   const p=P.plan(day,s);const card=el("ppDay");const isT=s.start&&day===today;
   let h=`<div class="sk-dayhead"><button class="tm-icon" id="ppPrev" type="button" ${day<=1?"disabled":""}>‹</button><div><span class="tag">${p.block}</span><h3>День ${day}${isT?" · сегодня":""}</h3><p class="sk-title">${p.title}</p></div><button class="tm-icon" id="ppNext" type="button" ${day>=P.total?"disabled":""}>›</button></div>`;
   (p.notes||[]).forEach(n=>h+=`<p class="sk-note">${n}</p>`);
-  if(p.w){h+=`<p class="sk-fmt">${p.w.fmt}</p><div class="sk-rows">${(p.w.show||p.w.ex).map(r=>`<div><span>${r[0]}</span><b class="num">${r[1]}</b></div>`).join("")}</div><button class="btn" id="ppGo" type="button">${s.done&&s.done[day]?"Повторить тренировку":"Начать тренировку"}</button>`;}
+  if(p.w){h+=`<p class="sk-fmt">${p.w.fmt}</p><div class="sk-rows">${(p.w.show||p.w.ex).map(r=>`<div><span>${subDisp(p.w,r[0])}</span><b class="num">${r[1]}</b></div>`).join("")}</div><button class="btn" id="ppGo" type="button">${s.done&&s.done[day]?"Повторить тренировку":"Начать тренировку"}</button>`;}
   else{h+=`<p class="wod-desc">${p.text}</p>`;
     if(p.type==="pick")h+=`<div class="sw-opt">${p.pick.map((d,i)=>`<button type="button" data-d="${d}">${["Пн · максимум","Вт · пирамида","Ср · хваты","Чт · подходы"][i]}</button>`).join("")}</div>`;
     if(p.type==="test")h+=`<div class="sk-max"><label><span>Результат</span><input type="number" inputmode="numeric" min="0" id="ppTest" value="${(s.t||{})[p.key]??""}"></label></div>`;
@@ -3432,6 +3467,45 @@ function puAfterTest(id,v){const p=ppGet("pupath");p.t=p.t||{};p.t.max=v;ppSave(
   if(id==="fighter"){if(v>=12){toast(v+" подтягиваний — следующая ступень: Armstrong Pull-up");const a=ppGet("armstrong");if(!a.start){a.t=a.t||{};a.t.tr=a.t.tr||3;ppSave("armstrong",a);}}else toast("Пройди ещё цикл Fighter Pull-up со стартом от "+v);}}
 el("puMax").addEventListener("change",()=>{const p=ppGet("pupath");p.t=p.t||{};const v=el("puMax").value;if(v==="")delete p.t.max;else p.t.max=+v;ppSave("pupath",p);setTimeout(renderPU,0);});
 
+/* ===================== ЗАМЕНА УПРАЖНЕНИЙ (все комплексы) ===================== */
+const SUBC=[
+ {k:"mu",m:"спина, грудь, трицепс",re:/выход/i,alt:[["Взрывные подтягивания","свой вес"],["Подтягивания до груди","свой вес"],["Негативный выход силой","свой вес"],["Подтягивания с резиной + брусья","резина"],["Тяга верхнего блока к груди + брусья","тренажёр"],["Пуловер с гантелью + жим гантелей лёжа","гантели"]]},
+ {k:"calf",m:"икры",re:/подъ[её]мы? на нос|на носк/i,alt:[["Подъём на носки стоя","свой вес"],["Подъём на носок на одной ноге","свой вес"],["Подъём на носки с гантелями стоя","гантели"],["Подъём на носки со штангой","штанга"],["Подъём на носки в тренажёре стоя","тренажёр"],["Подъём на носки сидя","тренажёр"]]},
+ {k:"vpush",m:"плечи, трицепс",re:/стойк|уголком|щук|жим над головой|от плеч|сидя от|армейск|швунг|толчок|к подбородку|жим штанги стоя|на плечи|хинду|индийск/i,alt:[["Отжимания уголком","свой вес"],["Отжимания уголком, ноги на возвышении","свой вес"],["Жим гантелей сидя","гантели"],["Жим штанги стоя","штанга"],["Жим гири одной рукой","гиря"],["Жим в тренажёре на плечи","тренажёр"]]},
+ {k:"core",m:"пресс, кор",re:/подъ[её]м (ног|колен|корпус|туловищ|прям|согнут)|подъёмы (ног|колен|корпус|туловищ|прям|согнут)|подтягивания коленей|пресс|скруч|(^|\s)планка|уголк|v-удерж|ножниц|велосипед|складк|книжечк|дворник|мах[иа]? ног|махи ногами|паллоф|раскатк|группировк|передний вис|ситап|касание нос|наклоны колен|высокого угла/i,alt:[["Подъём ног в висе","свой вес"],["Скручивания","свой вес"],["Планка","свой вес"],["Раскатка с роликом","ролик"],["Русские скручивания с гантелью","гантели"],["Скручивания на верхнем блоке","блок"]]},
+ {k:"power",m:"всё тело, ноги, плечи",re:/взятие|рывок|трастер|медбол|махи гир|броски/i,alt:[["Махи гирей","гиря"],["Рывок гантели","гантели"],["Трастеры с гантелями","гантели"],["Трастеры со штангой","штанга"],["Бёрпи","свой вес"],["Приседания с выпрыгиванием","свой вес"]]},
+ {k:"hpull",m:"спина (толщина), бицепс",re:/австралийск|горизонтальн|наклонная тяга|вертикальная тяга|тяга нижнего|тяга .*наклон|тяга гантел|тяга у стены|тяга в рычаж/i,alt:[["Австралийские подтягивания","свой вес"],["Тяга гантели одной рукой","гантели"],["Тяга штанги в наклоне","штанга"],["Тяга гири в наклоне","гиря"],["Тяга нижнего блока","тренажёр"],["Тяга резины к поясу","резина"]]},
+ {k:"vpull",m:"спина (ширина), бицепс",re:/подтяг|тяга верхнего|вис на|^вис|лопат|включение лопаток|раскрыти|разведени.*хват|подбородк|раскачк|круговые/i,alt:[["Подтягивания","свой вес"],["Подтягивания обратным хватом","свой вес"],["Негативные подтягивания","свой вес"],["Подтягивания с резиной","резина"],["Тяга верхнего блока","тренажёр"],["Пуловер с гантелью","гантели"]]},
+ {k:"bic",m:"бицепс",re:/бицепс|сгибани(е|я) (на|с|штанг|гантел)/i,alt:[["Подтягивания обратным узким хватом","свой вес"],["Сгибания с гантелями","гантели"],["Молотки с гантелями","гантели"],["Сгибания штанги","штанга"],["Сгибания на нижнем блоке","блок"],["Сгибания с резиной","резина"]]},
+ {k:"dip",m:"трицепс, грудь",re:/брусь|трицепс|обратные отжим|от перекладин|упоре на брусьях/i,alt:[["Отжимания на брусьях","свой вес"],["Обратные отжимания от скамьи","свой вес"],["Алмазные отжимания","свой вес"],["Французский жим с гантелями","гантели"],["Жим штанги узким хватом","штанга"],["Разгибания на трицепс на блоке","тренажёр"]]},
+ {k:"hpush",m:"грудь, трицепс, плечи",re:/отжим|жим .*лёж|жим лёж|планш|упор[ае]? лёж/i,alt:[["Отжимания от пола","свой вес"],["Отжимания с ногами на возвышении","свой вес"],["Жим гантелей лёжа","гантели"],["Жим штанги лёжа","штанга"],["Жим от груди в тренажёре","тренажёр"],["Отжимания с резиной","резина"]]},
+ {k:"hinge",m:"задняя поверхность бедра, ягодицы, поясница",re:/гиперэкст|мостик|мост|румынск|становая|скандинав|тяга бёдр/i,alt:[["Ягодичный мост","свой вес"],["Гиперэкстензия","тренажёр"],["Румынская тяга с гантелями","гантели"],["Становая тяга","штанга"],["Махи гирей","гиря"],["Сгибание ног лёжа","тренажёр"]]},
+ {k:"lunge",m:"ноги, ягодицы (по одной)",re:/выпад|зашагив на|зашагивания на|спартанск|сплит/i,alt:[["Выпады","свой вес"],["Болгарские сплит-приседания","свой вес"],["Выпады с гантелями","гантели"],["Зашагивания на тумбу с гантелями","гантели"],["Выпады со штангой","штанга"],["Жим ногами одной ногой","тренажёр"]]},
+ {k:"legs",m:"ноги, ягодицы",re:/присед|пистолет|стульчик|всадник|гусин|сумо|креветк|разгибания ног/i,alt:[["Приседания","свой вес"],["Пистолетик с опорой","свой вес"],["Гоблет-присед","гиря"],["Присед со штангой","штанга"],["Жим ногами","тренажёр"],["Гакк-присед","тренажёр"]]},
+ {k:"plyo",m:"всё тело, выносливость",re:/прыж|выпрыг|запрыг|скалолаз|бёрпи|берпи|джек|перескок|спринт|полубёрпи|краб/i,alt:[["Бёрпи","свой вес"],["Приседания с выпрыгиванием","свой вес"],["Прыжки на скакалке","скакалка"],["Махи гирей","гиря"],["Трастеры с гантелями","гантели"],["Гребной тренажёр — интервалы","кардиотренажёр"]]},
+ {k:"cardio",m:"выносливость (дистанцию переводи во время)",re:/бег|джоггинг|пробеж|ходьба|дорожк|гребл|забег/i,alt:[["Бег на дорожке","кардиотренажёр"],["Гребной тренажёр","кардиотренажёр"],["Велотренажёр / эйрбайк","кардиотренажёр"],["Эллипс","кардиотренажёр"],["Прыжки на скакалке","скакалка"],["Бег на месте с высоким подниманием колен","свой вес"]]},
+ {k:"carry",m:"хват, кор, всё тело",re:/перенос|переноск|фермер/i,alt:[["Прогулка фермера с гантелями","гантели"],["Прогулка фермера с гирями","гиря"],["Перенос мешка / сэндбэга","отягощение"],["Вис на перекладине","свой вес"],["Медвежья походка","свой вес"],["Толкание саней","тренажёр"]]}];
+const SUBK="gym45_sub_v1";
+function subAll(){try{return JSON.parse(localStorage.getItem(SUBK)||"{}")||{};}catch(e){return {};}}
+function subKey(d){return d.pp?"pp:"+d.pp:d.skDay?"sotka":d.rr?"rr":d.hc?"hc":d.cf?"cf:"+d.name:"sw:"+d.name;}
+function subCat(n){if(!n||/ \+ /.test(n))return null;const base=n.split(": ")[0];return SUBC.find(c=>c.re.test(base))||null;}
+function subApply(orig,alt){const i=orig.indexOf(": ");return i>0?alt+orig.slice(i):alt;}
+function subName(d,n){const s=d&&d._subs;return s&&s[n]?subApply(n,s[n]):n;}
+function subSet(d,orig,alt){const a=subAll(),k=subKey(d);a[k]=a[k]||{};if(alt)a[k][orig]=alt;else delete a[k][orig];
+  try{localStorage.setItem(SUBK,JSON.stringify(a));}catch(e){}d._subs=a[k];try{if(typeof cloudPush==="function")cloudPush();}catch(e){}}
+function subOpen(d,orig,after){const c=subCat(orig);if(!c)return;const cur=(d._subs||{})[orig];const base=orig.split(": ")[0];
+  const sh=el("subSheet");sh.querySelector(".sub-h").textContent="Замена: "+base;sh.querySelector(".sub-m").textContent="Мышцы: "+c.m+". Повторы и схема остаются прежними — вес подбери так, чтобы выполнить их чисто.";
+  const L=sh.querySelector(".sub-list");L.innerHTML="";
+  c.alt.filter(a=>a[0].toLowerCase()!==base.toLowerCase()).slice(0,6).forEach(([n,eq])=>{const m=MEDIA[n];const b=document.createElement("button");b.type="button";b.className="sub-opt"+(cur===n?" on":"");
+    b.innerHTML=`<span class="th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"•"}</span><span class="nm"></span><span class="eq"></span>`;
+    b.querySelector(".nm").textContent=n;b.querySelector(".eq").textContent=eq;
+    b.onclick=()=>{subSet(d,orig,n);subClose();after();toast("Заменено: "+n);};L.appendChild(b);});
+  const r=sh.querySelector(".sub-reset");r.hidden=!cur;r.onclick=()=>{subSet(d,orig,null);subClose();after();toast("Вернул исходное упражнение");};
+  sh.hidden=false;document.body.classList.add("sub-open");}
+function subClose(){el("subSheet").hidden=true;document.body.classList.remove("sub-open");}
+el("subSheet").addEventListener("click",e=>{if(e.target.id==="subSheet"||e.target.classList.contains("sub-x"))subClose();});
+
+function subDisp(w,n){const s=subAll()[subKey(w)]||{};return s[n]?subApply(n,s[n]):n;}
 /* ---- движок тренировки: круги / подходы, общий секундомер ---- */
 const SWS={cur:null,run:false,acc:0,t0:0,laps:[],iv:null,capHit:false};
 function swElapsed(){return SWS.acc+(SWS.run?performance.now()-SWS.t0:0);}
@@ -3475,7 +3549,7 @@ function swUI(){const d=SWS.cur;if(!d)return;const n=SWS.laps.length,done=swDone
   if(act&&!done&&d.circles!==1){ln.hidden=false;ln.textContent="Текущий "+u+" · "+swFmt(el_-(n?SWS.laps[n-1]:0));}else ln.hidden=true;
   const cn=el("swCircleNow");
   if(swVaries(d)&&!done){cn.hidden=false;cn.innerHTML="";const h=document.createElement("div");h.className="k";h.textContent=d.circHead?d.circHead(n):U+" "+(n+1)+":";cn.appendChild(h);
-    swCircleList(d,n).forEach(([nm,r])=>{const s=document.createElement("div");s.textContent=nm+" — "+r;cn.appendChild(s);});}else cn.hidden=true;
+    swCircleList(d,n).forEach(([nm,r])=>{const s=document.createElement("div");s.textContent=subName(d,nm)+" — "+r;cn.appendChild(s);});}else cn.hidden=true;
   el("swStage").dataset.ph=done?"done":(SWS.run?"run":"idle");
   el("swStart").textContent=done?"Пройдено ✓":SWS.run?"Пауза":(SWS.acc>0?"Продолжить":"Старт");
   el("swcOpts").querySelectorAll("button").forEach(b=>b.disabled=act);
@@ -3493,10 +3567,14 @@ function swTick(){const d=SWS.cur;
   swUI();}
 function swStop(){if(SWS.run){SWS.acc+=performance.now()-SWS.t0;SWS.run=false;}if(SWS.iv){clearInterval(SWS.iv);SWS.iv=null;}}
 function swReset(){swStop();SWS.acc=0;SWS.laps=[];SWS.capHit=false;swUI();}
-function swMoveRow(mv,name,rp,mk){if(typeof mk!=="string")mk="";const m=MEDIA[mk||name];const b=document.createElement("button");b.type="button";b.className="sw-mv";
-  b.innerHTML=`<span class="th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"•"}</span><span class="nm"></span><span class="rp num"></span>`;
-  b.querySelector(".nm").textContent=name;b.querySelector(".rp").textContent=rp;
-  if(m)b.onclick=()=>openMedia(mk||name);mv.appendChild(b);}
+function swMoveRow(mv,name,rp,mk){if(typeof mk!=="string")mk="";const d=SWS.cur;const disp=subName(d,name);const subbed=disp!==name;
+  const key=subbed?disp.split(": ")[0]:(mk||name);const m=MEDIA[key];const row=document.createElement("div");row.className="sw-mv"+(subbed?" subbed":"");
+  row.innerHTML=`<span class="th">${m?`<img src="${m.p}" alt="" loading="lazy">`:"•"}</span><span class="nm"></span><span class="rp num"></span>`+(subCat(name)?`<button type="button" class="sw-swap" title="Заменить упражнение" aria-label="Заменить упражнение">⇄</button>`:"");
+  const nm=row.querySelector(".nm");nm.textContent=disp;if(subbed){const s=document.createElement("small");s.textContent="вместо: "+name.split(": ")[0];nm.appendChild(s);}
+  row.querySelector(".rp").textContent=rp;
+  if(m){row.querySelector(".th").onclick=()=>openMedia(key);nm.onclick=()=>openMedia(key);}
+  const sb=row.querySelector(".sw-swap");if(sb)sb.onclick=e=>{e.stopPropagation();subOpen(d,name,()=>openSw(d));};
+  mv.appendChild(row);}
 function swHead(mv,t){const h=document.createElement("div");h.className="wod-mv-h";h.textContent=t;mv.appendChild(h);}
 function swPrev(d){const h=safe.get().filter(x=>x.sw&&x.name===d.name&&x.circles);if(!h.length)return null;
   const last=h[h.length-1];const full=h.filter(x=>d.circles>0&&x.circles>=d.circles&&x.secs);const best=full.length?full.reduce((a,b)=>b.secs<a.secs?b:a):null;
@@ -3514,6 +3592,7 @@ function swOpts(d){const o=el("swcOpts");o.innerHTML="";
   if(d.capChoices)mk("Время",d.capChoices,Math.round(d.cap/60),v=>{d.cap=v*60;},v=>v+" мин");
   if(d.circleChoices)mk("Круги",d.circleChoices,d.circles,v=>{d.circles=v;d.fmt=v+" "+plU(v,"круг")+" · на время";},v=>String(v));}
 function openSw(d){
+  d._subs=subAll()[subKey(d)]||{};
   if(SWS.cur&&SWS.cur!==d&&(SWS.run||SWS.acc>0)){toast("Сначала заверши или сбрось «"+SWS.cur.name+"»");d=SWS.cur;}
   else if(SWS.cur!==d){SWS.cur=d;swReset();}
   el("swcName").textContent=d.name;el("swcEyebrow").textContent="Стрит воркаут · "+(d.lvl||"").toLowerCase();
@@ -3522,6 +3601,7 @@ function openSw(d){
   el("swcPrev").innerHTML=swPrevHTML(d);swOpts(d);
   const mv=el("swcMoves");mv.innerHTML="";const u=swU(d);
   if(d.pre){swHead(mv,"Перед началом");d.pre.forEach(([n,r])=>swMoveRow(mv,n,r));}
+  if(d.show&&d.circ){const u=[...new Set(d.circ.flat().map(e=>e[0]))].filter(n=>!d.show.some(s=>s[0]===n));if(u.length&&u.length<=3){swHead(mv,"Упражнение");u.forEach(n=>swMoveRow(mv,n,"",""));}}
   if(d.show){swHead(mv,"Упражнения по порядку");d.show.forEach(([n,r,k])=>swMoveRow(mv,n,r,k));}
   else if(d.circ){d.circ.forEach((c,i)=>{swHead(mv,u.charAt(0).toUpperCase()+u.slice(1)+" "+(i+1));c.forEach(([n,r,k])=>swMoveRow(mv,n,r,k));});}
   else{swHead(mv,d.circles>1?"Один "+u+" · "+d.circles+" "+plU(d.circles,u):d.circles===1?"Весь комплекс подряд":"Один "+u+" · повторяй до конца времени");d.ex.forEach(e=>swMoveRow(mv,e[0],e[1]));}
@@ -3817,7 +3897,7 @@ el("fAdd").addEventListener("click",()=>{
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false;
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
-function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),at:Date.now()};}
+function cloudSnapshot(){return {history:safe.get(),food:foodGet(),rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),at:Date.now()};}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -3853,6 +3933,7 @@ async function cloudInit(){
       try{if(d.pp)localStorage.setItem(PPK,JSON.stringify(mergePP(ppAll(),d.pp)))}catch(e){}
       try{if(d.rr&&(d.rr.upd||0)>(rrGet().upd||0))localStorage.setItem(RRK,JSON.stringify(d.rr))}catch(e){}
       try{if(d.hc&&(d.hc.upd||0)>(hcGet().upd||0))localStorage.setItem(HCK,JSON.stringify(d.hc))}catch(e){}
+      try{if(d.sub){const a=subAll();Object.keys(d.sub).forEach(k=>{a[k]=Object.assign({},d.sub[k],a[k]||{});});localStorage.setItem(SUBK,JSON.stringify(a));}}catch(e){}
       cloudRefreshUI();
       cloudReady=true;
       try{await cloudDoc().set(cloudSnapshot());}catch(e){} // пишем объединённый результат обратно
