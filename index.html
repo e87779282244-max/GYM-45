@@ -187,6 +187,7 @@
   .g2-nomedia{font-size:11px;color:var(--faint)}
   .g2-code{font-family:var(--dsp);font-weight:800;font-size:12px;color:var(--accent)}
   .g2-name{font-family:var(--dsp);font-weight:700;font-size:13px;line-height:1.2;max-height:2.4em;overflow:hidden}
+  .g2-an{font-size:10.5px;color:var(--gold-ink);font-weight:600;line-height:1.2}
   .g2-plan{font-size:11.5px;color:var(--muted);font-weight:600}
   .g2-cnt{font-size:11.5px;font-weight:700;color:var(--accent-ink)}
   .g2-swap{margin-top:4px;font-size:11px;font-weight:700;color:var(--accent-ink);background:none;border:1px solid var(--line);border-radius:8px;padding:4px 6px}
@@ -1851,7 +1852,7 @@ const G2X={
  rowDb:{n:"Тяга гантели одной рукой",m:"0292",db:1},
  squat:{n:"Приседания со штангой",m:"0043"},
  lcurl:{n:"Сгибание ног лёжа",m:"0586"},
- cblCr:{n:"Скручивания на нижнем блоке"},
+ cblCr:{n:"Скручивания на нижнем блоке",m:"0175",an:"частичное совпадение: скручивания на блоке с колен"},
  calfS:{n:"Подъём на носки сидя",m:"0594"},
  dips:{n:"Отжимания на брусьях",m:"0251",bw:1},
  hammer:{n:"Молотковые сгибания гантелей",m:"0313",db:2},
@@ -1860,7 +1861,7 @@ const G2X={
  dInc:{n:"Жим гантелей на наклонной скамье",m:"0314",db:2},
  pullW:{n:"Подтягивания широким хватом",m:"1429",bw:1},
  flyFlat:{n:"Разведение гантелей лёжа",m:"0308",db:2},
- ezRow:{n:"Тяга EZ-штанги в наклоне"},
+ ezRow:{n:"Тяга EZ-штанги в наклоне",m:"1344",an:"показан вариант обратным хватом"},
  dlBent:{n:"Становая тяга с согнутыми коленями",m:"0032"},
  lcurlSeat:{n:"Сгибание ног сидя",m:"0599"},
  twist:{n:"Скручивания с поворотом корпуса",m:"0262",bw:1},
@@ -1870,7 +1871,7 @@ const G2X={
  latSeat3:{n:"Разведение гантелей в стороны сидя",m:"0396",db:2},
  revCurl:{n:"Обратные сгибания рук",m:"0110"},
  bInc:{n:"Жим штанги на наклонной скамье",m:"0047"},
- pullLean:{n:"Подтягивания с отклонением",bw:1},
+ pullLean:{n:"Подтягивания с отклонением",m:"0466",bw:1,an:"аналог: подтягивание Жиронды к грудине"},
  arcRow:{n:"Тяга гантели одной рукой по дуге",db:1},
  lunge:{n:"Выпады с гантелями",m:"0336",db:2},
  rdl:{n:"Румынская тяга",m:"0085"},
@@ -1885,11 +1886,11 @@ const G2X={
  lcurlOut:{n:"Сгибание ног лёжа, носки от себя",m:"0586"},
  lcurlIn:{n:"Сгибание ног лёжа, носки внутрь",m:"0586"},
  farmer:{n:"Прогулка фермера",m:"2133",db:2},
- ghr:{n:"Ягодично-икроножный подъём",bw:1},
+ ghr:{n:"Ягодично-икроножный подъём",m:"3193",bw:1},
  zott:{n:"Сгибание Зоттмана сидя",m:"0439",db:2},
- cgDecl:{n:"Жим лёжа узким хватом на скамье с наклоном вниз"},
+ cgDecl:{n:"Жим лёжа узким хватом на скамье с наклоном вниз",m:"1625",an:"частичное совпадение: показан в тренажёре Смита"},
  scottRev:{n:"Обратные сгибания на скамье Скотта узким хватом",m:"0081"},
- cblFr:{n:"Французский жим на нижнем блоке"},
+ cblFr:{n:"Французский жим на нижнем блоке",m:"0194",an:"частичное совпадение: разгибание над головой с канатом"},
  bench:{n:"Жим штанги лёжа",m:"0025"},
  latSt:{n:"Разведение гантелей в стороны",m:"0334",db:2},
  lcurlCbl:{n:"Сгибание одной ноги на нижнем блоке"},
@@ -2152,7 +2153,7 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
     const st=current.sets[i],nd=st.filter(s=>s.done).length;
     return `<div class="g2-ex${isA?" on":""}"><div class="ex-media g2-media" data-key="${G.key}">${media}</div>
       <div class="g2-code">${G.code}${G.tempo?" · "+G.tempo:""}</div><div class="g2-name"></div>
-      <div class="g2-plan">${st.length}×${p.ex[i][2].split(" ·")[0]}${G.main||st[0].pw?" · "+(st[0].pw?g2Fmt(st[0].pw,G.key):"вес ?"):""}</div>
+      ${X.an?`<div class="g2-an">${X.an}</div>`:""}<div class="g2-plan">${st.length}×${p.ex[i][2].split(" ·")[0]}${G.main||st[0].pw?" · "+(st[0].pw?g2Fmt(st[0].pw,G.key):"вес ?"):""}</div>
       <div class="g2-cnt">${nd}/${st.length}${G.note?' · <span style="color:var(--gold-ink)">'+G.note+"</span>":""}</div>
       <button class="g2-swap" type="button" data-sw="${i}">⇄ Заменить</button></div>`;}).join("");
   const n=Math.max(current.sets[u[0]].length,current.sets[u[1]].length);
@@ -2176,7 +2177,7 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
   setTimeout(mediaSync,0);
   el("wkPrev").disabled=ui===0;el("wkNext").textContent=ui<U.length-1?"Следующее →":"Завершить ✓";
   const on=c.querySelector(".g2-cell.on"),box=c.querySelector(".g2-sets");if(on&&box)box.scrollTo({top:Math.max(0,on.offsetTop-box.offsetTop-50),behavior:"smooth"});}
-function g2OpenMedia(key){const X=G2X[key];if(!X||!X.m)return;const v=el("pvideo");el("pname").textContent=X.n;el("pcred").textContent="ID: edb-"+X.m+" · "+MEDIA_CREDIT;
+function g2OpenMedia(key){const X=G2X[key];if(!X||!X.m)return;const v=el("pvideo");el("pname").textContent=X.n+(X.an?" ("+X.an+")":"");el("pcred").textContent="ID: edb-"+X.m+" · "+MEDIA_CREDIT;
   v.poster="media/"+X.m+".jpg";v.src="media/"+X.m+".mp4?v=2";el("player").hidden=false;mediaSync();try{v.currentTime=0;v.play().catch(()=>{});}catch(e){}}
 /* замена упражнения */
 function g2SwapOpen(i){const p=current.program,G=p.gx[i],alts=(G2ALT[G.key]||[]).filter(k=>k!==G.key).slice(0,6);const box=el("gvtMbox");
