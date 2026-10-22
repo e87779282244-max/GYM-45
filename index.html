@@ -616,9 +616,9 @@
       </div>
     </div>
 
-    <button class="dash-card" data-go="workout">
+    <button class="dash-card" id="dashActive" type="button" hidden>
       <span class="dc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M15 4v16M4 9h16M4 15h16"/></svg></span>
-      <span class="dc-body"><b>Активная программа</b><span>✓ Календарь активен · 14 тренировок · отдых рекомендован</span></span>
+      <span class="dc-body"><b>Активная программа</b><span id="dashActiveTxt"></span></span>
       <span class="dc-go">›</span>
     </button>
 
@@ -1063,7 +1063,7 @@ function applyScreen(name){
   if(currentScreen==="workout"&&name!=="workout")document.querySelectorAll("#exList video").forEach(v=>{try{v.pause()}catch(e){}});
   for(const k in scr)scr[k].hidden=(k!==name);
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
-  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day"||name==="swc");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof g2Render==="function")g2Render();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();window.scrollTo(0,0);}
+  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day"||name==="swc");if(name==="progress")renderProgress();if(name==="day")renderDay();if(name==="gvt"&&typeof g2Render==="function")g2Render();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();if(name==="home"&&typeof renderDashActive==="function")renderDashActive();window.scrollTo(0,0);}
 function show(name){if(currentScreen&&name!==currentScreen)histStack.push(currentScreen);applyScreen(name);}
 function goBack(){
   let prev=histStack.pop()||"home";
@@ -1841,6 +1841,12 @@ function gvtArchiveHTML(v,w){const arch=v.cycles.filter(c=>c.closedAt);if(!arch.
     return `<div class="rm-row"><span class="k">Старт ${gvtDD(c.start)}</span><span class="v">${f}/${GVT_N} <small>занятий · ${c.recs.length} записей</small></span></div>`;}).join("")}</div>`;
   w.appendChild(d);}
 /* экран рисуется при открытии (applyScreen → renderGvt) */
+/* карточка «Активная программа» на главном: только если программа активирована */
+function renderDashActive(){const c=el("dashActive");if(!c)return;const P=typeof g2Active==="function"?g2Active():null;
+  if(!P){c.hidden=true;return;}
+  const S=G2S[P.stage],st=P.st[P.stage],slot=g2NextSlot(P),nd=g2NextDate(P);
+  el("dashActiveTxt").textContent="German Volume Training · этап "+S.k+" · "+S.name+(st.setup?(slot?" · занятие "+Math.min(st.pos+1,S.n)+" из "+S.n+" · рекомендовано "+gvtDD(nd):""):" · введи стартовые веса");
+  c.hidden=false;c.onclick=()=>show("gvt");}
 
 /* ===================== GERMAN VOLUME TRAINING 2.0 — пять этапов (ТЗ «Штурм 30» v2.0) ===================== */
 const G2K="gym45_gvt2_v1",G2VER="2.0";
