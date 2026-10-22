@@ -599,11 +599,19 @@
   .sk-rows{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
   .sk-rows>div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14.5px}
   .sk-rows b{font-family:var(--dsp);color:var(--accent-ink);white-space:nowrap}
-  .sk-cal{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:6px}
+  .sk-cal{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;margin-top:6px}
   .sk-c{aspect-ratio:1;border-radius:7px;border:1px solid var(--line);font-size:11.5px;font-weight:700;padding:0;color:var(--fg);background:var(--surface);position:relative}
   .sk-c.t-train{background:#e6dfc3}.sk-c.t-turbo{background:#e7c9a6}.sk-c.t-stretch{background:#d8e4ea}.sk-c.t-rest{background:var(--surface);color:var(--faint)}.sk-c.t-test{background:#d9cf8a}
   .sk-c.adv{background:#d6dcb8}
   .sk-c.done{background:var(--accent)!important;color:#fff!important;border-color:transparent}
+  .sk-legend .t-done::before{background:var(--accent);border-color:transparent}
+  .sk-c.done::before{content:"✓";position:absolute;top:0;right:2px;font-size:9px;line-height:1.2;font-weight:900;color:#fff}
+  .sk-c{min-width:0;width:100%}
+  .pp-chips{display:flex;flex-direction:column;gap:6px}
+  .pp-chips>span{font-size:13.5px;font-weight:700;color:var(--fg)}
+  .pp-chips>div{display:flex;flex-wrap:wrap;gap:6px}
+  .pp-chips button{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px}
+  .pp-chips button.on{background:var(--accent);color:#fff;border-color:transparent}
   .sk-c.cur{outline:2.5px solid var(--accent-ink);outline-offset:1px}
   .sk-c.today::after{content:"";position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#b0593a}
   .sk-legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:12px;color:var(--muted)}
@@ -1010,7 +1018,7 @@
       <div class="card wod-card">
         <div class="wod-mv-h">Все 100 дней</div>
         <div class="sk-cal" id="skCal"></div>
-        <div class="sk-legend"><span class="t-train">круги</span><span class="t-adv">подходы</span><span class="t-turbo">турбо</span><span class="t-stretch">растяжка</span><span class="t-rest">отдых</span><span class="t-test">тест</span></div>
+        <div class="sk-legend"><span class="t-train">круги</span><span class="t-adv">подходы</span><span class="t-turbo">турбо</span><span class="t-stretch">растяжка</span><span class="t-rest">отдых</span><span class="t-test">тест</span><span class="t-done">✓ выполнено</span></div>
       </div>
       <details class="card wod-card sk-set" open>
         <summary>Мои повторы в круге</summary>
@@ -1085,7 +1093,7 @@
       <div class="card wod-card">
         <div class="wod-mv-h">Все дни программы</div>
         <div class="sk-cal" id="ppCal"></div>
-        <div class="sk-legend"><span class="t-train">тренировка</span><span class="t-rest">отдых</span><span class="t-test">тест</span></div>
+        <div class="sk-legend"><span class="t-train">тренировка</span><span class="t-rest">отдых</span><span class="t-test">тест</span><span class="t-done">✓ выполнено</span></div>
       </div>
       <details class="card wod-card sk-set">
         <summary>Правила и прогрессия</summary>
@@ -2930,7 +2938,7 @@ function plU(n,u){const m=n%10,h=n%100,one=m===1&&h!==11,few=m>=2&&m<=4&&(h<10||
   const F={"круг":["круг","круга","кругов"],"подход":["подход","подхода","подходов"],"упражнение":["упражнение","упражнения","упражнений"],"раз":["раз","раза","раз"],"задание":["задание","задания","заданий"]}[u]||[u,u,u];
   return one?F[0]:few?F[1]:F[2];}
 function skStep(k,d){const s=skGet();const lim={pu:[1,30],sq:[2,60],ps:[2,60],lu:[2,40]}[k];s.reps[k]=Math.max(lim[0],Math.min(lim[1],(s.reps[k]||0)+d));skSave(s);renderSotka();}
-function renderSotka(){const s=skGet();const today=skToday(s);const day=s.start?(skView||today):1;
+function renderSotka(){const s=skGet();const today=skToday(s);const day=skView||(s.start?today:1);
   const st=el("skStatus");
   if(!s.start){st.innerHTML=`<p class="wod-desc">Программа ещё не начата. Перед стартом проверь максимумы (подтягивания, отжимания, приседания) — потом будет с чем сравнить.</p><button class="btn" id="skBegin" type="button">Начать «Сотку» сегодня</button>`;
     el("skBegin").onclick=()=>{const t=skGet();t.start=localDate();t.done={};skView=null;skSave(t);toast("День 1 — поехали!");renderSotka();};}
@@ -3083,7 +3091,7 @@ const PP={
 };
 let ppCur=null,ppView=null;
 function openPP(id){ppCur=id;ppView=null;renderPP();show("pp");}
-function renderPP(){const id=ppCur,P=PP[id];if(!P)return;const s=ppGet(id);const today=ppToday(s,P.total);const day=s.start?(ppView||today):1;
+function renderPP(){const id=ppCur,P=PP[id];if(!P)return;const s=ppGet(id);const today=ppToday(s,P.total);const day=ppView||(s.start?today:1);
   el("ppEyebrow").textContent="Стрит воркаут · "+P.author;el("ppTitle").textContent=P.title;el("ppNote").textContent=P.note;
   const st=el("ppStatus");
   if(!s.start){st.innerHTML=`<p class="wod-desc">Заполни данные ниже и начни программу — приложение будет вести тебя по дням.</p><button class="btn" id="ppBegin" type="button">Начать сегодня</button>`;
@@ -3109,7 +3117,8 @@ function renderPP(){const id=ppCur,P=PP[id];if(!P)return;const s=ppGet(id);const
   for(let d=1;d<=P.total;d++){const q=P.plan(d,s);const b=document.createElement("button");b.type="button";
     b.className="sk-c t-"+(q.type==="pick"?"train":q.type)+(s.done&&s.done[d]?" done":"")+(d===day?" cur":"")+(s.start&&d===today?" today":"");b.textContent=d;
     b.onclick=()=>{ppView=d;renderPP();window.scrollTo({top:0,behavior:"smooth"});};cal.appendChild(b);}
-  const f=el("ppFields");f.closest("details").hidden=!P.fields.length;f.innerHTML=P.fields.map(([k,n])=>`<label><span>${n}</span><input type="number" inputmode="numeric" min="0" data-k="${k}" value="${(s.t||{})[k]??""}"></label>`).join("");
+  const f=el("ppFields");f.closest("details").hidden=!P.fields.length;f.innerHTML=P.fields.map(([k,n,opt])=>opt?`<div class="pp-chips"><span>${n}</span><div>${opt.map(([v,l])=>`<button type="button" data-k="${k}" data-v="${v}" class="${String((s.t||{})[k]??"")===v?"on":""}">${l}</button>`).join("")}</div></div>`:`<label><span>${n}</span><input type="number" inputmode="numeric" min="0" data-k="${k}" value="${(s.t||{})[k]??""}"></label>`).join("");
+  f.querySelectorAll(".pp-chips button").forEach(b=>b.onclick=()=>{const t=ppGet(id);t.t=t.t||{};t.t[b.dataset.k]=+b.dataset.v;ppSave(id,t);renderPP();});
   f.querySelectorAll("input").forEach(i=>i.onchange=()=>{const t=ppGet(id);t.t=t.t||{};if(i.value==="")delete t.t[i.dataset.k];else t.t[i.dataset.k]=+i.value;ppSave(id,t);setTimeout(renderPP,0);});
   el("ppRules").innerHTML=P.rules.map(r=>`<p>${r}</p>`).join("");}
 el("ppReset").addEventListener("click",()=>{const b=el("ppReset");if(Date.now()-(b._arm||0)>3000){b._arm=Date.now();toast("Нажми ещё раз — прогресс программы обнулится");return;}
@@ -3300,7 +3309,7 @@ Object.assign(PP,{
   rules:["Перед каждой тренировкой — разминка.","Упражнения по порядку, после каждого — отдых по таблице. Весь список — один круг. Число кругов — в пределах диапазона недели: 3–4 в начале, 6–10 в конце.","Тесты: 1-й день (макс за 60 с: отжимания, подтягивания, приседания, пресс), дни-тесты во 2-й и 3-й неделях, финальный тест в конце 12-й недели — сравни с первым днём.","Новичкам: подъёмы коленей — до 90°, ножницы и уголок — с согнутыми ногами. Выходы силой можно заменить взрывными подтягиваниями.","Можно выполнять и подходами: все подходы одного упражнения, затем следующее (так советуют в комментариях к переводу)."]},
  seal:{title:"SEAL PT · Стю Смит",author:"Стю Смит · экс-SEAL, military.com",total:42,plan:sealPlan,
   note:"PT-прогрессия бывшего морского котика Стю Смита: этап 1 — пирамиды через день, этап 2 — одна пирамида в неделю заменяется суперсетом, этап 3 — добавляются максимальные сеты 100/200/300. За 5–6 недель большинство выходят на 20+ подтягиваний и 100+ отжиманий.",
-  fields:[["max","Мой максимум подтягиваний"],["stage","Этап (1, 2 или 3)"]],
+  fields:[["max","Мой максимум подтягиваний"],["stage","Этап",[["1","1 · пирамиды"],["2","2 · + суперсет"],["3","3 · + макс-сеты"]]]],
   rules:["Этап 1: пирамида 1→10→1 (N подтягиваний, 2N отжиманий, 5N пресса) через день, 3 раза в неделю.","Когда справляешься с пирамидой до 10 (100/200/500) — этап 2: в среду вместо пирамиды суперсет.","Справляешься с 100 подтягиваниями и 200 отжиманиями за тренировку — этап 3: пн пирамида, ср суперсет, сб максимальные сеты 100/200/300.","Никогда не делай верх тела три дня подряд. После объёма 100/200/300 — 48 часов восстановления.","Нет подтягиваний — вис на согнутых руках или негативы; отказ в отжиманиях — с колен."]},
  lh:{title:"Первые подтягивания",author:"Лайфхакер · Ия Зорина",total:30,plan:lhPlan,
   note:"Четырёхнедельная программа для тех, кто подтягивается 0–4 раза: лопатки, австралийские подтягивания, негативы и подтягивания с резиной. Цель — 5 чистых подтягиваний и переход к Fighter Pull-up.",
@@ -3392,7 +3401,7 @@ const LS=[
   l:[["Бег","8 км","Бег"],["Ходьба в гору","10 мин","Бег на дорожке"],["Подтягивания: 2 каждые 45 с, 8 подходов","16","Подтягивания"],["Отжимания: 5 каждые 30 с, 10 подходов","50","Отжимания от пола"]]},
  {t:"Последняя пробежка",sum:"10 км с ускорением — сравни с 1-м днём",b:[["Бег с прогрессией по милям (1,6 км): 5:00 → 4:54 → 4:36 → 4:48 → 4:48 → 4:42 на км","10 км","Бег"]],l:[["Бег с ускорением к концу — сравни время с 1-м днём","5 км","Бег"]]},
  {t:"Грустный день",rest:1,sum:"итоги"}];
-function lsPlan(day,s){const lv=+((s.t||{}).lvl)===2?"l":"b";const D=LS[day-1];const base={day,week:Math.ceil(day/7),block:"Неделя "+Math.ceil(day/7)};
+function lsPlan(day,s){const lv=+((s.t||{}).lvl)===1?"b":"l";const D=LS[day-1];const base={day,week:Math.ceil(day/7),block:"Неделя "+Math.ceil(day/7)};
   if(D.rest)return Object.assign(base,{type:"test",title:"Итоги месяца",key:"tf",text:"Последний день — без тренировки. Ицлер подводит итоги: тысяча отжиманий за сутки, темп на 10 км вырос с 5:48 до 4:48 на километр. Проверь максимум отжиманий подряд и запиши — это твой итог месяца."});
   const L=D[lv];const circ=L.map(x=>[[x[0],x[1],x[2]]]);
   return Object.assign(base,{type:"train",title:D.t,notes:["По книге: "+D.sum+"."].concat(lv==="l"?["Облегчённый вариант — адаптация Gym 45, а не из книги."]:[]),
@@ -3401,7 +3410,7 @@ function lsPlan(day,s){const lv=+((s.t||{}).lvl)===2?"l":"b";const D=LS[day-1];c
       circ,show:L.map(x=>[x[0],x[1],x[2]]),circHead:i=>"Задание "+(i+1)+" из "+L.length,rest:"Отдых — по схеме задания"}});}
 PP.seal31={title:"Месяц на пределе",author:"по книге Джесси Ицлера",total:31,plan:lsPlan,
   note:"31 день тренировок Джесси Ицлера с бывшим «морским котиком» — по его дневнику: много бега, тысячи отжиманий, подтягивания «до сотни», работа по секундной стрелке. Цель месяца — 1000 отжиманий за день и заметно более быстрый бег.",
-  fields:[["lvl","Уровень: 1 — как в книге, 2 — облегчённо"]],
+  fields:[["lvl","Уровень",[["2","Новичок"],["1","Профи · как в книге"]]]],
   rules:["Каждый день — задания из «Итогов тренировки» книги в том порядке, как их делал Ицлер. Многие дни у него разбиты на утро и вечер.","Уровень 1 — объём как в книге (для подготовленных бегунов). Уровень 2 — облегчённая адаптация Gym 45: примерно половина объёма при той же структуре.","Форматы: «каждые N секунд» — старт подхода по секундной стрелке, остаток минуты — отдых; «лесенка 1→18» — 1, 2, 3… повтора с коротким отдыхом.","Тесты: 100 бёрпи на время (6-й и 14-й день), 10 км на время (1-й и 30-й день), 1000 отжиманий (27-й день).","Ледяное озеро и парилку из книги в программу не включил — это отдельный риск, а не тренировка."]};
 /* --- Путь «Подтягивания: с нуля до 25» --- */
 const PU_ST=[{id:"lh",lo:0,hi:4,lbl:"0–4 раза"},{id:"fighter",lo:5,hi:11,lbl:"5–11 раз"},{id:"armstrong",lo:12,hi:999,lbl:"12 и больше"}];
