@@ -5617,7 +5617,7 @@ function dsRestore(data,label){if(!data||typeof data!=="object"){toast("Файл
   toast("Восстановлено: "+label+". Перезапускаю…");setTimeout(()=>location.reload(),900);}
 function renderDS(){const box=el("dsBox");if(!box)return;const sn=dsSnaps().slice().reverse();let le=null;try{le=JSON.parse(localStorage.getItem("gym45_lastexport_v1")||"null");}catch(e){}
   box.innerHTML=`<p class="ds-sub">Всё хранится на этом устройстве. Тренировок в истории: <b>${dsCount()}</b>. Приложение само делает снимок данных при каждом запуске — обновление не может их потерять. Копия в файл защищает от очистки данных iPhone.</p>
-   ${window.claude&&claude.use?`<p class="ds-sub">В этой версии (внутри Claude) данные дополнительно синхронизируются в облако. Копию в файл сохраняй в приложении с иконки «Домой».</p>`:`<button class="btn" type="button" id="dsExport">Сохранить копию в файл</button>
+   ${window.claude&&claude.use?`<p class="ds-sub">Это основная версия: данные автоматически сохраняются в облако, копия в файл не нужна. Восстановить из файла — чтобы перенести записи из приложения с иконки «Домой».</p>`:`<button class="btn" type="button" id="dsExport">Сохранить копию в файл</button>
    <p class="ds-sub">${le?"Последняя копия в файл: "+dsDT(le.at):"Копию в файл ещё не сохраняли — сделай после тренировки и отправь себе в «Файлы» или мессенджер."}</p>`}
    <label class="btn btn-alt ds-file">Восстановить из файла<input type="file" id="dsImport" accept="application/json,.json" hidden></label>
    ${sn.length?`<details class="ds-snaps"><summary>Автоснимки (${sn.length})</summary>${sn.map((s,i)=>`<div class="ds-snap"><span>${dsDT(s.at)}<small>${s.n} разделов · версия ${s.build}</small></span><button type="button" class="tm-reset" data-i="${i}">Откатить</button></div>`).join("")}</details>`:""}`;
@@ -5750,9 +5750,11 @@ el("ntCalc").addEventListener("click",()=>setTimeout(()=>{if(!el("ntErr").textCo
 {const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{profile:pfRaw()});};}
 pfAvatar();
 /* версия внутри Claude: предупреждение, что данные отдельно от приложения с иконки «Домой» */
-if(window.claude&&claude.use){try{if(!localStorage.getItem("gym45_cnote_v1")){const n=document.createElement("div");n.className="c-note";
-  n.innerHTML='<b>Это версия Gym 45 внутри Claude.</b> Её данные хранятся отдельно от приложения с иконки «Домой» на телефоне — тренировки, питание и профиль там и здесь не смешиваются. Тренируйся в одном месте. Перенести данные: «Прогресс → Сохранить копию в файл» в одной версии, затем «Восстановить из файла» в другой.<button type="button">Понятно</button>';
-  n.querySelector("button").onclick=()=>{try{localStorage.setItem("gym45_cnote_v1","1");}catch(e){}n.remove();};
+/* основная версия — внутри Claude (облако). Копия с GitHub — только запасная копия кода. */
+{const inC=!!(window.claude&&claude.use),K=inC?"gym45_cnote_v2":"gym45_gnote_v1";try{if(!localStorage.getItem(K)){const n=document.createElement("div");n.className="c-note";
+  n.innerHTML=inC?'<b>Это основная версия Gym 45.</b> Тренировки, питание и профиль сохраняются здесь и в облаке — заноси всё сюда. Если что-то осталось в приложении с иконки «Домой»: там «Прогресс → Сохранить копию в файл», здесь «Прогресс → Восстановить из файла».<button type="button">Понятно</button>'
+   :'<b>Основная версия Gym 45 теперь внутри Claude</b> — там данные сохраняются в облако. Эта копия больше не основная: новые тренировки сюда не заноси. Чтобы перенести записи: «Прогресс → Сохранить копию в файл», затем в версии Claude «Восстановить из файла».<button type="button">Понятно</button>';
+  n.querySelector("button").onclick=()=>{try{localStorage.setItem(K,"1");}catch(e){}n.remove();};
   document.querySelector("#scr-home .home-top").after(n);}}catch(e){}}
 
 /* ===================== ОБЛАКО (db + user) ===================== */
