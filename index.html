@@ -282,6 +282,8 @@
   .bf-res b{font-family:var(--dsp);font-size:20px}
   /* профиль */
   button.avatar{padding:0;cursor:pointer;color:inherit}
+  .c-note{background:var(--accent-weak);color:var(--accent-ink);border-radius:14px;padding:12px 14px;margin:0 0 12px;font-size:13.5px;line-height:1.4}
+  .c-note button{display:block;margin-top:8px;border:none;background:var(--accent);color:#fff;border-radius:10px;padding:7px 14px;font:inherit;font-weight:700}
   .avatar img,.pf-ph img{width:100%;height:100%;object-fit:cover;display:block}
   .pf-head{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
   .pf-photo{background:none;border:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--accent-ink);font:inherit;font-weight:700;font-size:14px;cursor:pointer}
@@ -5747,6 +5749,11 @@ el("ntCalc").addEventListener("click",()=>setTimeout(()=>{if(!el("ntErr").textCo
 /* профиль — в облачный документ (версия в Claude) */
 {const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{profile:pfRaw()});};}
 pfAvatar();
+/* версия внутри Claude: предупреждение, что данные отдельно от приложения с иконки «Домой» */
+if(window.claude&&claude.use){try{if(!localStorage.getItem("gym45_cnote_v1")){const n=document.createElement("div");n.className="c-note";
+  n.innerHTML='<b>Это версия Gym 45 внутри Claude.</b> Её данные хранятся отдельно от приложения с иконки «Домой» на телефоне — тренировки, питание и профиль там и здесь не смешиваются. Тренируйся в одном месте. Перенести данные: «Прогресс → Сохранить копию в файл» в одной версии, затем «Восстановить из файла» в другой.<button type="button">Понятно</button>';
+  n.querySelector("button").onclick=()=>{try{localStorage.setItem("gym45_cnote_v1","1");}catch(e){}n.remove();};
+  document.querySelector("#scr-home .home-top").after(n);}}catch(e){}}
 
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
