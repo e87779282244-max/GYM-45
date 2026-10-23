@@ -215,6 +215,7 @@
   .g2-an{font-size:10.5px;color:var(--gold-ink);font-weight:600;line-height:1.2}
   .g2-plan{font-size:11.5px;color:var(--muted);font-weight:600}
   .g2-cnt{font-size:11.5px;font-weight:700;color:var(--accent-ink)}
+  .g2-setw{background:var(--panel-top);border-color:var(--gold);margin-left:4px}
   .g2-swap{margin-top:4px;font-size:11px;font-weight:700;color:var(--accent-ink);background:none;border:1px solid var(--line);border-radius:8px;padding:4px 6px}
   .g2-next{font-size:12.5px;color:var(--fg);background:var(--accent-weak);border-radius:9px;padding:6px 9px;margin:8px 0 4px;flex:none}
   .g2-row{display:grid;grid-template-columns:22px 1fr 1fr;gap:6px;align-items:center;padding:4px 0;border-top:1px solid var(--line)}
@@ -3471,7 +3472,7 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
     const st=current.sets[i],nd=st.filter(s=>s.done).length;
     return `<div class="g2-ex${isA?" on":""}"><div class="ex-media g2-media" data-key="${G.key}">${media}</div>
       <div class="g2-code">${G.code}${G.tempo?" · "+G.tempo:""}</div><div class="g2-name"></div>
-      ${X.an?`<div class="g2-an">${X.an}</div>`:""}<div class="g2-plan">${st.length}×${p.ex[i][2].split(" ·")[0]}${G.main||st[0].pw?" · "+(st[0].pw?g2Fmt(st[0].pw,G.key):"вес ?"):""}</div>
+      ${X.an?`<div class="g2-an">${X.an}</div>`:""}<div class="g2-plan">${st.length}×${p.ex[i][2].split(" ·")[0]}${G.main||st[0].pw?" · "+(st[0].pw?g2Fmt(st[0].pw,G.key):"вес ?"):""}</div>${G.main&&!st[0].pw?`<button class="g2-swap g2-setw" type="button" data-setw="${i}">⚖ Задать вес</button>`:""}
       <div class="g2-cnt">${nd}/${st.length}${G.note?' · <span style="color:var(--gold-ink)">'+G.note+"</span>":""}</div>
       <button class="g2-swap" type="button" data-sw="${i}">⇄ Заменить</button></div>`;}).join("");
   const n=Math.max(current.sets[u[0]].length,current.sets[u[1]].length);
@@ -3490,7 +3491,8 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
       if(g2UnitDone(u)&&ui===U.length-1){restStop();toast("Все подходы выполнены 💪");}}
     renderWorkout();});
   c.querySelectorAll(".g2-media").forEach(b=>b.onclick=()=>{if(G2X[b.dataset.key]&&G2X[b.dataset.key].m)g2OpenMedia(b.dataset.key);});
-  c.querySelectorAll(".g2-swap").forEach(b=>b.onclick=()=>g2SwapOpen(+b.dataset.sw));
+  c.querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>g2SwapOpen(+b.dataset.sw));
+  c.querySelectorAll("[data-setw]").forEach(b=>b.onclick=()=>g2AskWeight(+b.dataset.setw));
   c.querySelectorAll("video").forEach(v=>{v.muted=true;v.addEventListener("canplay",()=>mediaSync());if(window.__io)window.__io.observe(v);});
   setTimeout(mediaSync,0);
   el("wkPrev").disabled=ui===0;el("wkNext").textContent=ui<U.length-1?"Следующее →":"Завершить ✓";
@@ -3516,7 +3518,26 @@ function g2SwapOpen(i){const p=current.program,G=p.gx[i],alts=(G2ALT[G.key]||[])
     current.sets[i].forEach(s=>{if(!s.done){s.w=w;s.pw=w;}});
     if(all&&P){P.subs[si]=P.subs[si]||{};P.subs[si][G.base]=k;P.subLog.push({date:localDate(),stage:si,from:G.base,to:k,scope:"all"});P.updatedAt=g2Now();g2Save(v);}
     else if(P){P.subLog.push({date:localDate(),stage:si,from:G.base,to:k,scope:"day"});P.updatedAt=g2Now();g2Save(v);}
-    el("gvtModal").hidden=true;saveDraft();renderWorkout();toast("Заменено: "+X.n+(all?" (во всех следующих)":" (сегодня)"));});}
+    el("gvtModal").hidden=true;saveDraft();renderWorkout();toast("Заменено: "+X.n+(all?" (во всех следующих)":" (сегодня)"));
+    if(G.main&&!(w>0)&&!G.bw)g2AskWeight(i);});}
+/* стартовый вес для упражнения без истории (замена после настройки этапа): как в настройке — ПМ этапа или 1ПМ → % */
+function g2AskWeight(i){const p=current.program,G=p.gx[i],k=G.key,X=G2X[k]||{n:k},si=p.g2.stage,S=G2S[si],box=el("gvtMbox");
+  const lab={rm:S.rm+"ПМ, кг",range:"Вес под 6–8, кг",agvt:"10ПМ, кг",p4:"W₀, кг"}[S.algo];
+  const pct=X.bw?g2BwPct(S,X):(S.algo==="rm"&&S.rm===20?60:(S.algo==="agvt"||S.algo==="p4")?75:0);
+  box.innerHTML=`<h3>Стартовый вес: ${X.n}</h3><p>Для этого упражнения ещё нет веса на этапе ${S.k}. Введи ${lab.replace(", кг","")}${pct?" или 1ПМ"+(X.bw?" доп. веса":"")+" — возьмём "+pct+" %":""}.${X.db===2?" Вес одной гантели.":""}</p>
+    <div class="g2-su-r"><label>${lab}<input id="g2aw" inputmode="decimal"></label>${pct?`<label>или 1ПМ → ${pct} %<input id="g2arm" inputmode="decimal"></label>`:""}</div>
+    <button class="btn" type="button" id="g2aGo">Сохранить</button><button class="tm-mini" type="button" id="g2aX">Позже</button>`;
+  el("gvtModal").hidden=false;el("g2aX").onclick=()=>{el("gvtModal").hidden=true;};
+  el("g2aGo").onclick=()=>{const v=g2Store(),P=v.progs.find(x=>x.id===p.g2.progId);if(!P){el("gvtModal").hidden=true;return;}
+    let w=parseFloat(String(el("g2aw").value).replace(",","."));const rm=el("g2arm")?parseFloat(String(el("g2arm").value).replace(",",".")):NaN;
+    if(!(String(el("g2aw").value).trim()!=="")&&rm>0&&pct)w=g2R(rm*pct/100,g2Step(P,k));
+    if(!(X.bw?w>=0:w>0)||!isFinite(w)){el("g2aw").classList.add("bad");toast("Введи вес");return;}
+    const st=P.st[si];let cur=w;
+    if(S.algo==="rm"||S.algo==="range")st.ws[k]=Object.assign(st.ws[k]||{},{w:w});
+    else{const plan=S.algo==="agvt"?g2PlanAG(P,si,k,w):g2PlanP4(P,si,k,w);st.ws[k]=Object.assign(st.ws[k]||{},{ptr:1,plan:plan,scheme:"543",base:S.algo==="p4"?{w:w,r:10}:null,W0:w});cur=plan[1]||w;G.ptr=1;}
+    P.updatedAt=g2Now();g2Save(v);
+    current.sets[i].forEach(se=>{if(!se.done){se.w=cur;se.pw=cur;}});
+    el("gvtModal").hidden=true;saveDraft();renderWorkout();toast("Вес сохранён: "+g2Fmt(cur,k));};}
 
 /* ---------- настройка этапа (стартовые веса) ---------- */
 function g2BwPct(S,X){if(!(S.algo==="rm"&&S.rm===20)||!X||!X.bw)return 0;const n=String(X.n||"");return /Подтягив/i.test(n)?50:/брус/i.test(n)?60:0;}
