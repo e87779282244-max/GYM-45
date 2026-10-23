@@ -248,6 +248,48 @@
   .food-macros{display:flex;justify-content:center;gap:20px;color:var(--muted);font-size:14px}
   .food-macros b{color:var(--fg)}
   .food-form{display:flex;flex-direction:column;gap:10px}
+  /* кольца Б/Ж/У */
+  .nt-rings{display:flex;justify-content:space-between;gap:6px;margin-top:14px}
+  .nt-ring{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+  .nt-ring-c{position:relative;width:min(96px,26vw);aspect-ratio:1}
+  .nt-ring-c svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
+  .nt-ring .rb{fill:none;stroke:var(--surface-2);stroke-width:4.2}
+  .nt-ring .rf{fill:none;stroke:var(--rc);stroke-width:4.2;stroke-linecap:round;transition:stroke-dasharray .5s ease}
+  #ringP{--rc:var(--accent)}#ringF{--rc:#c08a2a}#ringC{--rc:#5b7f8f}.nt-ring.over{--rc:#b4532a}
+  .nt-ring-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+  .nt-ring-in b{font-family:var(--dsp);font-weight:800;font-size:22px;color:var(--fg)}
+  .nt-ring-in small{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap}
+  .nt-ring.over .nt-ring-in small{color:#b4532a}
+  .nt-ring-l{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .nt-kt{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:6px}
+  .nt-kt b{color:var(--fg);white-space:nowrap}
+  .nt-kbar i{display:block;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+  .nt-kbar em{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s ease}
+  .nt-kbar em.over{background:#b4532a}
+  /* % жира */
+  .nt-link{background:none;border:none;padding:2px 0;color:var(--accent-ink);font:inherit;font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:3px;text-align:left;cursor:pointer;align-self:flex-start}
+  .nt-grid label small{text-transform:none;letter-spacing:0;font-weight:600;color:var(--faint)}
+  .bf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+  .bf-it{display:flex;flex-direction:column;align-items:center;gap:3px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 8px;color:var(--fg);text-align:center;font:inherit}
+  .bf-it:active{border-color:var(--accent)}
+  .bf-svg{width:72px;height:115px}
+  .bf-it b{font-family:var(--dsp);font-size:16px}
+  .bf-it small{font-size:12px;color:var(--muted);line-height:1.3}
+  .bf-tape{border-top:1px solid var(--line);padding-top:12px;margin-top:6px;display:flex;flex-direction:column;gap:10px}
+  .bf-tape h4{margin:0;font-family:var(--dsp);font-size:16px}
+  .bf-res{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--accent-weak);border-radius:12px;padding:10px 12px}
+  .bf-res .btn{width:auto;padding:8px 16px}
+  .bf-res b{font-family:var(--dsp);font-size:20px}
+  /* профиль */
+  button.avatar{padding:0;cursor:pointer;color:inherit}
+  .avatar img,.pf-ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .pf-head{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+  .pf-photo{background:none;border:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--accent-ink);font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .pf-ph{width:112px;height:112px;border-radius:50%;overflow:hidden;background:var(--surface-2);border:3px solid var(--key-edge);display:grid;place-items:center}
+  .pf-ph svg{width:64px;height:64px}
+  .pf-head .nt-lab{width:100%;text-align:left}
+  .pf-del{background:none;border:none;color:var(--faint);font:inherit;font-size:13px;text-decoration:underline}
+  .pf-del[hidden]{display:none}
   .food-in{font-family:inherit;font-size:16px;color:var(--fg);background:var(--surface);
     border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
   .food-in:focus{outline:none;border-color:var(--accent)}
@@ -925,7 +967,7 @@
   <!-- HOME / рабочий стол -->
   <section class="screen" id="scr-home">
     <div class="home-top">
-      <div class="avatar"><svg viewBox="0 0 24 24" fill="var(--muted)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg></div>
+      <button type="button" class="avatar" id="homeAvatar" aria-label="Профиль"><svg viewBox="0 0 24 24" fill="var(--muted)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg></button>
       <div class="home-title"><b>Рабочий стол</b><span id="cloudStatus">Gym 45</span></div>
       <button class="icon-btn" id="homeMenu" title="Меню">☰</button>
     </div>
@@ -1133,12 +1175,8 @@
       <div class="card food-tot">
         <div class="food-tot-h">Сегодня · <span id="foodDate"></span></div>
         <div class="food-kcal"><span class="num" id="foodKcal">0</span> <small>ккал</small></div>
-        <div class="food-macros">
-          <span>Б <b class="num" id="foodP">0</b></span>
-          <span>Ж <b class="num" id="foodF">0</b></span>
-          <span>У <b class="num" id="foodC">0</b></span>
-        </div>
-        <div id="ntVsNorm" hidden></div>
+<div id="ntVsNorm" hidden></div>
+        <div class="nt-rings"><div class="nt-ring" id="ringP"><div class="nt-ring-c"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="rb" cx="20" cy="20" r="17"/><circle class="rf" cx="20" cy="20" r="17" stroke-dasharray="0 106.81" style="opacity:0"/></svg><div class="nt-ring-in"><b class="num" id="foodP">0</b><small id="ringPn">г</small></div></div><span class="nt-ring-l">Белки</span></div><div class="nt-ring" id="ringF"><div class="nt-ring-c"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="rb" cx="20" cy="20" r="17"/><circle class="rf" cx="20" cy="20" r="17" stroke-dasharray="0 106.81" style="opacity:0"/></svg><div class="nt-ring-in"><b class="num" id="foodF">0</b><small id="ringFn">г</small></div></div><span class="nt-ring-l">Жиры</span></div><div class="nt-ring" id="ringC"><div class="nt-ring-c"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="rb" cx="20" cy="20" r="17"/><circle class="rf" cx="20" cy="20" r="17" stroke-dasharray="0 106.81" style="opacity:0"/></svg><div class="nt-ring-in"><b class="num" id="foodC">0</b><small id="ringCn">г</small></div></div><span class="nt-ring-l">Углеводы</span></div></div>
       </div>
       <div class="card nt-form" id="ntBuilder">
         <h3>Собрать приём пищи</h3>
@@ -1182,7 +1220,7 @@
     <div class="stack" id="ntNorm" hidden>
       <div class="card nt-form">
         <h3>Рассчитать норму</h3>
-        <p class="nt-sub">Стартовая оценка калорий и БЖУ по формуле Миффлина — Сан Жеора.</p>
+        <p class="nt-sub">Стартовая оценка калорий и БЖУ по формуле Миффлина — Сан Жеора, а если указан % жира — от сухой массы по Кэтчу — МакАрдлу.</p>
         <div class="sk-lvl" id="ntUnits"><span>Единицы</span><button type="button" data-v="metric">Метрические · кг, см, г</button><button type="button" data-v="imperial">Имперские · lb, ft/in, oz</button></div>
         <div class="sk-lvl" id="ntSex"><span>Пол</span><button type="button" data-v="male">Мужчина</button><button type="button" data-v="female">Женщина</button></div>
         <div class="nt-grid">
@@ -1191,7 +1229,9 @@
           <label id="ntHcm">Рост, см<input id="ntHeight" class="food-in" type="text" inputmode="decimal" placeholder="180"></label>
           <label id="ntHft" hidden>Рост, ft<input id="ntFt" class="food-in" type="number" inputmode="numeric" min="3" max="7" step="1" placeholder="5"></label>
           <label id="ntHin" hidden>+ in<input id="ntIn" class="food-in" type="text" inputmode="decimal" placeholder="11"></label>
+          <label>% жира <small>если знаешь</small><input id="ntBf" class="food-in" type="text" inputmode="decimal" placeholder="—"></label>
         </div>
+        <button type="button" class="nt-link" id="ntBfEx">Пример % жира — определить на глаз</button>
         <label class="nt-lab">Активность за всю неделю
           <select id="ntAct" class="food-in">
             <option value="sedentary">Мало движения · сидячий день (×1,2)</option>
@@ -1201,7 +1241,6 @@
             <option value="veryHigh">Очень высокая · тяжёлый физический труд (×1,9)</option>
           </select></label>
         <div class="sk-lvl" id="ntGoal"><span>Цель</span><button type="button" data-v="lose">Похудеть · −15%</button><button type="button" data-v="maintain">Держать форму</button><button type="button" data-v="gain">Набрать массу · +10%</button></div>
-        <div class="sk-lvl" id="ntMethod"><span>Методика БЖУ</span><button type="button" data-v="gym45">Gym 45 · уточнённая</button><button type="button" data-v="shturm">Оригинал Штурм 30</button></div>
         <p class="nt-sub">Активность уже включает тренировки: калории, потраченные на тренировках, к норме повторно не прибавляются.</p>
         <button class="btn" id="ntCalc" type="button">Рассчитать и сохранить</button>
         <p class="nt-err" id="ntErr" role="alert"></p>
@@ -1212,7 +1251,8 @@
         <p>Миффлин — Сан Жеор: расход покоя = 10 × вес (кг) + 6,25 × рост (см) − 5 × возраст + 5 для мужчин или −161 для женщин. Поддержание = расход покоя × активность.</p>
         <p>Похудение −15%, поддержание 0%, набор +10%. Это стартовая оценка, а не измеренный расход. Белок: 1,6 г/кг для поддержания, 1,8 г/кг для похудения и набора; жиры 0,8 г/кг; углеводы — остаток. Норма округляется до 1 ккал, БЖУ — до 0,1 г. Если калорий не хватает для положительных углеводов, расчёт останавливается с пояснением.</p>
         <p>КБЖУ продуктов — усреднённые справочные ориентиры. Энергия меню = 4 × белки + 9 × жиры + 4 × углеводы. Реальная этикетка может отличаться из-за клетчатки, состава и округления.</p>
-        <p><b>Методика Gym 45 (по умолчанию).</b> Калории — те же. Белок и жиры г/кг считаются от веса не выше ИМТ 27, чтобы при большом весе не завышать белок за счёт жировой массы. Жиры — не ниже 20% калорий (нижняя граница нормы 20–35%). Углеводы — остаток. Белок 1,8 г/кг общего веса при похудении — это примерно 2,3–2,5 г/кг массы без жира, в пределах рекомендаций ISSN. «Оригинал Штурм 30» — расчёт без этих уточнений.</p>
+        <p><b>Методика Gym 45 (по умолчанию).</b> Калории — те же. Белок и жиры г/кг считаются от веса не выше ИМТ 27, чтобы при большом весе не завышать белок за счёт жировой массы. Жиры — не ниже 20% калорий (нижняя граница нормы 20–35%). Углеводы — остаток.</p>
+        <p><b>Если указан % жира.</b> Сухая масса = вес × (1 − % жира / 100). Расход покоя = 370 + 21,6 × сухая масса (Кэтч — МакАрдл) — точнее Миффлина при большом или малом проценте жира. Белок 2,4 / 2,0 / 2,2 г на кг сухой массы (похудение / поддержание / набор) — в пределах рекомендаций ISSN; жиры не меньше 1 г на кг сухой массы и 20% калорий; углеводы — остаток.</p>
         <p>В имперских единицах ввод пересчитывается в кг и см (1 lb = 0,45359237 кг, 1 in = 2,54 см); расчёт и хранение — в кг/см/г/мл.</p>
         <p><a href="https://ajcn.nutrition.org/article/S0002-9165(23)16698-6/abstract" target="_blank" rel="noopener">Исходная формула, Mifflin et al., 1990</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/28642676/" target="_blank" rel="noopener">ISSN: белок и тренировки</a> · <a href="https://fdc.nal.usda.gov/" target="_blank" rel="noopener">USDA: состав продуктов</a></p>
         <p>Сравнивай средний утренний вес за неделю. Через 2–3 недели корректируй рацион небольшим шагом 100–150 ккал по тренду, самочувствию и цели.</p>
@@ -1339,6 +1379,67 @@
       <div class="sub-top"><b class="sub-h">Результат</b><button type="button" class="sub-x" aria-label="Закрыть">✕</button></div>
       <div id="cfResForm" class="cf-form" style="margin:10px 0"></div>
       <button type="button" class="btn" id="cfResSave">Записать результат</button>
+    </div>
+  </div>
+
+
+  <!-- ПРОФИЛЬ -->
+  <section class="screen" id="scr-profile" hidden>
+    <div class="hd"><div><p class="eyebrow">Аккаунт</p><h1>Профиль</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button></div>
+    <div class="stack">
+      <div class="card pf-head">
+        <button type="button" class="pf-photo" id="pfPhotoBtn"><span class="pf-ph" id="pfPhoto"></span><span id="pfPhotoTxt">Добавить фото</span></button>
+        <input type="file" id="pfPhotoIn" accept="image/*" hidden>
+        <button type="button" class="pf-del" id="pfPhotoDel" hidden>Убрать фото</button>
+        <label class="nt-lab">Имя<input id="pfName" class="food-in" type="text" maxlength="40" autocomplete="given-name" placeholder="Как к тебе обращаться"></label>
+      </div>
+      <div class="card nt-form">
+        <h3>Тело и цель</h3>
+        <p class="nt-sub">Заполни один раз — данные сразу попадут в «Питание → Норма» и подставятся как вес тела в новую программу GVT.</p>
+        <div class="sk-lvl" id="pfSex"><span>Пол</span><button type="button" data-v="male">Мужчина</button><button type="button" data-v="female">Женщина</button></div>
+        <div class="nt-grid">
+          <label>Возраст, лет<input id="pfAge" class="food-in" type="text" inputmode="numeric" placeholder="30"></label>
+          <label>Вес, кг<input id="pfW" class="food-in" type="text" inputmode="decimal" placeholder="80"></label>
+          <label>Рост, см<input id="pfH" class="food-in" type="text" inputmode="decimal" placeholder="180"></label>
+          <label>% жира <small>если знаешь</small><input id="pfBf" class="food-in" type="text" inputmode="decimal" placeholder="—"></label>
+        </div>
+        <button type="button" class="nt-link" id="pfBfEx">Пример % жира — определить на глаз</button>
+        <label class="nt-lab">Активность за всю неделю
+          <select id="pfAct" class="food-in">
+            <option value="sedentary">Мало движения · сидячий день (×1,2)</option>
+            <option value="light">Невысокая · 1–3 тренировки (×1,375)</option>
+            <option value="moderate">Средняя · 3–5 тренировок и ходьба (×1,55)</option>
+            <option value="high">Высокая · 6–7 тренировок / физический труд (×1,725)</option>
+            <option value="veryHigh">Очень высокая · тяжёлый физический труд (×1,9)</option>
+          </select></label>
+        <div class="sk-lvl" id="pfGoal"><span>Цель</span><button type="button" data-v="lose">Похудеть</button><button type="button" data-v="maintain">Держать форму</button><button type="button" data-v="gain">Набрать массу</button></div>
+        <button class="btn" id="pfSave" type="button">Сохранить профиль</button>
+        <p class="nt-err" id="pfErr" role="alert"></p>
+      </div>
+      <div class="card nt-res" id="pfNorm"></div>
+      <div class="card"><h3 style="margin-top:0">Вход в аккаунт</h3><p class="nt-sub" id="pfAcc"></p></div>
+    </div>
+  </section>
+
+  <div class="sub-sheet" id="bfSheet" hidden>
+    <div class="sub-card" role="dialog" aria-label="Пример процента жира">
+      <div class="sub-top"><b class="sub-h">Какой у тебя % жира?</b><button type="button" class="sub-x" aria-label="Закрыть">✕</button></div>
+      <p class="sub-m">Выбери фигуру, больше всего похожую на твою, — это ориентир ±3–5%. Смотри на живот, талию и рельеф, а не на рост и ширину плеч. Схемы условные.</p>
+      <div class="sk-lvl" id="bfSex"><span>Пол</span><button type="button" data-v="male">Мужчина</button><button type="button" data-v="female">Женщина</button></div>
+      <div class="bf-grid" id="bfGrid"></div>
+      <div class="bf-tape">
+        <h4>Точнее — сантиметровой лентой</h4>
+        <p class="sub-m" style="margin:0">Формула ВМС США: утром, натощак, лента без натяжения. Погрешность около ±3–4%.</p>
+        <div class="nt-grid">
+          <label>Рост, см<input id="bfH" class="food-in" type="text" inputmode="decimal"></label>
+          <label>Шея (под кадыком), см<input id="bfNeck" class="food-in" type="text" inputmode="decimal"></label>
+          <label id="bfWaistL">Талия (на уровне пупка), см<input id="bfWaist" class="food-in" type="text" inputmode="decimal"></label>
+          <label id="bfHipL" hidden>Бёдра (самое широкое место), см<input id="bfHip" class="food-in" type="text" inputmode="decimal"></label>
+        </div>
+        <button type="button" class="btn btn-alt" id="bfCalc">Посчитать</button>
+        <div id="bfOut"></div>
+      </div>
     </div>
   </div>
 
@@ -5178,7 +5279,7 @@ const ntR1=x=>Math.round(x*10)/10;
 function ntRead(k,def){try{const v=JSON.parse(localStorage.getItem(k)||"null");return v&&typeof v==="object"?v:def;}catch(e){return def;}}
 function ntWrite(k,v,push){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){toast("Не удалось сохранить данные питания");return false;}if(push!==false)cloudPush();return true;}
 function ntT(){return ntRead(NTK_T,null);}
-function ntO(){return Object.assign({units:"metric",shakes:2,liquid:"milk",method:"gym45",scoop:{g:30,p:24}},ntRead(NTK_O,{}));}
+function ntO(){return Object.assign({units:"metric",shakes:2,liquid:"milk",method:"gym45",scoop:{g:30,p:24}},ntRead(NTK_O,{}),{method:"gym45"});}
 function ntApplyScoop(){const o=ntO();if(o.method==="shturm"){NTN().gymScoop(null);return;}try{NTN().gymScoop(o.scoop);}catch(e){NTN().gymScoop({g:30,p:24});}}
 /* Уточнённая методика Gym 45 (по умолчанию). BMR, TDEE и калорийность цели — без изменений, из ShturmNutrition.calculate.
    Меняется только раскладка БЖУ:
@@ -5198,7 +5299,7 @@ function foodDelMark(id){const d=foodDelGet();d[String(id)]=Date.now();ntWrite(F
 function ntCalcOf(t){return NTN().calculate({sex:t.sex,weight:t.weight,height:t.height,age:t.age,activity:t.activity,goal:t.goal});}
 /* 1:1 с nutrition-tools.js → renderPlan(): цель для генератора меню */
 function ntTarget(t,method){const calculated=Object.assign({},ntCalcOf(t));method=method||ntO().method;let gm=null;
-  if(method==="gym45"){gm=ntGymMacros(t,calculated);Object.assign(calculated,{protein:gm.protein,fat:gm.fat,carbs:gm.carbs,percentages:gm.percentages,caloriesFromMacros:gm.caloriesFromMacros});}
+  if(method==="gym45"){gm=ntBfOk(t.bf)?ntBfMacros(t,calculated):ntGymMacros(t,calculated);Object.assign(calculated,{protein:gm.protein,fat:gm.fat,carbs:gm.carbs,percentages:gm.percentages,caloriesFromMacros:gm.caloriesFromMacros});if(gm.bfMode)Object.assign(calculated,{bmr:gm.bmr,tdee:gm.tdee,target:gm.target});}
   return {method,gm,resting:calculated.bmr,maintenance:calculated.tdee,kcal:calculated.target,p:calculated.protein,f:calculated.fat,c:calculated.carbs,factor:calculated.goalMultiplier,activity:calculated.activityFactor,weight:NTN().num(t.weight),menuAllowed:calculated.target>=(t.sex==="male"?1500:1200)&&calculated.target<=5000&&calculated.carbs>0,percentages:calculated.percentages,macroKcal:calculated.caloriesFromMacros,macroPolicy:"pr8"};}
 function ntMacros(t){return `<div class="nt-macros"><div><b class="num">${ntF(t.kcal)}</b><span>ккал</span></div><div><b class="num">${ntF(t.p,1)}</b><span>белки, г</span></div><div><b class="num">${ntF(t.f,1)}</b><span>жиры, г</span></div><div><b class="num">${ntF(t.c,1)}</b><span>углеводы, г</span></div></div>`;}
 const ntImp=()=>ntO().units==="imperial";
@@ -5223,8 +5324,8 @@ function ntChips(id,val,on){el(id).querySelectorAll("button").forEach(b=>{b.clas
 let NTF=null;
 function ntFillForm(){const t=ntT(),imp=ntImp();NTF={sex:(NTF&&NTF.sex)||(t&&t.sex)||"male",goal:(NTF&&NTF.goal)||(t&&t.goal)||"gain"};
   el("ntWUnit").textContent=imp?"Вес, lb":"Вес, кг";el("ntHcm").hidden=imp;el("ntHft").hidden=!imp;el("ntHin").hidden=!imp;
-  if(!t){["ntAge","ntWeight","ntHeight","ntFt","ntIn"].forEach(i=>el(i).value="");el("ntAct").value="light";return;}
-  const s=t.src||{};el("ntAge").value=t.age;el("ntAct").value=t.activity;
+  if(!t){["ntAge","ntWeight","ntHeight","ntFt","ntIn","ntBf"].forEach(i=>el(i).value="");el("ntAct").value="light";return;}
+  const s=t.src||{};el("ntAge").value=t.age;el("ntBf").value=t.bf?String(t.bf):"";el("ntAct").value=t.activity;
   if(imp){el("ntWeight").value=s.units==="imperial"?s.w:ntR1(t.weight/NT_LB);
     if(s.units==="imperial"){el("ntFt").value=s.ft;el("ntIn").value=s.inch;}else{const ti=t.height/NT_IN,ft=Math.floor(ti/12);el("ntFt").value=ft;el("ntIn").value=ntR1(ti-ft*12);}}
   else{el("ntWeight").value=s.units==="metric"?s.w:ntR1(t.weight);el("ntHeight").value=s.units==="metric"?s.h:ntR1(t.height);}}
@@ -5232,7 +5333,6 @@ function ntRenderNorm(){if(!NTF)ntFillForm();const o=ntO();
   ntChips("ntUnits",o.units,v=>{if(v===ntO().units)return;ntSetO({units:v});ntFillForm();ntRenderNorm();});
   ntChips("ntSex",NTF.sex,v=>{NTF.sex=v;ntRenderNorm();});
   ntChips("ntGoal",NTF.goal,v=>{NTF.goal=v;ntRenderNorm();});
-  ntChips("ntMethod",o.method,v=>{if(v===ntO().method)return;ntSetO({method:v});ntRenderNorm();ntVsNorm();});
   const t=ntT(),out=el("ntNormOut");if(!t){out.innerHTML="";return;}
   let x;try{x=ntTarget(t);}catch(e){out.innerHTML=`<div class="card"><p class="nt-err">${e.message}</p></div>`;return;}
   const imp=ntImp(),who=`${t.sex==="male"?"Мужчина":"Женщина"} · ${t.age} лет · ${imp?ntF(t.weight/NT_LB,1)+" lb":ntF(t.weight,1)+" кг"} · ${imp?Math.floor(t.height/NT_IN/12)+" ft "+ntF(t.height/NT_IN%12,1)+" in":ntF(t.height,1)+" см"}`;
@@ -5242,11 +5342,12 @@ function ntRenderNorm(){if(!NTF)ntFillForm();const o=ntO();
     <p class="nt-sub">Б/Ж/У по энергии: ${x.percentages.protein}% / ${x.percentages.fat}% / ${x.percentages.carbs}%. Энергия БЖУ: ${ntF(x.macroKcal,1)} ккал. Фактические итоги меню рассчитываются по каждой порции.</p>
     ${x.menuAllowed?`<button class="btn btn-alt" type="button" id="ntToPlan">Составить план на 7 дней →</button>`:`<p class="nt-warn">Для результата ниже 1500 ккал у мужчин, 1200 ккал у женщин или выше 5000 ккал, а также при нулевой норме углеводов автоматическое меню не составляется: нужен индивидуальный подбор.</p>`}</div>`;
   const b=el("ntToPlan");if(b)b.onclick=()=>ntTab("plan");}
-function ntMethodNote(t,x){const kg=v=>ntImp()?ntF(v/NT_LB,1)+" lb":ntF(v,1)+" кг",w=t.weight;let h="";
-  if(x.gm){const g=x.gm,o=ntTarget(t,"shturm");const notes=[];
-    if(g.capped)notes.push(`Белок и жиры считаются от ${kg(g.refW)} (вес при ИМТ 27), а не от ${kg(w)}: так белок не завышается за счёт жировой массы. Если у тебя мало жира и много мышц — выбери методику «Оригинал Штурм 30».`);
-    if(g.fatFloor)notes.push(`Жиры подняты до 20% калорий — нижней границы нормы (0,8 г/кг дали бы только ${o.percentages.fat}%). Углеводы соответственно ниже.`);
-    if(notes.length)h+=`<div class="nt-note"><b>Уточнения Gym 45</b>${notes.map(n=>`<p>${n}</p>`).join("")}<p class="nt-sub">По оригиналу Штурм 30: Б ${ntF(o.p,1)} · Ж ${ntF(o.f,1)} · У ${ntF(o.c,1)} г.</p></div>`;}
+function ntMethodNote(t,x){const kg=v=>ntImp()?ntF(v/NT_LB,1)+" lb":ntF(v,1)+" кг",w=t.weight;let h="";const g=x.gm;
+  if(g&&g.bfMode)h+=`<div class="nt-note"><b>Расчёт от сухой массы</b><p>Жир ${ntF(g.bf,1)}% → мышцы, кости и вода ≈ ${kg(g.lbm)}. Расход покоя — по Кэтчу — МакАрдлу, белок ${ntF(g.pk,1)} г на кг сухой массы, жиры не меньше 1 г на кг сухой массы и 20% калорий.</p></div>`;
+  else if(g){const notes=[];
+    if(g.capped)notes.push(`Белок и жиры считаются от ${kg(g.refW)} (вес при ИМТ 27), а не от ${kg(w)}: так белок не завышается за счёт жировой массы. Укажи % жира — расчёт пойдёт от сухой массы и будет точнее.`);
+    if(g.fatFloor)notes.push(`Жиры подняты до 20% калорий — нижней границы нормы. Углеводы соответственно ниже.`);
+    if(notes.length)h+=`<div class="nt-note"><b>Уточнения Gym 45</b>${notes.map(n=>`<p>${n}</p>`).join("")}</div>`;}
   const r={lose:[-1,-.5],gain:[.25,.5],maintain:null}[t.goal];
   h+=`<p class="nt-sub nt-ctl"><b>Контроль:</b> ${r?`средний утренний вес за неделю должен меняться на ${r[0]>0?"+":"−"}${ntF(Math.abs(r[0]),2)}…${ntF(Math.abs(r[1]),2)}% в неделю (≈ ${r[0]>0?"+":"−"}${kg(Math.abs(w*r[0]/100))}…${kg(Math.abs(w*r[1]/100))}). ${t.goal==="gain"?"Растёт быстрее — убавь 100–150 ккал: лишнее уходит в жир.":"Падает быстрее — добавь 100–150 ккал, чтобы сохранить мышцы."} Стоит на месте 2–3 недели — сдвинь норму на 100–150 ккал.`:"средний утренний вес за неделю держится в пределах ±1%. Уходит — сдвинь норму на 100–150 ккал."}</p>`;
   return h;}
@@ -5258,9 +5359,10 @@ function ntReadForm(){const imp=ntImp(),num=v=>Number(String(v).replace(",",".")
     if(![w,ft,inch].every(Number.isFinite)||ft<0||inch<0||inch>=12)throw Error("Проверь рост: футы — целое число, дюймы 0–11,9.");
     rec.weight=w*NT_LB;rec.height=(ft*12+inch)*NT_IN;rec.src={units:"imperial",w:el("ntWeight").value.trim(),ft:el("ntFt").value.trim(),inch:el("ntIn").value.trim()};}
   else{if(!el("ntHeight").value.trim())throw Error("Заполни рост.");rec.weight=num(el("ntWeight").value);rec.height=num(el("ntHeight").value);rec.src={units:"metric",w:el("ntWeight").value.trim(),h:el("ntHeight").value.trim()};}
+  const bfv=el("ntBf").value.trim();if(bfv){const b=num(bfv);if(!ntBfOk(b))throw Error("% жира — от 3 до 60. Не знаешь — открой «Пример % жира» или оставь пустым.");rec.bf=b;}
   return rec;}
 /* ---- план на 7 дней ---- */
-function ntSig(t,o){const sc=o.scoop||{};return JSON.stringify([NT_ENGINE,o.method||"gym45",sc.g,sc.p,t.sex,t.age,t.weight,t.height,t.activity,t.goal,Number(o.shakes),o.liquid]);}
+function ntSig(t,o){const sc=o.scoop||{};return JSON.stringify([NT_ENGINE,o.method||"gym45",sc.g,sc.p,t.sex,t.age,t.weight,t.height,t.activity,t.goal,Number(o.shakes),o.liquid].concat(t.bf?[t.bf]:[]));}
 function ntPlanGet(){const p=ntRead(NTK_P,null);return p&&Array.isArray(p.days)&&p.days.length===7?p:null;}
 function ntGenerate(){ntApplyScoop();const t=ntT(),o=ntO(),target=ntTarget(t);if(!target.menuAllowed)throw Error("Для этой нормы автоматическое меню не составляется — нужен индивидуальный подбор.");
   let days=NTN().menu(target,{shakes:Number(o.shakes),liquid:o.liquid});if(target.method==="gym45")days=ntRealistic(days,target);const shop=NTN().shopping(days);
@@ -5342,11 +5444,7 @@ function ntShopRows(shop){const w=shop.filter(i=>i.id==="whey"||i.id==="wheyScoo
   const g=w.reduce((s,i)=>s+i.g,0),n=Math.ceil(g/500);
   return shop.filter(i=>i.id!=="whey"&&i.id!=="wheyScoop").concat([{id:"whey",g,pr9Package:{packageLabel:"упаковка 500 г",purchaseNote:n+" × упаковка 500 г",purchaseQuantity:n*500,unit:"g"}}]);}
 /* ---- дневник: сравнение с нормой (без пересчёта прошлых записей) ---- */
-function ntVsNorm(){const box=el("ntVsNorm");if(!box||!NTN())return;const t=ntT();if(!t){box.hidden=true;return;}
-  let x;try{x=ntTarget(t);}catch(e){box.hidden=true;return;}
-  const list=foodGet().filter(r=>r.date===foodToday()),s={kcal:0,p:0,f:0,c:0};list.forEach(r=>{s.kcal+=+r.kcal||0;s.p+=+r.p||0;s.f+=+r.f||0;s.c+=+r.c||0;});
-  const row=(n,a,b,u)=>{const pc=Math.min(100,b?a/b*100:0);return `<div class="nt-bar"><span>${n}</span><i><em style="width:${pc}%" class="${a>b*1.05?"over":""}"></em></i><b class="num">${ntF(a)} / ${ntF(b)}${u}</b></div>`;};
-  box.hidden=false;box.innerHTML=`<p class="nt-eb">Норма на день</p>`+row("Ккал",s.kcal,x.kcal,"")+row("Белки",s.p,x.p," г")+row("Жиры",s.f,x.f," г")+row("Углев.",s.c,x.c," г");}
+/* ntVsNorm — кольца Б/Ж/У, см. блок «ПРОФИЛЬ · % ЖИРА · КОЛЬЦА» */
 const _ntRenderFood=renderFood;
 renderFood=function(){_ntRenderFood();ntVsNorm();ntRenderVisible();};
 el("ntTabs").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ntTab(b.dataset.t)));
@@ -5528,6 +5626,128 @@ function renderDS(){const box=el("dsBox");if(!box)return;const sn=dsSnaps().slic
 /* «✕» у незавершённой тренировки — только двойным нажатием */
 {const b=el("draftDiscard");if(b){const nb=b.cloneNode(true);b.replaceWith(nb);nb.addEventListener("click",()=>{if(Date.now()-(nb._arm||0)>4000){nb._arm=Date.now();toast("Нажми ✕ ещё раз — незавершённая тренировка будет удалена");return;}clearDraft();el("draftBanner").hidden=true;});}}
 
+/* ===================== ПРОФИЛЬ · % ЖИРА · КОЛЬЦА БЖУ ===================== */
+/* % жира: если указан, норма считается от сухой массы (Кэтч — МакАрдл), иначе — как раньше */
+function ntBfOk(v){v=Number(v);return v!==""&&v!==null&&isFinite(v)&&v>=3&&v<=60;}
+function ntBfMacros(t,x){const bf=Number(t.bf),lbm=t.weight*(1-bf/100),bmr=370+21.6*lbm,tdee=bmr*x.activityFactor,target=Math.round(tdee*x.goalMultiplier);
+  const pk={lose:2.4,maintain:2.0,gain:2.2}[t.goal]||2.2;
+  const protein=ntR1(lbm*pk),fat=ntR1(Math.max(lbm*1.0,target*.20/9)),carbs=ntR1((target-protein*4-fat*9)/4);
+  if(carbs<0)throw new Error("При этих параметрах недостаточно калорий для выбранной нормы БЖУ. Измени цель или проверь данные.");
+  const pp=Math.round(protein*4/target*100),fp=Math.round(fat*9/target*100);
+  return {bfMode:true,bf,pk,lbm:ntR1(lbm),bmr:Math.round(bmr),tdee:Math.round(tdee),target,protein,fat,carbs,percentages:{protein:pp,fat:fp,carbs:100-pp-fp},caloriesFromMacros:ntR1(protein*4+fat*9+carbs*4)};}
+
+/* ---------- дневник: кольца Б/Ж/У ---------- */
+const NT_RC=2*Math.PI*17;
+function ntRing(k,a,b){const r=el("ring"+k);if(!r)return;const f=r.querySelector(".rf"),n=el("ring"+k+"n");
+  if(!b){f.setAttribute("stroke-dasharray","0 "+NT_RC.toFixed(2));f.style.opacity=0;n.textContent="г";r.classList.remove("over");return;}
+  const pc=Math.max(0,Math.min(1,a/b)),over=a>b*1.05;f.style.opacity=pc>0?1:0;
+  f.setAttribute("stroke-dasharray",(pc*NT_RC).toFixed(2)+" "+NT_RC.toFixed(2));r.classList.toggle("over",over);
+  n.textContent=over?"+"+ntF(a-b)+" г сверх":"из "+ntF(b)+" г";}
+function ntVsNorm(){const box=el("ntVsNorm");if(!box)return;
+  const list=foodGet().filter(r=>r.date===foodToday()),s={kcal:0,p:0,f:0,c:0};list.forEach(r=>{s.kcal+=+r.kcal||0;s.p+=+r.p||0;s.f+=+r.f||0;s.c+=+r.c||0;});
+  let x=null;const t=NTN()?ntT():null;if(t){try{x=ntTarget(t);}catch(e){x=null;}}
+  ntRing("P",s.p,x&&x.p);ntRing("F",s.f,x&&x.f);ntRing("C",s.c,x&&x.c);
+  if(!x){box.hidden=true;box.innerHTML="";return;}
+  const left=x.kcal-s.kcal,pc=Math.min(100,x.kcal?s.kcal/x.kcal*100:0);
+  box.hidden=false;box.innerHTML=`<div class="nt-kbar"><div class="nt-kt"><span>Норма на день · ${ntF(x.kcal)} ккал</span><b class="num">${left>=0?"осталось "+ntF(left):"сверх нормы +"+ntF(-left)}</b></div><i><em style="width:${pc}%" class="${s.kcal>x.kcal*1.05?"over":""}"></em></i></div>`;}
+
+/* ---------- «Пример % жира»: шкала фигур + расчёт по сантиметровой ленте ---------- */
+const BF_LV={male:[[9,"8–10%","Пресс «кубиками», видны вены на руках и плечах, границы мышц чёткие."],[13,"12–15%","Верх пресса виден, мышцы рельефные, талия ровная."],[19,"18–20%","Пресс не виден, небольшая складка на животе. Плечи и руки ещё в форме."],[25,"около 25%","Живот мягкий и выступает, появились «бока», талия почти как грудь."],[30,"около 30%","Заметный живот, полнее лицо и шея, талия шире груди."],[35,"35% и больше","Живот нависает, талия заметно шире плеч."]],
+  female:[[16,"15–17%","Уровень соревнующихся атлеток: виден пресс и вены, мало округлостей."],[21,"20–22%","Спортивная фигура: контур пресса, рельеф рук и ног."],[25,"около 25%","Подтянутая фигура, мягкий живот без складок, округлые бёдра."],[30,"около 30%","Округлые бёдра и живот, рельефа мышц почти не видно."],[35,"около 35%","Заметный живот и бока, полнее лицо и руки."],[40,"40% и больше","Выраженно полные живот и бёдра, складки на спине и боках."]]};
+function bfFig(sex,f){const M=sex==="male",sw=M?30-f:23+f*3,cw=M?24+f*6:22+f*6,ww=M?15+f*17:12+f*14,hw=M?18+f*9:21+f*12;
+  const P=[[7,24],[sw,34],[cw,50],[ww,74],[hw,94],[hw*.5,104]];
+  const pts=P.map(([x,y])=>[50+x,y]).concat([[50,104]]).concat(P.slice().reverse().map(([x,y])=>[50-x,y]));
+  let d=`M${pts[0][0]},${pts[0][1]}`;for(let i=1;i<pts.length-1;i++){const m=[(pts[i][0]+pts[i+1][0])/2,(pts[i][1]+pts[i+1][1])/2];d+=` Q${pts[i][0].toFixed(1)},${pts[i][1]} ${m[0].toFixed(1)},${m[1]}`;}d+=` L${pts[pts.length-1][0]},${pts[pts.length-1][1]}Z`;
+  const ax=Math.max(cw,ww)+4,hx=Math.max(ww,hw)+5,aw=(M?9:7)+f*5,lw=(M?11:11)+f*(M?8:10);
+  const arm=s=>`<polyline points="${50+s*(sw-4)},38 ${50+s*ax},70 ${50+s*hx},98" fill="none" stroke="currentColor" stroke-width="${aw}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const leg=s=>`<polyline points="${50+s*(hw*.5)},98 ${50+s*(hw*.42)},128 ${50+s*(8+f*3)},154" fill="none" stroke="currentColor" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  let det="";const o=f<.3?(.3-f)/.3:0;
+  if(o>0)det+=`<g stroke="var(--bg)" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="${(.25+o*.6).toFixed(2)}"><path d="M50,56 V88"/><path d="M44,64 H56 M44,72 H56 M45,80 H55"/>${M?`<path d="M36,49 Q44,56 50,52 Q56,56 64,49"/>`:""}</g>`;
+  if(f>.5)det+=`<path d="M${50-ww*.75},86 Q50,${95+f*5} ${50+ww*.75},86" stroke="var(--bg)" stroke-width="1.3" fill="none" opacity=".45"/>`;
+  return `<svg viewBox="0 0 100 160" class="bf-svg" aria-hidden="true"><g color="var(--fg)" fill="currentColor" opacity=".82">${arm(1)}${arm(-1)}${leg(1)}${leg(-1)}<circle cx="50" cy="12" r="${9+f*1.5}"/><path d="${d}"/></g>${det}</svg>`;}
+let BF_TO=null,BF_SEX="male";
+function bfOpen(inputId,sex){BF_TO=inputId;BF_SEX=sex==="female"?"female":"male";bfRender();el("bfSheet").hidden=false;document.body.classList.add("sub-open");el("bfSheet").querySelector(".sub-card").scrollTop=0;}
+function bfClose(){el("bfSheet").hidden=true;document.body.classList.remove("sub-open");}
+function bfPut(v,how){v=Math.round(v*10)/10;const i=el(BF_TO);if(i){i.value=String(v);i.dispatchEvent(new Event("input",{bubbles:true}));}bfClose();
+  toast("% жира ≈ "+ntF(v,1)+" ("+how+"). Нажми «"+(BF_TO==="pfBf"?"Сохранить профиль":"Рассчитать и сохранить")+"»");}
+function bfRender(){const L=BF_LV[BF_SEX];
+  ntChips("bfSex",BF_SEX,v=>{BF_SEX=v;bfRender();});
+  el("bfGrid").innerHTML=L.map(([v,lab,txt],i)=>`<button type="button" class="bf-it" data-v="${v}">${bfFig(BF_SEX,i/5)}<b>${lab}</b><small>${txt}</small></button>`).join("");
+  el("bfGrid").querySelectorAll(".bf-it").forEach(b=>b.onclick=()=>bfPut(+b.dataset.v,"по фигуре"));
+  el("bfHipL").hidden=BF_SEX!=="female";el("bfWaistL").firstChild.textContent=BF_SEX==="female"?"Талия (самое узкое место), см":"Талия (на уровне пупка), см";
+  const p=pfGet();if(!el("bfH").value&&p.height)el("bfH").value=p.height;el("bfOut").innerHTML="";}
+/* формула ВМС США (Hodgdon & Beckett), сантиметры */
+function bfNavy(sex,h,neck,waist,hip){const lg=Math.log10;let v;
+  if(sex==="female"){if(!(waist+hip-neck>0))return NaN;v=495/(1.29579-.35004*lg(waist+hip-neck)+.22100*lg(h))-450;}
+  else{if(!(waist-neck>0))return NaN;v=495/(1.0324-.19077*lg(waist-neck)+.15456*lg(h))-450;}
+  return v;}
+function bfCalc(){const n=id=>Number(String(el(id).value).replace(",",".").trim());const h=n("bfH"),ne=n("bfNeck"),wa=n("bfWaist"),hi=n("bfHip");
+  const need=[h,ne,wa].concat(BF_SEX==="female"?[hi]:[]);
+  if(!need.every(x=>isFinite(x)&&x>0)){el("bfOut").innerHTML=`<p class="nt-err">Заполни ${BF_SEX==="female"?"рост, шею, талию и бёдра":"рост, шею и талию"}.</p>`;return;}
+  const v=bfNavy(BF_SEX,h,ne,wa,hi);
+  if(!isFinite(v)||v<3||v>60){el("bfOut").innerHTML=`<p class="nt-err">Получилось вне 3–60% — проверь замеры: шея обычно 35–45 см, талия больше шеи.</p>`;return;}
+  el("bfOut").innerHTML=`<div class="bf-res"><span>По замерам ≈ <b class="num">${ntF(v,1)}%</b></span><button type="button" class="btn" id="bfUse">Подставить</button></div>`;
+  el("bfUse").onclick=()=>bfPut(v,"по замерам");}
+
+/* ---------- профиль ---------- */
+const PFK="gym45_profile_v1";
+function pfRaw(){return ntRead(PFK,null);}
+function pfGet(){const t=(NTN()&&ntT())||{};
+  return Object.assign({name:"",photo:"",sex:t.sex||"male",goal:t.goal||"gain",activity:t.activity||"light",age:t.age||"",weight:t.weight?ntR1(t.weight):"",height:t.height?ntR1(t.height):"",bf:t.bf||""},pfRaw()||{});}
+function pfWrite(p){p.updatedAt=Date.now();try{localStorage.setItem(PFK,JSON.stringify(p));}catch(e){return false;}cloudPush();return true;}
+let PFS=null;
+function pfAvatar(){const a=el("homeAvatar");if(!a)return;const p=pfRaw()||{};
+  a.innerHTML=p.photo?`<img alt="">`:`<svg viewBox="0 0 24 24" fill="var(--muted)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg>`;
+  if(p.photo)a.querySelector("img").src=p.photo;a.setAttribute("aria-label",p.name?"Профиль: "+p.name:"Профиль");}
+function pfRender(){const p=pfGet();PFS={sex:p.sex,goal:p.goal};
+  const ph=el("pfPhoto");ph.innerHTML=p.photo?`<img alt="">`:`<svg viewBox="0 0 24 24" fill="var(--muted)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg>`;if(p.photo)ph.querySelector("img").src=p.photo;
+  el("pfPhotoTxt").textContent=p.photo?"Сменить фото":"Добавить фото";el("pfPhotoDel").hidden=!p.photo;
+  el("pfName").value=p.name||"";el("pfAge").value=p.age;el("pfW").value=p.weight;el("pfH").value=p.height;el("pfBf").value=p.bf;el("pfAct").value=p.activity||"light";
+  const chips=()=>{ntChips("pfSex",PFS.sex,v=>{PFS.sex=v;chips();});ntChips("pfGoal",PFS.goal,v=>{PFS.goal=v;chips();});};chips();
+  pfRenderNorm();
+  el("pfAcc").innerHTML=window.claude&&claude.use?`Ты вошёл через Claude — данные этой версии дополнительно сохраняются в облако${CLOUD_UID?"":" (подключается…)"}.`:
+    `Вход по логину и паролю появится, когда у Gym 45 будет свой сервер: пароль нельзя надёжно хранить только в телефоне. Сейчас все данные — на этом устройстве, копия — в «Прогресс → Сохранность данных».`;}
+function pfRenderNorm(){const box=el("pfNorm"),t=NTN()?ntT():null;let x=null;if(t){try{x=ntTarget(t);}catch(e){}}
+  if(!x){box.innerHTML=`<p class="nt-eb">Норма питания</p><p class="nt-sub">Заполни пол, возраст, вес и рост — норма калорий и БЖУ посчитается автоматически.</p>`;return;}
+  box.innerHTML=`<p class="nt-eb">Твоя норма питания</p>${ntMacros(x)}<p class="nt-sub">${x.gm&&x.gm.bfMode?"Расчёт от сухой массы "+ntF(x.gm.lbm,1)+" кг (жир "+ntF(x.gm.bf,1)+"%).":"Укажи % жира — норма посчитается от сухой массы и будет точнее."}</p><button type="button" class="btn btn-alt" id="pfToFood">Открыть питание →</button>`;
+  el("pfToFood").onclick=()=>{renderFood();show("food");ntTab("norm");};}
+function pfSave(){const err=m=>{el("pfErr").textContent=m;};err("");const num=v=>Number(String(v).replace(",",".").trim()),g=id=>el(id).value.trim();
+  const p=pfGet();Object.assign(p,{name:g("pfName").slice(0,40),sex:PFS.sex,goal:PFS.goal,activity:el("pfAct").value});
+  const f={age:g("pfAge"),weight:g("pfW"),height:g("pfH"),bf:g("pfBf")};
+  for(const k in f){if(f[k]===""){p[k]="";continue;}const v=num(f[k]);if(!isFinite(v)||v<=0){err("Проверь поле «"+{age:"Возраст",weight:"Вес",height:"Рост",bf:"% жира"}[k]+"».");return;}p[k]=v;}
+  if(p.bf!==""&&!ntBfOk(p.bf)){err("% жира — от 3 до 60. Не знаешь — открой «Пример % жира» или оставь пустым.");return;}
+  let rec=null;
+  if(p.age!==""&&p.weight!==""&&p.height!==""&&NTN()){rec={sex:p.sex,goal:p.goal,activity:p.activity,age:p.age,weight:p.weight,height:p.height,src:{units:"metric",w:String(p.weight),h:String(p.height)},updatedAt:Date.now()};
+    if(p.bf!=="")rec.bf=p.bf;try{ntCalcOf(rec);if(rec.bf)ntBfMacros(rec,ntCalcOf(rec));}catch(e){err(e.message);return;}}
+  if(!pfWrite(p)){err("Не удалось сохранить — мало места на устройстве.");return;}
+  if(rec){ntWrite(NTK_T,rec,false);NTF=null;try{ntFillForm();}catch(e){}}
+  cloudPush();pfAvatar();pfRender();toast(rec?"Профиль сохранён — норма питания пересчитана":"Профиль сохранён");}
+/* норма, рассчитанная в «Питании», попадает в профиль */
+function pfFromNorm(){const t=ntT();if(!t)return;const p=pfGet();
+  Object.assign(p,{sex:t.sex,goal:t.goal,activity:t.activity,age:t.age,weight:ntR1(t.weight),height:ntR1(t.height),bf:t.bf||""});pfWrite(p);}
+function pfPhoto(file){if(!file)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{try{
+    const S=320,c=document.createElement("canvas");c.width=c.height=S;const k=Math.min(im.width,im.height),sx=(im.width-k)/2,sy=(im.height-k)/2;
+    c.getContext("2d").drawImage(im,sx,sy,k,k,0,0,S,S);const data=c.toDataURL("image/jpeg",.82);
+    const p=pfGet();p.photo=data;if(!pfWrite(p)){toast("Не удалось сохранить фото — мало места");return;}pfAvatar();pfRender();toast("Фото сохранено");}catch(e){toast("Не удалось обработать фото");}};
+    im.onerror=()=>toast("Этот формат фото не открылся — выбери другое");im.src=r.result;};r.readAsDataURL(file);}
+scr.profile=el("scr-profile");
+el("homeAvatar").addEventListener("click",()=>{pfRender();show("profile");});
+el("pfPhotoBtn").addEventListener("click",()=>el("pfPhotoIn").click());
+el("pfPhotoIn").addEventListener("change",e=>{pfPhoto(e.target.files&&e.target.files[0]);e.target.value="";});
+el("pfPhotoDel").addEventListener("click",()=>{const b=el("pfPhotoDel");if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — фото будет удалено");return;}const p=pfGet();p.photo="";pfWrite(p);pfAvatar();pfRender();});
+el("pfSave").addEventListener("click",pfSave);
+el("pfBfEx").addEventListener("click",()=>bfOpen("pfBf",PFS?PFS.sex:"male"));
+el("ntBfEx").addEventListener("click",()=>bfOpen("ntBf",NTF?NTF.sex:"male"));
+el("bfSheet").querySelector(".sub-x").addEventListener("click",bfClose);
+el("bfSheet").addEventListener("click",e=>{if(e.target===el("bfSheet"))bfClose();});
+el("bfCalc").addEventListener("click",bfCalc);
+el("ntCalc").addEventListener("click",()=>setTimeout(()=>{if(!el("ntErr").textContent)pfFromNorm();},0));
+/* вес из профиля — подсказкой в новую программу GVT (активную программу не трогаем) */
+{const _g2=g2Render;g2Render=function(){_g2();try{const i=el("g2Bw"),p=pfGet();if(i&&!i.value&&p.weight)i.value=String(p.weight);}catch(e){}};}
+/* профиль — в облачный документ (версия в Claude) */
+{const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{profile:pfRaw()});};}
+pfAvatar();
+
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
@@ -5561,6 +5781,7 @@ async function cloudInit(){
     const snap=await cloudDoc().get();
     if(snap&&snap.exists&&snap.data()){
       const d=snap.data();
+      try{if(d.profile&&typeof d.profile==="object"&&(d.profile.updatedAt||0)>((pfRaw()||{}).updatedAt||0)){localStorage.setItem(PFK,JSON.stringify(d.profile));pfAvatar();}}catch(e){}
       try{const known=Object.keys(cloudSnapshot());CLOUD_EXTRA={};Object.keys(d).forEach(k=>{if(!known.includes(k))CLOUD_EXTRA[k]=d[k];});}catch(e){}
       try{if(d.foodDel&&typeof d.foodDel==="object")localStorage.setItem(FOODDELK,JSON.stringify(Object.assign({},d.foodDel,foodDelGet())))}catch(e){}
       // объединяем, а не затираем: сохранится и локальное, и облачное
