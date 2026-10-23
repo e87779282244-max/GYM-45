@@ -693,6 +693,10 @@
   .wk-hd{padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:8px}
   .wk-hd h1{font-size:23px}
   .wk-hd .icon-btn{width:46px;height:46px;font-size:22px}
+  .wk-time{display:flex;align-items:center;gap:10px;margin:-6px 0 10px;font-size:12.5px;font-weight:700;color:var(--muted)}
+  .wk-clock{white-space:nowrap}.wk-clock b{font-family:var(--dsp);font-size:19px;color:var(--fg);font-weight:800}
+  .wk-tbar{flex:1;height:7px;border-radius:99px;background:var(--surface-2);overflow:hidden;min-width:40px}
+  .wk-tbar i{display:block;height:100%;width:0;background:var(--good);border-radius:99px;transition:width .4s ease}
   .wk-prog{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;
     font-family:var(--dsp);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
   .wk-dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
@@ -1866,6 +1870,7 @@
       <div><p class="eyebrow" id="wkEyebrow">Тренировка</p><h1 id="wkTitle">—</h1></div>
       <button class="icon-btn back-btn" id="wkBack" title="К списку">←</button>
     </div>
+    <div class="wk-time" id="wkTime"><span class="wk-clock">⏱ <b class="num" id="wkTimeT">0:00</b></span><span class="wk-tbar" aria-hidden="true"><i id="wkTimeBar"></i></span><span class="num" id="wkTimeSets">0/0</span></div>
     <div class="wk-prog"><span id="wkStep">Упражнение 1 из 1</span><div class="wk-dots" id="wkDots"></div></div>
     <div id="exList"></div>
     <div class="wk-rest" id="wkRest" hidden>
@@ -2628,7 +2633,14 @@ function markCur(){const rows=el("exList").querySelectorAll(".wk-sets .set-row:n
   el("wkDots").querySelectorAll(".wk-dot").forEach((d,k)=>d.classList.toggle("done",exDone(k)));
   const cr=el("exList").querySelector(".set-row.cur"),box=el("exList").querySelector(".wk-sets");
   if(cr&&box){const t=cr.offsetTop-box.offsetTop-40;box.scrollTo({top:Math.max(0,t),behavior:"smooth"});}}
+/* общее время тренировки (от «Начать») и шкала выполненных подходов */
+function wkElapsedTx(){const t=current&&Date.parse(current.startedAt);if(!t)return "0:00";const d=Math.max(0,Math.floor((Date.now()-t)/1000)),h=Math.floor(d/3600),m=Math.floor(d%3600/60),x=d%60;
+  return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0");}
+function wkTimeUpd(){if(!current||!current.sets||!el("wkTime"))return;let n=0,d=0;current.sets.forEach(se=>se.forEach(s=>{if(s.warm)return;n++;if(s.done)d++;}));
+  el("wkTimeT").textContent=wkElapsedTx();el("wkTimeSets").textContent=d+"/"+n+" подх.";el("wkTimeBar").style.width=(n?Math.round(d/n*100):0)+"%";}
+setInterval(()=>{try{if(currentScreen==="workout")wkTimeUpd();}catch(e){}},1000);
 function renderWorkout(){
+  try{setTimeout(wkTimeUpd,0);}catch(e){}
   if(current&&current.program&&current.program.g2)return g2RenderPair();
   const wrap=el("exList");
   if(window.__io)wrap.querySelectorAll("video").forEach(v=>{try{window.__io.unobserve(v)}catch(e){}});
