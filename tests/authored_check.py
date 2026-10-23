@@ -14,12 +14,12 @@ async def m():
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none';show('body')");await pg.wait_for_timeout(200)
     order=await pg.evaluate("[...el('bodyProgs').children].map(x=>x.classList.contains('bb-lbl')?'#'+x.firstChild.textContent:x.querySelector('span span').textContent)")
-    exp=['German Volume Training','#Авторские программы','Warlock · Джон Медоуз','Push / Pull / Legs · Крис Бамстед','Y3T · Нил Хилл','Bodybuilding Transformation System · Джефф Ниппард','Fortitude Training · Скотт Стивенсон','FST-7 · Хэни Рэмбод','DC Training · Данте Трудель','Creeping Death II · Джон Медоуз','Blood & Guts · Дориан Ятс','#Базовые программы']
+    exp=['German Volume Training','#Авторские программы','Фулбади 3 дня · Пол Картер','Warlock · Джон Медоуз','Верх / низ с ротацией · Пол Картер','Push / Pull / Legs · Крис Бамстед','Y3T · Нил Хилл','Bodybuilding Transformation System · Джефф Ниппард','Fortitude Training · Скотт Стивенсон','FST-7 · Хэни Рэмбод','DC Training · Данте Трудель','Creeping Death II · Джон Медоуз','Blood & Guts · Дориан Ятс','#Базовые программы']
     ok('порядок: GVT → авторские по сложности → базовые',order[:len(exp)]==exp and len(order)==len(exp)+5,order[:len(exp)])
     ok('индикатор сложности 1…N по порядку',await pg.evaluate("[...el('bodyProgs').querySelectorAll('.lvl-dots')].map(d=>d.querySelectorAll('i.on').length).join()===AUTH.map((_,i)=>i+1).join()"))
     if SHOT:await pg.evaluate("el('bodyProgs').scrollIntoView()");await pg.screenshot(path=SHOT+'/au-list.png')
     info=json.loads(await pg.evaluate("JSON.stringify(AUTH.map(p=>({id:p.id,w:p.weeks.length,d:p.weeks.map(w=>w.days.length)})))"))
-    ok('недели и дни: Warlock 3×4, Бамстед 1×6, Y3T 3×4, BTS 6×5, Fortitude 6×8+2×2, FST-7 6×5, DC 6+2, CD2 3×5, B&G 2×4',[ (x['w'],x['d']) for x in info]==[(3,[4,4,4]),(1,[6]),(3,[4,4,4]),(6,[5]*6),(8,[8]*6+[2,2]),(6,[5]*6),(2,[6,2]),(3,[5,5,5]),(2,[4,4])],info)
+    ok('недели и дни: Картер ФБ 5×3, Warlock 3×4, Картер В/Н 4×6, Бамстед 1×6, Y3T 3×4, BTS 6×5, Fortitude 6×8+2×2, FST-7 6×5, DC 6+2, CD2 3×5, B&G 2×4',[ (x['w'],x['d']) for x in info]==[(5,[3]*5),(3,[4,4,4]),(4,[6]*4),(1,[6]),(3,[4,4,4]),(6,[5]*6),(8,[8]*6+[2,2]),(6,[5]*6),(2,[6,2]),(3,[5,5,5]),(2,[4,4])],info)
     # каждый день каждой программы открывается и стартует
     bad=[]
     for pi,x in enumerate(info):
@@ -50,7 +50,7 @@ async def m():
     adup=await pg.evaluate("AUTH.flatMap(p=>p.weeks.flatMap(w=>w.days.filter(d=>new Set(d.ex.map(e=>e[0])).size!==d.ex.length).map(d=>p.id+': '+d.name)))")
     ok('во всех программах в одном дне нет повторяющихся названий',not adup,adup[:3])
     # Warlock: структура по программе
-    wl=json.loads(await pg.evaluate("JSON.stringify(AUTH[0].weeks.map(w=>w.days.map(d=>({n:d.name,ex:d.ex.map(e=>[e[0],e[1],e[2],e[6]])}))))"))
+    wl=json.loads(await pg.evaluate("JSON.stringify(AUTH.find(p=>p.id==='wl').weeks.map(w=>w.days.map(d=>({n:d.name,ex:d.ex.map(e=>[e[0],e[1],e[2],e[6]])}))))"))
     ok('Warlock: 2 блока по 4 тренировки + разгрузка, верх/низ/верх/низ',[len(w) for w in wl]==[4,4,4] and all(['Верх' in w[0]['n'],'Низ' in w[1]['n'],'Верх' in w[2]['n'],'Низ' in w[3]['n']]==[True]*4 for w in wl))
     ok('Warlock: блоки с разными упражнениями, 10/6/10/6 упражнений',[len(d['ex']) for d in wl[0]]==[10,6,10,6] and wl[0][0]['ex'][0][0]!=wl[1][0]['ex'][0][0])
     ok('Warlock: отдых — база 3 мин, изоляция 1 мин',wl[0][0]['ex'][0][3]==180 and wl[0][0]['ex'][6][3]==60)
