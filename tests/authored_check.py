@@ -19,7 +19,7 @@ async def m():
     ok('индикатор сложности 1…6',await pg.evaluate("[...el('bodyProgs').querySelectorAll('.lvl-dots')].map(d=>d.querySelectorAll('i.on').length).join()==='1,2,3,4,5,6'"))
     if SHOT:await pg.evaluate("el('bodyProgs').scrollIntoView()");await pg.screenshot(path=SHOT+'/au-list.png')
     info=json.loads(await pg.evaluate("JSON.stringify(AUTH.map(p=>({id:p.id,w:p.weeks.length,d:p.weeks.map(w=>w.days.length)})))"))
-    ok('недели и дни: Y3T 3×4, Fortitude 2×4, FST-7 6×5, DC 6+2, CD2 3×5, B&G 2×4',[ (x['w'],x['d']) for x in info]==[(3,[4,4,4]),(2,[4,4]),(6,[5]*6),(2,[6,2]),(3,[5,5,5]),(2,[4,4])],info)
+    ok('недели и дни: Y3T 3×4, Fortitude 6×8+2×2, FST-7 6×5, DC 6+2, CD2 3×5, B&G 2×4',[ (x['w'],x['d']) for x in info]==[(3,[4,4,4]),(8,[8]*6+[2,2]),(6,[5]*6),(2,[6,2]),(3,[5,5,5]),(2,[4,4])],info)
     # каждый день каждой программы открывается и стартует
     bad=[]
     for pi,x in enumerate(info):
@@ -29,7 +29,7 @@ async def m():
             if(currentScreen!=='day')return 'no day';current=null;el('dayStart').click();if(currentScreen!=='workout'||!current)return 'no workout';
             const n=current.program.ex.length,ok=current.sets.every((s,i)=>s.length===current.program.ex[i][1]||s.length===rScaleSets(current.program.ex[i][1]));clearDraft();current=null;return ok?'':'sets'}})()""")
           if r:bad.append((x['id'],wi,di,r))
-    ok('все 81 тренировка запускается, подходы совпадают с программой',not bad,bad[:5])
+    ok('все 125 тренировок запускается, подходы совпадают с программой',not bad,bad[:5])
     await pg.evaluate("authSetWeek(AUTH[2],3);authOpen(AUTH[2])");await pg.wait_for_timeout(60)
     ok('выбранная неделя запоминается',await pg.evaluate("authWeek(AUTH[2])===3&&el('auWk').querySelectorAll('.on')[0].dataset.v==='3'"))
     if SHOT:await pg.screenshot(path=SHOT+'/au-prog.png')
@@ -47,6 +47,20 @@ async def m():
     last=json.loads(await pg.evaluate("JSON.stringify(safe.get().slice(-1)[0])"))
     ok('завершение: запись в историю, раздел «бодибилдинг»',last.get('sec')=='body' and 'Разведение гантелей в стороны · FST-7' in last.get('log',{}),last.get('name'))
     ok('память весов: финиш FST-7 не путается с базовым упражнением',await pg.evaluate("lastResult('Разведение гантелей в стороны')===null&&!!lastResult('Разведение гантелей в стороны · FST-7')"))
+    # Fortitude: структура по книге
+    ft=json.loads(await pg.evaluate("JSON.stringify(AUTH[1].weeks.map(w=>({n:w.name,d:w.days.map(d=>({n:d.name,ex:d.ex.map(e=>[e[0],e[1],e[2],e[6]])}))})))"))
+    dup=[(w['n'],d['n']) for w in ft for d in w['d'] if len({e[0] for e in d['ex']})!=len(d['ex'])]
+    ok('Fortitude: в дне нет повторяющихся упражнений (журнал не склеивается)',not dup,dup[:3])
+    mr=[e for w in ft for d in w['d'] for e in d['ex'] if e[0].endswith(' · раунд')]
+    ok('Fortitude: мышечный раунд — 6×4, отдых 10 с',mr and all(e[1]==6 and e[2]==4 and e[3]==10 for e in mr),len(mr))
+    fb=ft[0]['d']
+    ok('Fortitude: день 3 — раунды низа, день 4 — верха; дни 1–2 в группах A/B/C',fb[6]['n'].startswith('День 3') and 'Жим ногами · раунд' in [e[0] for e in fb[6]['ex']] and 'Тяга верхнего блока · раунд' in [e[0] for e in fb[7]['ex']] and [d['n'][:10] for d in fb[:6]]==['День 1 · A','День 1 · B','День 1 · C','День 2 · A','День 2 · B','День 2 · C'])
+    sets=lambda w,i:sum(e[1] for e in ft[w]['d'][i]['ex'])
+    ok('Fortitude: объём растёт Tier I → II → III',sets(0,0)<sets(1,0)<sets(2,0) and sets(0,7)<sets(1,7)<sets(2,7),[sets(i,0) for i in range(3)])
+    ok('Fortitude: разгрузка — только мышечные раунды (дни 3 и 4)',all('раунды' in d['n'] for d in ft[6]['d']+ft[7]['d']))
+    if SHOT:
+      await pg.evaluate("authSetWeek(AUTH[1],0);authOpen(AUTH[1])");await pg.wait_for_timeout(80);await pg.screenshot(path=SHOT+'/ft-prog.png')
+      await pg.evaluate("el('bodyDays').querySelectorAll('.disc')[6].click()");await pg.wait_for_timeout(80);await pg.screenshot(path=SHOT+'/ft-day3.png')
     ok('без горизонтальной прокрутки',await pg.evaluate("document.documentElement.scrollWidth<=innerWidth+1"))
     ok('ошибок JS нет',not errs,errs[:3])
     await b.close()
