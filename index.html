@@ -276,6 +276,13 @@
   .bb-lbl small{display:block;text-transform:none;letter-spacing:0;font-weight:600;font-size:12px;margin-top:2px}
   .lvl-dots{display:inline-flex;gap:3px;vertical-align:middle;margin-left:6px}.lvl-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.lvl-dots i.on{background:var(--gold-ink)}
   .au-weeks{display:flex;flex-direction:column;gap:8px}
+  .au-by{margin:12px 2px 0;font-family:var(--dsp);font-weight:800;font-size:14px;color:var(--fg)}
+  .au-tag{align-self:flex-start;margin-top:4px;font-family:var(--body);font-size:11.5px;font-weight:700;text-transform:none;letter-spacing:0;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:2px 8px}
+  .au-tag.ok{color:#2f5d26;background:#e5efd9}.au-tag.nx{color:var(--gold-ink);background:var(--panel-top)}
+  .disc.au-done{opacity:.75}.disc.au-cur{border-left-color:var(--good)}
+  .au-prog{display:flex;flex-direction:column;gap:8px}.au-pr-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.au-pr-h b{font-family:var(--dsp)}
+  .au-bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}.au-bar i{display:block;height:100%;background:var(--good);border-radius:999px}
+  .au-mark{align-self:flex-start}
   .au-wk{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}.au-wk::-webkit-scrollbar{display:none}
   .au-wk button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:8px 13px;font:inherit;font-weight:700;font-size:13px;white-space:nowrap}
   .au-wk button.on{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -2769,7 +2776,8 @@ function finishWorkout(){
   // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
   const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(anSetOut);log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
   anApplyRir(log,prog);
-  const h=safe.get();h.push(Object.assign({date:localDate(),name:prog.name,vol:Math.round(vol),log:log},anSessionMeta()));
+  const auP=prog.au&&typeof AUTH!=="undefined"?AUTH.find(q=>q.id===prog.au.id):null,auWas=auP?auDone(auP):true;
+  const h=safe.get();h.push(Object.assign({date:localDate(),name:prog.name,vol:Math.round(vol),log:log},anSessionMeta(),prog.au?{au:prog.au}:{}));
   safe.set(h);
   // 2b · проходка обновляет 1ПМ (только вверх)
   let rmMsg="";
@@ -2790,6 +2798,7 @@ function finishWorkout(){
   const uniqShort=[...new Set(short)];
   let note=rmMsg;
   if(uniqShort.length&&!gRec&&!g2Rec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
+  try{if(auP&&!auWas&&auDone(auP)){const nx=auNext(auP);note=`Программа «${auP.name}» пройдена 🎉`+(nx?` Следующая — «${nx.name}»: открой её в разделе «Бодибилдинг».`:"")+(note?" "+note:"");}else if(auP){note=`«${auP.name}»: ${auCount(auP.id)} из ${auP.total} тренировок.`+(note?" "+note:"");}}catch(e){}
   window.__coachPending=note||"";
   clearDraft();current=null;restStop();
   if(g2Rec){toast(g2Rec.status==="full"?"Занятие выполнено полностью":"Результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
@@ -2962,10 +2971,13 @@ function renderBody(){const w=el("bodyProgs");w.innerHTML="";
   g.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span><span class="emb">German Volume Training</span></span><span class="disc-sub">5 этапов · 10×10 → метод 4 %</span></span><span class="go">›</span>`;
   g.onclick=()=>show("gvt");w.appendChild(g);
   const lb=(t,s)=>{const d=document.createElement("p");d.className="bb-lbl";d.innerHTML=t+(s?`<small>${s}</small>`:"");w.appendChild(d);};
-  if(typeof AUTH!=="undefined"){lb("Авторские программы","по нарастанию сложности — после GVT");
-    AUTH.forEach(p=>{const b=document.createElement("button");b.className="disc";
-      b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${p.meta}<span class="lvl-dots" aria-label="сложность ${p.lvl} из ${AUTH.length}">${AUTH.map((_,j)=>j+1).map(k=>`<i class="${k<=p.lvl?"on":""}"></i>`).join("")}</span></span></span><span class="go">›</span>`;
-      b.querySelector("span span").textContent=p.name;b.onclick=()=>authOpen(p);w.appendChild(b);});
+  if(typeof AUTH!=="undefined"&&typeof auCount==="function"){lb("Авторские программы","блоками по авторам · внутри блока — от простой к сложной");
+    const nh=auNextHint();let by=null;
+    AUTH.forEach(p=>{if(p.by!==by){by=p.by;const k=AUTH.filter(q=>q.by===by).length;const h=document.createElement("p");h.className="au-by";h.textContent=by+(k>1?" · "+k+" программы":"");w.appendChild(h);}
+      const n=auCount(p.id),dn=auDone(p),b=document.createElement("button");b.className="disc"+(dn?" au-done":"")+(p===nh?" au-cur":"");
+      const nm=p.name.split(" · ")[0];
+      b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${p.meta}<span class="lvl-dots" aria-label="сложность ${p.lvl} из 5">${[1,2,3,4,5].map(k=>`<i class="${k<=p.lvl?"on":""}"></i>`).join("")}</span></span>${dn?`<span class="au-tag ok">✓ пройдена</span>`:n?`<span class="au-tag">${n} / ${p.total} трен.</span>`:p===nh?`<span class="au-tag nx">→ следующая</span>`:""}</span><span class="go">›</span>`;
+      b.querySelector("span span").textContent=nm;b.onclick=()=>authOpen(p);w.appendChild(b);});
     lb("Базовые программы","классические сплиты");}
   BODY.forEach(p=>w.appendChild(progButton(p,"Бодибилдинг · программа")));}
 renderBody();
@@ -6238,6 +6250,7 @@ function anRender(){const R=anRecs();
   ["load","ex","body","rec"].forEach(k=>el("an"+{load:"Load",ex:"Ex",body:"Body",rec:"Rec"}[k]).hidden=AN_UI.tab!==k);
   try{if(AN_UI.tab==="load")anLoad(R);else if(AN_UI.tab==="ex")anEx(R);else if(AN_UI.tab==="body")anBody();else anRec(R);}catch(e){console.error(e);}
   anHist(R);}
+{const _csa=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csa(),{auprog:auSt()});};}
 /* облако: незавершённая тренировка тоже в общий документ — переживает перезагрузку и смену устройства */
 {const _csd=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csd(),{draft:getDraft()});};}
 /* облако: данные аналитики — в общий документ, при загрузке объединяем */
@@ -6792,13 +6805,38 @@ var AUTH=[ /* var: renderBody() вызывается раньше этого м�
   const alias={"Жим штанги лёжа":"Жим лёжа","Становая тяга с плинтов":"Становая тяга","Отжимания на брусьях":"Отжимания на брусьях"};
   AUTH.forEach(p=>p.weeks.forEach(w=>w.days.forEach(d=>d.ex.forEach(e=>{const n=e[0];if(MEDIA[n])return;const b=n.split(" · ")[0];
     const src=MEDIA[b]||MEDIA[alias[b]]||(g2[b]?{v:"media/"+g2[b]+".mp4?v=2",p:"media/"+g2[b]+".jpg"}:null);if(src)MEDIA[n]=src;}))));})();
-AUTH.forEach((p,i)=>{p.lvl=i+1;p.days=p.weeks[0].days;p.auth=true;}); /* сложность = место в списке */
+/* блоки по авторам: внутри блока — от простой к сложной; блоки — по сложности первой программы.
+   lvl — сложность 1…5; total — тренировок за полный проход программы (по длительности у автора). */
+const AU_META={pcfb:["Пол Картер",1,24],pcul:["Пол Картер",2,32],wl:["Джон Медоуз",2,32],dv:["Джон Медоуз",5,48],sen:["Джон Медоуз",5,84],
+ cbum:["Крис Бамстед",2,48],y3t:["Нил Хилл",3,36],bts:["Джефф Ниппард",3,60],jpcm:["Джордан Питерс",3,54],jc:["Джей Катлер",3,72],
+ ft:["Скотт Стивенсон",4,28],fst7:["Хэни Рэмбод",4,30],dc:["Данте Трудель",4,22],bg:["Дориан Ятс",5,24]};
+const AU_ORDER=["pcfb","pcul","wl","dv","sen","cbum","y3t","bts","jpcm","jc","ft","fst7","dc","bg"];
+AUTH.sort((a,b)=>AU_ORDER.indexOf(a.id)-AU_ORDER.indexOf(b.id));
+AUTH.forEach(p=>{const m=AU_META[p.id]||["",3,30];p.by=m[0];p.lvl=m[1];p.total=m[2];p.days=p.weeks[0].days;p.auth=true;});
+/* учёт прохождения: тренировки из истории (поле au; у старых записей — по уникальному названию дня) + ручная отметка «пройдена» */
+const AUPK="gym45_auprog_v1";
+function auSt(){try{const v=JSON.parse(localStorage.getItem(AUPK)||"null");if(v&&typeof v==="object")return Object.assign({done:{}},v);}catch(e){}return {done:{}};}
+function auSave(v){try{v.updatedAt=Date.now();localStorage.setItem(AUPK,JSON.stringify(v));}catch(e){}try{cloudPush();}catch(e){}}
+const AU_DAYNAME=(()=>{const m={};AUTH.forEach(p=>p.weeks.forEach(w=>w.days.forEach(d=>{(m[d.name]=m[d.name]||new Set()).add(p.id);})));const o={};Object.keys(m).forEach(k=>{if(m[k].size===1)o[k]=[...m[k]][0];});return o;})();
+function auCount(id){let n=0;try{safe.get().forEach(h=>{if(!h)return;const a=h.au&&h.au.id?h.au.id:(h.sec==="body"||!h.sec?AU_DAYNAME[h.name]:null);if(a===id)n++;});}catch(e){}return n;}
+function auDone(p){const v=auSt();return !!v.done[p.id]||auCount(p.id)>=p.total;}
+/* следующая программа: дальше в блоке автора; если блок пройден — первая непройденная по сложности */
+function auNext(p){const i=AUTH.indexOf(p),inBlock=AUTH.slice(i+1).find(q=>q.by===p.by&&!auDone(q));if(inBlock)return inBlock;
+  return AUTH.slice().sort((a,b)=>a.lvl-b.lvl||AUTH.indexOf(a)-AUTH.indexOf(b)).find(q=>q!==p&&!auDone(q)&&q.lvl>=p.lvl)||AUTH.find(q=>q!==p&&!auDone(q))||null;}
+function auNextHint(){const v=AUTH.find(p=>!auDone(p)&&auCount(p.id)>0)||AUTH.find(p=>!auDone(p));return v;}
 /* выбранная неделя программы запоминается */
 const AUTHWK="gym45_bbweek_v1";
 function authWeek(p){try{const o=JSON.parse(localStorage.getItem(AUTHWK)||"{}");const i=+o[p.id];return i>=0&&i<p.weeks.length?i:0;}catch(e){return 0;}}
 function authSetWeek(p,i){try{const o=JSON.parse(localStorage.getItem(AUTHWK)||"{}");o[p.id]=i;localStorage.setItem(AUTHWK,JSON.stringify(o));}catch(e){}}
 function authOpen(p){openProg(p,"Бодибилдинг · авторская программа");authRender(p);}
 function authRender(p){const wi=authWeek(p),W=p.weeks[wi];const w=el("bodyDays");w.innerHTML="";
+  {const n=auCount(p.id),dn=auDone(p),nx=auNext(p),pc=Math.min(100,Math.round(n/p.total*100)),st=auSt(),c=document.createElement("div");c.className="card au-prog";
+   c.innerHTML=`<div class="au-pr-h"><b>${dn?"Программа пройдена ✓":"Прогресс"}</b><span class="num">${n} / ${p.total} трен.</span></div><div class="au-bar"><i style="width:${dn?100:pc}%"></i></div>
+     ${dn&&nx?`<button class="btn au-next" type="button">Дальше: ${nx.name.replace(/</g,"&lt;")} ›</button>`:""}
+     <button class="tm-mini au-mark" type="button">${st.done[p.id]?"Снять отметку «пройдена»":"Отметить пройденной"}</button>`;
+   w.appendChild(c);
+   if(c.querySelector(".au-next"))c.querySelector(".au-next").onclick=()=>authOpen(nx);
+   c.querySelector(".au-mark").onclick=()=>{const v=auSt();if(v.done[p.id])delete v.done[p.id];else v.done[p.id]=Date.now();auSave(v);authRender(p);try{renderBody();}catch(e){}};}
   const box=document.createElement("div");box.className="au-weeks";
   box.innerHTML=`<div class="au-wk" id="auWk">${p.weeks.map((x,i)=>`<button type="button" data-v="${i}">${x.name}</button>`).join("")}</div>${W.note?`<p class="au-note">${W.note}</p>`:""}`;
   w.appendChild(box);ntChips("auWk",String(wi),v=>{authSetWeek(p,+v);authRender(p);});
@@ -6806,7 +6844,7 @@ function authRender(p){const wi=authWeek(p),W=p.weeks[wi];const w=el("bodyDays")
   W.days.forEach(d=>{const b=document.createElement("button");b.className="disc";
     b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${d.focus} · ${d.ex.length} упр.</span></span><span class="go">›</span>`;
     b.querySelector("span span").textContent=d.name;
-    b.onclick=()=>startWorkout({name:d.name,focus:p.name+" · "+W.name,ex:d.ex,sec:"body",rest:d.rest||W.rest||p.rest},false);w.appendChild(b);});}
+    b.onclick=()=>startWorkout({name:d.name,focus:p.name+" · "+W.name,ex:d.ex,sec:"body",rest:d.rest||W.rest||p.rest,au:{id:p.id,w:wi}},false);w.appendChild(b);});}
 
 try{renderBody();}catch(e){}
 /* ===================== ОБЛАКО (db + user) ===================== */
@@ -6844,6 +6882,7 @@ async function cloudInit(){
       const d=snap.data();
       try{if(d.an)localStorage.setItem(ANK,JSON.stringify(anMerge(anSt(),d.an)));}catch(e){}
       try{if(d.water)localStorage.setItem(WTK,JSON.stringify(wtMerge(wtSt(),d.water)));}catch(e){}
+      try{if(d.auprog&&d.auprog.done&&(d.auprog.updatedAt||0)>(auSt().updatedAt||0))localStorage.setItem(AUPK,JSON.stringify(d.auprog));}catch(e){}
       try{if(d.draft&&d.draft.program&&d.draft.sets){const L=getDraft(),hs=[...(safe.get()||[]),...(Array.isArray(d.history)?d.history:[])];const fin=hs.some(h=>h&&h.st&&h.st===d.draft.startedAt);
         if(!fin&&(!L||(d.draft.savedAt||0)>(L.savedAt||0)))localStorage.setItem(DRAFTK,JSON.stringify(d.draft));}}catch(e){}
       try{if(d.profile&&typeof d.profile==="object"&&(d.profile.updatedAt||0)>((pfRaw()||{}).updatedAt||0)){localStorage.setItem(PFK,JSON.stringify(d.profile));pfAvatar();}}catch(e){}
