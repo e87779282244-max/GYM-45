@@ -48,7 +48,7 @@ async def m():
     e=json.loads(await pg.evaluate("JSON.stringify(anExData(anRecs())['Жим лёжа'].map(s=>Math.round(s.e1rm*10)/10))"))
     ok('расчётный 1ПМ по Эпли (80×5 → 93,3 кг)',e[0]==93.3 and len(e)==12,e[:3])
     ok('график 1ПМ с рекордами и подписью',await pg.evaluate("el('anExChart').querySelectorAll('.an-pt.pr').length>=5&&el('anExChart').querySelector('.an-cap').innerText.includes('рекорд')"))
-    ok('последние подходы показывают RIR',await pg.evaluate("el('anEx').innerText.includes('RIR 2')"))
+    ok('последние подходы показывают RIR',await pg.evaluate("el('anEx').innerText.includes('запас 2')"))
     await pg.select_option('#anExSel','Подтягивания');await pg.wait_for_timeout(60)
     ok('собственный вес: метрики по повторам',await pg.evaluate("[...el('anExM').querySelectorAll('button')].map(b=>b.dataset.v).join()==='maxr,reps'"))
     if SHOT:await pg.select_option('#anExSel','Жим лёжа');await pg.wait_for_timeout(60);await pg.evaluate("el('anTabs').scrollIntoView()");await pg.screenshot(path=SHOT+'/an-ex.png')

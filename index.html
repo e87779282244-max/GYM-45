@@ -1894,7 +1894,7 @@
       </div>
       <div class="card">
         <div class="hist-h" style="margin-bottom:2px">История</div>
-        <p class="nt-sub" style="margin:0 0 6px">Нажми на тренировку — подходы, время, отдых и оценка тяжести (RPE)</p>
+        <p class="nt-sub" style="margin:0 0 6px">Нажми на тренировку — подходы, время, отдых и оценка тяжести</p>
         <div class="hist" id="hist"></div>
       </div>
       <div class="card"><h3 style="margin:0 0 8px;font-family:var(--dsp)">Сохранность данных</h3><div class="ds" id="dsBox"></div></div>
@@ -2626,7 +2626,7 @@ function renderWorkout(){
   const c=document.createElement("div");c.className="card ex-card wk-card";
   const bw=ex[3]===0&&!Array.isArray(ex[4]); // упражнение без веса — только повторы
   const G=current.program.gx?current.program.gx[i]:null,stopR=current.stop&&current.stop[i];
-  let rows=`<div class="set-row head${G?" g5":""}"><span>#</span><span>${bw?"—":"Вес"}</span><span>Повт.</span>${G?`<span>${G.main?"RIR":""}</span>`:""}<span></span></div>`;
+  let rows=`<div class="set-row head${G?" g5":""}"><span>#</span><span>${bw?"—":"Вес"}</span><span>Повт.</span>${G?`<span>${G.main?"Запас":""}</span>`:""}<span></span></div>`;
   let wn=0,mn=0;
   current.sets[i].forEach((s,j)=>{
     const wCell=bw
@@ -3049,7 +3049,7 @@ function gvtRateOpen(uid){const v=gvtStore(),c=gvtActive(v)||v.cycles.find(x=>x.
   box.innerHTML=head+`<p>Как прошло? Это меняет рабочий процент только для дня ${k.split(" ")[0]}.</p><div class="gvt-rate">
     <button class="btn btn-alt" type="button" data-r="hard">Тяжело<small>${fmtW(t)}% → ${fmtW(Math.max(GVT_MIN,t-10))}%</small></button>
     <button class="btn btn-alt" type="button" data-r="normal">Нормально<small>остаётся ${fmtW(t)}%</small></button>
-    <button class="btn" type="button" data-r="easy"${rec.easyOK?"":" disabled"}>Легко<small>${rec.easyOK?fmtW(t)+"% → "+fmtW(Math.min(GVT_MAX,t+5))+"%":"доступно при полном 10×10 без отказа и RIR 0"}</small></button>
+    <button class="btn" type="button" data-r="easy"${rec.easyOK?"":" disabled"}>Легко<small>${rec.easyOK?fmtW(t)+"% → "+fmtW(Math.min(GVT_MAX,t+5))+"%":"доступно при полном 10×10 без отказа (запас ни разу не 0)"}</small></button>
     <button class="tm-mini" type="button" id="gvtLater">Оценить позже</button></div>`;
   el("gvtModal").hidden=false;
   box.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{if(b.disabled)return;const v2=gvtStore(),c2=v2.cycles.find(x=>x.id===c.id),r2=c2&&c2.recs.find(r=>r.uid===uid);
@@ -6002,7 +6002,7 @@ function anLine(box,pts,fmt,cap,avg){const W=340,H=160,pl=40,pr=12,pt=14,pb=22,n
   const c=box.querySelector(".an-cap"),sel=box.querySelector(".an-sel"),sh=i=>{sel.setAttribute("cx",X(i).toFixed(1));sel.setAttribute("cy",Y(pts[i].y).toFixed(1));c.innerHTML=cap(i);};
   box.querySelectorAll("rect[data-i]").forEach(r=>r.onclick=()=>sh(+r.dataset.i));sh(n-1);}
 /* ---- вкладка «Нагрузка» ---- */
-const AN_MET={vol:["Тоннаж",(v,s)=>s?ntF(v/1000,1)+"т":anFmtT(v)],sets:["Подходы",v=>ntF(v)],n:["Тренировки",v=>ntF(v)],time:["Время",(v,s)=>s?Math.round(v/60)+"м":(v>=3600?Math.floor(v/3600)+" ч "+Math.round(v%3600/60)+" мин":Math.round(v/60)+" мин")],rpe:["RPE",v=>ntF(v,1)],rir:["RIR",v=>ntF(v,1)]};
+const AN_MET={vol:["Тоннаж",(v,s)=>s?ntF(v/1000,1)+"т":anFmtT(v)],sets:["Подходы",v=>ntF(v)],n:["Тренировки",v=>ntF(v)],time:["Время",(v,s)=>s?Math.round(v/60)+"м":(v>=3600?Math.floor(v/3600)+" ч "+Math.round(v%3600/60)+" мин":Math.round(v/60)+" мин")],rpe:["Тяжесть",v=>ntF(v,1)],rir:["Запас повторов",v=>ntF(v,1)]};
 function anLoad(R){const box=el("anLoad"),sec=AN_UI.sec,recs=R.filter(r=>sec==="all"||r.sec===sec);
   const swOnly=sec==="sw",cfOnly=sec==="cross";let mets=swOnly?["n","sets","time"]:cfOnly?["n","time","rpe"]:["vol","sets","n","time","rpe","rir"];if(!mets.includes(AN_UI.met))AN_UI.met=mets[0];
   const W=anWeeks(8),agg=W.map(w=>{const e=new Date(w+"T00:00");e.setDate(e.getDate()+7);const ee=localDate(e);const L=recs.filter(r=>r.date>=w&&r.date<ee);
@@ -6019,12 +6019,12 @@ function anLoad(R){const box=el("anLoad"),sec=AN_UI.sec,recs=R.filter(r=>sec==="
    ${cfOnly?anCrossCard():""}${swOnly?anSwCard(recs):""}`;
   ntChips("anDisc",sec,v=>{AN_UI.sec=v;AN_UI.bar=null;anUISave();anLoad(R);});ntChips("anMet",AN_UI.met,v=>{AN_UI.met=v;anUISave();anLoad(R);});
   anBars(el("anBars"),lab,vals,M[1],i=>{const a=agg[i];if(!a.L.length)return `Неделя с ${lab[i]} — тренировок нет`;
-    return `<b>Неделя с ${lab[i]}</b>: ${a.n} ${plural(a.n,"тренировка","тренировки","тренировок")}${a.vol?" · "+anFmtT(a.vol):""}${a.sets?" · "+a.sets+(swOnly?" кр.":" подх."):""}${a.time?" · "+AN_MET.time[1](a.time):""}${a.rpe?" · RPE "+ntF(a.rpe,1):""}${a.rir?" · RIR "+ntF(a.rir,1):""}<br><small>${a.L.map(r=>r.name).slice(0,4).join(" · ")}${a.L.length>4?" …":""}</small>`;});}
+    return `<b>Неделя с ${lab[i]}</b>: ${a.n} ${plural(a.n,"тренировка","тренировки","тренировок")}${a.vol?" · "+anFmtT(a.vol):""}${a.sets?" · "+a.sets+(swOnly?" кр.":" подх."):""}${a.time?" · "+AN_MET.time[1](a.time):""}${a.rpe?" · тяжесть "+ntF(a.rpe,1):""}${a.rir?" · запас "+ntF(a.rir,1):""}<br><small>${a.L.map(r=>r.name).slice(0,4).join(" · ")}${a.L.length>4?" …":""}</small>`;});}
 function anLoadTip(m,a){const c=a[7][m],p=a[6][m],avg=a.slice(4,8).reduce((s,x)=>s+(x[m]||0),0)/4;
   if(m==="vol")return c&&p?(c>p*1.15?"Тоннаж вырос больше чем на 15 % — следи за восстановлением, прибавляй постепенно.":c>=p?"Объём растёт или держится — прогрессивная перегрузка идёт.":"Объём ниже прошлой недели — нормально для разгрузки, иначе проверь сон и питание."):"Тоннаж = вес × повторы во всех рабочих подходах (разминка не считается).";
   if(m==="sets")return "Рабочие подходы — только отмеченные ✓, без разминочных. Для роста мышц обычно хватает 10–20 подходов на группу мышц в неделю.";
-  if(m==="rpe")return avg?"RPE — тяжесть тренировки по ощущениям (1–10). Тот же объём при меньшем RPE — это прогресс.":"Оцени тренировки в «Истории» ниже (RPE 1–10) — здесь появится средняя тяжесть.";
-  if(m==="rir")return avg?"RIR — сколько повторов оставалось в запасе. Тот же вес и повторы при большем RIR — ты стал сильнее.":"Отмечай «Запас повторов» под упражнением во время тренировки — здесь появится средний RIR.";
+  if(m==="rpe")return avg?"Тяжесть — как далась тренировка по ощущениям, от 1 до 10 (10 — до отказа). Тот же объём при меньшей тяжести — это прогресс.":"Оцени тяжесть тренировок в «Истории» ниже (от 1 до 10) — здесь появится средняя.";
+  if(m==="rir")return avg?"Запас повторов — сколько ещё раз ты мог бы сделать после подхода (0 — отказ). Тот же вес и повторы, а запас больше — ты стал сильнее.":"Отмечай «Запас повторов» под упражнением во время тренировки — здесь появится средний RIR.";
   if(m==="time")return "Время тренировки — от первого подхода до завершения. Тот же объём за меньшее время — выросла плотность тренировки.";
   return "Регулярность важнее рекордов: 3–4 тренировки в неделю дают стабильный прогресс.";}
 function anCrossCard(){let s=null;try{s=cfGet();}catch(e){}if(!s||!s.res||!s.res.length)return `<div class="card"><h3>Кроссфит · рекорды</h3><p class="nt-sub">Запиши результат комплекса — здесь появятся лучшие результаты и динамика.</p></div>`;
@@ -6049,14 +6049,14 @@ function anEx(R){const box=el("anEx"),E=anExData(R),names=Object.keys(E).sort((a
   const k=AN_UI.exm,best=Math.max(...S.map(s=>s[k])),last=S[S.length-1],d28=new Date();d28.setDate(d28.getDate()-28);const base=S.find(s=>s.date>=localDate(d28))||S[0];
   let run=0;const pts=S.slice(-16).map(s=>{const pr=s[k]>run+1e-9&&run>0;run=Math.max(run,s[k]);return {x:fmtDate(s.date),y:s[k],pr};});
   /* прогресс по RIR: тот же вес и повторы, а запас больше */
-  let rirNote="";if(S.length>=2){const a=S[S.length-2],b=last;if(a.rir!=null&&b.rir!=null&&b.maxw>=a.maxw&&b.maxr>=a.maxr&&b.rir>a.rir)rirNote=`<p class="an-good">💪 Тот же вес ${ntF(b.maxw,1)} кг × ${b.maxr}, а запас вырос с RIR ${a.rir} до ${b.rir} — сила растёт, можно прибавлять вес.</p>`;
-    else if(a.rir!=null&&b.rir!=null&&b.maxw<=a.maxw&&b.rir<a.rir&&b.rir<=0)rirNote=`<p class="an-warn">Подходы идут в отказ (RIR 0) без роста веса — проверь восстановление или сделай лёгкую неделю.</p>`;}
+  let rirNote="";if(S.length>=2){const a=S[S.length-2],b=last;if(a.rir!=null&&b.rir!=null&&b.maxw>=a.maxw&&b.maxr>=a.maxr&&b.rir>a.rir)rirNote=`<p class="an-good">💪 Тот же вес ${ntF(b.maxw,1)} кг × ${b.maxr}, а запас вырос с ${a.rir} до ${b.rir} повт. — сила растёт, можно прибавлять вес.</p>`;
+    else if(a.rir!=null&&b.rir!=null&&b.maxw<=a.maxw&&b.rir<a.rir&&b.rir<=0)rirNote=`<p class="an-warn">Подходы идут в отказ (запас 0) без роста веса — проверь восстановление или сделай лёгкую неделю.</p>`;}
   box.innerHTML=`<div class="card"><label class="nt-lab">Упражнение<select id="anExSel" class="food-in">${names.map(n=>`<option>${n.replace(/</g,"&lt;")}</option>`).join("")}</select></label>
    <div class="an-met" id="anExM">${mets.map(m=>`<button type="button" data-v="${m}">${AN_EXM[m][0]}</button>`).join("")}</div>
    <div id="anExChart"></div>
    <div class="an-kpi"><div><b class="num">${M[1](best)}</b><span>лучший</span></div><div><b class="num">${M[1](last[k])}</b><span>последний</span></div><div><b class="num">${anDelta(anPct(last[k],base[k]),false)||"—"}</b><span>за 4 недели</span></div></div>
    ${rirNote}<p class="an-tip">${k==="e1rm"?"Расчётный 1ПМ (формула Эпли: вес × (1 + повторы / 30)) позволяет сравнивать разные схемы: 100×5 и 90×8 — на одной шкале. Растёт 1ПМ — растёт сила.":k==="vol"?"Объём упражнения = вес × повторы во всех рабочих подходах.":"Для упражнений с собственным весом прогресс — это больше повторов при той же технике."}</p></div>
-   <div class="card"><h3>Последние подходы</h3>${S.slice(-5).reverse().map(s=>`<div class="an-row"><span><b>${fmtDate(s.date)}</b><small>${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r+(x.rir!=null&&x.rir!==""?` <i>RIR ${x.rir}</i>`:"")).join(", ")}</small></span><b class="num">${bw?s.reps+" повт.":ntF(s.e1rm,1)+" кг"}</b></div>`).join("")}</div>`;
+   <div class="card"><h3>Последние подходы</h3>${S.slice(-5).reverse().map(s=>`<div class="an-row"><span><b>${fmtDate(s.date)}</b><small>${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r+(x.rir!=null&&x.rir!==""?` <i>запас ${x.rir}</i>`:"")).join(", ")}</small></span><b class="num">${bw?s.reps+" повт.":ntF(s.e1rm,1)+" кг"}</b></div>`).join("")}</div>`;
   const sel=el("anExSel");sel.value=AN_UI.ex;sel.onchange=()=>{AN_UI.ex=sel.value;anUISave();anEx(R);};
   ntChips("anExM",AN_UI.exm,v=>{AN_UI.exm=v;anUISave();anEx(R);});
   anLine(el("anExChart"),pts,M[1],i=>{const s=S.slice(-16)[i];return `<b>${fmtDate(s.date)}</b>: ${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r).join(", ")} · ${M[0].toLowerCase()} ${M[1](s[k])}${pts[i].pr?" · 🏆 рекорд":""}`;});}
@@ -6117,13 +6117,13 @@ function anHist(R){const hist=el("hist");hist.innerHTML="";const S=anSt();
   if(!R.length){hist.innerHTML=`<p class="nt-sub" style="margin:6px 0">Пока нет завершённых тренировок.</p>`;return;}
   R.slice().reverse().slice(0,10).forEach(r=>{const x=r.raw,row=document.createElement("details");row.className="an-hrow";const key=anRecKey(x);
     const right=x.sw?`${x.circles||0}${x.target?"/"+x.target:""} кр.${x.secs?" · "+mmss(x.secs):""}`:x.cross?(x.score?(x.pr?"🏆 ":"")+x.score:(x.secs?mmss(x.secs):"")):(r.vol?anFmtT(r.vol):"");
-    let det="";if(x.log&&!Array.isArray(x.log)&&typeof x.log==="object")det=Object.entries(x.log).map(([n,a])=>{const d=(a||[]).filter(s=>s&&s.done);return d.length?`<div class="an-hx"><b></b><span>${d.map(s=>(+s.w?ntF(+s.w,1)+"×":"")+s.r+(s.rir!=null&&s.rir!==""?` <i>RIR ${s.rir}</i>`:"")).join(", ")}</span></div>`.replace("<b></b>",`<b>${n.replace(/</g,"&lt;")}</b>`):"";}).join("");
+    let det="";if(x.log&&!Array.isArray(x.log)&&typeof x.log==="object")det=Object.entries(x.log).map(([n,a])=>{const d=(a||[]).filter(s=>s&&s.done);return d.length?`<div class="an-hx"><b></b><span>${d.map(s=>(+s.w?ntF(+s.w,1)+"×":"")+s.r+(s.rir!=null&&s.rir!==""?` <i>запас ${s.rir}</i>`:"")).join(", ")}</span></div>`.replace("<b></b>",`<b>${n.replace(/</g,"&lt;")}</b>`):"";}).join("");
     const meta=[AN_SEC_LBL[r.sec]||"",r.dur?AN_MET.time[1](r.dur):"",r.rest?"отдых ~"+mmss(r.rest):"",x.ready?"готовность: "+x.ready:""].filter(Boolean).join(" · ");
-    row.innerHTML=`<summary><span class="d"></span><span class="v num">${right}${S.rpe[key]?` <i class="an-rpe-b">RPE ${S.rpe[key]}</i>`:""}</span></summary>
-      <div class="an-hd"><p class="nt-sub">${meta}</p>${det}<div class="an-rpe"><span>Тяжесть (RPE)</span><div>${[6,7,8,9,10].map(v=>`<button type="button" data-v="${v}" class="${+S.rpe[key]===v?"on":""}">${v}</button>`).join("")}</div></div></div>`;
+    row.innerHTML=`<summary><span class="d"></span><span class="v num">${right}${S.rpe[key]?` <i class="an-rpe-b">тяжесть ${S.rpe[key]}</i>`:""}</span></summary>
+      <div class="an-hd"><p class="nt-sub">${meta}</p>${det}<div class="an-rpe"><span>Тяжесть, 1–10 <small>(RPE)</small></span><div>${[6,7,8,9,10].map(v=>`<button type="button" data-v="${v}" class="${+S.rpe[key]===v?"on":""}">${v}</button>`).join("")}</div></div></div>`;
     row.querySelector(".d").innerHTML=`<b></b><small>${fmtDate(r.date)}</small>`;row.querySelector(".d b").textContent=r.name;
     row.querySelectorAll(".an-rpe button").forEach(b=>b.onclick=e=>{e.preventDefault();const s=anSt();s.rpe[key]=+s.rpe[key]===+b.dataset.v?undefined:+b.dataset.v;if(s.rpe[key]===undefined)delete s.rpe[key];anSave(s);
-      row.querySelectorAll(".an-rpe button").forEach(q=>q.classList.toggle("on",+q.dataset.v===+s.rpe[key]));const bb=row.querySelector(".an-rpe-b");const v=row.querySelector(".v");if(bb)bb.remove();if(s.rpe[key])v.insertAdjacentHTML("beforeend",` <i class="an-rpe-b">RPE ${s.rpe[key]}</i>`);});
+      row.querySelectorAll(".an-rpe button").forEach(q=>q.classList.toggle("on",+q.dataset.v===+s.rpe[key]));const bb=row.querySelector(".an-rpe-b");const v=row.querySelector(".v");if(bb)bb.remove();if(s.rpe[key])v.insertAdjacentHTML("beforeend",` <i class="an-rpe-b">тяжесть ${s.rpe[key]}</i>`);});
     hist.appendChild(row);});}
 /* ---- сборка экрана ---- */
 function anRender(){const R=anRecs();
