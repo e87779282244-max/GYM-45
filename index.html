@@ -270,6 +270,61 @@
   .food-macros{display:flex;justify-content:center;gap:20px;color:var(--muted);font-size:14px}
   .food-macros b{color:var(--fg)}
   .food-form{display:flex;flex-direction:column;gap:10px}
+  /* аналитика */
+  .tile-d{font-size:11.5px;font-weight:700;min-height:14px;margin-top:3px;color:var(--muted)}
+  .an-d{font-weight:700;color:var(--muted)}.an-d.up{color:#3f7d32}.an-d.dn{color:#b4532a}
+  .an-tl{margin:0 2px -4px;font-size:12px;font-weight:700;color:var(--muted)}
+  .an-tabs{display:flex;gap:3px;background:var(--surface-2);border-radius:14px;padding:4px}
+  @media (max-width:359px){.an-tabs{flex-wrap:wrap}.an-tabs button{flex:1 1 calc(50% - 3px)}}
+  .an-tabs button{flex:1 1 auto;border:none;background:none;border-radius:10px;padding:10px 5px;font:inherit;font-weight:700;font-size:clamp(11px,3.2vw,13px);color:var(--muted);white-space:nowrap}
+  .an-tabs button.on{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .an-panel{padding:0}
+  .an-disc{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0 2px}
+  .an-disc::-webkit-scrollbar{display:none}
+  .an-disc button,.an-met button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 12px;font:inherit;font-weight:700;font-size:13px;white-space:nowrap}
+  .an-disc button.on,.an-met button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .an-met{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 6px}
+  .an-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}.an-h h3{margin:0}
+  .an-svg{width:100%;height:auto;display:block;overflow:visible}
+  .an-bar rect+rect{fill:var(--accent);opacity:.45;transition:opacity .2s}.an-bar.on rect+rect{opacity:1}.an-bar.low rect+rect{fill:#c99a3a}
+  .an-v{font-size:9.5px;font-weight:700;fill:var(--fg)}.an-x{font-size:9.5px;fill:var(--muted)}
+  .an-grid{stroke:var(--line);stroke-width:1;stroke-dasharray:3 3}
+  .an-ln{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+  .an-avg{fill:none;stroke:#c08a2a;stroke-width:2;stroke-dasharray:5 4}
+  .an-pt{fill:var(--accent)}.an-pt.pr{fill:#c08a2a;stroke:var(--surface);stroke-width:1.5}
+  .an-sel{fill:none;stroke:var(--accent);stroke-width:2;opacity:.5}
+  .an-cap{font-size:13px;line-height:1.4;margin:6px 0 0;min-height:18px}.an-cap small{color:var(--muted)}
+  .an-kpi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px}
+  .an-kpi div{background:var(--accent-weak);border-radius:12px;padding:8px 6px;text-align:center;display:flex;flex-direction:column;gap:2px;min-width:0}
+  .an-kpi b{font-family:var(--dsp);font-weight:800;font-size:17px}.an-kpi span{font-size:11px;color:var(--muted)}
+  .an-tip{font-size:12.5px;color:var(--muted);line-height:1.4;margin:10px 0 0}
+  .an-good{font-size:13px;background:#e5efd9;color:#2f5d26;border-radius:10px;padding:8px 10px;margin:10px 0 0}
+  .an-warn{font-size:13px;background:#f6e4d6;color:#8a3f1d;border-radius:10px;padding:8px 10px;margin:10px 0 0}
+  :root[data-theme="dark"] .an-good{background:#26381f;color:#cfe6c3}:root[data-theme="dark"] .an-warn{background:#3d2a1e;color:#f0cdb6}
+  .an-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+  .an-row:first-of-type{border-top:none}.an-row span{display:flex;flex-direction:column;min-width:0}.an-row small{color:var(--muted);font-size:12px}.an-row small i{font-style:normal;color:var(--accent-ink);font-weight:700}
+  .an-row>b{flex:none;white-space:nowrap}
+  .an-sleep{display:flex;align-items:center;gap:14px}.an-sleep button{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--surface);font-size:22px;font-weight:700;color:var(--fg)}
+  .an-sleep b{font-family:var(--dsp);font-size:26px;min-width:90px;text-align:center}
+  .an-feel{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .an-feel button{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--fg);font:inherit}
+  .an-feel button span{font-size:22px}.an-feel button small{font-size:10.5px;color:var(--muted)}
+  .an-feel button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+  .an-hrow{border-top:1px solid var(--line)}.an-hrow:first-child{border-top:none}
+  .an-hrow summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;cursor:pointer}
+  .an-hrow summary::-webkit-details-marker{display:none}
+  .an-hrow .d{display:flex;flex-direction:column;min-width:0}.an-hrow .d small{color:var(--muted);font-size:12px}
+  .an-hrow .v{flex:none;font-weight:700;white-space:nowrap}
+  .an-rpe-b{font-style:normal;font-size:11px;background:var(--accent-weak);color:var(--accent-ink);border-radius:999px;padding:2px 7px;margin-left:4px}
+  .an-hd{padding:0 0 12px}.an-hd .nt-sub{margin:0 0 6px}
+  .an-hx{font-size:13px;margin:4px 0;display:flex;flex-direction:column}.an-hx span{color:var(--muted)}.an-hx i{font-style:normal;color:var(--accent-ink);font-weight:700}
+  .an-rpe{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:13px;font-weight:700;color:var(--muted)}
+  .an-rpe div{display:flex;gap:4px}.an-rpe button{width:36px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font:inherit;font-weight:700;color:var(--fg)}
+  .an-rpe button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .rir-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted);font-weight:600}
+  .rir-row small{font-weight:500}.rir-row div{display:flex;gap:4px}
+  .rir-row button{min-width:38px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font:inherit;font-weight:700;color:var(--fg)}
+  .rir-row button.on{background:var(--accent);border-color:var(--accent);color:#fff}
   /* вода */
   .wt-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
   .wt-top h3{margin:0}
@@ -1821,27 +1876,28 @@
         <span id="coachText" style="flex:1;min-width:0;font-size:14px;line-height:1.45"></span>
         <button id="coachClose" class="icon-btn" title="Скрыть" style="background:transparent;flex:none">✕</button>
       </div>
+      <p class="an-tl">Последние 7 дней · изменение к предыдущим 7</p>
       <div class="tiles">
-        <div class="tile"><div class="v num" id="tWeek">0</div><div class="l">за неделю</div></div>
-        <div class="tile"><div class="v num" id="tVol">0</div><div class="l">тонн всего</div></div>
-        <div class="tile"><div class="v num" id="tStreak">0</div><div class="l">дней подряд</div></div>
+        <div class="tile"><div class="v num" id="tWeek">0</div><div class="l">тренировок</div><div class="tile-d" id="tWeekD"></div></div>
+        <div class="tile"><div class="v num" id="tVol">0</div><div class="l">тонн</div><div class="tile-d" id="tVolD"></div></div>
+        <div class="tile"><div class="v num" id="tStreak">0</div><div class="l">дней подряд</div><div class="tile-d"></div></div>
       </div>
-      <div class="card"><h3 style="margin:0 0 8px;font-family:var(--dsp)">Сохранность данных</h3><div class="ds" id="dsBox"></div></div>
+      <div class="an-tabs" id="anTabs" role="tablist"><button type="button" data-v="load">Нагрузка</button><button type="button" data-v="ex">Упражнения</button><button type="button" data-v="body">Тело</button><button type="button" data-v="rec">Восстановление</button></div>
+      <div class="stack an-panel" id="anLoad"></div>
+      <div class="stack an-panel" id="anEx" hidden></div>
+      <div class="stack an-panel" id="anBody" hidden></div>
+      <div class="stack an-panel" id="anRec" hidden></div>
       <div class="card" id="parCard" hidden>
         <h3>Пройденные программы</h3>
         <p class="sub">Итог каждого цикла: выполненные дни, средний % и рекомендация на следующий цикл</p>
         <div class="sch" id="parList"></div>
       </div>
-      <div class="card chart-wrap">
-        <h3>Объём за тренировку</h3>
-        <p class="sub">Суммарный тоннаж, кг · последние сессии</p>
-        <div id="chart"></div>
-        <div class="tip" id="tip"></div>
-      </div>
       <div class="card">
-        <div class="hist-h" style="margin-bottom:4px">История</div>
+        <div class="hist-h" style="margin-bottom:2px">История</div>
+        <p class="nt-sub" style="margin:0 0 6px">Нажми на тренировку — подходы, время, отдых и оценка тяжести (RPE)</p>
         <div class="hist" id="hist"></div>
       </div>
+      <div class="card"><h3 style="margin:0 0 8px;font-family:var(--dsp)">Сохранность данных</h3><div class="ds" id="dsBox"></div></div>
     </div>
   </section>
 
@@ -2403,7 +2459,7 @@ function beginWorkout(p,computed){
   if(p.preset){ // GVT: подходы уже рассчитаны циклом (проценты + память фактических весов)
     const sets=JSON.parse(JSON.stringify(p.preset));
     (p.prevShow||[]).forEach((ps,i)=>{if(ps&&ps.length)prevMap[p.ex[i][0]]={sets:ps};});
-    current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),stop:{},startedAt:new Date().toISOString()};
+    current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),stop:{},startedAt:new Date().toISOString(),sec:anSecOf(p)};
     dayView={p:p,computed:computed};restStop();
     el("wkTitle").textContent=p.name;el("wkEyebrow").textContent=p.focus;
     renderWorkout();saveDraft();show("workout");return;}
@@ -2417,7 +2473,7 @@ function beginWorkout(p,computed){
       const pv=pr?(pr.sets[j]||pr.sets[pr.sets.length-1]):null;
       const w=pv?pv.w:(psw?rScaleW(psw[j]):baseW);
       return {w:w,r:pv?pv.r:e[2],done:false,prev:pv||null};});});
-  current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p)};
+  current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),startedAt:new Date().toISOString(),sec:anSecOf(p)};
   dayView={p:p,computed:computed};restStop();
   el("wkTitle").textContent=p.name;
   el("wkEyebrow").textContent=p.focus+" · готовность: "+readiness;
@@ -2606,7 +2662,7 @@ function renderWorkout(){
     const s=current.sets[i][sel.dataset.s];s.rir=sel.value;sel.classList.toggle("on",!!s.rir);saveDraft();
     if(s.done&&gvtStopUpdate(i))return;});
   c.querySelectorAll(".chk").forEach(b=>b.onclick=()=>{
-    const s=current.sets[i][b.dataset.s];if(b.disabled)return;s.done=!s.done;
+    const s=current.sets[i][b.dataset.s];if(b.disabled)return;s.done=!s.done;s.at=s.done?Date.now():null;
     b.classList.toggle("on",s.done);b.textContent=s.done?"✓":"";saveDraft();markCur();
     if(G&&G.main&&!s.warm&&gvtStopUpdate(i))return;
     if(!s.done)return;
@@ -2667,8 +2723,9 @@ function finishWorkout(){
   const g2Rec=current.program.g2?g2Record():null;if(g2Rec)vol=g2Rec.ton;
   const prog=current.program;
   // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
-  const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(x=>({r:x.r,w:x.w,done:x.done}));log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
-  const h=safe.get();h.push({date:localDate(),name:prog.name,vol:Math.round(vol),log:log});
+  const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(anSetOut);log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
+  anApplyRir(log,prog);
+  const h=safe.get();h.push(Object.assign({date:localDate(),name:prog.name,vol:Math.round(vol),log:log},anSessionMeta()));
   safe.set(h);
   // 2b · проходка обновляет 1ПМ (только вверх)
   let rmMsg="";
@@ -2710,34 +2767,7 @@ function mmss(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60),x=s%60;ret
 function renderProgress(){
   const cn=el("coachNote");
   if(cn){if(window.__coachPending){el("coachText").textContent=window.__coachPending;cn.hidden=false;window.__coachPending=null;}else cn.hidden=true;}
-  const all=allHistory();
-  const strength=all.filter(x=>typeof x.vol==="number");
-  const total=(strength.reduce((a,b)=>a+b.vol,0)/1000);
-  el("tVol").textContent=total.toFixed(1);
-  const wk=Date.now()-6*864e5;
-  el("tWeek").textContent=all.filter(x=>new Date(x.date+"T00:00")>=wk).length;
-  el("tStreak").textContent=streak(all);
-  drawChart(strength.slice(-8));
-  renderPar();
-  // history newest first
-  const hist=el("hist");hist.innerHTML="";
-  [...all].reverse().slice(0,8).forEach(x=>{
-    const r=document.createElement("div");r.className="hrow";
-    let badge;
-    if(x.sw){
-      const parts=[];if(x.secs)parts.push(mmss(x.secs));parts.push((x.circles||0)+(x.target?"/"+x.target:"")+" кр.");if(x.pct!=null)parts.push(x.pct+"%");
-      badge=`<span class="seed" style="background:var(--accent-weak);color:var(--accent-ink)">воркаут</span><span class="vol num">${parts.join(" · ")}</span>`;
-    }else if(x.cross){
-      const parts=[];if(x.tmtype&&typeof TLABEL!=="undefined"&&TLABEL[x.tmtype])parts.push(TLABEL[x.tmtype]);if(x.score)parts.push((x.pr?"🏆 ":"")+x.score);else{if(x.secs)parts.push(mmss(x.secs));if(x.rounds)parts.push(x.rounds+" р.");}
-      badge=`<span class="seed" style="background:var(--accent-weak);color:var(--accent-ink)">кроссфит</span>`+
-        (parts.length?`<span class="vol num">${parts.join(" · ")}</span>`:"");
-    }else{
-      badge=`${x.seed?'<span class="seed">пример</span>':''}<span class="vol num">${(x.vol/1000).toFixed(2)} т</span>`;
-    }
-    r.innerHTML=`<div class="d">${x.name}<small>${fmtDate(x.date)}</small></div>
-      <div style="display:flex;align-items:center;gap:8px">${badge}</div>`;
-    hist.appendChild(r);
-  });
+  anRender();renderPar();
 }
 function streak(all){
   const days=new Set(all.map(x=>x.date));let s=0,d=new Date();
@@ -5899,6 +5929,217 @@ el("wtHeat").addEventListener("change",e=>{const s=wtSt();s.heat=e.target.checke
 function wtMerge(a,b){if(!b||typeof b!=="object")return a;const out=Object.assign({},(b.updatedAt||0)>(a.updatedAt||0)?b:a);out.days={};
   new Set([...Object.keys(a.days||{}),...Object.keys(b.days||{})]).forEach(d=>{const m={};[...((b.days||{})[d]||[]),...((a.days||{})[d]||[])].forEach(x=>{if(x&&x.t)m[x.t]=x;});out.days[d]=Object.values(m).sort((x,y)=>x.t-y.t);});return out;}
 
+/* ===================== АНАЛИТИКА =====================
+   Нагрузка (тоннаж, рабочие подходы, тренировки, время, RPE) по неделям и дисциплинам;
+   упражнения (расчётный 1ПМ по Эпли, макс. вес, объём, повторы, RIR); тело (вес утром, % жира, обхваты);
+   восстановление (сон, самочувствие). Только чтение истории — старые записи не меняются.
+   Свои данные аналитики — в отдельном ключе gym45_an_v1: оценки RPE, сон, замеры тела. */
+const ANK="gym45_an_v1";
+const AN_SECS=[["all","Все"],["body","Бодибилдинг"],["pwr","Пауэрлифтинг"],["street","Стритлифтинг"],["sw","Стрит-воркаут"],["cross","Кроссфит"]];
+const AN_SEC_LBL={body:"Бодибилдинг",pwr:"Пауэрлифтинг",street:"Стритлифтинг",sw:"Стрит-воркаут",cross:"Кроссфит",other:"Другое"};
+let AN_SEC=null,AN_UI={tab:"load",sec:"all",met:"vol",ex:null,exm:"e1rm",bar:null};
+try{Object.assign(AN_UI,JSON.parse(sessionStorage.getItem("gym45_anui")||"{}"));}catch(e){}
+function anUISave(){try{sessionStorage.setItem("gym45_anui",JSON.stringify(AN_UI));}catch(e){}}
+function anSt(){const s=ntRead(ANK,null)||{};return Object.assign({rpe:{},sleep:{},body:[],updatedAt:0},s);}
+function anSave(s){s.updatedAt=Date.now();try{localStorage.setItem(ANK,JSON.stringify(s));}catch(e){toast("Не удалось сохранить");return false;}cloudPush();return true;}
+/* ---- раздел тренировки ---- */
+const AN_SCR={body:"body",gvt:"body",bodyprog:"body",pwr:"pwr",pwrta:"pwr",pl5:"pwr",onerm:"pwr",street:"street",sw:"sw",swc:"sw",sotka:"sw",hfk:"sw",pp:"sw",rr:"sw",hc:"sw",pu:"sw",cross:"cross",wod:"cross",cfb:"cross",cfcat:"cross"};
+{const _sh=show;show=function(n){if(AN_SCR[n])AN_SEC=AN_SCR[n];return _sh(n);};}
+function anSecOf(p){if(!p)return AN_SEC||"other";if(p.g2||p.gvt||p.sec==="body")return "body";if(p.sec)return p.sec;return AN_SEC||"other";}
+function anSecOfRec(x){if(x.sec)return x.sec;if(x.cross)return "cross";if(x.sw)return "sw";const n=String(x.name||"");
+  if(/GVT|German/i.test(n))return "body";
+  try{if(BODY.some(p=>p.name===n))return "body";}catch(e){}
+  if(/5×5|5x5|титан|проходк|1ПМ|присед|станов/i.test(n))return "pwr";
+  if(/^День \d|стрит/i.test(n))return "street";
+  return "other";}
+/* ---- данные о подходах при завершении тренировки ---- */
+function anSetOut(x){const o={r:x.r,w:x.w,done:x.done};if(x.rir!=null&&x.rir!=="")o.rir=String(x.rir);if(x.at)o.at=x.at;return o;}
+function anApplyRir(log,prog){try{prog.ex.forEach((e,i)=>{const v=current.rirEx&&current.rirEx[i];if(v==null||v==="")return;const a=log[e[0]];if(!a)return;
+  const last=[...a].reverse().find(s=>s.done);if(last&&last.rir==null)last.rir=String(v);});}catch(e){}}
+function anTs(v){if(!v)return 0;const t=typeof v==="number"?v:new Date(v).getTime();return isFinite(t)?t:0;}
+function anSessionMeta(){const m={sec:(current&&current.sec)||anSecOf(current&&current.program)};
+  try{const st=anTs(current.startedAt);if(st){const d=Math.round((Date.now()-st)/1000);if(d>60&&d<5*3600)m.dur=d;}}catch(e){}
+  try{const ts=[];current.sets.forEach(se=>se.forEach(s=>{if(s.done&&!s.warm&&s.at)ts.push(anTs(s.at));}));ts.sort((a,b)=>a-b);
+    const gaps=[];for(let i=1;i<ts.length;i++){const g=(ts[i]-ts[i-1])/1000;if(g>=20&&g<=900)gaps.push(g);}
+    if(gaps.length>=2){gaps.sort((a,b)=>a-b);m.rest=Math.round(gaps[Math.floor(gaps.length/2)]);}}catch(e){}
+  try{if(current.readiness)m.ready=current.readiness;}catch(e){}
+  return m;}
+/* «запас повторов» (RIR) последнего подхода — необязательная отметка под упражнением */
+{const _rw=renderWorkout;renderWorkout=function(){_rw();try{if(!current||current.program.g2)return;const i=current.idx,G=current.program.gx?current.program.gx[i]:null;if(G&&G.main)return;
+  const card=el("exList").querySelector(".wk-card");if(!card||card.querySelector(".rir-row"))return;const v=current.rirEx&&current.rirEx[i];
+  const r=document.createElement("div");r.className="rir-row";
+  r.innerHTML=`<span>Запас повторов в последнем подходе <small>(RIR)</small></span><div>${["0","1","2","3","4+"].map(x=>`<button type="button" data-v="${x}" class="${v===x?"on":""}">${x}</button>`).join("")}</div>`;
+  card.querySelector(".wk-sets").after(r);
+  r.querySelectorAll("button").forEach(b=>b.onclick=()=>{current.rirEx=current.rirEx||{};current.rirEx[i]=current.rirEx[i]===b.dataset.v?null:b.dataset.v;saveDraft();
+    r.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.v===current.rirEx[i]));});}catch(e){}};}
+/* ---- подготовка данных ---- */
+function anRecKey(x){return x.ts?String(x.ts):`${x.date}|${x.name}|${x.vol||0}`;}
+function anRir(v){if(v==null||v==="")return null;const n=parseFloat(String(v));return isFinite(n)?n:null;}
+function anRecs(){let h=[];try{h=safe.get();}catch(e){}const S=anSt();
+  return h.filter(x=>x&&x.date).map(x=>{const r={date:x.date,name:x.name||"Тренировка",sec:anSecOfRec(x),vol:typeof x.vol==="number"?x.vol:0,raw:x,sets:0,reps:0,dur:x.dur||x.secs||0,rest:x.rest||null,rpe:+S.rpe[anRecKey(x)]||null,rirs:[]};
+    if(x.log&&!Array.isArray(x.log)&&typeof x.log==="object")Object.values(x.log).forEach(a=>Array.isArray(a)&&a.forEach(s=>{if(s&&s.done&&(s.r>0)){r.sets++;r.reps+=+s.r||0;const q=anRir(s.rir);if(q!=null)r.rirs.push(q);}}));
+    if(x.sw){r.sets=x.circles||0;}
+    return r;});}
+function anMonday(d){const x=new Date(d+"T00:00");const k=(x.getDay()+6)%7;x.setDate(x.getDate()-k);return localDate(x);}
+function anWeeks(n){const out=[],m=anMonday(localDate());let d=new Date(m+"T00:00");for(let i=0;i<n;i++){out.unshift(localDate(d));d.setDate(d.getDate()-7);}return out;}
+function anFmtT(kg){return kg>=1000?ntF(kg/1000,1)+" т":ntF(kg)+" кг";}
+function anPct(a,b){if(!b)return null;return Math.round((a-b)/b*100);}
+function anDelta(p,inv){if(p==null)return "";const good=inv?p<0:p>0;return `<span class="an-d ${p===0?"":good?"up":"dn"}">${p>0?"+":""}${p}%</span>`;}
+/* ---- графики (SVG, нажатие — подробности под графиком) ---- */
+function anBars(box,labels,vals,fmt,cap,hi){const W=340,H=150,pl=8,pr=8,pt=18,pb=22,n=vals.length,mx=Math.max(1,...vals.map(v=>v||0)),bw=(W-pl-pr)/n;
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" class="an-svg" role="img">${vals.map((v,i)=>{const h=(v||0)/mx*(H-pt-pb),x=pl+i*bw+bw*.18,y=H-pb-h;
+    return `<g class="an-bar${i===hi?" on":""}" data-i="${i}"><rect x="${(pl+i*bw).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H}" fill="transparent"/><rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw*.64).toFixed(1)}" height="${Math.max(h,v?2:0).toFixed(1)}" rx="4"/>${v?`<text x="${(x+bw*.32).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" class="an-v">${fmt(v,true)}</text>`:""}<text x="${(x+bw*.32).toFixed(1)}" y="${H-6}" text-anchor="middle" class="an-x">${labels[i]}</text></g>`;}).join("")}</svg><p class="an-cap"></p>`;
+  const c=box.querySelector(".an-cap"),show_=i=>{box.querySelectorAll(".an-bar").forEach(g=>g.classList.toggle("on",+g.dataset.i===i));c.innerHTML=cap(i);};
+  box.querySelectorAll(".an-bar").forEach(g=>g.onclick=()=>show_(+g.dataset.i));show_(hi!=null?hi:n-1);}
+function anLine(box,pts,fmt,cap,avg){const W=340,H=160,pl=40,pr=12,pt=14,pb=22,n=pts.length;if(!n){box.innerHTML="";return;}
+  const ys=pts.map(p=>p.y).concat(avg?avg.filter(v=>v!=null):[]);let mn=Math.min(...ys),mx=Math.max(...ys);if(mx-mn<1e-6){mx+=1;mn-=1;}const padv=(mx-mn)*.12;mn-=padv;mx+=padv;
+  const X=i=>pl+(n<2?(W-pl-pr)/2:i/(n-1)*(W-pl-pr)),Y=v=>pt+(H-pt-pb)*(1-(v-mn)/(mx-mn));
+  const path=pts.map((p,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(p.y).toFixed(1)).join(" ");
+  const ap=avg?avg.map((v,i)=>v==null?"":(avg.slice(0,i).some(q=>q!=null)?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)).join(" "):"";
+  let g="";for(let k=0;k<=2;k++){const v=mn+(mx-mn)*k/2,y=Y(v);g+=`<line x1="${pl}" x2="${W-pr}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" class="an-grid"/><text x="${pl-5}" y="${(y+3).toFixed(1)}" text-anchor="end" class="an-x">${fmt(v,true)}</text>`;}
+  const lx=[0,Math.floor((n-1)/2),n-1].filter((v,i,a)=>a.indexOf(v)===i);
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" class="an-svg" role="img">${g}${ap?`<path d="${ap}" class="an-avg"/>`:""}<path d="${path}" class="an-ln"/>${pts.map((p,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${p.pr?4.5:3}" class="an-pt${p.pr?" pr":""}"/>`).join("")}${lx.map(i=>`<text x="${X(i).toFixed(1)}" y="${H-6}" text-anchor="${i===0?"start":i===n-1?"end":"middle"}" class="an-x">${pts[i].x}</text>`).join("")}${pts.map((p,i)=>`<rect x="${(X(i)-(W-pl-pr)/Math.max(1,n-1)/2).toFixed(1)}" y="0" width="${((W-pl-pr)/Math.max(1,n-1)).toFixed(1)}" height="${H}" fill="transparent" data-i="${i}"/>`).join("")}<circle r="7" class="an-sel" cx="-20" cy="-20"/></svg><p class="an-cap"></p>`;
+  const c=box.querySelector(".an-cap"),sel=box.querySelector(".an-sel"),sh=i=>{sel.setAttribute("cx",X(i).toFixed(1));sel.setAttribute("cy",Y(pts[i].y).toFixed(1));c.innerHTML=cap(i);};
+  box.querySelectorAll("rect[data-i]").forEach(r=>r.onclick=()=>sh(+r.dataset.i));sh(n-1);}
+/* ---- вкладка «Нагрузка» ---- */
+const AN_MET={vol:["Тоннаж",(v,s)=>s?ntF(v/1000,1)+"т":anFmtT(v)],sets:["Подходы",v=>ntF(v)],n:["Тренировки",v=>ntF(v)],time:["Время",(v,s)=>s?Math.round(v/60)+"м":(v>=3600?Math.floor(v/3600)+" ч "+Math.round(v%3600/60)+" мин":Math.round(v/60)+" мин")],rpe:["RPE",v=>ntF(v,1)],rir:["RIR",v=>ntF(v,1)]};
+function anLoad(R){const box=el("anLoad"),sec=AN_UI.sec,recs=R.filter(r=>sec==="all"||r.sec===sec);
+  const swOnly=sec==="sw",cfOnly=sec==="cross";let mets=swOnly?["n","sets","time"]:cfOnly?["n","time","rpe"]:["vol","sets","n","time","rpe","rir"];if(!mets.includes(AN_UI.met))AN_UI.met=mets[0];
+  const W=anWeeks(8),agg=W.map(w=>{const e=new Date(w+"T00:00");e.setDate(e.getDate()+7);const ee=localDate(e);const L=recs.filter(r=>r.date>=w&&r.date<ee);
+    const rp=L.filter(r=>r.rpe),ri=[].concat(...L.map(r=>r.rirs));
+    return {L,vol:L.reduce((a,r)=>a+r.vol,0),sets:L.reduce((a,r)=>a+r.sets,0),n:L.length,time:L.reduce((a,r)=>a+(r.dur||0),0),rpe:rp.length?rp.reduce((a,r)=>a+r.rpe,0)/rp.length:0,rir:ri.length?ri.reduce((a,b)=>a+b,0)/ri.length:0};});
+  const M=AN_MET[AN_UI.met],vals=agg.map(a=>a[AN_UI.met]),lab=W.map(w=>{const d=new Date(w+"T00:00");return d.getDate()+"."+String(d.getMonth()+1).padStart(2,"0");});
+  const cur=agg[7],prev=agg[6];
+  box.innerHTML=`<div class="an-disc" id="anDisc">${AN_SECS.map(([k,t])=>`<button type="button" data-v="${k}">${t}</button>`).join("")}</div>
+   <div class="card"><div class="an-h"><h3>По неделям</h3><span class="nt-sub">8 недель · нажми на столбец</span></div>
+   <div class="an-met" id="anMet">${mets.map(k=>`<button type="button" data-v="${k}">${AN_MET[k][0]}</button>`).join("")}</div>
+   <div id="anBars"></div>
+   <div class="an-kpi"><div><b class="num">${M[1](cur[AN_UI.met]||0)}</b><span>эта неделя ${AN_UI.met==="rpe"||AN_UI.met==="rir"?"":anDelta(anPct(cur[AN_UI.met],prev[AN_UI.met]),false)}</span></div><div><b class="num">${M[1](prev[AN_UI.met]||0)}</b><span>прошлая</span></div><div><b class="num">${M[1](agg.slice(4).reduce((a,x)=>a+(x[AN_UI.met]||0),0)/4)}</b><span>в среднем за 4 нед.</span></div></div>
+   <p class="an-tip">${anLoadTip(AN_UI.met,agg)}</p></div>
+   ${cfOnly?anCrossCard():""}${swOnly?anSwCard(recs):""}`;
+  ntChips("anDisc",sec,v=>{AN_UI.sec=v;AN_UI.bar=null;anUISave();anLoad(R);});ntChips("anMet",AN_UI.met,v=>{AN_UI.met=v;anUISave();anLoad(R);});
+  anBars(el("anBars"),lab,vals,M[1],i=>{const a=agg[i];if(!a.L.length)return `Неделя с ${lab[i]} — тренировок нет`;
+    return `<b>Неделя с ${lab[i]}</b>: ${a.n} ${plural(a.n,"тренировка","тренировки","тренировок")}${a.vol?" · "+anFmtT(a.vol):""}${a.sets?" · "+a.sets+(swOnly?" кр.":" подх."):""}${a.time?" · "+AN_MET.time[1](a.time):""}${a.rpe?" · RPE "+ntF(a.rpe,1):""}${a.rir?" · RIR "+ntF(a.rir,1):""}<br><small>${a.L.map(r=>r.name).slice(0,4).join(" · ")}${a.L.length>4?" …":""}</small>`;});}
+function anLoadTip(m,a){const c=a[7][m],p=a[6][m],avg=a.slice(4,8).reduce((s,x)=>s+(x[m]||0),0)/4;
+  if(m==="vol")return c&&p?(c>p*1.15?"Тоннаж вырос больше чем на 15 % — следи за восстановлением, прибавляй постепенно.":c>=p?"Объём растёт или держится — прогрессивная перегрузка идёт.":"Объём ниже прошлой недели — нормально для разгрузки, иначе проверь сон и питание."):"Тоннаж = вес × повторы во всех рабочих подходах (разминка не считается).";
+  if(m==="sets")return "Рабочие подходы — только отмеченные ✓, без разминочных. Для роста мышц обычно хватает 10–20 подходов на группу мышц в неделю.";
+  if(m==="rpe")return avg?"RPE — тяжесть тренировки по ощущениям (1–10). Тот же объём при меньшем RPE — это прогресс.":"Оцени тренировки в «Истории» ниже (RPE 1–10) — здесь появится средняя тяжесть.";
+  if(m==="rir")return avg?"RIR — сколько повторов оставалось в запасе. Тот же вес и повторы при большем RIR — ты стал сильнее.":"Отмечай «Запас повторов» под упражнением во время тренировки — здесь появится средний RIR.";
+  if(m==="time")return "Время тренировки — от первого подхода до завершения. Тот же объём за меньшее время — выросла плотность тренировки.";
+  return "Регулярность важнее рекордов: 3–4 тренировки в неделю дают стабильный прогресс.";}
+function anCrossCard(){let s=null;try{s=cfGet();}catch(e){}if(!s||!s.res||!s.res.length)return `<div class="card"><h3>Кроссфит · рекорды</h3><p class="nt-sub">Запиши результат комплекса — здесь появятся лучшие результаты и динамика.</p></div>`;
+  const by={};s.res.forEach(r=>{(by[r.name]=by[r.name]||[]).push(r);});
+  const rows=Object.entries(by).sort((a,b)=>b[1].length-a[1].length).slice(0,8).map(([n,a])=>{a.sort((x,y)=>(x.ts||0)-(y.ts||0));const pr=a.filter(r=>r.pr).pop()||a[a.length-1],last=a[a.length-1];
+    let txt="";try{txt=cfScoreTxt(pr);}catch(e){txt="";}let lt="";try{lt=cfScoreTxt(last);}catch(e){}
+    return `<div class="an-row"><span><b></b><small>${a.length} ${plural(a.length,"раз","раза","раз")} · последний ${fmtDate(last.date)}${lt?" — "+lt:""}</small></span><b class="num">🏆 ${txt}</b></div>`.replace("<b></b>",`<b>${n}</b>`);}).join("");
+  return `<div class="card"><h3>Кроссфит · лучшие результаты</h3>${rows}</div>`;}
+function anSwCard(recs){const L=recs.filter(r=>r.raw.sw).slice(-8);if(!L.length)return "";
+  return `<div class="card"><h3>Стрит-воркаут · последние круговые</h3>${L.reverse().map(r=>`<div class="an-row"><span><b>${r.name}</b><small>${fmtDate(r.date)}</small></span><b class="num">${r.raw.circles||0}${r.raw.target?"/"+r.raw.target:""} кр.${r.raw.secs?" · "+mmss(r.raw.secs):""}</b></div>`).join("")}</div>`;}
+/* ---- вкладка «Упражнения» ---- */
+function anExData(R){const E={};R.forEach(r=>{const lg=r.raw.log;if(!lg||Array.isArray(lg)||typeof lg!=="object")return;
+  Object.entries(lg).forEach(([n,a])=>{if(!Array.isArray(a))return;const d=a.filter(s=>s&&s.done&&s.r>0);if(!d.length)return;
+    const e1=Math.max(...d.map(s=>(+s.w||0)>0?(s.r<=1?+s.w:+s.w*(1+Math.min(s.r,12)/30)):0)),mw=Math.max(...d.map(s=>+s.w||0)),vol=d.reduce((t,s)=>t+(+s.w||0)*s.r,0),reps=d.reduce((t,s)=>t+s.r,0),mr=Math.max(...d.map(s=>s.r));
+    const rr=d.map(s=>anRir(s.rir)).filter(v=>v!=null);
+    (E[n]=E[n]||[]).push({date:r.date,sets:d,e1rm:e1,maxw:mw,vol,reps,maxr:mr,rir:rr.length?rr[rr.length-1]:null});});});return E;}
+const AN_EXM={e1rm:["1ПМ расчёт",v=>ntF(v,1)+" кг"],maxw:["Макс. вес",v=>ntF(v,1)+" кг"],vol:["Объём",v=>anFmtT(v)],maxr:["Макс. повторы",v=>ntF(v)],reps:["Всего повторов",v=>ntF(v)]};
+function anEx(R){const box=el("anEx"),E=anExData(R),names=Object.keys(E).sort((a,b)=>{const la=E[a][E[a].length-1].date,lb=E[b][E[b].length-1].date;return lb.localeCompare(la)||E[b].length-E[a].length;});
+  if(!names.length){box.innerHTML=`<div class="card"><h3>Упражнения</h3><p class="nt-sub">Заверши хотя бы одну силовую тренировку — здесь появятся рабочие веса, расчётный 1ПМ и динамика по каждому упражнению.</p></div>`;return;}
+  if(!E[AN_UI.ex])AN_UI.ex=names[0];const S=E[AN_UI.ex],bw=S.every(s=>s.maxw===0);
+  const mets=bw?["maxr","reps"]:["e1rm","maxw","vol","reps"];if(!mets.includes(AN_UI.exm))AN_UI.exm=mets[0];const M=AN_EXM[AN_UI.exm];
+  const k=AN_UI.exm,best=Math.max(...S.map(s=>s[k])),last=S[S.length-1],d28=new Date();d28.setDate(d28.getDate()-28);const base=S.find(s=>s.date>=localDate(d28))||S[0];
+  let run=0;const pts=S.slice(-16).map(s=>{const pr=s[k]>run+1e-9&&run>0;run=Math.max(run,s[k]);return {x:fmtDate(s.date),y:s[k],pr};});
+  /* прогресс по RIR: тот же вес и повторы, а запас больше */
+  let rirNote="";if(S.length>=2){const a=S[S.length-2],b=last;if(a.rir!=null&&b.rir!=null&&b.maxw>=a.maxw&&b.maxr>=a.maxr&&b.rir>a.rir)rirNote=`<p class="an-good">💪 Тот же вес ${ntF(b.maxw,1)} кг × ${b.maxr}, а запас вырос с RIR ${a.rir} до ${b.rir} — сила растёт, можно прибавлять вес.</p>`;
+    else if(a.rir!=null&&b.rir!=null&&b.maxw<=a.maxw&&b.rir<a.rir&&b.rir<=0)rirNote=`<p class="an-warn">Подходы идут в отказ (RIR 0) без роста веса — проверь восстановление или сделай лёгкую неделю.</p>`;}
+  box.innerHTML=`<div class="card"><label class="nt-lab">Упражнение<select id="anExSel" class="food-in">${names.map(n=>`<option>${n.replace(/</g,"&lt;")}</option>`).join("")}</select></label>
+   <div class="an-met" id="anExM">${mets.map(m=>`<button type="button" data-v="${m}">${AN_EXM[m][0]}</button>`).join("")}</div>
+   <div id="anExChart"></div>
+   <div class="an-kpi"><div><b class="num">${M[1](best)}</b><span>лучший</span></div><div><b class="num">${M[1](last[k])}</b><span>последний</span></div><div><b class="num">${anDelta(anPct(last[k],base[k]),false)||"—"}</b><span>за 4 недели</span></div></div>
+   ${rirNote}<p class="an-tip">${k==="e1rm"?"Расчётный 1ПМ (формула Эпли: вес × (1 + повторы / 30)) позволяет сравнивать разные схемы: 100×5 и 90×8 — на одной шкале. Растёт 1ПМ — растёт сила.":k==="vol"?"Объём упражнения = вес × повторы во всех рабочих подходах.":"Для упражнений с собственным весом прогресс — это больше повторов при той же технике."}</p></div>
+   <div class="card"><h3>Последние подходы</h3>${S.slice(-5).reverse().map(s=>`<div class="an-row"><span><b>${fmtDate(s.date)}</b><small>${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r+(x.rir!=null&&x.rir!==""?` <i>RIR ${x.rir}</i>`:"")).join(", ")}</small></span><b class="num">${bw?s.reps+" повт.":ntF(s.e1rm,1)+" кг"}</b></div>`).join("")}</div>`;
+  const sel=el("anExSel");sel.value=AN_UI.ex;sel.onchange=()=>{AN_UI.ex=sel.value;anUISave();anEx(R);};
+  ntChips("anExM",AN_UI.exm,v=>{AN_UI.exm=v;anUISave();anEx(R);});
+  anLine(el("anExChart"),pts,M[1],i=>{const s=S.slice(-16)[i];return `<b>${fmtDate(s.date)}</b>: ${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r).join(", ")} · ${M[0].toLowerCase()} ${M[1](s[k])}${pts[i].pr?" · 🏆 рекорд":""}`;});}
+/* ---- вкладка «Тело» ---- */
+const AN_BM=[["waist","Талия"],["chest","Грудь"],["arm","Бицепс"],["hips","Бёдра"],["calf","Голень"]];
+function anBody(){const box=el("anBody"),S=anSt(),L=S.body.slice().sort((a,b)=>a.date.localeCompare(b.date)),today=localDate(),t=L.find(x=>x.date===today)||{};
+  let p={};try{p=pfGet();}catch(e){}
+  const W=L.filter(x=>x.w>0),pts=W.slice(-30).map(x=>({x:fmtDate(x.date),y:x.w,date:x.date}));
+  const avg=pts.map(q=>{const d0=new Date(q.date+"T00:00");d0.setDate(d0.getDate()-6);const w=W.filter(x=>x.date>=localDate(d0)&&x.date<=q.date);return w.length?w.reduce((a,x)=>a+x.w,0)/w.length:null;});
+  const wk=(off)=>{const e=new Date();e.setDate(e.getDate()-off*7);const s=new Date(e);s.setDate(s.getDate()-6);const w=W.filter(x=>x.date>=localDate(s)&&x.date<=localDate(e));return w.length?w.reduce((a,x)=>a+x.w,0)/w.length:null;};
+  const a0=wk(0),a1=wk(1),first=W[0];
+  const mrows=AN_BM.map(([k,n])=>{const m=L.filter(x=>x[k]>0);if(!m.length)return "";const f=m[0][k],l=m[m.length-1][k],d=Math.round((l-f)*10)/10;
+    return `<div class="an-row"><span><b>${n}</b><small>${fmtDate(m[0].date)} → ${fmtDate(m[m.length-1].date)}</small></span><b class="num">${ntF(l,1)} см ${m.length>1?`<span class="an-d ${d===0?"":(k==="waist"?d<0:d>0)?"up":"dn"}">${d>0?"+":""}${ntF(d,1)}</span>`:""}</b></div>`;}).join("");
+  box.innerHTML=`<div class="card nt-form"><h3>Замер на сегодня</h3><p class="nt-sub">Вес — утром натощак, после туалета. Обхваты — раз в 2–4 недели, в одно и то же время.</p>
+   <div class="nt-grid"><label>Вес, кг<input id="anW" class="food-in" inputmode="decimal" placeholder="${p.weight||""}" value="${t.w||""}"></label><label>% жира<input id="anBf" class="food-in" inputmode="decimal" placeholder="—" value="${t.bf||""}"></label></div>
+   <details class="nt-info"${AN_BM.some(([k])=>t[k])?" open":""}><summary>Обхваты, см</summary><div class="nt-grid" style="margin-top:8px">${AN_BM.map(([k,n])=>`<label>${n}<input id="anM_${k}" class="food-in" inputmode="decimal" value="${t[k]||""}"></label>`).join("")}</div></details>
+   <button type="button" class="btn" id="anBSave">Сохранить замер</button><div id="anBMsg"></div></div>
+   <div class="card"><div class="an-h"><h3>Вес тела</h3><span class="nt-sub">точки — замеры, линия — среднее за 7 дней</span></div>
+   ${W.length?`<div id="anWChart"></div><div class="an-kpi"><div><b class="num">${a0?ntF(a0,1):"—"}</b><span>среднее за неделю</span></div><div><b class="num">${a0&&a1?(a0-a1>0?"+":"")+ntF(a0-a1,1):"—"}</b><span>к прошлой неделе</span></div><div><b class="num">${first&&a0?(a0-first.w>0?"+":"")+ntF(a0-first.w,1):"—"}</b><span>с ${first?fmtDate(first.date):"начала"}</span></div></div>
+   <p class="an-tip">Смотри на среднее за неделю, а не на ежедневные скачки — вода и соль дают ±1–2 кг. При наборе нормально +0,25–0,5 % веса в неделю, при сушке −0,5–1 %.</p>`:`<p class="nt-sub">Внеси первый замер — здесь появится график и среднее за неделю.</p>`}</div>
+   ${mrows?`<div class="card"><h3>Обхваты</h3>${mrows}<p class="an-tip">Талия уменьшается, а бицепс и бёдра растут — уходит жир, растут мышцы, даже если вес стоит на месте.</p></div>`:""}`;
+  if(W.length)anLine(el("anWChart"),pts,(v,s)=>ntF(v,1)+(s?"":" кг"),i=>`<b>${pts[i].x}</b>: ${ntF(pts[i].y,1)} кг${avg[i]?" · среднее за 7 дней "+ntF(avg[i],1)+" кг":""}`,avg);
+  el("anBSave").onclick=()=>{const n=id=>{const v=String(el(id).value).replace(",",".").trim();if(!v)return null;const x=Number(v);return isFinite(x)&&x>0?x:NaN;};
+    const rec={date:today,w:n("anW"),bf:n("anBf")};AN_BM.forEach(([k])=>rec[k]=n("anM_"+k));
+    if(Object.values(rec).some(v=>Number.isNaN(v))){toast("Проверь числа");return;}if(rec.w!=null&&(rec.w<30||rec.w>300)){toast("Вес — от 30 до 300 кг");return;}if(rec.bf!=null&&!ntBfOk(rec.bf)){toast("% жира — от 3 до 60");return;}
+    Object.keys(rec).forEach(k=>{if(rec[k]==null)delete rec[k];});if(Object.keys(rec).length<2){toast("Введи хотя бы вес или один обхват");return;}
+    const s=anSt();s.body=s.body.filter(x=>x.date!==today);s.body.push(Object.assign({},t,rec));anSave(s);toast("Замер сохранён");anBody();
+    let pp={};try{pp=pfGet();}catch(e){}if(rec.w&&Math.abs((+pp.weight||0)-rec.w)>=.5){el("anBMsg").innerHTML=`<p class="nt-sub">В профиле вес ${pp.weight||"не указан"}${pp.weight?" кг":""}. Обновить, чтобы пересчитать норму питания и воды?</p><button type="button" class="btn btn-alt" id="anBUp">Обновить вес в профиле: ${ntF(rec.w,1)} кг</button>`;
+      el("anBUp").onclick=()=>{try{const q=pfGet();q.weight=rec.w;if(rec.bf)q.bf=rec.bf;pfWrite(q);const tt=ntT();if(tt){tt.weight=rec.w;if(rec.bf)tt.bf=rec.bf;tt.src={units:"metric",w:String(rec.w),h:String(tt.height)};tt.updatedAt=Date.now();ntWrite(NTK_T,tt,true);NTF=null;}toast("Вес обновлён — норма пересчитана");el("anBMsg").innerHTML="";}catch(e){toast("Не удалось обновить профиль");}};}};}
+/* ---- вкладка «Восстановление» ---- */
+const AN_FEEL=[["1","😫","Разбит"],["2","😕","Устал"],["3","😐","Норма"],["4","🙂","Хорошо"],["5","💪","Отлично"]];
+function anRec(R){const box=el("anRec"),S=anSt(),today=localDate(),t=S.sleep[today]||{};const h=t.h!=null?t.h:null;
+  const days=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(localDate(d));}
+  const sl=days.map(d=>(S.sleep[d]||{}).h||0),got=sl.filter(v=>v>0),last7=days.slice(7).map(d=>(S.sleep[d]||{}).h).filter(v=>v>0),avg7=last7.length?last7.reduce((a,b)=>a+b,0)/last7.length:null;
+  /* связь сна и тренировки: тоннаж после ночи ≥7 ч и <7 ч */
+  const A=[],B=[];R.forEach(r=>{const s=(S.sleep[r.date]||{}).h;if(!s||!r.vol)return;(s>=7?A:B).push(r.vol);});
+  const corr=A.length>=3&&B.length>=3?`<p class="an-good">После сна 7 ч и больше средний тоннаж — <b>${anFmtT(A.reduce((a,b)=>a+b,0)/A.length)}</b>, после меньше 7 ч — <b>${anFmtT(B.reduce((a,b)=>a+b,0)/B.length)}</b>.</p>`:"";
+  box.innerHTML=`<div class="card"><h3>Сегодня</h3>
+   <p class="nt-lab" style="margin:8px 0 6px">Сон прошлой ночью</p>
+   <div class="an-sleep"><button type="button" id="anSlM">−</button><b class="num" id="anSlV">${h!=null?ntF(h,1)+" ч":"— ч"}</b><button type="button" id="anSlP">+</button></div>
+   <div class="an-met" id="anSlQ">${[6,7,8,9].map(v=>`<button type="button" data-v="${v}">${v} ч</button>`).join("")}</div>
+   <p class="nt-lab" style="margin:12px 0 6px">Самочувствие</p>
+   <div class="an-feel" id="anFeel">${AN_FEEL.map(([v,e,n])=>`<button type="button" data-v="${v}"><span>${e}</span><small>${n}</small></button>`).join("")}</div></div>
+   <div class="card"><div class="an-h"><h3>Сон за 14 дней</h3><span class="nt-sub">${avg7?"в среднем "+ntF(avg7,1)+" ч за неделю":""}</span></div>
+   ${got.length?`<div id="anSlChart"></div>`:`<p class="nt-sub">Отмечай сон каждое утро — один тап. Здесь появится график и связь сна с результатами тренировок.</p>`}
+   ${corr}<p class="an-tip">${avg7&&avg7<7?"Сон меньше 7 часов снижает силу и восстановление — в такие дни снижай объём или ложись раньше.":"Для роста силы и мышц нужно 7–9 часов сна. Если самочувствие «Разбит» несколько дней подряд — сделай разгрузку."}</p></div>`;
+  const setH=v=>{const s=anSt();s.sleep[today]=Object.assign({},s.sleep[today],{h:Math.max(0,Math.min(14,Math.round(v*2)/2))});const ks=Object.keys(s.sleep).sort();while(ks.length>120)delete s.sleep[ks.shift()];anSave(s);anRec(R);};
+  el("anSlM").onclick=()=>setH((h!=null?h:7.5)-.5);el("anSlP").onclick=()=>setH((h!=null?h:6.5)+.5);
+  ntChips("anSlQ",h!=null?String(h):"",v=>setH(+v));
+  ntChips("anFeel",t.f||"",v=>{const s=anSt();s.sleep[today]=Object.assign({},s.sleep[today],{f:v});anSave(s);anRec(R);});
+  if(got.length)anBars(el("anSlChart"),days.map(d=>String(new Date(d+"T00:00").getDate())),sl,(v,s)=>s?ntF(v,1):ntF(v,1)+" ч",i=>{const x=S.sleep[days[i]]||{};const f=AN_FEEL.find(q=>q[0]===x.f);return `<b>${fmtDate(days[i])}</b>: ${x.h?ntF(x.h,1)+" ч сна":"сон не отмечен"}${f?" · "+f[1]+" "+f[2]:""}`;});
+  el("anSlChart")&&el("anSlChart").querySelectorAll(".an-bar").forEach((g,i)=>{if(sl[i]&&sl[i]<7)g.classList.add("low");});}
+/* ---- история: подробности и оценка RPE ---- */
+function anHist(R){const hist=el("hist");hist.innerHTML="";const S=anSt();
+  if(!R.length){hist.innerHTML=`<p class="nt-sub" style="margin:6px 0">Пока нет завершённых тренировок.</p>`;return;}
+  R.slice().reverse().slice(0,10).forEach(r=>{const x=r.raw,row=document.createElement("details");row.className="an-hrow";const key=anRecKey(x);
+    const right=x.sw?`${x.circles||0}${x.target?"/"+x.target:""} кр.${x.secs?" · "+mmss(x.secs):""}`:x.cross?(x.score?(x.pr?"🏆 ":"")+x.score:(x.secs?mmss(x.secs):"")):(r.vol?anFmtT(r.vol):"");
+    let det="";if(x.log&&!Array.isArray(x.log)&&typeof x.log==="object")det=Object.entries(x.log).map(([n,a])=>{const d=(a||[]).filter(s=>s&&s.done);return d.length?`<div class="an-hx"><b></b><span>${d.map(s=>(+s.w?ntF(+s.w,1)+"×":"")+s.r+(s.rir!=null&&s.rir!==""?` <i>RIR ${s.rir}</i>`:"")).join(", ")}</span></div>`.replace("<b></b>",`<b>${n.replace(/</g,"&lt;")}</b>`):"";}).join("");
+    const meta=[AN_SEC_LBL[r.sec]||"",r.dur?AN_MET.time[1](r.dur):"",r.rest?"отдых ~"+mmss(r.rest):"",x.ready?"готовность: "+x.ready:""].filter(Boolean).join(" · ");
+    row.innerHTML=`<summary><span class="d"></span><span class="v num">${right}${S.rpe[key]?` <i class="an-rpe-b">RPE ${S.rpe[key]}</i>`:""}</span></summary>
+      <div class="an-hd"><p class="nt-sub">${meta}</p>${det}<div class="an-rpe"><span>Тяжесть (RPE)</span><div>${[6,7,8,9,10].map(v=>`<button type="button" data-v="${v}" class="${+S.rpe[key]===v?"on":""}">${v}</button>`).join("")}</div></div></div>`;
+    row.querySelector(".d").innerHTML=`<b></b><small>${fmtDate(r.date)}</small>`;row.querySelector(".d b").textContent=r.name;
+    row.querySelectorAll(".an-rpe button").forEach(b=>b.onclick=e=>{e.preventDefault();const s=anSt();s.rpe[key]=+s.rpe[key]===+b.dataset.v?undefined:+b.dataset.v;if(s.rpe[key]===undefined)delete s.rpe[key];anSave(s);
+      row.querySelectorAll(".an-rpe button").forEach(q=>q.classList.toggle("on",+q.dataset.v===+s.rpe[key]));const bb=row.querySelector(".an-rpe-b");const v=row.querySelector(".v");if(bb)bb.remove();if(s.rpe[key])v.insertAdjacentHTML("beforeend",` <i class="an-rpe-b">RPE ${s.rpe[key]}</i>`);});
+    hist.appendChild(row);});}
+/* ---- сборка экрана ---- */
+function anRender(){const R=anRecs();
+  /* плитки: за 7 дней против предыдущих 7 */
+  const d7=new Date();d7.setDate(d7.getDate()-6);const d14=new Date();d14.setDate(d14.getDate()-13);const s7=localDate(d7),s14=localDate(d14);
+  const c=R.filter(r=>r.date>=s7),p=R.filter(r=>r.date>=s14&&r.date<s7),cv=c.reduce((a,r)=>a+r.vol,0),pv=p.reduce((a,r)=>a+r.vol,0);
+  el("tWeek").textContent=c.length;el("tWeekD").innerHTML=p.length?`<span class="an-d ${c.length>p.length?"up":c.length<p.length?"dn":""}">${c.length-p.length>0?"+":""}${c.length-p.length}</span>`:"";
+  el("tVol").textContent=cv?ntF(cv/1000,1):"0";el("tVolD").innerHTML=pv?anDelta(anPct(cv,pv),false):"";
+  el("tStreak").textContent=streak(R);
+  ntChips("anTabs",AN_UI.tab,v=>{AN_UI.tab=v;anUISave();anRender();});
+  ["load","ex","body","rec"].forEach(k=>el("an"+{load:"Load",ex:"Ex",body:"Body",rec:"Rec"}[k]).hidden=AN_UI.tab!==k);
+  try{if(AN_UI.tab==="load")anLoad(R);else if(AN_UI.tab==="ex")anEx(R);else if(AN_UI.tab==="body")anBody();else anRec(R);}catch(e){console.error(e);}
+  anHist(R);}
+/* облако: данные аналитики — в общий документ, при загрузке объединяем */
+{const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{an:ntRead(ANK,null)});};}
+function anMerge(a,b){if(!b||typeof b!=="object")return a;const o={rpe:Object.assign({},b.rpe||{},a.rpe||{}),sleep:{},body:[],updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
+  new Set([...Object.keys(a.sleep||{}),...Object.keys(b.sleep||{})]).forEach(d=>{o.sleep[d]=Object.assign({},(b.sleep||{})[d],(a.sleep||{})[d]);});
+  const m={};[...(b.body||[]),...(a.body||[])].forEach(x=>{if(x&&x.date)m[x.date]=Object.assign({},m[x.date],x);});o.body=Object.values(m);return o;}
+
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
@@ -5932,6 +6173,7 @@ async function cloudInit(){
     const snap=await cloudDoc().get();
     if(snap&&snap.exists&&snap.data()){
       const d=snap.data();
+      try{if(d.an)localStorage.setItem(ANK,JSON.stringify(anMerge(anSt(),d.an)));}catch(e){}
       try{if(d.water)localStorage.setItem(WTK,JSON.stringify(wtMerge(wtSt(),d.water)));}catch(e){}
       try{if(d.profile&&typeof d.profile==="object"&&(d.profile.updatedAt||0)>((pfRaw()||{}).updatedAt||0)){localStorage.setItem(PFK,JSON.stringify(d.profile));pfAvatar();}}catch(e){}
       try{const known=Object.keys(cloudSnapshot());CLOUD_EXTRA={};Object.keys(d).forEach(k=>{if(!known.includes(k))CLOUD_EXTRA[k]=d[k];});}catch(e){}
