@@ -5517,11 +5517,11 @@ function dsRestore(data,label){if(!data||typeof data!=="object"){toast("Файл
   toast("Восстановлено: "+label+". Перезапускаю…");setTimeout(()=>location.reload(),900);}
 function renderDS(){const box=el("dsBox");if(!box)return;const sn=dsSnaps().slice().reverse();let le=null;try{le=JSON.parse(localStorage.getItem("gym45_lastexport_v1")||"null");}catch(e){}
   box.innerHTML=`<p class="ds-sub">Всё хранится на этом устройстве. Тренировок в истории: <b>${dsCount()}</b>. Приложение само делает снимок данных при каждом запуске — обновление не может их потерять. Копия в файл защищает от очистки данных iPhone.</p>
-   <button class="btn" type="button" id="dsExport">Сохранить копию в файл</button>
-   <p class="ds-sub">${le?"Последняя копия в файл: "+dsDT(le.at):"Копию в файл ещё не сохраняли — сделай после тренировки и отправь себе в «Файлы» или мессенджер."}</p>
+   ${window.claude&&claude.use?`<p class="ds-sub">В этой версии (внутри Claude) данные дополнительно синхронизируются в облако. Копию в файл сохраняй в приложении с иконки «Домой».</p>`:`<button class="btn" type="button" id="dsExport">Сохранить копию в файл</button>
+   <p class="ds-sub">${le?"Последняя копия в файл: "+dsDT(le.at):"Копию в файл ещё не сохраняли — сделай после тренировки и отправь себе в «Файлы» или мессенджер."}</p>`}
    <label class="btn btn-alt ds-file">Восстановить из файла<input type="file" id="dsImport" accept="application/json,.json" hidden></label>
    ${sn.length?`<details class="ds-snaps"><summary>Автоснимки (${sn.length})</summary>${sn.map((s,i)=>`<div class="ds-snap"><span>${dsDT(s.at)}<small>${s.n} разделов · версия ${s.build}</small></span><button type="button" class="tm-reset" data-i="${i}">Откатить</button></div>`).join("")}</details>`:""}`;
-  el("dsExport").onclick=dsDownload;
+  if(el("dsExport"))el("dsExport").onclick=dsDownload;
   el("dsImport").onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);dsRestore(p.data||p,"копия от "+(p.at?dsDT(p.at):f.name));}catch(err){toast("Не удалось прочитать файл");}};r.readAsText(f);};
   box.querySelectorAll(".ds-snap button").forEach(b=>b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();b.textContent="Точно?";toast("Нажми ещё раз — данные вернутся к этому снимку (текущие сохранятся отдельным снимком)");return;}const s=sn[+b.dataset.i];dsRestore(s.data,"снимок от "+dsDT(s.at));});}
 {const _rp=renderProgress;renderProgress=function(){_rp();renderDS();};}
