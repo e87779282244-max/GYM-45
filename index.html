@@ -1271,7 +1271,7 @@
       <div class="card tmr">
         <div class="tm-seth" style="cursor:default">Заполни 1 максимальный повтор</div>
         <div class="tm-params" id="rmLifts"></div>
-        <div class="tm-seth" style="cursor:default;opacity:.7;font-size:12px">Рабочие веса округляются вверх до целого кг</div>
+        <div class="tm-seth" style="cursor:default;opacity:.7;font-size:12px">Рабочие веса округляются вверх до целого кг. Подтягивания и брусья — 1ПМ дополнительного веса на поясе</div>
       </div>
       <div class="card rm-fold">
         <button class="rm-fold-h" type="button" aria-expanded="false"><span>Проценты от 1ПМ<small class="rm-cur"></small></span><span class="rm-caret">▾</span></button>
@@ -2668,7 +2668,7 @@ function renderWorkout(){
   const _prev=_pr?`<div class="prev-line">Прошлый раз: ${_pr.sets.map(s=>ex[3]?(s.r+"×"+s.w):(""+s.r)).join(", ")}${ex[3]?" кг":" повт."}</div>`:"";
   const _rmv=(typeof rmReg==="function")?rmReg()[ex[0]]:0;
   const ns=current.sets[i].filter(x=>!x.warm).length;
-  const tgt=G?gvtTargetLine(i):`${ns} ${plural(ns,"подход","подхода","подходов")} × ${ex[2]} повт.${ex[3]?" · "+ex[3]+" кг":""}${_rmv?" · 1ПМ "+_rmv+" кг":""}`;
+  const tgt=G?gvtTargetLine(i):`${ns} ${plural(ns,"подход","подхода","подходов")} × ${ex[2]} повт.${ex[3]?" · "+ex[3]+" кг":""}${_rmv?" · 1ПМ "+(/с весом/.test(ex[0])?"+":"")+_rmv+" кг":""}`;
   const extra=G?`${gvtSrcLine(i)}${stopR?`<div class="gvt-stop">Блок остановлен: ${stopR}. Остальные подходы не засчитаны.</div>`:""}`:(ex[5]?`<div class="ex-note">${ex[5]}</div>`:"");
   const add=(G&&G.main)?"":`<button class="addset" type="button">+ подход</button>`;
   c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">${tgt}</div>${extra}${_prev}
@@ -5284,28 +5284,29 @@ const RM_CEIL=[[1,100],[2,95],[3,93],[4,90],[5,87],[6,85],[7,83],[8,80],[9,77],[
 const RM_PCTS=[100,95,90,87.5,85,82.5,80,77.5,75,72.5,70,65,60,55,50];
 const RM_STEPS=[0.5,1,2.5,5];
 /* реестр 1ПМ (Штурм 30: maxima) */
-const RM_LIFTS=[["Присед","Приседания со штангой",100],["Жим лёжа","Жим лёжа",80],["Становая","Становая тяга",120],["Жим стоя","Армейский жим стоя",50],["Подъём на бицепс","Подъём штанги на бицепс",40]];
+const RM_LIFTS=[["Присед","Приседания со штангой",100],["Жим лёжа","Жим лёжа",80],["Становая","Становая тяга",120],["Жим стоя","Армейский жим стоя",50],["Подъём на бицепс","Подъём штанги на бицепс",40],["Подтяги\u00adвания","Подтягивания с весом",20,1],["Брусья","Отжимания на брусьях с весом",30,1]];
+/* 4-й элемент = 1: 1ПМ — только дополнительный вес на поясе (без собственного веса), может быть 0 */
 const RMK="gym45_rm_v1";
 function rmReg(){try{return JSON.parse(localStorage.getItem(RMK))||{}}catch(e){return{}}}
 function rmRegSet(o){try{localStorage.setItem(RMK,JSON.stringify(o))}catch(e){}cloudPush();}
 function rmSaveCur(){const r=rmReg();r[RM_LIFTS[rmLift][1]]=rmMax;rmRegSet(r);}
 let rmMax=100, rmStep=2.5, rmLift=0;
-function rmLoadLift(i){rmLift=i;const r=rmReg();rmMax=r[RM_LIFTS[i][1]]||RM_LIFTS[i][2];renderRM();}
+function rmLoadLift(i){rmLift=i;rmMax=rmGet(i);renderRM();}
 /* рабочий вес = процент от 1ПМ, округлён ВВЕРХ до целого кг (67,5 → 68) */
 function rmW(max,pct,step){return Math.ceil(max*pct/100-1e-9);}
 function fmtW(w){return (Math.round(w*10)%10===0)?String(Math.round(w)):w.toFixed(1).replace(".",",");}
-function rmGet(i){const r=rmReg();return r[RM_LIFTS[i][1]]||RM_LIFTS[i][2];}
+function rmGet(i){const r=rmReg(),v=r[RM_LIFTS[i][1]];return v!=null&&(v>0||RM_LIFTS[i][3])?v:RM_LIFTS[i][2];}
 function renderRM(){
   rmMax=rmGet(rmLift);
   const lc=el("rmLifts");lc.innerHTML="";
   RM_LIFTS.forEach((L,i)=>{const row=document.createElement("div");
     row.className="tm-step"+(i===rmLift?" on":"");
-    row.innerHTML=`<span class="lbl">${L[0]}</span><button class="tm-sbtn" type="button" data-d="-1">−</button><span class="tm-val">${fmtW(rmGet(i))}</span><button class="tm-sbtn" type="button" data-d="1">+</button>`;
+    row.innerHTML=`<span class="lbl">${L[0]}</span><button class="tm-sbtn" type="button" data-d="-1">−</button><span class="tm-val">${L[3]?"+":""}${fmtW(rmGet(i))}</span><button class="tm-sbtn" type="button" data-d="1">+</button>`;
     row.onclick=e=>{const b=e.target.closest(".tm-sbtn");rmLift=i;
-      if(b){const r=rmReg();r[L[1]]=Math.min(500,Math.max(20,rmGet(i)+2.5*(+b.dataset.d)));rmRegSet(r);}
+      if(b){const r=rmReg();r[L[1]]=Math.min(500,Math.max(L[3]?0:20,rmGet(i)+2.5*(+b.dataset.d)));rmRegSet(r);}
       renderRM();};
     lc.appendChild(row);});
-  document.querySelectorAll("#scr-onerm .rm-cur").forEach(x=>x.textContent=`${RM_LIFTS[rmLift][0]} · 1ПМ ${fmtW(rmMax)} кг`);
+  document.querySelectorAll("#scr-onerm .rm-cur").forEach(x=>x.textContent=`${RM_LIFTS[rmLift][0]} · 1ПМ ${RM_LIFTS[rmLift][3]?"+":""}${fmtW(rmMax)} кг`);
   const p=el("rmPct");p.innerHTML="";
   RM_PCTS.forEach(pc=>{const r=document.createElement("div");r.className="rm-row";
     r.innerHTML=`<span class="k">${fmtW(pc)} %</span><span class="v">${fmtW(rmW(rmMax,pc,rmStep))} <small>кг</small></span>`;p.appendChild(r);});
