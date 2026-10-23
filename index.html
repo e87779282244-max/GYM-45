@@ -125,16 +125,16 @@
   .prog .ex{color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);padding-top:9px}
 
   /* ---- шапка кроссфита с логотипом ---- */
-  .cross-head{position:relative;text-align:center;
-    padding-top:calc(62px + env(safe-area-inset-top,0px));padding-bottom:8px}
+  .cross-head{position:relative;text-align:left;
+    padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px}
   .cross-back{position:absolute;right:0;top:calc(6px + env(safe-area-inset-top,0px))}
-  .cross-logo{display:block;margin:0 auto;width:min(188px,50%);height:auto;
+  /* логотип раздела — слева вверху, рядом с «Назад»; вписывается в ширину и не выше 170 px */
+  .cross-logo{display:block;margin:0;width:auto;height:auto;max-width:calc(100% - 96px);max-height:170px;
     filter:drop-shadow(0 6px 14px rgba(40,36,18,.28))}
   :root[data-theme="dark"] .cross-logo{filter:drop-shadow(0 0 1px rgba(236,223,178,.5)) drop-shadow(0 6px 16px rgba(0,0,0,.5))}
   .cross-head .eyebrow{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.14em;
     font-size:12px;color:var(--accent);font-weight:600;margin:4px 0 2px}
   .cross-h1{font-family:var(--dsp);font-weight:700;font-size:26px;line-height:1;margin:8px 0 0}
-  #scr-body .cross-logo{width:min(280px,74%)}
   /* объёмные буквы: чёрный цвет, чёткий блик снизу — без размытия */
   .disc .emb{color:#000;text-shadow:0 1px 0 #fff,0 -1px 0 rgba(0,0,0,.12)}
   :root[data-theme="dark"] .disc .emb{color:#fff;text-shadow:0 -1px 0 rgba(255,255,255,.18),0 1px 0 #000}
@@ -151,9 +151,6 @@
   .gvt-more::after{content:" ▾";display:inline-block;transition:transform .2s}
   .gvt-about[open] .gvt-more::after{transform:rotate(180deg)}
   .gvt-about .wod-desc{margin:12px 0 0}
-  #scr-pwr .cross-logo{width:min(280px,74%)}
-  #scr-street .cross-logo{width:min(220px,58%)}
-  #scr-sw .cross-logo{width:min(240px,62%)}
 
   /* ---- выбор направления ---- */
   .disc{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;
