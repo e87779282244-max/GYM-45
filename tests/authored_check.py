@@ -14,12 +14,12 @@ async def m():
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none';show('body')");await pg.wait_for_timeout(200)
     order=await pg.evaluate("[...el('bodyProgs').children].map(x=>x.classList.contains('bb-lbl')?'#'+x.firstChild.textContent:x.querySelector('span span').textContent)")
-    exp=['German Volume Training','#Авторские программы','Y3T · Нил Хилл','Fortitude Training · Скотт Стивенсон','FST-7 · Хэни Рэмбод','DC Training · Данте Трудель','Creeping Death II · Джон Медоуз','Blood & Guts · Дориан Ятс','#Базовые программы']
-    ok('порядок: GVT → 6 авторских по сложности → базовые',order[:9]==exp and len(order)==14,order[:9])
-    ok('индикатор сложности 1…6',await pg.evaluate("[...el('bodyProgs').querySelectorAll('.lvl-dots')].map(d=>d.querySelectorAll('i.on').length).join()==='1,2,3,4,5,6'"))
+    exp=['German Volume Training','#Авторские программы','Warlock · Джон Медоуз','Y3T · Нил Хилл','Fortitude Training · Скотт Стивенсон','FST-7 · Хэни Рэмбод','DC Training · Данте Трудель','Creeping Death II · Джон Медоуз','Blood & Guts · Дориан Ятс','#Базовые программы']
+    ok('порядок: GVT → 7 авторских по сложности → базовые',order[:10]==exp and len(order)==15,order[:10])
+    ok('индикатор сложности 1…7',await pg.evaluate("[...el('bodyProgs').querySelectorAll('.lvl-dots')].map(d=>d.querySelectorAll('i.on').length).join()==='1,2,3,4,5,6,7'"))
     if SHOT:await pg.evaluate("el('bodyProgs').scrollIntoView()");await pg.screenshot(path=SHOT+'/au-list.png')
     info=json.loads(await pg.evaluate("JSON.stringify(AUTH.map(p=>({id:p.id,w:p.weeks.length,d:p.weeks.map(w=>w.days.length)})))"))
-    ok('недели и дни: Y3T 3×4, Fortitude 6×8+2×2, FST-7 6×5, DC 6+2, CD2 3×5, B&G 2×4',[ (x['w'],x['d']) for x in info]==[(3,[4,4,4]),(8,[8]*6+[2,2]),(6,[5]*6),(2,[6,2]),(3,[5,5,5]),(2,[4,4])],info)
+    ok('недели и дни: Warlock 3×4, Y3T 3×4, Fortitude 6×8+2×2, FST-7 6×5, DC 6+2, CD2 3×5, B&G 2×4',[ (x['w'],x['d']) for x in info]==[(3,[4,4,4]),(3,[4,4,4]),(8,[8]*6+[2,2]),(6,[5]*6),(2,[6,2]),(3,[5,5,5]),(2,[4,4])],info)
     # каждый день каждой программы открывается и стартует
     bad=[]
     for pi,x in enumerate(info):
@@ -29,9 +29,9 @@ async def m():
             if(currentScreen!=='day')return 'no day';current=null;el('dayStart').click();if(currentScreen!=='workout'||!current)return 'no workout';
             const n=current.program.ex.length,ok=current.sets.every((s,i)=>s.length===current.program.ex[i][1]||s.length===rScaleSets(current.program.ex[i][1]));clearDraft();current=null;return ok?'':'sets'}})()""")
           if r:bad.append((x['id'],wi,di,r))
-    ok('все 125 тренировок запускается, подходы совпадают с программой',not bad,bad[:5])
-    await pg.evaluate("authSetWeek(AUTH[2],3);authOpen(AUTH[2])");await pg.wait_for_timeout(60)
-    ok('выбранная неделя запоминается',await pg.evaluate("authWeek(AUTH[2])===3&&el('auWk').querySelectorAll('.on')[0].dataset.v==='3'"))
+    ok('все 137 тренировок запускается, подходы совпадают с программой',not bad,bad[:5])
+    await pg.evaluate("authSetWeek(AUTH.find(p=>p.id==='fst7'),3);authOpen(AUTH.find(p=>p.id==='fst7'))");await pg.wait_for_timeout(60)
+    ok('выбранная неделя запоминается',await pg.evaluate("authWeek(AUTH.find(p=>p.id==='fst7'))===3&&el('auWk').querySelectorAll('.on')[0].dataset.v==='3'"))
     if SHOT:await pg.screenshot(path=SHOT+'/au-prog.png')
     # FST-7: подсказка, отдых финиша, отдельная память веса, анимация по базовому названию
     await pg.evaluate("el('bodyDays').querySelectorAll('.disc')[3].click()");await pg.wait_for_timeout(60)
@@ -47,8 +47,17 @@ async def m():
     last=json.loads(await pg.evaluate("JSON.stringify(safe.get().slice(-1)[0])"))
     ok('завершение: запись в историю, раздел «бодибилдинг»',last.get('sec')=='body' and 'Разведение гантелей в стороны · FST-7' in last.get('log',{}),last.get('name'))
     ok('память весов: финиш FST-7 не путается с базовым упражнением',await pg.evaluate("lastResult('Разведение гантелей в стороны')===null&&!!lastResult('Разведение гантелей в стороны · FST-7')"))
+    # Warlock: структура по программе
+    wl=json.loads(await pg.evaluate("JSON.stringify(AUTH[0].weeks.map(w=>w.days.map(d=>({n:d.name,ex:d.ex.map(e=>[e[0],e[1],e[2],e[6]])}))))"))
+    ok('Warlock: 2 блока по 4 тренировки + разгрузка, верх/низ/верх/низ',[len(w) for w in wl]==[4,4,4] and all(['Верх' in w[0]['n'],'Низ' in w[1]['n'],'Верх' in w[2]['n'],'Низ' in w[3]['n']]==[True]*4 for w in wl))
+    ok('Warlock: блоки с разными упражнениями, 10/6/10/6 упражнений',[len(d['ex']) for d in wl[0]]==[10,6,10,6] and wl[0][0]['ex'][0][0]!=wl[1][0]['ex'][0][0])
+    ok('Warlock: отдых — база 3 мин, изоляция 1 мин',wl[0][0]['ex'][0][3]==180 and wl[0][0]['ex'][6][3]==60)
+    dl=sum(e[1] for d in wl[2] for e in d['ex']);b2=sum(e[1] for d in wl[1] for e in d['ex'])
+    ok('Warlock: разгрузка ≈ −20 % подходов',0.75*b2<=dl<=0.85*b2,(dl,b2))
+    wdup=[d['n'] for w in wl for d in w if len({e[0] for e in d['ex']})!=len(d['ex'])]
+    ok('Warlock: в дне нет повторяющихся упражнений',not wdup,wdup)
     # Fortitude: структура по книге
-    ft=json.loads(await pg.evaluate("JSON.stringify(AUTH[1].weeks.map(w=>({n:w.name,d:w.days.map(d=>({n:d.name,ex:d.ex.map(e=>[e[0],e[1],e[2],e[6]])}))})))"))
+    ft=json.loads(await pg.evaluate("JSON.stringify(AUTH.find(p=>p.id==='ft').weeks.map(w=>({n:w.name,d:w.days.map(d=>({n:d.name,ex:d.ex.map(e=>[e[0],e[1],e[2],e[6]])}))})))"))
     dup=[(w['n'],d['n']) for w in ft for d in w['d'] if len({e[0] for e in d['ex']})!=len(d['ex'])]
     ok('Fortitude: в дне нет повторяющихся упражнений (журнал не склеивается)',not dup,dup[:3])
     mr=[e for w in ft for d in w['d'] for e in d['ex'] if e[0].endswith(' · раунд')]
@@ -59,7 +68,7 @@ async def m():
     ok('Fortitude: объём растёт Tier I → II → III',sets(0,0)<sets(1,0)<sets(2,0) and sets(0,7)<sets(1,7)<sets(2,7),[sets(i,0) for i in range(3)])
     ok('Fortitude: разгрузка — только мышечные раунды (дни 3 и 4)',all('раунды' in d['n'] for d in ft[6]['d']+ft[7]['d']))
     if SHOT:
-      await pg.evaluate("authSetWeek(AUTH[1],0);authOpen(AUTH[1])");await pg.wait_for_timeout(80);await pg.screenshot(path=SHOT+'/ft-prog.png')
+      await pg.evaluate("authSetWeek(AUTH.find(p=>p.id==='ft'),0);authOpen(AUTH.find(p=>p.id==='ft'))");await pg.wait_for_timeout(80);await pg.screenshot(path=SHOT+'/ft-prog.png')
       await pg.evaluate("el('bodyDays').querySelectorAll('.disc')[6].click()");await pg.wait_for_timeout(80);await pg.screenshot(path=SHOT+'/ft-day3.png')
     ok('без горизонтальной прокрутки',await pg.evaluate("document.documentElement.scrollWidth<=innerWidth+1"))
     ok('ошибок JS нет',not errs,errs[:3])
