@@ -759,6 +759,13 @@
   .sub-ask[hidden]{display:none}
   .sub-q{font-weight:700;font-size:15px;margin:2px 0 4px}
   .wod-mvrow .sw-swap{margin-left:8px}
+  .ds{display:flex;flex-direction:column;gap:10px}
+  .ds-sub{font-size:13px;color:var(--muted);line-height:1.4;margin:0}
+  .ds-file{display:block;text-align:center;cursor:pointer}
+  .ds-snaps summary{font-family:var(--dsp);font-weight:700;cursor:pointer;font-size:14px}
+  .ds-snap{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0;font-size:13.5px}
+  .ds-snap small{display:block;color:var(--muted);font-size:11.5px}
+  .ds-snap .tm-reset{width:auto;padding:6px 12px}
   .mp-card{padding:14px;display:flex;flex-direction:column;gap:8px}
   .mp-h{display:flex;justify-content:space-between;align-items:center;font-family:var(--dsp)}
   .mp-h b{font-size:17px}
@@ -1651,6 +1658,7 @@
         <div class="tile"><div class="v num" id="tVol">0</div><div class="l">тонн всего</div></div>
         <div class="tile"><div class="v num" id="tStreak">0</div><div class="l">дней подряд</div></div>
       </div>
+      <div class="card"><h3 style="margin:0 0 8px;font-family:var(--dsp)">Сохранность данных</h3><div class="ds" id="dsBox"></div></div>
       <div class="card" id="parCard" hidden>
         <h3>Пройденные программы</h3>
         <p class="sub">Итог каждого цикла: выполненные дни, средний % и рекомендация на следующий цикл</p>
@@ -2060,6 +2068,24 @@ return {...day,meals,total,error,macroError,fitted:error<=.05&&macroError<=.1,pr
 </script>
 <script>
 "use strict";
+/* ===================== СОХРАННОСТЬ ДАННЫХ — выполняется ПЕРВЫМ, до любого кода приложения =====================
+   При каждом запуске делаем снимок всех ключей gym45_* (кроме самих снимков), если данные изменились с прошлого
+   снимка. Храним 3 последних разных снимка → ошибочное обновление приложения всегда можно откатить. */
+const DS_K="gym45_safety_v1",DS_BUILD="2026-10-23";
+(function(){try{
+  const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("gym45_")&&k!==DS_K&&!k.startsWith("gym45_backup"))data[k]=localStorage.getItem(k);}
+  if(!Object.keys(data).length)return;
+  let st;try{st=JSON.parse(localStorage.getItem(DS_K)||"null");}catch(e){st=null;}if(!st||!Array.isArray(st.snaps))st={snaps:[]};
+  const sig=JSON.stringify(data);let h=0;for(let i=0;i<sig.length;i++)h=(h*31+sig.charCodeAt(i))|0;
+  const last=st.snaps[st.snaps.length-1];if(last&&last.h===h)return;
+  st.snaps.push({at:new Date().toISOString(),build:DS_BUILD,h,n:Object.keys(data).length,data});
+  while(st.snaps.length>3)st.snaps.shift();
+  /* снимки не должны отнимать место у рабочих данных: всего не больше ~1,5 МБ, иначе только последний; слишком большой — не храним */
+  while(st.snaps.length>1&&JSON.stringify(st).length>1500000)st.snaps.shift();
+  if(JSON.stringify(st).length>1500000){localStorage.removeItem(DS_K);return;}
+  for(;;){try{localStorage.setItem(DS_K,JSON.stringify(st));break;}catch(e){if(st.snaps.length>1)st.snaps.shift();else break;}}
+}catch(e){}})();
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}
 /* ---------- storage (safe) ---------- */
 const KEY="gym45_history_v1";
 const safe={
@@ -5472,6 +5498,35 @@ el("ntMeal").addEventListener("change",ntDraftRender);
 {const h=new Date().getHours();el("ntMeal").value=h<11?"Завтрак":h<16?"Обед":h<21?"Ужин":"Перекус";}
 ntDraftRender();
 const _ntRenderFood2=renderFood;renderFood=function(){_ntRenderFood2();ntDiaryItems();};
+
+/* ---------- Сохранность данных: копия в файл, восстановление, откат к снимку ---------- */
+function dsAll(){const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("gym45_")&&k!==DS_K&&!k.startsWith("gym45_backup"))o[k]=localStorage.getItem(k);}return o;}
+function dsSnaps(){try{const s=JSON.parse(localStorage.getItem(DS_K)||"null");return s&&Array.isArray(s.snaps)?s.snaps:[];}catch(e){return [];}}
+function dsCount(){let n=0;try{n=JSON.parse(localStorage.getItem("gym45_history_v1")||"[]").length;}catch(e){}return n;}
+function dsDT(iso){const d=new Date(iso);return d.toLocaleDateString("ru-RU",{day:"numeric",month:"short"})+" "+d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});}
+function dsDownload(){const pack={app:"Gym 45",format:1,at:new Date().toISOString(),data:dsAll()};const txt=JSON.stringify(pack);
+  const name="gym45-backup-"+localDate()+".json",blob=new Blob([txt],{type:"application/json"});
+  try{const f=new File([blob],name,{type:"application/json"});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:"Gym 45 — резервная копия"}).catch(()=>{});return;}}catch(e){}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+  try{localStorage.setItem("gym45_lastexport_v1",JSON.stringify({at:new Date().toISOString()}));}catch(e){}renderDS();}
+/* восстановление: текущее состояние сначала уходит в снимок, затем ключи из копии записываются поверх */
+function dsRestore(data,label){if(!data||typeof data!=="object"){toast("Файл не похож на копию Gym 45");return;}
+  const keys=Object.keys(data).filter(k=>k.startsWith("gym45_")&&k!==DS_K);if(!keys.length){toast("В копии нет данных Gym 45");return;}
+  try{const st={snaps:dsSnaps()};st.snaps.push({at:new Date().toISOString(),build:"перед восстановлением",h:Date.now(),n:Object.keys(dsAll()).length,data:dsAll()});while(st.snaps.length>3)st.snaps.shift();localStorage.setItem(DS_K,JSON.stringify(st));}catch(e){}
+  keys.forEach(k=>{try{localStorage.setItem(k,data[k]);}catch(e){}});
+  toast("Восстановлено: "+label+". Перезапускаю…");setTimeout(()=>location.reload(),900);}
+function renderDS(){const box=el("dsBox");if(!box)return;const sn=dsSnaps().slice().reverse();let le=null;try{le=JSON.parse(localStorage.getItem("gym45_lastexport_v1")||"null");}catch(e){}
+  box.innerHTML=`<p class="ds-sub">Всё хранится на этом устройстве. Тренировок в истории: <b>${dsCount()}</b>. Приложение само делает снимок данных при каждом запуске — обновление не может их потерять. Копия в файл защищает от очистки данных iPhone.</p>
+   <button class="btn" type="button" id="dsExport">Сохранить копию в файл</button>
+   <p class="ds-sub">${le?"Последняя копия в файл: "+dsDT(le.at):"Копию в файл ещё не сохраняли — сделай после тренировки и отправь себе в «Файлы» или мессенджер."}</p>
+   <label class="btn btn-alt ds-file">Восстановить из файла<input type="file" id="dsImport" accept="application/json,.json" hidden></label>
+   ${sn.length?`<details class="ds-snaps"><summary>Автоснимки (${sn.length})</summary>${sn.map((s,i)=>`<div class="ds-snap"><span>${dsDT(s.at)}<small>${s.n} разделов · версия ${s.build}</small></span><button type="button" class="tm-reset" data-i="${i}">Откатить</button></div>`).join("")}</details>`:""}`;
+  el("dsExport").onclick=dsDownload;
+  el("dsImport").onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);dsRestore(p.data||p,"копия от "+(p.at?dsDT(p.at):f.name));}catch(err){toast("Не удалось прочитать файл");}};r.readAsText(f);};
+  box.querySelectorAll(".ds-snap button").forEach(b=>b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();b.textContent="Точно?";toast("Нажми ещё раз — данные вернутся к этому снимку (текущие сохранятся отдельным снимком)");return;}const s=sn[+b.dataset.i];dsRestore(s.data,"снимок от "+dsDT(s.at));});}
+{const _rp=renderProgress;renderProgress=function(){_rp();renderDS();};}
+/* «✕» у незавершённой тренировки — только двойным нажатием */
+{const b=el("draftDiscard");if(b){const nb=b.cloneNode(true);b.replaceWith(nb);nb.addEventListener("click",()=>{if(Date.now()-(nb._arm||0)>4000){nb._arm=Date.now();toast("Нажми ✕ ещё раз — незавершённая тренировка будет удалена");return;}clearDraft();el("draftBanner").hidden=true;});}}
 
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
