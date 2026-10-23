@@ -364,17 +364,24 @@
   .nt-ring-c svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
   .nt-ring .rb{fill:none;stroke:var(--surface-2);stroke-width:4.2}
   .nt-ring .rf{fill:none;stroke:var(--rc);stroke-width:4.2;stroke-linecap:round;transition:stroke-dasharray .5s ease}
-  #ringP{--rc:var(--accent)}#ringF{--rc:#c08a2a}#ringC{--rc:#5b7f8f}.nt-ring.over{--rc:#b4532a}
+  #ringP{--rc:var(--accent)}#ringF{--rc:#c08a2a}#ringC{--rc:#5b7f8f}.nt-ring.over{--rc:#d23c2f}
+  .nt-ring.over .rf{stroke:#d23c2f}.nt-ring.over .rb{stroke:#f3c9c2}.nt-ring.over .nt-ring-in b{color:#c0392b}.nt-ring.over .nt-ring-l{color:#c0392b}.nt-ring.over .nt-ring-l::after{content:" ↑"}
+  .nt-ring.ok .nt-ring-in small{color:#3f7d32;font-weight:700}
+  :root[data-theme="dark"] .nt-ring.over .rb{stroke:#5a2420}:root[data-theme="dark"] .nt-ring.over .nt-ring-in b,:root[data-theme="dark"] .nt-ring.over .nt-ring-l{color:#ff7a6b}
+  .nt-over{margin-top:12px;background:#fbe3df;color:#8e2a1f;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.4;text-align:left}
+  .nt-over[hidden]{display:none}.nt-over p{margin:4px 0 0}
+  :root[data-theme="dark"] .nt-over{background:#3e1f1b;color:#ffc4bb}
+  .nt-red{color:#c0392b}
   .nt-ring-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
   .nt-ring-in b{font-family:var(--dsp);font-weight:800;font-size:22px;color:var(--fg)}
   .nt-ring-in small{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap}
-  .nt-ring.over .nt-ring-in small{color:#b4532a}
+  .nt-ring.over .nt-ring-in small{color:#c0392b;font-weight:700}
   .nt-ring-l{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
   .nt-kt{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:6px}
   .nt-kt b{color:var(--fg);white-space:nowrap}
   .nt-kbar i{display:block;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
   .nt-kbar em{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s ease}
-  .nt-kbar em.over{background:#b4532a}
+  .nt-kbar em.over{background:#d23c2f}
   /* % жира */
   .nt-link{background:none;border:none;padding:2px 0;color:var(--accent-ink);font:inherit;font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:3px;text-align:left;cursor:pointer;align-self:flex-start}
   .nt-grid label small{text-transform:none;letter-spacing:0;font-weight:600;color:var(--faint)}
@@ -5758,18 +5765,25 @@ function ntBfMacros(t,x){const bf=Number(t.bf),lbm=t.weight*(1-bf/100),bmr=370+2
 
 /* ---------- дневник: кольца Б/Ж/У ---------- */
 const NT_RC=2*Math.PI*17;
-function ntRing(k,a,b){const r=el("ring"+k);if(!r)return;const f=r.querySelector(".rf"),n=el("ring"+k+"n");
-  if(!b){f.setAttribute("stroke-dasharray","0 "+NT_RC.toFixed(2));f.style.opacity=0;n.textContent="г";r.classList.remove("over");return;}
-  const pc=Math.max(0,Math.min(1,a/b)),over=a>b*1.05;f.style.opacity=pc>0?1:0;
-  f.setAttribute("stroke-dasharray",(pc*NT_RC).toFixed(2)+" "+NT_RC.toFixed(2));r.classList.toggle("over",over);
-  n.textContent=over?"+"+ntF(a-b)+" г сверх":"из "+ntF(b)+" г";}
+/* состояние кольца: до 95 % — набираем; 95–105 % — «в норме ✓»; больше 105 % — красное кольцо, «+N г сверх» и подсказка */
+const NT_OVER_TIP={P:["белки","не страшно, если калории в норме — лишний белок не уходит в жир так легко, как жиры и углеводы"],F:["жиры","до конца дня выбирай постное: курица, рыба, творог 0–5 %, без масла и соусов"],C:["углеводы","до конца дня — меньше круп, хлеба и сладкого, больше овощей и белка"]};
+function ntRing(k,a,b){const r=el("ring"+k);if(!r)return null;const f=r.querySelector(".rf"),n=el("ring"+k+"n");
+  r.classList.remove("over","ok");
+  if(!b){f.setAttribute("stroke-dasharray","0 "+NT_RC.toFixed(2));f.style.opacity=0;n.textContent="г";return null;}
+  const q=a/b,pc=Math.max(0,Math.min(1,q)),over=q>1.05,ok=!over&&q>=.95;f.style.opacity=pc>0?1:0;
+  f.setAttribute("stroke-dasharray",(pc*NT_RC).toFixed(2)+" "+NT_RC.toFixed(2));
+  if(over){r.classList.add("over");n.textContent="+"+ntF(a-b)+" г сверх";return {k,ex:a-b,pc:Math.round(q*100)};}
+  if(ok){r.classList.add("ok");n.textContent="✓ норма";return null;}
+  n.textContent="из "+ntF(b)+" г";return null;}
 function ntVsNorm(){const box=el("ntVsNorm");if(!box)return;
   const list=foodGet().filter(r=>r.date===foodToday()),s={kcal:0,p:0,f:0,c:0};list.forEach(r=>{s.kcal+=+r.kcal||0;s.p+=+r.p||0;s.f+=+r.f||0;s.c+=+r.c||0;});
   let x=null;const t=NTN()?ntT():null;if(t){try{x=ntTarget(t);}catch(e){x=null;}}
-  ntRing("P",s.p,x&&x.p);ntRing("F",s.f,x&&x.f);ntRing("C",s.c,x&&x.c);
+  const ov=[ntRing("P",s.p,x&&x.p),ntRing("F",s.f,x&&x.f),ntRing("C",s.c,x&&x.c)].filter(Boolean);
+  let al=el("ntOver");if(!al){const rg=document.querySelector("#ntDiary .nt-rings");if(rg){al=document.createElement("div");al.id="ntOver";al.className="nt-over";rg.after(al);}}
+  if(al){al.hidden=!ov.length;al.innerHTML=ov.length?`<b>Сверх нормы: ${ov.map(o=>NT_OVER_TIP[o.k][0]+" +"+ntF(o.ex)+" г ("+o.pc+" %)").join(", ")}</b>${ov.map(o=>`<p>${NT_OVER_TIP[o.k][0][0].toUpperCase()+NT_OVER_TIP[o.k][0].slice(1)}: ${NT_OVER_TIP[o.k][1]}.</p>`).join("")}`:"";}
   if(!x){box.hidden=true;box.innerHTML="";return;}
   const left=x.kcal-s.kcal,pc=Math.min(100,x.kcal?s.kcal/x.kcal*100:0);
-  box.hidden=false;box.innerHTML=`<div class="nt-kbar"><div class="nt-kt"><span>Норма на день · ${ntF(x.kcal)} ккал</span><b class="num">${left>=0?"осталось "+ntF(left):"сверх нормы +"+ntF(-left)}</b></div><i><em style="width:${pc}%" class="${s.kcal>x.kcal*1.05?"over":""}"></em></i></div>`;}
+  box.hidden=false;box.innerHTML=`<div class="nt-kbar"><div class="nt-kt"><span>Норма на день · ${ntF(x.kcal)} ккал</span><b class="num${s.kcal>x.kcal*1.05?" nt-red":""}">${left>=0?"осталось "+ntF(left):"сверх нормы +"+ntF(-left)}</b></div><i><em style="width:${pc}%" class="${s.kcal>x.kcal*1.05?"over":""}"></em></i></div>`;}
 
 /* ---------- «Пример % жира»: шкала фигур + расчёт по сантиметровой ленте ---------- */
 const BF_LV={male:[[9,"8–10%","Пресс «кубиками», видны вены на руках и плечах, границы мышц чёткие."],[13,"12–15%","Верх пресса виден, мышцы рельефные, талия ровная."],[19,"18–20%","Пресс не виден, небольшая складка на животе. Плечи и руки ещё в форме."],[25,"около 25%","Живот мягкий и выступает, появились «бока», талия почти как грудь."],[30,"около 30%","Заметный живот, полнее лицо и шея, талия шире груди."],[35,"35% и больше","Живот нависает, талия заметно шире плеч."]],
