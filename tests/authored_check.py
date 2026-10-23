@@ -20,7 +20,7 @@ async def m():
     ok('внутри блока автора сложность не убывает',await pg.evaluate("AUTH.every((p,i)=>i===0||AUTH[i-1].by!==p.by||AUTH[i-1].lvl<=p.lvl)"))
     if SHOT:await pg.evaluate("el('bodyProgs').scrollIntoView()");await pg.screenshot(path=SHOT+'/au-list.png')
     info=json.loads(await pg.evaluate("JSON.stringify(AUTH.map(p=>({id:p.id,w:p.weeks.length,d:p.weeks.map(w=>w.days.length)})))"))
-    want={'pcfb':(5,[3]*5),'pcul':(4,[6]*4),'wl':(3,[4,4,4]),'dv':(13,[4]*12+[3]),'sen':(14,[6]*14),'cbum':(1,[6]),'y3t':(3,[4,4,4]),'bts':(6,[5]*6),'jpcm':(2,[5,4]),'jc':(6,[6]*6),'ft':(8,[8]*6+[2,2]),'fst7':(6,[5]*6),'dc':(2,[6,2]),'bg':(2,[4,4])}
+    want={'pcfb':(5,[3]*5),'pcul':(4,[6]*4),'wl':(3,[4,4,4]),'dv':(13,[4]*12+[3]),'sen':(14,[6]*14),'cbum':(1,[6]),'y3t':(4,[5,5,5,5]),'bts':(6,[5]*6),'jpcm':(2,[5,4]),'jc':(6,[6]*6),'ft':(8,[8]*6+[2,2]),'fst7':(6,[5]*6),'dc':(2,[6,2]),'bg':(2,[4,4])}
     ok('недели и дни всех 14 программ',{x['id']:(x['w'],x['d']) for x in info}==want,[x['id'] for x in info])
     # каждый день каждой программы открывается и стартует
     bad=[]
