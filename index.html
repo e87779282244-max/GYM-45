@@ -6064,6 +6064,9 @@ function anEx(R){const box=el("anEx"),E=anExData(R),names=Object.keys(E).sort((a
 const AN_BM=[["waist","Талия"],["chest","Грудь"],["arm","Бицепс"],["hips","Бёдра"],["calf","Голень"]];
 function anBody(){const box=el("anBody"),S=anSt(),L=S.body.slice().sort((a,b)=>a.date.localeCompare(b.date)),today=localDate(),t=L.find(x=>x.date===today)||{};
   let p={};try{p=pfGet();}catch(e){}
+  /* вес и % жира подставляются из последнего замера, а если замеров нет — из профиля */
+  const lw=[...L].reverse().find(x=>x.w>0),lb=[...L].reverse().find(x=>x.bf>0);
+  const preW=lw?lw.w:(+p.weight||""),preBf=lb?lb.bf:(+p.bf||""),preSrc=lw||lb?"из последнего замера":"из профиля";
   const W=L.filter(x=>x.w>0),pts=W.slice(-30).map(x=>({x:fmtDate(x.date),y:x.w,date:x.date}));
   const avg=pts.map(q=>{const d0=new Date(q.date+"T00:00");d0.setDate(d0.getDate()-6);const w=W.filter(x=>x.date>=localDate(d0)&&x.date<=q.date);return w.length?w.reduce((a,x)=>a+x.w,0)/w.length:null;});
   const wk=(off)=>{const e=new Date();e.setDate(e.getDate()-off*7);const s=new Date(e);s.setDate(s.getDate()-6);const w=W.filter(x=>x.date>=localDate(s)&&x.date<=localDate(e));return w.length?w.reduce((a,x)=>a+x.w,0)/w.length:null;};
@@ -6071,7 +6074,7 @@ function anBody(){const box=el("anBody"),S=anSt(),L=S.body.slice().sort((a,b)=>a
   const mrows=AN_BM.map(([k,n])=>{const m=L.filter(x=>x[k]>0);if(!m.length)return "";const f=m[0][k],l=m[m.length-1][k],d=Math.round((l-f)*10)/10;
     return `<div class="an-row"><span><b>${n}</b><small>${fmtDate(m[0].date)} → ${fmtDate(m[m.length-1].date)}</small></span><b class="num">${ntF(l,1)} см ${m.length>1?`<span class="an-d ${d===0?"":(k==="waist"?d<0:d>0)?"up":"dn"}">${d>0?"+":""}${ntF(d,1)}</span>`:""}</b></div>`;}).join("");
   box.innerHTML=`<div class="card nt-form"><h3>Замер на сегодня</h3><p class="nt-sub">Вес — утром натощак, после туалета. Обхваты — раз в 2–4 недели, в одно и то же время.</p>
-   <div class="nt-grid"><label>Вес, кг<input id="anW" class="food-in" inputmode="decimal" placeholder="${p.weight||""}" value="${t.w||""}"></label><label>% жира<input id="anBf" class="food-in" inputmode="decimal" placeholder="—" value="${t.bf||""}"></label></div>
+   <div class="nt-grid"><label>Вес, кг<input id="anW" class="food-in" inputmode="decimal" placeholder="—" value="${t.w||preW||""}"></label><label>% жира<input id="anBf" class="food-in" inputmode="decimal" placeholder="—" value="${t.bf||preBf||""}"></label></div>${!t.date&&(preW||preBf)?`<p class="nt-sub an-pre">Подставлено ${preSrc} — проверь и поправь, если изменилось.</p>`:""}
    <details class="nt-info"${AN_BM.some(([k])=>t[k])?" open":""}><summary>Обхваты, см</summary><div class="nt-grid" style="margin-top:8px">${AN_BM.map(([k,n])=>`<label>${n}<input id="anM_${k}" class="food-in" inputmode="decimal" value="${t[k]||""}"></label>`).join("")}</div></details>
    <button type="button" class="btn" id="anBSave">Сохранить замер</button><div id="anBMsg"></div></div>
    <div class="card"><div class="an-h"><h3>Вес тела</h3><span class="nt-sub">точки — замеры, линия — среднее за 7 дней</span></div>
