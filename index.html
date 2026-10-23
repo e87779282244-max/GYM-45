@@ -133,10 +133,22 @@
     font-size:12px;color:var(--accent);font-weight:600;margin:4px 0 2px}
   .cross-h1{font-family:var(--dsp);font-weight:700;font-size:26px;line-height:1;margin:8px 0 0}
   #scr-body .cross-logo{width:min(280px,74%)}
-  #scr-gvt .cross-logo{width:min(210px,56%)}
-  .disc .emb{-webkit-box-decoration-break:clone;box-decoration-break:clone;background:linear-gradient(180deg,#77776c 0%,#3b3b33 45%,#17170f 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 1px 0 rgba(255,255,255,.95)) drop-shadow(0 -1px 0 rgba(0,0,0,.18)) drop-shadow(0 2px 2px rgba(0,0,0,.35));font-size:21px;letter-spacing:.03em}
-  :root[data-theme="dark"] .disc .emb{background-image:linear-gradient(180deg,#f2ecd6 0%,#b8b29c 50%,#7d7866 100%);filter:drop-shadow(0 -1px 0 rgba(255,255,255,.25)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}
+  /* объёмные буквы: чёрный цвет, чёткий блик снизу — без размытия */
+  .disc .emb{color:#000;text-shadow:0 1px 0 #fff,0 -1px 0 rgba(0,0,0,.12)}
+  :root[data-theme="dark"] .disc .emb{color:#fff;text-shadow:0 -1px 0 rgba(255,255,255,.18),0 1px 0 #000}
+  .gvt-hd{display:grid;grid-template-columns:1fr auto;grid-template-areas:"eb back" "tt logo";align-items:center;column-gap:10px;row-gap:2px;padding-bottom:10px}
+  .gvt-hd .eyebrow{grid-area:eb;align-self:end}
+  .gvt-hd .back-btn{grid-area:back;justify-self:end}
+  .gvt-hd h1{grid-area:tt;font-size:26px;line-height:1.05}
+  .gvt-about .tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gvt-logo{grid-area:logo;width:min(132px,36vw);height:auto;filter:drop-shadow(0 5px 10px rgba(40,36,18,.28))}
+  :root[data-theme="dark"] .gvt-logo{filter:drop-shadow(0 0 1px rgba(236,223,178,.5)) drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+  .gvt-about summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+  .gvt-about summary::-webkit-details-marker{display:none}
+  .gvt-more{font-size:13px;font-weight:700;color:var(--accent-ink);white-space:nowrap}
+  .gvt-more::after{content:" ▾";display:inline-block;transition:transform .2s}
+  .gvt-about[open] .gvt-more::after{transform:rotate(180deg)}
+  .gvt-about .wod-desc{margin:12px 0 0}
   #scr-pwr .cross-logo{width:min(280px,74%)}
   #scr-street .cross-logo{width:min(220px,58%)}
   #scr-sw .cross-logo{width:min(240px,62%)}
@@ -1090,16 +1102,17 @@
 
   <!-- БОДИБИЛДИНГ · GVT · персональный цикл (алгоритм «ШТУРМ: Режим силы») -->
   <section class="screen" id="scr-gvt" hidden>
-    <div class="cross-head">
-      <button class="icon-btn back-btn cross-back" title="Назад">←</button>
-      <img class="cross-logo" src="media/gvtlogo.png?v=1" alt="GVT" width="480" height="387">
-      <h1 class="cross-h1">German Volume Training</h1>
+    <div class="hd gvt-hd">
+      <p class="eyebrow">Бодибилдинг</p>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+      <h1>German Volume Training</h1>
+      <img class="gvt-logo" src="media/gvtlogo.png?v=1" alt="GVT" width="480" height="387">
     </div>
     <div class="stack">
-      <div class="card wod-card">
-        <span class="tag">German Volume Training · 5 этапов</span>
+      <details class="card gvt-about">
+        <summary><span class="tag">5 этапов · 10×10 → 4 %</span><span class="gvt-more">О программе</span></summary>
         <p class="wod-desc">Пять этапов одной программы: <b>I</b> 10×10 → <b>II</b> снижение объёма → <b>III</b> 10×6 → <b>IV</b> Advanced GVT → <b>V</b> метод 4 %. Основные упражнения — суперсетом A1/A2 в одном окне, у каждого этапа свой расчёт веса. По умолчанию день отдыха между тренировками; можно начинать раньше.</p>
-      </div>
+      </details>
       <div class="stack" id="gvtBody"></div>
     </div>
   </section>
