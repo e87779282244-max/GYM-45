@@ -693,6 +693,7 @@
   .wk-hd{padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:8px}
   .wk-hd h1{font-size:23px}
   .wk-hd .icon-btn{width:46px;height:46px;font-size:22px}
+  .set-row.flash{animation:wkflash 1.2s ease}@keyframes wkflash{0%,60%{background:var(--panel-top)}100%{background:transparent}}
   .wk-time{display:flex;align-items:center;gap:10px;margin:-6px 0 10px;font-size:12.5px;font-weight:700;color:var(--muted)}
   .wk-clock{white-space:nowrap}.wk-clock b{font-family:var(--dsp);font-size:19px;color:var(--fg);font-weight:800}
   .wk-tbar{flex:1;height:7px;border-radius:99px;background:var(--surface-2);overflow:hidden;min-width:40px}
@@ -2415,8 +2416,8 @@ function renderPrograms(){
 let current=null;
 /* черновик незавершённой тренировки */
 const DRAFTK="gym45_draft_v1";
-function saveDraft(){try{if(current)localStorage.setItem(DRAFTK,JSON.stringify(current));}catch(e){}}
-function clearDraft(){try{localStorage.removeItem(DRAFTK)}catch(e){}}
+function saveDraft(){try{if(current){current.savedAt=Date.now();localStorage.setItem(DRAFTK,JSON.stringify(current));}}catch(e){}try{cloudPush();}catch(e){}}
+function clearDraft(){try{localStorage.removeItem(DRAFTK)}catch(e){}try{cloudPush();}catch(e){}}
 function getDraft(){try{return JSON.parse(localStorage.getItem(DRAFTK)||"null")}catch(e){return null}}
 function showDraftBanner(){const b=el("draftBanner");if(!b)return;const d=getDraft();
   if(d&&d.program&&d.sets){el("draftName").textContent=(d.program.name||"")+(d.program.focus?" · "+d.program.focus:"");b.hidden=false;}
@@ -2699,9 +2700,9 @@ function renderWorkout(){
     if(!s.done)return;
     if(!exDone(i)){restStart();return;}
     const nx=nextUndone(i);
-    if(nx<0){restStop();toast("Все упражнения выполнены 💪");renderWorkout();return;}
+    if(nx<0){restStop();renderWorkout();wkAllDone();return;}
     restStart();
-    setTimeout(()=>{if(current&&current.idx===i&&exDone(i)){goEx(nx);toast("Дальше: "+current.program.ex[nx][0]);}},700);});
+    restAfter=()=>{if(current&&current.idx===i&&exDone(i)){goEx(nx);toast("Дальше: "+current.program.ex[nx][0]);}else wkFocusNext();};});
   if(c.querySelector(".addset"))c.querySelector(".addset").onclick=()=>{
     const last=current.sets[i][current.sets[i].length-1]||{w:0,r:0};
     current.sets[i].push({w:last.w,r:last.r,done:false});saveDraft();renderWorkout();};
@@ -2728,16 +2729,28 @@ el("wkNext").addEventListener("click",()=>{if(!current)return;
 const REST_BY_SEC={body:120};
 const REST_FALLBACK=120;
 function restDefault(){const p=current&&current.program;if(p&&!p.g2){const e=p.ex&&p.ex[current.idx];if(e&&e[6]>0)return e[6];if(p.rest>0)return p.rest;}const sec=p&&p.sec;return REST_BY_SEC[sec]||REST_FALLBACK;}
-let restEnd=0,restIv=null,restTotal=120;
+let restEnd=0,restIv=null,restTotal=120,restAfter=null;
+/* конец отдыха (таймер или «Пропуск»): следующий подход, а если упражнение закрыто — следующее упражнение */
+function restDone(){restStop();const f=restAfter;restAfter=null;if(!current||currentScreen!=="workout")return;try{if(f)f();else wkFocusNext();}catch(e){}}
+function wkFocusNext(){if(!current)return;if(current.program.g2){renderWorkout();return;}markCur();const r=el("exList").querySelector(".set-row.cur");
+  if(r){try{r.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}r.classList.add("flash");setTimeout(()=>r.classList.remove("flash"),1200);}}
+function wkAllSetsDone(){return !!current&&current.sets.every((se,i)=>(current.stop&&current.stop[i])||se.filter(x=>!x.warm).every(x=>x.done));}
+/* все подходы отмечены — окно «Тренировка завершена» */
+function wkAllDone(){if(!current)return;const box=el("gvtMbox");let n=0,ton=0;current.sets.forEach(se=>se.forEach(s=>{if(s.done&&!s.warm){n++;ton+=(+s.w||0)*(+s.r||0);}}));
+  box.innerHTML=`<h3>Тренировка завершена 💪</h3><p></p><div class="nt-kv"><div><span>Время</span><b class="num">${wkElapsedTx()}</b></div><div><span>Подходов</span><b class="num">${n}</b></div>${ton?`<div><span>Тоннаж</span><b class="num">${fmtW(Math.round(ton))} кг</b></div>`:""}</div>
+    <button class="btn" type="button" id="wkDoneGo">Сохранить тренировку</button><button class="tm-mini" type="button" id="wkDoneX">Вернуться к тренировке</button>`;
+  box.querySelector("p").textContent=current.program.name;
+  el("gvtModal").hidden=false;el("wkDoneX").onclick=()=>{el("gvtModal").hidden=true;};
+  el("wkDoneGo").onclick=()=>{el("gvtModal").hidden=true;finishWorkout();};}
 function restTick(){const left=Math.ceil((restEnd-Date.now())/1000);
   if(left<=0){restStop();try{if(typeof beep==="function"){beep(1046,0.2,0.35);setTimeout(()=>beep(1320,0.35,0.4),240);}}catch(e){}
     try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}
-    if(current&&currentScreen==="workout")toast("Отдых окончен — работаем");return;}
+    if(current&&currentScreen==="workout")toast("Отдых окончен — работаем");restDone();return;}
   el("wkRestT").textContent=mmss(left);
   const passed=Math.floor((restTotal*1000-(restEnd-Date.now()))/1000);
   el("wkRestHand").style.transform="rotate("+(((passed%60)+60)%60)*6+"deg)";
   el("wkRestArc").setAttribute("stroke-dasharray",Math.max(0,Math.min(100,left/restTotal*100)).toFixed(2)+" 100");}
-function restStart(sec){const d=sec>0?sec:restDefault();restEnd=Date.now()+d*1000;restTotal=d;el("wkRest").hidden=false;scr.workout.classList.add("resting");
+function restStart(sec){restAfter=null;const d=sec>0?sec:restDefault();restEnd=Date.now()+d*1000;restTotal=d;el("wkRest").hidden=false;scr.workout.classList.add("resting");
   if(restIv)clearInterval(restIv);restIv=setInterval(restTick,250);restTick();}
 function restStop(){if(restIv)clearInterval(restIv);restIv=null;el("wkRest").hidden=true;scr.workout.classList.remove("resting");}
 /* ±1 мин меняет только текущий отдых; следующий снова начнётся с нормы раздела */
@@ -2745,7 +2758,7 @@ function restAdj(d){const left=restEnd-Date.now(),nl=Math.max(1000,Math.min(6000
   restTotal=Math.max(restTotal+d,Math.ceil(nl/1000));restTick();}
 el("wkRestMinus").addEventListener("click",()=>restAdj(-60));
 el("wkRestPlus").addEventListener("click",()=>restAdj(60));
-el("wkRestSkip").addEventListener("click",restStop);
+el("wkRestSkip").addEventListener("click",restDone);
 function finishWorkout(){
   let vol=0,anyDone=false;
   current.sets.forEach(se=>se.forEach(s=>{if(s.done&&!s.warm){anyDone=true;vol+=(s.w||0)*s.r;}}));
@@ -2791,6 +2804,11 @@ el("draftResume").addEventListener("click",()=>{const d=getDraft();if(!(d&&d.pro
   if(!current.key)current.key=progKey(d.program);dayView={p:d.program,computed:true};
   el("wkTitle").textContent=d.program.name;el("wkEyebrow").textContent=(d.program.focus||"")+" · готовность: "+(d.readiness||readiness);
   renderWorkout();el("draftBanner").hidden=true;show("workout");});
+/* после перезагрузки страницы незавершённая тренировка восстанавливается сама: «Начать» в той же программе продолжает её, а не обнуляет */
+function draftAutoRestore(open){try{if(current)return false;const d=getDraft();if(!(d&&d.program&&Array.isArray(d.sets)))return false;
+  current=d;readiness=d.readiness||readiness;if(!current.key)current.key=progKey(d.program);dayView={p:d.program,computed:true};
+  el("wkTitle").textContent=d.program.name;el("wkEyebrow").textContent=(d.program.focus||"")+(d.program.g2?"":" · готовность: "+(d.readiness||readiness));
+  if(open&&Date.now()-(d.savedAt||Date.parse(d.startedAt)||0)<4*3600e3){renderWorkout();show("workout");toast("Тренировка восстановлена — продолжай");return true;}}catch(e){}return false;}
 el("draftDiscard").addEventListener("click",()=>{clearDraft();el("draftBanner").hidden=true;});
 /* ---------- progress ---------- */
 function allHistory(){return [...SEED,...safe.get()];}
@@ -3499,8 +3517,8 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
   c.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{const{i,s,f}=e.target.dataset;current.sets[i][s][f]=parseFloat(String(e.target.value).replace(",","."))||0;saveDraft();});
   c.querySelectorAll(".chk").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,j=+b.dataset.s,s=current.sets[i][j];s.done=!s.done;s.at=s.done?g2Now():null;saveDraft();
     if(s.done){const G=p.gx[i];restStart(G.main?p.g2.rest[0]:p.g2.rest[1]);
-      if(g2UnitDone(u)&&ui<U.length-1){renderWorkout();setTimeout(()=>{if(current&&current.idx===ui){current.idx=ui+1;saveDraft();renderWorkout();toast("Дальше: блок "+p.gx[U[ui+1][0]].code+" / "+p.gx[U[ui+1][1]].code);}},700);return;}
-      if(g2UnitDone(u)&&ui===U.length-1){restStop();toast("Все подходы выполнены 💪");}}
+      if(wkAllSetsDone()){restStop();renderWorkout();wkAllDone();return;}
+      if(g2UnitDone(u)&&ui<U.length-1){renderWorkout();restAfter=()=>{if(current&&current.idx===ui){current.idx=ui+1;saveDraft();renderWorkout();toast("Дальше: блок "+p.gx[U[ui+1][0]].code+" / "+p.gx[U[ui+1][1]].code);}else renderWorkout();};return;}}
     renderWorkout();});
   c.querySelectorAll(".g2-media").forEach(b=>b.onclick=()=>{if(G2X[b.dataset.key]&&G2X[b.dataset.key].m)g2OpenMedia(b.dataset.key);});
   c.querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>g2SwapOpen(+b.dataset.sw));
@@ -6045,6 +6063,7 @@ function anSessionMeta(){const m={sec:(current&&current.sec)||anSecOf(current&&c
     const gaps=[];for(let i=1;i<ts.length;i++){const g=(ts[i]-ts[i-1])/1000;if(g>=20&&g<=900)gaps.push(g);}
     if(gaps.length>=2){gaps.sort((a,b)=>a-b);m.rest=Math.round(gaps[Math.floor(gaps.length/2)]);}}catch(e){}
   try{if(current.readiness)m.ready=current.readiness;}catch(e){}
+  try{if(current.startedAt)m.st=current.startedAt;}catch(e){}
   return m;}
 /* «запас повторов» (RIR) последнего подхода — необязательная отметка под упражнением */
 {const _rw=renderWorkout;renderWorkout=function(){_rw();try{if(!current||current.program.g2)return;const i=current.idx,G=current.program.gx?current.program.gx[i]:null;if(G&&G.main)return;
@@ -6219,6 +6238,8 @@ function anRender(){const R=anRecs();
   ["load","ex","body","rec"].forEach(k=>el("an"+{load:"Load",ex:"Ex",body:"Body",rec:"Rec"}[k]).hidden=AN_UI.tab!==k);
   try{if(AN_UI.tab==="load")anLoad(R);else if(AN_UI.tab==="ex")anEx(R);else if(AN_UI.tab==="body")anBody();else anRec(R);}catch(e){console.error(e);}
   anHist(R);}
+/* облако: незавершённая тренировка тоже в общий документ — переживает перезагрузку и смену устройства */
+{const _csd=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csd(),{draft:getDraft()});};}
 /* облако: данные аналитики — в общий документ, при загрузке объединяем */
 {const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{an:ntRead(ANK,null)});};}
 function anMerge(a,b){if(!b||typeof b!=="object")return a;const o={rpe:Object.assign({},b.rpe||{},a.rpe||{}),sleep:{},body:[],updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)};
@@ -6521,11 +6542,14 @@ async function cloudInit(){
       const d=snap.data();
       try{if(d.an)localStorage.setItem(ANK,JSON.stringify(anMerge(anSt(),d.an)));}catch(e){}
       try{if(d.water)localStorage.setItem(WTK,JSON.stringify(wtMerge(wtSt(),d.water)));}catch(e){}
+      try{if(d.draft&&d.draft.program&&d.draft.sets){const L=getDraft(),hs=[...(safe.get()||[]),...(Array.isArray(d.history)?d.history:[])];const fin=hs.some(h=>h&&h.st&&h.st===d.draft.startedAt);
+        if(!fin&&(!L||(d.draft.savedAt||0)>(L.savedAt||0)))localStorage.setItem(DRAFTK,JSON.stringify(d.draft));}}catch(e){}
       try{if(d.profile&&typeof d.profile==="object"&&(d.profile.updatedAt||0)>((pfRaw()||{}).updatedAt||0)){localStorage.setItem(PFK,JSON.stringify(d.profile));pfAvatar();}}catch(e){}
       try{const known=Object.keys(cloudSnapshot());CLOUD_EXTRA={};Object.keys(d).forEach(k=>{if(!known.includes(k))CLOUD_EXTRA[k]=d[k];});}catch(e){}
       try{if(d.foodDel&&typeof d.foodDel==="object")localStorage.setItem(FOODDELK,JSON.stringify(Object.assign({},d.foodDel,foodDelGet())))}catch(e){}
       // объединяем, а не затираем: сохранится и локальное, и облачное
       try{localStorage.setItem(KEY,JSON.stringify(mergeHistory(safe.get(),d.history)))}catch(e){}
+      try{if(!current&&draftAutoRestore(currentScreen==="home"))cloudRefreshUI();}catch(e){}
       try{localStorage.setItem(FOODK,JSON.stringify(mergeFood(foodGet(),d.food)))}catch(e){}
       try{if(d.nutrition){const n=d.nutrition;if(n.target&&(n.target.updatedAt||0)>((ntT()||{}).updatedAt||0))localStorage.setItem(NTK_T,JSON.stringify(n.target));if(n.options&&(n.options.updatedAt||0)>(ntRead(NTK_O,{}).updatedAt||0))localStorage.setItem(NTK_O,JSON.stringify(n.options));if(n.custom&&Array.isArray(n.custom.items)){const a=ntCustom(),ids=new Set(a.items.map(i=>i.id));n.custom.items.forEach(i=>{if(i&&i.id&&!ids.has(i.id))a.items.push(i);});a.updatedAt=Math.max(a.updatedAt||0,n.custom.updatedAt||0);localStorage.setItem(NTK_C,JSON.stringify(a));}}}catch(e){}
       try{localStorage.setItem(RMK,JSON.stringify(mergeRm(rmReg(),d.rm)))}catch(e){}
@@ -6557,7 +6581,7 @@ function cloudPush(){
   },1500);
 }
 
-show("home");
+if(!draftAutoRestore(true))show("home");
 cloudInit();
 </script>
 
