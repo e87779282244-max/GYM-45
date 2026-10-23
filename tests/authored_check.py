@@ -14,13 +14,13 @@ async def m():
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none';show('body')");await pg.wait_for_timeout(200)
     order=await pg.evaluate("[...el('bodyProgs').children].map(x=>x.classList.contains('bb-lbl')?'#'+x.firstChild.textContent:x.classList.contains('au-by')?'@'+x.textContent:x.querySelector('span span').textContent)")
-    exp=['German Volume Training','#Авторские программы','@Пол Картер · 2 программы','Фулбади 3 дня','Верх / низ с ротацией','@Джон Медоуз · 3 программы','Warlock','The Devourer','The Sentinel','@Крис Бамстед','Push / Pull / Legs','@Нил Хилл','Y3T','@Джефф Ниппард','Bodybuilding Transformation System','@Джордан Питерс','Completely Massive','@Джей Катлер','Mass-Ter Plan','@Скотт Стивенсон','Fortitude Training','@Хэни Рэмбод','FST-7: Big and Ripped','@Данте Трудель','DC Training','@Дориан Ятс','Blood & Guts','#Базовые программы']
+    exp=['German Volume Training','#Авторские программы','@Пол Картер · 2 программы','Фулбади 3 дня','Верх / низ с ротацией','@Джон Медоуз','Warlock','@Крис Бамстед','Push / Pull / Legs','@Нил Хилл','Y3T','@Джефф Ниппард','Bodybuilding Transformation System','@Джордан Питерс','Completely Massive','@Джей Катлер','Mass-Ter Plan','@Скотт Стивенсон','Fortitude Training','@Хэни Рэмбод','FST-7: Big and Ripped','@Данте Трудель','DC Training','@Дориан Ятс','Blood & Guts','#Базовые программы']
     ok('порядок: GVT → авторские блоками по авторам (внутри — по сложности) → базовые',order[:len(exp)]==exp,order[:len(exp)])
     ok('сложность 1…5 у каждой программы',await pg.evaluate("[...el('bodyProgs').querySelectorAll('.lvl-dots')].every(d=>d.querySelectorAll('i').length===5)&&AUTH.every(p=>p.lvl>=1&&p.lvl<=5)"))
     ok('внутри блока автора сложность не убывает',await pg.evaluate("AUTH.every((p,i)=>i===0||AUTH[i-1].by!==p.by||AUTH[i-1].lvl<=p.lvl)"))
     if SHOT:await pg.evaluate("el('bodyProgs').scrollIntoView()");await pg.screenshot(path=SHOT+'/au-list.png')
     info=json.loads(await pg.evaluate("JSON.stringify(AUTH.map(p=>({id:p.id,w:p.weeks.length,d:p.weeks.map(w=>w.days.length)})))"))
-    want={'pcfb':(5,[3]*5),'pcul':(4,[6]*4),'wl':(3,[4,4,4]),'dv':(13,[4]*12+[3]),'sen':(14,[6]*14),'cbum':(1,[6]),'y3t':(4,[5,5,5,5]),'bts':(6,[5]*6),'jpcm':(2,[5,4]),'jc':(6,[6]*6),'ft':(8,[8]*6+[2,2]),'fst7':(8,[5]*4+[6]*4),'dc':(2,[6,2]),'bg':(2,[4,4])}
+    want={'pcfb':(5,[3]*5),'pcul':(4,[6]*4),'wl':(3,[4,4,4]),'cbum':(1,[6]),'y3t':(4,[5,5,5,5]),'bts':(6,[5]*6),'jpcm':(2,[5,4]),'jc':(6,[6]*6),'ft':(8,[8]*6+[2,2]),'fst7':(8,[5]*4+[6]*4),'dc':(2,[6,2]),'bg':(2,[4,4])}
     ok('недели и дни всех 14 программ',{x['id']:(x['w'],x['d']) for x in info}==want,[x['id'] for x in info])
     # каждый день каждой программы открывается и стартует
     bad=[]
