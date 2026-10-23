@@ -10,7 +10,7 @@ async def m():
   async with async_playwright() as p:
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(f'http://127.0.0.1:{srv.server_address[1]}/index.html');await pg.wait_for_timeout(300)
-    await pg.evaluate("el('login').style.display='none';show('body');authSetWeek(AUTH[0],0);authOpen(AUTH[0]);el('bodyDays').querySelectorAll('.disc')[0].click();el('dayStart').click()")
+    await pg.evaluate("el('login').style.display='none';show('body');authSetWeek(AUTH.find(p=>p.id==='wl'),0);authOpen(AUTH.find(p=>p.id==='wl'));el('bodyDays').querySelectorAll('.disc')[0].click();el('dayStart').click()")
     await pg.wait_for_timeout(200)
     ok('экран тренировки открыт, таймер виден',await pg.evaluate("currentScreen==='workout'&&!el('wkTime').hidden&&el('wkTime').offsetHeight>0"))
     await pg.evaluate("current.startedAt=new Date(Date.now()-(25*60+7)*1000).toISOString();current.sets[0].forEach(s=>s.done=true);current.sets[1][0].done=true;renderWorkout()")

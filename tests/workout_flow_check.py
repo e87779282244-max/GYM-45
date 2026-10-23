@@ -12,7 +12,7 @@ async def m():
   async with async_playwright() as p:
     b=await p.chromium.launch();ctx=await b.new_context(viewport={'width':390,'height':844},device_scale_factor=2);pg=await ctx.new_page();errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(URL);await pg.wait_for_timeout(300)
-    open_day="el('login').style.display='none';show('body');authSetWeek(AUTH[0],0);authOpen(AUTH[0]);el('bodyDays').querySelectorAll('.disc')[1].click()"
+    open_day="el('login').style.display='none';show('body');authSetWeek(AUTH.find(p=>p.id==='wl'),0);authOpen(AUTH.find(p=>p.id==='wl'));el('bodyDays').querySelectorAll('.disc')[1].click()"
     await pg.evaluate(open_day+";el('dayStart').click()");await pg.wait_for_timeout(150)
     n0=await pg.evaluate("current.sets[0].length")
     # 1-й подход → отдых → «Пропуск» → следующий подход подсвечен, упражнение то же
