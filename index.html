@@ -1196,19 +1196,19 @@
           <div class="nt-grid" style="margin-top:8px"><label>Ккал / 100 г<input id="ntCK" class="food-in" type="text" inputmode="decimal" placeholder="авто"></label><label>Белки / 100 г<input id="ntCP" class="food-in" type="text" inputmode="decimal"></label><label>Жиры / 100 г<input id="ntCF" class="food-in" type="text" inputmode="decimal"></label><label>Углев. / 100 г<input id="ntCC" class="food-in" type="text" inputmode="decimal"></label><label>1 шт., г (если есть)<input id="ntCPiece" class="food-in" type="text" inputmode="decimal" placeholder="—"></label></div>
           <button type="button" class="btn btn-alt" id="ntCSave" style="margin-top:8px">Сохранить продукт</button>
         </details>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 10px">Добавить вручную (ккал и БЖУ)</h3>
+        <details class="nt-info" id="ntManualWrap"><summary>＋ Знаю только итог (кафе, ресторан)</summary>
+        <p class="nt-sub" style="margin:8px 0">Когда блюдо не разобрать на продукты, а калории и БЖУ указаны в меню.</p>
         <div class="food-form">
-          <input id="fName" class="food-in" placeholder="Название (напр. овсянка)" autocomplete="off">
+          <input id="fName" class="food-in" placeholder="Название, напр. Цезарь в кафе" autocomplete="off">
           <div class="food-grid">
             <label>Ккал<input id="fKcal" class="food-in" type="number" inputmode="numeric" placeholder="0"></label>
             <label>Белки<input id="fP" class="food-in" type="number" inputmode="numeric" placeholder="0"></label>
             <label>Жиры<input id="fF" class="food-in" type="number" inputmode="numeric" placeholder="0"></label>
             <label>Углев.<input id="fC" class="food-in" type="number" inputmode="numeric" placeholder="0"></label>
           </div>
-          <button class="btn" id="fAdd">Добавить</button>
+          <button class="btn btn-alt" id="fAdd">Записать в дневник</button>
         </div>
+        </details>
       </div>
       <div class="card">
         <div class="hist-h" style="margin-bottom:8px">Приёмы за сегодня</div>
