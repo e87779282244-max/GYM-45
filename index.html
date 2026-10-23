@@ -3519,6 +3519,7 @@ function g2SwapOpen(i){const p=current.program,G=p.gx[i],alts=(G2ALT[G.key]||[])
     el("gvtModal").hidden=true;saveDraft();renderWorkout();toast("Заменено: "+X.n+(all?" (во всех следующих)":" (сегодня)"));});}
 
 /* ---------- настройка этапа (стартовые веса) ---------- */
+function g2BwPct(S,X){if(!(S.algo==="rm"&&S.rm===20)||!X||!X.bw)return 0;const n=String(X.n||"");return /Подтягив/i.test(n)?50:/брус/i.test(n)?60:0;}
 function g2SetupHTML(P,si){const S=G2S[si],st=P.st[si],keys=g2MainKeysOf(P,si);
   const lab={rm:S.rm+"ПМ, кг",range:"Вес под 6–8, кг",agvt:"10ПМ, кг",p4:"W₀, кг"}[S.algo];
   const hint={rm:S.rm===20?"Вес, с которым делаешь 20 повторов. Не знаешь — введи 1ПМ, возьмём 60 %.":"Вес, с которым делаешь 12 повторов (12ПМ).",
@@ -3526,11 +3527,12 @@ function g2SetupHTML(P,si){const S=G2S[si],st=P.st[si],keys=g2MainKeysOf(P,si);
     agvt:"Вес на 10 правильных повторов (10ПМ). Знаешь только 1ПМ — возьмём ~75 % как предварительную оценку.",
     p4:"Стартовый вес W₀ для каждого упражнения. Для 5/4/3 ориентир — 10ПМ (или ~75 % 1ПМ); для 6/5/4 — индивидуально."}[S.algo];
   const helper=S.algo==="rm"&&S.rm===20?60:(S.algo==="agvt"||S.algo==="p4")?75:0;
-  return `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Этап ${S.k} · стартовые веса</h3><p class="gvt-note" style="margin-bottom:10px">${hint} Расчёт отдельно для каждого упражнения. Для подтягиваний и брусьев — дополнительный вес (0 — без отягощения).</p>
+  /* подтягивания и брусья на этапе 20ПМ: 20 повторов с собственным весом могут не все — можно ввести 1ПМ (доп. вес на один раз) */
+  return `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Этап ${S.k} · стартовые веса</h3><p class="gvt-note" style="margin-bottom:10px">${hint} Расчёт отдельно для каждого упражнения. Для подтягиваний и брусьев — дополнительный вес (0 — без отягощения)${S.algo==="rm"&&S.rm===20?". Не делаешь 20 подтягиваний или отжиманий на брусьях — введи 1ПМ доп. веса: подтягивания 50 %, брусья 60 %":""}.</p>
    ${keys.map(k=>{const X=G2X[k]||{n:k},ws=st.ws[k]||{};const cur=ws.plan?ws.plan[1]:ws.w;
      return `<div class="g2-su"><div class="g2-su-n">${X.n}${X.db===2?' <small>· вес одной гантели</small>':""}${X.bw?' <small>· доп. вес</small>':""}</div>
       <div class="g2-su-r"><label>${lab}<input id="g2w_${k}" inputmode="decimal" value="${cur!=null&&cur!==""?cur:""}"></label>
-      ${helper&&!X.bw?`<label>или 1ПМ → ${helper} %<input id="g2rm_${k}" inputmode="decimal"></label>`:""}
+      ${helper&&!X.bw?`<label>или 1ПМ → ${helper} %<input id="g2rm_${k}" inputmode="decimal"></label>`:g2BwPct(S,X)?`<label>или 1ПМ → ${g2BwPct(S,X)} %<input id="g2rm_${k}" inputmode="decimal"></label>`:""}
       ${S.algo==="p4"?`<label>Схема<select id="g2sch_${k}"><option value="543"${ws.scheme!=="654"?" selected":""}>5/4/3</option><option value="654"${ws.scheme==="654"?" selected":""}>6/5/4</option></select></label>
         <label>До программы: вес × повт<span style="display:flex;gap:4px"><input id="g2bw_${k}" inputmode="decimal" placeholder="кг" value="${ws.base?ws.base.w:""}"><input id="g2br_${k}" inputmode="numeric" placeholder="10" value="${ws.base?ws.base.r:""}"></span></label>`:""}
       <label>Шаг, кг<select id="g2st_${k}"><option value="">по умолч. (${fmtW(X.db?P.stepDb:P.step)})</option>${[0.5,1,1.25,1.5,2,2.5,5].map(s=>`<option value="${s}"${st.step[k]===s?" selected":""}>${fmtW(s)}</option>`).join("")}</select></label></div></div>`;}).join("")}
@@ -3545,6 +3547,7 @@ function g2SetupBind(P,si){const S=G2S[si];
       const sv=el("g2st_"+k).value;if(sv)st.step[k]=parseFloat(sv);else delete st.step[k];
       const X=G2X[k]||{};
       if(String(el("g2w_"+k).value).trim()===""&&rm>0&&!X.bw){const pct=S.algo==="rm"?60:75;w=g2R(rm*pct/100,g2Step(PP,k));el("g2w_"+k).value=w;}
+      else if(String(el("g2w_"+k).value).trim()===""&&rm>0&&g2BwPct(S,X)){w=g2R(rm*g2BwPct(S,X)/100,g2Step(PP,k));el("g2w_"+k).value=w;}
       const ok=X.bw?w>=0:w>0;if(!ok||!isFinite(w)){bad=true;el("g2w_"+k).classList.add("bad");}else el("g2w_"+k).classList.remove("bad");
       out.push({k:k,w:w});});
     return {v:v,PP:PP,st:st,out:out,bad:bad};};
