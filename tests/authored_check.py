@@ -14,13 +14,13 @@ async def m():
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none';show('body')");await pg.wait_for_timeout(200)
     order=await pg.evaluate("[...el('bodyProgs').children].map(x=>x.classList.contains('bb-lbl')?'#'+x.firstChild.textContent:x.classList.contains('au-by')?'@'+x.textContent:x.querySelector('span span').textContent)")
-    exp=['German Volume Training','#Авторские программы','@Пол Картер · 2 программы','Фулбади 3 дня','Верх / низ с ротацией','@Джон Медоуз · 3 программы','Warlock','The Devourer','The Sentinel','@Крис Бамстед','Push / Pull / Legs','@Нил Хилл','Y3T','@Джефф Ниппард','Bodybuilding Transformation System','@Джордан Питерс','Completely Massive','@Джей Катлер','Mass-Ter Plan','@Скотт Стивенсон','Fortitude Training','@Хэни Рэмбод','FST-7','@Данте Трудель','DC Training','@Дориан Ятс','Blood & Guts','#Базовые программы']
+    exp=['German Volume Training','#Авторские программы','@Пол Картер · 2 программы','Фулбади 3 дня','Верх / низ с ротацией','@Джон Медоуз · 3 программы','Warlock','The Devourer','The Sentinel','@Крис Бамстед','Push / Pull / Legs','@Нил Хилл','Y3T','@Джефф Ниппард','Bodybuilding Transformation System','@Джордан Питерс','Completely Massive','@Джей Катлер','Mass-Ter Plan','@Скотт Стивенсон','Fortitude Training','@Хэни Рэмбод','FST-7: Big and Ripped','@Данте Трудель','DC Training','@Дориан Ятс','Blood & Guts','#Базовые программы']
     ok('порядок: GVT → авторские блоками по авторам (внутри — по сложности) → базовые',order[:len(exp)]==exp,order[:len(exp)])
     ok('сложность 1…5 у каждой программы',await pg.evaluate("[...el('bodyProgs').querySelectorAll('.lvl-dots')].every(d=>d.querySelectorAll('i').length===5)&&AUTH.every(p=>p.lvl>=1&&p.lvl<=5)"))
     ok('внутри блока автора сложность не убывает',await pg.evaluate("AUTH.every((p,i)=>i===0||AUTH[i-1].by!==p.by||AUTH[i-1].lvl<=p.lvl)"))
     if SHOT:await pg.evaluate("el('bodyProgs').scrollIntoView()");await pg.screenshot(path=SHOT+'/au-list.png')
     info=json.loads(await pg.evaluate("JSON.stringify(AUTH.map(p=>({id:p.id,w:p.weeks.length,d:p.weeks.map(w=>w.days.length)})))"))
-    want={'pcfb':(5,[3]*5),'pcul':(4,[6]*4),'wl':(3,[4,4,4]),'dv':(13,[4]*12+[3]),'sen':(14,[6]*14),'cbum':(1,[6]),'y3t':(4,[5,5,5,5]),'bts':(6,[5]*6),'jpcm':(2,[5,4]),'jc':(6,[6]*6),'ft':(8,[8]*6+[2,2]),'fst7':(6,[5]*6),'dc':(2,[6,2]),'bg':(2,[4,4])}
+    want={'pcfb':(5,[3]*5),'pcul':(4,[6]*4),'wl':(3,[4,4,4]),'dv':(13,[4]*12+[3]),'sen':(14,[6]*14),'cbum':(1,[6]),'y3t':(4,[5,5,5,5]),'bts':(6,[5]*6),'jpcm':(2,[5,4]),'jc':(6,[6]*6),'ft':(8,[8]*6+[2,2]),'fst7':(8,[5]*4+[6]*4),'dc':(2,[6,2]),'bg':(2,[4,4])}
     ok('недели и дни всех 14 программ',{x['id']:(x['w'],x['d']) for x in info}==want,[x['id'] for x in info])
     # каждый день каждой программы открывается и стартует
     bad=[]
@@ -42,13 +42,13 @@ async def m():
     await pg.evaluate("el('dayStart').click()");await pg.wait_for_timeout(80)
     await pg.evaluate("current.idx=3;renderWorkout()");await pg.wait_for_timeout(60)
     ok('тренировка: подсказка под упражнением',await pg.evaluate("!!el('exList').querySelector('.ex-note')&&el('exList').querySelector('.ex-note').innerText.includes('7 подх.')"))
-    ok('отдых на финише FST-7 — 40 с, в базе — 150 с',await pg.evaluate("(()=>{const a=restDefault();current.idx=0;const b=restDefault();current.idx=3;return a===40&&b===150})()"))
-    ok('анимация финиша по базовому упражнению',await pg.evaluate("!!MEDIA['Разведение гантелей в стороны · FST-7']"))
+    ok('отдых на финише FST-7 — 40 с, в базе — 120 с',await pg.evaluate("(()=>{const a=restDefault();current.idx=0;const b=restDefault();current.idx=3;return a===40&&b===120})()"))
+    ok('анимация FST-7 по базовому упражнению',await pg.evaluate("!!MEDIA['Шраги в Смите · FST-7']||!!MEDIA['Разведение гантелей в стороны · FST-7']"))
     if SHOT:await pg.screenshot(path=SHOT+'/au-workout.png')
     await pg.evaluate("current.sets.forEach(se=>se.forEach(s=>{s.done=true;}));finishWorkout()");await pg.wait_for_timeout(150)
     last=json.loads(await pg.evaluate("JSON.stringify(safe.get().slice(-1)[0])"))
-    ok('завершение: запись в историю, раздел «бодибилдинг»',last.get('sec')=='body' and 'Разведение гантелей в стороны · FST-7' in last.get('log',{}),last.get('name'))
-    ok('память весов: финиш FST-7 не путается с базовым упражнением',await pg.evaluate("lastResult('Разведение гантелей в стороны')===null&&!!lastResult('Разведение гантелей в стороны · FST-7')"))
+    ok('завершение: запись в историю, раздел «бодибилдинг»',last.get('sec')=='body' and 'Махи в стороны в тренажёре · FST-7' in last.get('log',{}),last.get('name'))
+    ok('память весов: финиш FST-7 не путается с базовым упражнением',await pg.evaluate("lastResult('Махи в стороны в тренажёре')===null&&!!lastResult('Махи в стороны в тренажёре · FST-7')"))
     adup=await pg.evaluate("AUTH.flatMap(p=>p.weeks.flatMap(w=>w.days.filter(d=>new Set(d.ex.map(e=>e[0])).size!==d.ex.length).map(d=>p.id+': '+d.name)))")
     ok('во всех программах в одном дне нет повторяющихся названий',not adup,adup[:3])
     # Warlock: структура по программе
