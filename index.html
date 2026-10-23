@@ -125,16 +125,20 @@
   .prog .ex{color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);padding-top:9px}
 
   /* ---- шапка кроссфита с логотипом ---- */
-  .cross-head{position:relative;text-align:left;
-    padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px}
-  .cross-back{position:absolute;right:0;top:calc(6px + env(safe-area-inset-top,0px))}
-  /* логотип раздела — слева вверху, рядом с «Назад»; вписывается в ширину и не выше 170 px */
-  .cross-logo{display:block;margin:0;width:auto;height:auto;max-width:calc(100% - 96px);max-height:170px;
+  /* шапка раздела — единый шаблон: [пусто | логотип | «Назад»], боковые колонки равны → логотип точно по центру.
+     Все логотипы вписаны в рамку одной высоты; заголовок и описание — по центру под ним. */
+  .cross-head{display:grid;grid-template-columns:80px minmax(0,1fr) 80px;column-gap:6px;align-items:start;text-align:center;
+    padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:6px}
+  .cross-head>*{grid-column:1/-1}
+  .cross-back{grid-column:3;grid-row:1;justify-self:end}
+  @media (max-width:359px){.cross-head .cross-logo{grid-column:1/-1;grid-row:2;width:min(100%,250px);max-height:150px;margin-top:4px}}
+  .cross-head + .street-note{text-align:center;max-width:34em;margin-left:auto;margin-right:auto}
+  .cross-logo{grid-column:2;grid-row:1;justify-self:center;display:block;margin:0;width:100%;height:auto;max-height:140px;object-fit:contain;
     filter:drop-shadow(0 6px 14px rgba(40,36,18,.28))}
   :root[data-theme="dark"] .cross-logo{filter:drop-shadow(0 0 1px rgba(236,223,178,.5)) drop-shadow(0 6px 16px rgba(0,0,0,.5))}
   .cross-head .eyebrow{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.14em;
     font-size:12px;color:var(--accent);font-weight:600;margin:4px 0 2px}
-  .cross-h1{font-family:var(--dsp);font-weight:700;font-size:26px;line-height:1;margin:8px 0 0}
+  .cross-h1{font-family:var(--dsp);font-weight:700;font-size:26px;line-height:1.1;margin:10px 0 0;text-wrap:balance}
   /* объёмные буквы: чёрный цвет, чёткий блик снизу — без размытия */
   .disc .emb{color:#000;text-shadow:0 1px 0 #fff,0 -1px 0 rgba(0,0,0,.12)}
   :root[data-theme="dark"] .disc .emb{color:#fff;text-shadow:0 -1px 0 rgba(255,255,255,.18),0 1px 0 #000}
@@ -1334,7 +1338,6 @@
     <div class="cross-head">
       <button class="icon-btn back-btn cross-back" title="Назад">←</button>
       <img class="cross-logo" src="media/crossfit4.png?v=1" alt="CrossFit" width="706" height="670">
-      <p class="eyebrow">Кроссфит</p>
       <h1 class="cross-h1">Бенчмарки и свои тренировки</h1>
     </div>
     <p class="street-note">Выбери свой уровень — откроются подходящие комплексы. В каждом: версии Rx / Опытный / Новичок, веса для мужчин и женщин, таймер и журнал результатов с личным рекордом. Или составь свою тренировку по шаблону CrossFit.</p>
