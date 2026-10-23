@@ -270,6 +270,38 @@
   .food-macros{display:flex;justify-content:center;gap:20px;color:var(--muted);font-size:14px}
   .food-macros b{color:var(--fg)}
   .food-form{display:flex;flex-direction:column;gap:10px}
+  /* вода */
+  .wt-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .wt-top h3{margin:0}
+  .wt-mode{margin:0}.wt-mode span{display:none}
+  .wt-main{display:flex;align-items:center;gap:14px;margin:12px 0 4px}
+  .wt-ring{position:relative;flex:none;width:min(128px,36vw);aspect-ratio:1;border:none;background:none;padding:0;cursor:pointer;color:var(--fg)}
+  .wt-ring svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
+  .wt-ring .rb{fill:none;stroke:var(--surface-2);stroke-width:4.2}
+  .wt-ring .rf{fill:none;stroke:#4d8fbf;stroke-width:4.2;stroke-linecap:round;transition:stroke-dasharray .5s ease}
+  .wt-ring:active{transform:scale(.97)}
+  .wt-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+  .wt-in b{font-family:var(--dsp);font-weight:800;font-size:26px}
+  .wt-in small{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+  .wt-vis{flex:1;min-width:0;cursor:pointer;color:var(--muted)}
+  .wt-glasses{display:grid;grid-template-columns:repeat(auto-fill,minmax(24px,1fr));gap:6px 4px}
+  .wt-glasses i{display:block;width:100%;max-width:28px;justify-self:center}
+  .wt-glasses i svg{width:100%;height:auto;display:block}
+  .wt-glasses i.on{color:#3f7aa6}
+  .wt-glasses i.pop{animation:wtpop .35s ease}
+  @keyframes wtpop{50%{transform:scale(1.25)}}
+  .wt-bvis{display:flex;justify-content:center}
+  .wt-bottle{width:auto;height:min(150px,40vw)}
+  .wt-add{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .wt-add .btn{flex:1 1 100%;margin:0}
+  .wt-chip{flex:1 1 auto;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 12px;font:inherit;font-weight:700;font-size:14px}
+  .wt-chip.on{border-color:#4d8fbf;box-shadow:0 0 0 2px #4d8fbf inset}
+  .wt-chip:active{transform:translateY(1px)}
+  .wt-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:var(--muted)}
+  .wt-undo{border:none;background:none;color:var(--accent-ink);font:inherit;font-weight:700;font-size:13px;white-space:nowrap}
+  .wt-undo[hidden]{display:none}
+  .wt-heat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-top:8px}
+  .wt-normnote p{margin:4px 0}
   /* кольца Б/Ж/У */
   .nt-rings{display:flex;justify-content:space-between;gap:6px;margin-top:14px}
   .nt-ring{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
@@ -1203,6 +1235,16 @@
         <div class="food-kcal"><span class="num" id="foodKcal">0</span> <small>ккал</small></div>
 <div id="ntVsNorm" hidden></div>
         <div class="nt-rings"><div class="nt-ring" id="ringP"><div class="nt-ring-c"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="rb" cx="20" cy="20" r="17"/><circle class="rf" cx="20" cy="20" r="17" stroke-dasharray="0 106.81" style="opacity:0"/></svg><div class="nt-ring-in"><b class="num" id="foodP">0</b><small id="ringPn">г</small></div></div><span class="nt-ring-l">Белки</span></div><div class="nt-ring" id="ringF"><div class="nt-ring-c"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="rb" cx="20" cy="20" r="17"/><circle class="rf" cx="20" cy="20" r="17" stroke-dasharray="0 106.81" style="opacity:0"/></svg><div class="nt-ring-in"><b class="num" id="foodF">0</b><small id="ringFn">г</small></div></div><span class="nt-ring-l">Жиры</span></div><div class="nt-ring" id="ringC"><div class="nt-ring-c"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="rb" cx="20" cy="20" r="17"/><circle class="rf" cx="20" cy="20" r="17" stroke-dasharray="0 106.81" style="opacity:0"/></svg><div class="nt-ring-in"><b class="num" id="foodC">0</b><small id="ringCn">г</small></div></div><span class="nt-ring-l">Углеводы</span></div></div>
+      </div>
+      <div class="card wt-card" id="wtCard">
+        <div class="wt-top"><h3>Вода</h3><div class="sk-lvl wt-mode" id="wtMode"><span>Ввод</span><button type="button" data-v="glass">Стаканы</button><button type="button" data-v="ml">Миллилитры</button></div></div>
+        <div class="wt-main">
+          <button type="button" class="wt-ring" id="wtRing" aria-label="Добавить воду"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="rb" cx="20" cy="20" r="17"/><circle class="rf" cx="20" cy="20" r="17" stroke-dasharray="0 106.81" style="opacity:0"/></svg><span class="wt-in"><b class="num" id="wtPct">—</b><small id="wtSub"></small></span></button>
+          <div class="wt-vis" id="wtVis" role="button" aria-label="Добавить воду"></div>
+        </div>
+        <div class="wt-add" id="wtAdd"></div>
+        <div class="wt-foot"><span id="wtNote"></span><button type="button" class="wt-undo" id="wtUndo" hidden>↶ Отменить</button></div>
+        <label class="wt-heat"><input type="checkbox" id="wtHeat"> Жара выше 25 °C — норма +500 мл</label>
       </div>
       <div class="card nt-form" id="ntBuilder">
         <h3>Собрать приём пищи</h3>
@@ -5789,6 +5831,74 @@ pfAvatar();
   n.querySelector("button").onclick=()=>{try{localStorage.setItem(K,"1");}catch(e){}n.remove();};
   document.querySelector("#scr-home .home-top").after(n);}}catch(e){}}
 
+/* ===================== ВОДА: суточная норма и учёт выпитого =====================
+   Норма: мужчины 35 мл/кг, женщины 31 мл/кг. При лишнем весе — от идеального веса (рост − 100),
+   т. к. в жировой ткани мало воды. + 500 мл в день тренировки, + 500 мл при тяжёлой физической работе,
+   + 500 мл в жару выше 25 °C. Чай и кофе засчитываются на 80 %. Алкоголь и сладкая газировка не засчитываются. */
+const WTK="gym45_water_v1",WT_GLASS=250,WT_BLUE="#4d8fbf";
+function wtSt(){const s=ntRead(WTK,null)||{};return Object.assign({days:{},mode:"glass",portion:250,heat:false,updatedAt:0},s);}
+function wtSave(s,push){s.updatedAt=Date.now();try{localStorage.setItem(WTK,JSON.stringify(s));}catch(e){toast("Не удалось сохранить воду");return;}if(push!==false)cloudPush();}
+function wtToday(){const s=wtSt();return s.days[localDate()]||[];}
+function wtDrunk(){return wtToday().reduce((a,x)=>a+(+x.ml||0),0);}
+function wtTrained(){try{const d=localDate();if(current)return true;return safe.get().some(h=>h&&h.date===d);}catch(e){return false;}}
+function wtNorm(){let t=null,p={};try{t=NTN()?ntT():null;}catch(e){}try{p=pfGet();}catch(e){}
+  const sex=(t&&t.sex)||p.sex||"male",w=+((t&&t.weight)||p.weight||0),h=+((t&&t.height)||p.height||0),bf=+((t&&t.bf)||p.bf||0),act=(t&&t.activity)||p.activity||"light";
+  if(!(w>0))return null;
+  const k=sex==="female"?31:35;let over=false;
+  if(bf>0)over=bf>=(sex==="female"?32:25);else if(h>0)over=w/((h/100)**2)>=25;
+  let ref=w,why="";if(over&&h>100&&h-100<w){ref=h-100;why="при лишнем весе считаем от идеального: рост − 100";}
+  const parts=[[`${k} мл × ${ntF(ref,1)} кг`+(why?` (${why})`:""),ref*k]];
+  if(act==="high"||act==="veryHigh")parts.push(["высокая активность каждый день",500]);
+  if(wtTrained())parts.push(["тренировка сегодня",500]);
+  if(wtSt().heat)parts.push(["жара выше 25 °C",500]);
+  const ml=Math.round(parts.reduce((a,x)=>a+x[1],0)/50)*50;
+  return {ml,parts,glasses:Math.ceil(ml/WT_GLASS)};}
+const wtL=ml=>ntF(ml/1000,2)+" л";
+function wtAdd(ml,kind){const s=wtSt(),d=localDate();const raw=ml,cnt=kind==="tea"?Math.round(ml*.8):ml;
+  (s.days[d]=s.days[d]||[]).push({t:Date.now(),ml:cnt,raw,kind:kind||"water"});
+  /* храним только последние 60 дней, чтобы ключ не разрастался */
+  const keys=Object.keys(s.days).sort();while(keys.length>60)delete s.days[keys.shift()];
+  wtSave(s);wtRender(true);
+  const n=wtNorm(),dr=wtDrunk();if(n&&dr>=n.ml&&dr-cnt<n.ml)toast("Норма воды на сегодня выполнена 💧");}
+function wtUndo(){const s=wtSt(),d=localDate(),a=s.days[d]||[];if(!a.length)return;a.pop();wtSave(s);wtRender();}
+function wtGlassSvg(fill){return `<svg viewBox="0 0 20 26" aria-hidden="true"><defs><clipPath id="wgc${fill?1:0}"><path d="M2 2h16l-2 22H4z"/></clipPath></defs>${fill?`<rect x="0" y="7" width="20" height="19" fill="${WT_BLUE}" clip-path="url(#wgc1)"/>`:""}<path d="M2 2h16l-2 22H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`;}
+function wtBottleSvg(pc){const H=86,y=24+H*(1-pc);return `<svg viewBox="0 0 60 116" class="wt-bottle" aria-hidden="true"><defs><clipPath id="wtbc"><path d="M24 2h12v10c0 4 12 8 12 18v78a6 6 0 0 1-6 6H18a6 6 0 0 1-6-6V30c0-10 12-14 12-18z"/></clipPath></defs>
+  <rect x="0" y="${y.toFixed(1)}" width="60" height="120" fill="${WT_BLUE}" opacity=".85" clip-path="url(#wtbc)" style="transition:y .5s ease"/>
+  <path d="M24 2h12v10c0 4 12 8 12 18v78a6 6 0 0 1-6 6H18a6 6 0 0 1-6-6V30c0-10 12-14 12-18z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M22 2h16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>${[.25,.5,.75].map(f=>`<path d="M44 ${(24+H*(1-f)).toFixed(1)}h-6" stroke="currentColor" stroke-width="1.2" opacity=".55"/>`).join("")}</svg>`;}
+function wtRender(bump){const c=el("wtCard");if(!c)return;const s=wtSt(),n=wtNorm(),dr=wtDrunk(),G=s.mode==="glass";
+  ntChips("wtMode",s.mode,v=>{const x=wtSt();x.mode=v;wtSave(x,false);wtRender();});
+  const pc=n?Math.min(1,dr/n.ml):0,C=2*Math.PI*17;
+  const rf=c.querySelector(".wt-ring .rf");rf.setAttribute("stroke-dasharray",(pc*C).toFixed(2)+" "+C.toFixed(2));rf.style.opacity=pc>0?1:0;
+  el("wtPct").textContent=n?Math.round(dr/n.ml*100)+"%":"—";
+  /* итог за день — всегда в литрах; ввод — стаканами или миллилитрами */
+  el("wtSub").textContent=n?`${wtL(dr)} из ${wtL(n.ml)}`:wtL(dr);
+  const vis=el("wtVis");
+  if(G){const tot=n?n.glasses:8,full=Math.floor(dr/WT_GLASS+1e-9);vis.className="wt-vis wt-glasses";
+    vis.innerHTML=Array.from({length:Math.max(tot,full)},(_,i)=>`<i class="${i<full?"on":""}${bump&&i===full-1?" pop":""}">${wtGlassSvg(i<full)}</i>`).join("");}
+  else{vis.className="wt-vis wt-bvis";vis.innerHTML=wtBottleSvg(pc);}
+  const add=el("wtAdd");
+  add.innerHTML=G?`<button type="button" class="btn wt-plus" data-ml="250">＋ Стакан 250 мл</button><button type="button" class="wt-chip" data-ml="250" data-k="tea">☕ Чай / кофе</button>`
+    :[[100,"＋ 100 мл"],[250,"＋ 250 мл"],[500,"＋ 500 мл"],[1000,"＋ 1000 мл"]].map(([m,t])=>`<button type="button" class="wt-chip${s.portion===m?" on":""}" data-ml="${m}">${t}</button>`).join("")+`<button type="button" class="wt-chip" data-ml="250" data-k="tea">☕ Чай / кофе</button>`;
+  add.querySelectorAll("button").forEach(b=>b.onclick=()=>{const ml=+b.dataset.ml;if(!G&&!b.dataset.k){const x=wtSt();x.portion=ml;wtSave(x,false);}wtAdd(ml,b.dataset.k);});
+  el("wtUndo").hidden=!wtToday().length;
+  const _nt=(G?`Выпито ${ntF(Math.floor(dr/WT_GLASS))} ст. по 250 мл · `:"")+(n?(dr>=n.ml?"норма выполнена 💧":`осталось ${wtL(n.ml-dr)}`+(G?` ≈ ${Math.ceil((n.ml-dr)/WT_GLASS)} ст.`:"")):"укажи вес в профиле — посчитаю норму");el("wtNote").textContent=_nt.charAt(0).toUpperCase()+_nt.slice(1);
+  el("wtHeat").checked=!!s.heat;}
+function wtTap(){const s=wtSt();wtAdd(s.mode==="glass"?WT_GLASS:(s.portion||250));}
+/* блок «Вода» в «Норме» */
+function wtNormHTML(){const n=wtNorm();if(!n)return "";
+  return `<div class="nt-note wt-normnote"><b>Вода: ${wtL(n.ml)} в день</b> <span class="nt-sub">≈ ${n.glasses} стаканов по 250 мл</span>${n.parts.map(([t,v])=>`<p>${v>=1000||t.includes("мл ×")?"":"+ "}${t.includes("мл ×")?t+" = "+ntF(v)+" мл":ntF(v)+" мл — "+t}</p>`).join("")}<p class="nt-sub">Чай и кофе засчитываются примерно на 80 %, супы, фрукты и овощи тоже дают воду. Алкоголь и сладкая газировка не засчитываются. На каждый час интенсивной тренировки — ещё 400–600 мл.</p></div>`;}
+{const _rn=ntRenderNorm;ntRenderNorm=function(){_rn();try{const r=el("ntNormOut").querySelector(".nt-res");if(r){const old=r.querySelector(".wt-normnote");if(old)old.remove();const ctl=r.querySelector(".nt-ctl");const d=document.createElement("div");d.innerHTML=wtNormHTML();if(d.firstElementChild)(ctl||r.lastElementChild).before(d.firstElementChild);}}catch(e){}};}
+{const _rf=renderFood;renderFood=function(){_rf();try{wtRender();}catch(e){}};}
+el("wtRing").addEventListener("click",wtTap);
+el("wtVis").addEventListener("click",wtTap);
+el("wtUndo").addEventListener("click",wtUndo);
+el("wtHeat").addEventListener("change",e=>{const s=wtSt();s.heat=e.target.checked;wtSave(s);wtRender();});
+/* вода — в облачный документ; при загрузке объединяем записи по времени, ничего не теряя */
+{const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{water:ntRead(WTK,null)});};}
+function wtMerge(a,b){if(!b||typeof b!=="object")return a;const out=Object.assign({},(b.updatedAt||0)>(a.updatedAt||0)?b:a);out.days={};
+  new Set([...Object.keys(a.days||{}),...Object.keys(b.days||{})]).forEach(d=>{const m={};[...((b.days||{})[d]||[]),...((a.days||{})[d]||[])].forEach(x=>{if(x&&x.t)m[x.t]=x;});out.days[d]=Object.values(m).sort((x,y)=>x.t-y.t);});return out;}
+
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
@@ -5822,6 +5932,7 @@ async function cloudInit(){
     const snap=await cloudDoc().get();
     if(snap&&snap.exists&&snap.data()){
       const d=snap.data();
+      try{if(d.water)localStorage.setItem(WTK,JSON.stringify(wtMerge(wtSt(),d.water)));}catch(e){}
       try{if(d.profile&&typeof d.profile==="object"&&(d.profile.updatedAt||0)>((pfRaw()||{}).updatedAt||0)){localStorage.setItem(PFK,JSON.stringify(d.profile));pfAvatar();}}catch(e){}
       try{const known=Object.keys(cloudSnapshot());CLOUD_EXTRA={};Object.keys(d).forEach(k=>{if(!known.includes(k))CLOUD_EXTRA[k]=d[k];});}catch(e){}
       try{if(d.foodDel&&typeof d.foodDel==="object")localStorage.setItem(FOODDELK,JSON.stringify(Object.assign({},d.foodDel,foodDelGet())))}catch(e){}
