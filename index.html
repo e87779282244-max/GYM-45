@@ -648,6 +648,8 @@
   .seg-b:active{transform:translateY(2px);box-shadow:0 1px 0 var(--key-edge)}
   .seg-b.on{background:linear-gradient(180deg,#eacf79,#d8b84f);color:#3a2f12;border-color:#b89a3e;box-shadow:0 3px 0 #a9893a}
   .ready-note{color:var(--gold-ink);font-size:13px;font-weight:600;margin-top:12px}
+  .au-plan{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .au-plan small{font-size:12.5px;font-weight:600;color:var(--gold-ink)}
   .day-ready{background:var(--card,#f6f1e4);border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px 12px;margin:0 0 10px;font-size:13px;font-weight:600;color:var(--gold-ink)}
   .day-ready[hidden]{display:none}
   .day-alt{display:block;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--gold-ink);background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
@@ -2551,7 +2553,7 @@ function beginWorkout(p,computed){
     return Array.from({length:ns},(_,j)=>{
       const pv=pr?(pr.sets[j]||pr.sets[pr.sets.length-1]):null;
       const w=pv?rScaleW(pv.w,p):(psw?rScaleW(psw[j],p):baseW);
-      return {w:w,r:pv?pv.r:e[2],done:false,prev:pv||null};});});
+      return {w:w,r:pv&&!p.planR?pv.r:e[2],done:false,prev:pv||null};});});
   current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),startedAt:new Date().toISOString(),sec:anSecOf(p)};
   dayView={p:p,computed:computed};restStop();
   el("wkTitle").textContent=p.name;
@@ -2976,11 +2978,6 @@ function renderStreet(){const w=el("streetDays");w.innerHTML="";
 renderStreet();
 /* ---------- БОДИБИЛДИНГ · 5 программ ---------- */
 const BODY=[
- {name:"Фулбади для новичков",next:"pcfb",meta:"3 дня/нед · всё тело",
-  desc:"Старт для новичков: всё тело за тренировку, через день. Чередуй День A и День B, 3 раза в неделю. Фокус — техника базовых движений и постепенный рост веса.",
-  days:[
-   {name:"День A · всё тело",focus:"База A",ex:[["Приседания со штангой",3,8,50],["Жим лёжа",3,8,40],["Тяга штанги в наклоне",3,8,40],["Армейский жим стоя",3,10,25],["Подъём штанги на бицепс",3,12,20],["Планка",3,45,0]]},
-   {name:"День B · всё тело",focus:"База B",ex:[["Становая тяга",3,6,60],["Жим лёжа",3,8,40],["Подтягивания",3,8,0],["Жим стоя",3,10,25],["Обратные отжимания на трицепс",3,12,0],["Гиперэкстензия",3,12,0]]}]},
  {name:"Верх / Низ",meta:"4 дня/нед · сплит",
   desc:"Тело делится на верх и низ, по две тренировки на каждый за неделю. Хороший баланс объёма и восстановления для среднего уровня.",
   days:[
@@ -3014,12 +3011,15 @@ function openProg(p,eyebrow,computed){
     b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${d.name}</span><span class="disc-sub">${d.focus} · ${d.ex.length} упр.</span></span><span class="go">›</span>`;
     const sec=/^TRX/.test(eyebrow||"")?"trx":/^Стритлифтинг/.test(eyebrow||"")?"street":/^Кроссфит/.test(eyebrow||"")?"cross":(/Бодибилдинг/i.test(eyebrow||"")||/^GVT/.test(p.name))?"body":"other";
     b.onclick=()=>startWorkout({name:d.name,focus:p.name+" · "+d.focus,ex:d.ex,sec:sec,fixed:/^Пауэрлифтинг/.test(eyebrow||"")?1:0},computed);w.appendChild(b);});
+  nextStepBlock(p,w);
+  show("bodyprog");
+}
+function nextStepBlock(p,w){
   if(p.next){let nx=null;try{nx=AUTH.find(q=>q.id===p.next);}catch(e){}
     if(nx){const h=document.createElement("p");h.className="bb-lbl";h.innerHTML="Следующий шаг<small>освоил технику базы за 1–2 месяца — переходи</small>";w.appendChild(h);
       const b=document.createElement("button");b.className="disc au-cur next-step";
       b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${nx.meta}</span></span><span class="go">›</span>`;
       b.querySelector("span span").textContent=nx.name;b.onclick=()=>authOpen(nx);w.appendChild(b);}}
-  show("bodyprog");
 }
 function progButton(p,eyebrow){const b=document.createElement("button");b.className="disc"+(p.pending?" disc-soon":"");
   b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${p.name}</span><span class="disc-sub">${p.meta}</span></span><span class="go">›</span>`;
@@ -3031,8 +3031,8 @@ function renderBody(){const w=el("bodyProgs");w.innerHTML="";
   g.onclick=()=>show("gvt");w.appendChild(g);
   const lb=(t,s)=>{const d=document.createElement("p");d.className="bb-lbl";d.innerHTML=t+(s?`<small>${s}</small>`:"");w.appendChild(d);};
   /* старт новичка — сразу перед фулбади Картера: база → переход на авторский фулбади */
-  const fbN=BODY.find(p=>p.name==="Фулбади для новичков");
-  if(fbN){lb("С чего начать","техника базы → затем «Фулбади 3 дня» Картера");w.appendChild(progButton(fbN,"Бодибилдинг · программа"));}
+  let fbN=null;try{fbN=FBN_PROG;}catch(e){}
+  if(fbN){lb("С чего начать","8 недель базы → затем «Фулбади 3 дня» Картера");w.appendChild(extButton(fbN));}
   if(typeof AUTH!=="undefined"&&typeof auCount==="function"){lb("Авторские программы","блоками по авторам · внутри блока — от простой к сложной");
     const nh=auNextHint();let by=null;
     AUTH.forEach(p=>{if(p.by!==by){by=p.by;const k=AUTH.filter(q=>q.by===by).length;const h=document.createElement("p");h.className="au-by";h.textContent=by+(k>1?" · "+k+" программы":"");w.appendChild(h);}
@@ -5509,6 +5509,9 @@ function mpList(){const out=[];
     out.push({k:"cf",t:"Кроссфит · "+c.t,s:"Выполнено комплексов: "+dn.length+(nx?" · следующий: "+nx.name:""),start:p.start,
       open:()=>cfOpenCat(p.lvl),fin:()=>{const list=cfProgList(p);mpArch({kind:"cf",prog:"cf:"+p.lvl,title:"Кроссфит · "+c.t,start:p.start,total:list.length,done:new Set(dn.map(r=>r.wod)).size,unit:"компл.",verdict:"Выполнено тренировок: "+dn.length+", рекордов: "+dn.filter(r=>r.pr).length+"."});
         const s=cfGet();s.prog=null;cfSave(s);}});}}catch(e){}
+  try{auPlanActive().forEach(p=>{const n=auCount(p.id),nn=auPlanNext(p);
+    out.push({k:"au:"+p.id,t:p.name,s:nn?p.weeks[nn.w].name+" · тренировка "+Math.min(n+1,p.total)+" из "+p.total:"Все тренировки сделаны — заверши программу",next:nn?auPlanDate(p):null,start:auSt().act[p.id].start,
+      open:()=>{authOpen(p);},fin:()=>auPlanEnd(p,!!nn)});});}catch(e){}
   return out;}
 function mpFinish(k){const it=mpList().find(x=>x.k===k);if(!it)return;it.fin();toast("«"+it.t+"» завершена досрочно — итог в «Прогрессе»");renderDashActive();if(typeof renderPar==="function")renderPar();}
 /* главный: блок «Активные программы» */
@@ -5522,7 +5525,7 @@ function renderDashActive(){const c=el("dashActive");if(!c)return;const L=mpList
 /* кнопка досрочного завершения внутри экрана программы */
 function mpEndBtn(k,label){const b=document.createElement("button");b.type="button";b.className="tm-reset sk-reset mp-endin";b.textContent=label||"Завершить программу досрочно · итог в «Прогресс»";
   b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — программа завершится, итог сохранится в «Прогрессе»");return;}mpFinish(k);
-    if(k==="gvt2")g2Render();else if(k==="rr")renderRR();else if(k==="hc")renderHC();else if(k==="cf")cfRenderCat();};return b;}
+    if(k==="gvt2")g2Render();else if(k.startsWith("au:")){try{authRender(FBN_PROG);}catch(e){}}else if(k==="rr")renderRR();else if(k==="hc")renderHC();else if(k==="cf")cfRenderCat();};return b;}
 /* встроить кнопки «Завершить досрочно» в экраны программ */
 {const _g2R=g2Render;g2Render=function(){_g2R();try{if(g2Active()&&!el("gvtBody").querySelector(".mp-endin"))el("gvtBody").appendChild(mpEndBtn("gvt2"));}catch(e){}};}
 {const _rr=renderRR;renderRR=function(){_rr();const b=el("rrReset"),s=rrGet();const o=b.parentNode.querySelector(".mp-endin");if(o)o.remove();if(s.sessions>0)b.after(mpEndBtn("rr"));};}
@@ -7021,6 +7024,30 @@ const FAL_PROG={id:"faleev",ext:1,sec:"pwr",eb:"Пауэрлифтинг · пр
  desc:"Методика мастера спорта по пауэрлифтингу А. В. Фалеева («Анти-МакРоберт: Думай! по-русски»). Только «золотая тройка»: присед, жим лёжа, становая — больше ничего (нельзя приседать — жим ногами, жать — брусья с весом, тянуть — наклоны со штангой или подтягивания с весом). Присед и жим — дважды в неделю: «тяжёлая» тренировка (5 подходов по 5–8) и «лёгкая» на технику (5×4 с 80 %). Становая — раз в неделю. Порядок как на соревнованиях. Лучший график — 4 дня: Пн тяжёлый присед, Вт тяжёлый жим, Ср тяжёлая становая, Пт лёгкие присед и жим (можно 5 дней — лёгкие в Чт и Пт; 3 дня — Пн присед, Ср жим + лёгкий присед, Пт становая + лёгкий жим). Путь: 5 по 8 → 5 по 5 → застой → 10-недельные циклы (простой → трёхступенчатый → двухступенчатый: 5 недель 5×5 и 5 недель «6-4-2-1», без ступени 4×4). Циклы во всех упражнениях — одновременно. Без отказов и без проходок. Укажи 1ПМ в «Рабочих весах» — веса циклов посчитаются сами.",
  rebuild(){falBuild(this);}};
 falBuild(FAL_PROG);
+/* ---------- Фулбади для новичков · 8 недель (Gym 45): техника → объём → сила → переход к Картеру ---------- */
+const FBN_A=[["Приседания со штангой",50,1],["Жим лёжа",40,1],["Тяга штанги в наклоне",40,1],["Армейский жим стоя",25,1],["Подъём штанги на бицепс",20,0],["Планка",0,0]];
+const FBN_B=[["Становая тяга",60,1],["Жим лёжа",40,1],["Подтягивания",0,1],["Жим стоя",25,1],["Обратные отжимания на трицепс",0,0],["Гиперэкстензия",0,0]];
+/* неделя: [подходы, повторы, доля веса, название, пояснение] */
+const FBN_W=[[3,10,.8,"Нед. 1 · техника","Лёгкие веса, 3–4 повтора в запасе. Учись технике: медленно вниз, без рывков. Записывай веса — с ними пойдёшь дальше."],
+ [3,10,.9,"Нед. 2 · техника","Чуть тяжелее. Если техника ровная во всех повторах — следующий раз +2,5 кг (присед и становая +5 кг)."],
+ [3,8,1,"Нед. 3 · рабочие веса","Рабочие веса: 8 повторов, 2 в запасе. Сделал все подходы чисто — в следующий раз прибавь вес."],
+ [3,8,1.05,"Нед. 4 · рабочие веса","Прибавка: +2,5 кг в жимах и тягах, +5 кг в приседе и становой, если прошлая тренировка удалась."],
+ [4,8,1.05,"Нед. 5 · объём","Четвёртый подход — больше объёма. Вес как на 4-й неделе; закрепи его на 4×8."],
+ [4,8,1.1,"Нед. 6 · объём","Снова прибавка веса при 4×8. Уверенно, без отказа. После 6-й недели можно переходить к Картеру, если техника уже надёжная."],
+ [4,6,1.15,"Нед. 7 · сила","Тяжелее, но 6 повторов. 1–2 повтора в запасе — не до отказа."],
+ [3,6,1.05,"Нед. 8 · лёгкая неделя","Разгрузка перед новой программой: меньше подходов и веса, отточи технику. Дальше — «Фулбади 3 дня» Пола Картера."]];
+function fbnR(v){return v>=20?Math.round(v/2.5)*2.5:Math.max(1,Math.round(v));}
+const FBN_PL=[30,35,40,45,45,50,50,40];
+function fbnDay(k,lbl,dayN,L){const [S,R,F]=FBN_W[k];
+  return {name:"Нед. "+(k+1)+" · "+dayN+" · День "+lbl,focus:"Всё тело · "+S+"×"+R,planR:1,ex:L.map(([n,w,base])=>{
+    if(n==="Планка")return X(n,3,FBN_PL[k],0,"Секунды в планке: держи ровную линию тела, без прогиба в пояснице",60);
+    const s=base?S:3,r=base?R:(k<2?15:12);
+    return X(n,s,r,w?fbnR(w*F):0,(w?"Вес — ориентир: подставится твой прошлый. ":"")+(base?FBN_W[k][4]:"Подсобное упражнение: "+r+" повторов чисто, без отказа"),base?120:75);})};}
+const FBN_PROG={id:"fbn",ext:1,plan:1,sec:"body",eb:"Бодибилдинг · старт",total:24,lvl:1,by:"",next:"pcfb",
+ name:"Фулбади для новичков",meta:"8 недель · 3 дня/нед · всё тело",
+ desc:"Старт для новичков: всё тело за тренировку, 3 раза в неделю через день (например, Пн, Ср, Пт). Дни A и B чередуются: нечётные недели A-B-A, чётные B-A-B. Путь: недели 1–2 — техника на лёгких весах, 3–4 — рабочие веса, 5–6 — больше объёма, 7 — сила, 8 — лёгкая неделя. Прибавка веса — только когда все повторы сделаны чисто: +2,5 кг в жимах и тягах, +5 кг в приседе и становой. Без отказа. Нажми «Начать программу» — приложение само подскажет следующую тренировку. После 8 недель (или после 6-й, если техника уверенная) — переход на «Фулбади 3 дня» Пола Картера.",
+ weeks:FBN_W.map((w,k)=>{const o=k%2===0;return {name:w[3],note:w[4],days:[fbnDay(k,o?"A":"B","Пн",o?FBN_A:FBN_B),fbnDay(k,o?"B":"A","Ср",o?FBN_B:FBN_A),fbnDay(k,o?"A":"B","Пт",o?FBN_A:FBN_B)]};})};
+FBN_PROG.days=FBN_PROG.weeks[0].days;
 /* ---------- TRX · Andrew Raposo «TRX Workout Program» (FighterAbs) ---------- */
 function trxCirc(lbl,rounds,rest,items,restTxt){const n=items.length,list=items.map((it,i)=>lbl+(i+1)).join(" → ");
  return items.map((it,i)=>{const [nm,r,unit]=it,last=i===n-1,u=unit||"повт.";
@@ -7073,15 +7100,38 @@ function auNextHint(){const v=AUTH.find(p=>!auDone(p)&&auCount(p.id)>0)||AUTH.fi
 const AUTHWK="gym45_bbweek_v1";
 function authWeek(p){try{const o=JSON.parse(localStorage.getItem(AUTHWK)||"{}");const i=+o[p.id];return i>=0&&i<p.weeks.length?i:0;}catch(e){return 0;}}
 function authSetWeek(p,i){try{const o=JSON.parse(localStorage.getItem(AUTHWK)||"{}");o[p.id]=i;localStorage.setItem(AUTHWK,JSON.stringify(o));}catch(e){}}
-function authOpen(p){openProg(p,p.eb||"Бодибилдинг · авторская программа");authRender(p);}
+function authOpen(p){if(p.plan){const n=auPlanNext(p);if(n&&auSt().act&&auSt().act[p.id])authSetWeek(p,n.w);}openProg(p,p.eb||"Бодибилдинг · авторская программа");authRender(p);}
+/* программы с планом по неделям (plan:1): активация и «следующая тренировка» по порядку */
+function auPlanLast(p){let L=null;try{safe.get().forEach(h=>{if(h&&h.au&&h.au.id===p.id)L=h;});}catch(e){}return L;}
+function auPlanNext(p){const L=auPlanLast(p);if(!L)return {w:0,d:0};
+  const w=+L.au.w||0,d=Math.max(0,p.weeks[w].days.findIndex(x=>x.name===L.name));
+  if(d+1<p.weeks[w].days.length)return {w,d:d+1};if(w+1<p.weeks.length)return {w:w+1,d:0};return null;}
+function auPlanDate(p){const L=auPlanLast(p),t=localDate();if(!L)return t;if(L.date===t){const d=new Date();d.setDate(d.getDate()+2);return localDate(d);}
+  const d=new Date(L.date+"T12:00:00");d.setDate(d.getDate()+2);const x=localDate(d);return x<t?t:x;}
+function auPlanStart(p,n){const w=p.weeks[n.w],d=w.days[n.d];authSetWeek(p,n.w);
+  startWorkout({name:d.name,focus:p.name+" · "+w.name,ex:d.ex,sec:p.sec||"body",rest:d.rest||w.rest||p.rest,au:{id:p.id,w:n.w},planR:d.planR?1:0,fixed:p.sec==="pwr"?1:0},false);}
+function auPlanActive(){const v=auSt(),out=[];try{[FBN_PROG].forEach(p=>{if(v.act&&v.act[p.id])out.push(p);});}catch(e){}return out;}
+function auPlanEnd(p,early){const v=auSt(),a=(v.act||{})[p.id];if(!a)return;const n=auCount(p.id);
+  mpArch({kind:"au",prog:"au:"+p.id,title:p.name,start:a.start||"",total:p.total,done:Math.min(n,p.total),unit:"трен.",verdict:early?"Завершена досрочно: "+n+" из "+p.total+" тренировок.":"Пройдена полностью: "+n+" тренировок."});
+  delete v.act[p.id];if(!early)v.done[p.id]=Date.now();auSave(v);}
 function authRender(p){const wi=authWeek(p),W=p.weeks[wi];const w=el("bodyDays");w.innerHTML="";
-  {const n=auCount(p.id),dn=auDone(p),nx=p.ext?null:auNext(p),pc=Math.min(100,Math.round(n/p.total*100)),st=auSt(),c=document.createElement("div");c.className="card au-prog";
+  {const n=auCount(p.id),dn=auDone(p),nx=p.next?AUTH.find(q=>q.id===p.next):p.ext?null:auNext(p),pc=Math.min(100,Math.round(n/p.total*100)),st=auSt(),c=document.createElement("div");c.className="card au-prog";
    c.innerHTML=`<div class="au-pr-h"><b>${dn?"Программа пройдена ✓":"Прогресс"}</b><span class="num">${n} / ${p.total} трен.</span></div><div class="au-bar"><i style="width:${dn?100:pc}%"></i></div>
      ${dn&&nx?`<button class="btn au-next" type="button">Дальше: ${nx.name.replace(/</g,"&lt;")} ›</button>`:""}
      <button class="tm-mini au-mark" type="button">${st.done[p.id]?"Снять отметку «пройдена»":"Отметить пройденной"}</button>`;
    w.appendChild(c);
    if(c.querySelector(".au-next"))c.querySelector(".au-next").onclick=()=>authOpen(nx);
-   c.querySelector(".au-mark").onclick=()=>{const v=auSt();if(v.done[p.id])delete v.done[p.id];else v.done[p.id]=Date.now();auSave(v);authRender(p);try{renderBody();}catch(e){}};}
+   c.querySelector(".au-mark").onclick=()=>{const v=auSt();if(v.done[p.id])delete v.done[p.id];else v.done[p.id]=Date.now();auSave(v);authRender(p);try{renderBody();}catch(e){}};
+   if(p.plan){const act=!!(st.act&&st.act[p.id]),nn=auPlanNext(p),pb=document.createElement("div");pb.className="au-plan";
+     if(!act&&!dn){pb.innerHTML=`<button class="btn au-start" type="button">Начать программу · ${p.weeks.length} недель</button><small>Приложение будет вести по порядку: какая тренировка следующая и когда</small>`;
+       pb.querySelector("button").onclick=()=>{const v=auSt();v.act=v.act||{};v.act[p.id]={start:localDate()};auSave(v);if(nn)authSetWeek(p,nn.w);authRender(p);try{renderDashActive();}catch(e){}toast("«"+p.name+"» — активная программа");};}
+     else if(act&&nn){const W2=p.weeks[nn.w],D2=W2.days[nn.d],dt=auPlanDate(p);
+       pb.innerHTML=`<small>Следующая тренировка · ${dt<=localDate()?"сегодня":mpDD(dt)}</small><button class="btn au-go" type="button"></button>`;
+       pb.querySelector("button").textContent=D2.name+" ›";pb.querySelector("button").onclick=()=>auPlanStart(p,nn);
+       pb.appendChild(mpEndBtn("au:"+p.id));}
+     else if(act&&!nn){pb.innerHTML=`<small>Все ${p.total} тренировок сделаны — программа пройдена</small><button class="btn au-fin" type="button">Завершить и сохранить итог</button>`;
+       pb.querySelector("button").onclick=()=>{auPlanEnd(p,false);authRender(p);try{renderDashActive();}catch(e){}toast("Программа пройдена — итог в «Прогрессе»");};}
+     if(pb.innerHTML)c.appendChild(pb);}}
   const box=document.createElement("div");box.className="au-weeks";
   box.innerHTML=`<div class="au-wk" id="auWk">${p.weeks.map((x,i)=>`<button type="button" data-v="${i}">${x.name}</button>`).join("")}</div>${W.note?`<p class="au-note">${W.note}</p>`:""}`;
   w.appendChild(box);ntChips("auWk",String(wi),v=>{authSetWeek(p,+v);authRender(p);});
@@ -7089,7 +7139,8 @@ function authRender(p){const wi=authWeek(p),W=p.weeks[wi];const w=el("bodyDays")
   W.days.forEach(d=>{const b=document.createElement("button");b.className="disc";
     b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${d.focus} · ${d.ex.length} упр.</span></span><span class="go">›</span>`;
     b.querySelector("span span").textContent=d.name;
-    b.onclick=()=>startWorkout({name:d.name,focus:p.name+" · "+W.name,ex:d.ex,sec:p.sec||"body",rest:d.rest||W.rest||p.rest,au:{id:p.id,w:wi},fixed:p.sec==="pwr"?1:0},false);w.appendChild(b);});}
+    b.onclick=()=>startWorkout({name:d.name,focus:p.name+" · "+W.name,ex:d.ex,sec:p.sec||"body",rest:d.rest||W.rest||p.rest,au:{id:p.id,w:wi},planR:d.planR?1:0,fixed:p.sec==="pwr"?1:0},false);w.appendChild(b);});
+  nextStepBlock(p,w);}
 
 try{renderBody();}catch(e){}
 /* ===================== ОБЛАКО (db + user) ===================== */
