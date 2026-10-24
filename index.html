@@ -2401,18 +2401,20 @@ function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","ма�
 const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),pu:el("scr-pu"),workout:el("scr-workout"),progress:el("scr-progress"),cfb:el("scr-cfb"),cfcat:el("scr-cfcat")};
 function el(id){return document.getElementById(id);}
 let histStack=[],currentScreen=null;
-function applyScreen(name){
+const SCROLL_MEM={};
+function applyScreen(name,y){
   if(currentScreen==="wod"&&name!=="wod"&&typeof resetTimer==="function")resetTimer();
   if(currentScreen==="workout"&&name!=="workout")document.querySelectorAll("#exList video").forEach(v=>{try{v.pause()}catch(e){}});
   for(const k in scr)scr[k].hidden=(k!==name);
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
-  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day"||name==="swc");if(name==="progress")renderProgress();if(name==="home"&&typeof dashWeekUpd==="function")dashWeekUpd();if(name==="day")renderDay();if(name==="gvt"&&typeof g2Render==="function")g2Render();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();if(name==="home"&&typeof renderDashActive==="function")renderDashActive();window.scrollTo(0,0);}
-function show(name){if(currentScreen&&name!==currentScreen)histStack.push(currentScreen);applyScreen(name);}
+  currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day"||name==="swc");if(name==="progress")renderProgress();if(name==="home"&&typeof dashWeekUpd==="function")dashWeekUpd();if(name==="day")renderDay();if(name==="gvt"&&typeof g2Render==="function")g2Render();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();if(name==="home"&&typeof renderDashActive==="function")renderDashActive();window.scrollTo(0,y||0);if(y){requestAnimationFrame(()=>window.scrollTo(0,y));setTimeout(()=>{if(currentScreen===name)window.scrollTo(0,y);},80);}}
+function show(name){if(currentScreen&&name!==currentScreen){histStack.push(currentScreen);SCROLL_MEM[currentScreen]=window.scrollY||0;}applyScreen(name);}
 function goBack(){
   let prev=histStack.pop()||"home";
   while((prev==="workout"&&!current)||prev===currentScreen)prev=histStack.pop()||"home";
   if(prev==="workout"&&!current)prev="home";
-  applyScreen(prev);}
+  /* «Назад» возвращает туда же, откуда ушли: восстанавливаем прокрутку экрана */
+  applyScreen(prev,SCROLL_MEM[prev]||0);}
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   if(t.dataset.scr==="workout"){if(current)show("workout");else if(dayView)show("day");else{show("programs");toast("Выбери программу — тренировка откроется оттуда");}}
   else show(t.dataset.scr);});
