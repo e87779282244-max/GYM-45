@@ -2978,25 +2978,12 @@ function renderStreet(){const w=el("streetDays");w.innerHTML="";
 renderStreet();
 /* ---------- БОДИБИЛДИНГ · 5 программ ---------- */
 const BODY=[
- {name:"Верх / Низ",meta:"4 дня/нед · сплит",
-  desc:"Тело делится на верх и низ, по две тренировки на каждый за неделю. Хороший баланс объёма и восстановления для среднего уровня.",
-  days:[
-   {name:"Верх A",focus:"Жимы и тяги",ex:[["Жим лёжа",4,8,45],["Тяга штанги в наклоне",4,8,45],["Жим стоя",3,10,25],["Подтягивания",3,10,0],["Подъём штанги на бицепс",3,12,20],["Обратные отжимания на трицепс",3,12,0]]},
-   {name:"Низ A",focus:"Ноги и кор",ex:[["Приседания со штангой",4,8,60],["Становая тяга",3,6,70],["Гиперэкстензия",3,12,0],["Прогулка фермера",3,40,20],["Планка",3,60,0]]},
-   {name:"Верх B",focus:"Объём верх",ex:[["Жим стоя",4,8,27],["Подтягивания с весом",4,8,8],["Тяга штанги на задние дельты",3,14,18],["Жим лёжа",3,10,42],["Подъём штанги на бицепс",3,14,18],["Обратные отжимания на трицепс",3,14,0]]},
-   {name:"Низ B",focus:"Объём низ",ex:[["Фронтальные приседания",4,10,45],["Приседания со штангой",3,12,50],["Гиперэкстензия",3,15,0],["Прыжковые выпады",3,16,0],["Планка",3,60,0]]}]},
- {name:"BAZA GYM 45",meta:"3–6 дней · жим-тяга-ноги",
+ {name:"BAZA GYM 45",next:["cbum"],meta:"3–6 дней · жим-тяга-ноги",
   desc:"Жим (грудь, плечи, трицепс) — Тяга (спина, бицепс) — Ноги. Можно крутить 3 дня в неделю или по два круга — 6 дней для опытных.",
   days:[
    {name:"Жим (Push)",focus:"Грудь · плечи · трицепс",ex:[["Жим лёжа",4,8,45],["Жим стоя",4,10,27],["Махи гантелей перед собой",3,15,8],["Обратные отжимания на трицепс",3,12,0],["Отжимания на брусьях с весом",3,10,0]]},
    {name:"Тяга (Pull)",focus:"Спина · бицепс",ex:[["Становая тяга",4,6,70],["Подтягивания",4,10,0],["Тяга штанги в наклоне",4,10,45],["Тяга штанги на задние дельты",3,14,18],["Подъём штанги на бицепс",4,12,20]]},
    {name:"Ноги (Legs)",focus:"Квадры · ягодицы · кор",ex:[["Приседания со штангой",4,10,60],["Фронтальные приседания",3,10,45],["Гиперэкстензия",3,15,0],["Прыжки на тумбу",3,12,0],["Планка",3,60,0]]}]},
- {name:"Трёхдневный сплит",meta:"3 дня/нед · по группам",
-  desc:"Классика: грудь+трицепс, спина+бицепс, ноги+плечи. По одной тренировке на связку в неделю — просто и результативно.",
-  days:[
-   {name:"Грудь + трицепс",focus:"Жим",ex:[["Жим лёжа",4,8,45],["Жим гантелей",3,10,24],["Отжимания на брусьях с весом",3,10,0],["Обратные отжимания на трицепс",3,12,0]]},
-   {name:"Спина + бицепс",focus:"Тяга",ex:[["Подтягивания",4,8,0],["Тяга штанги в наклоне",4,10,45],["Тяга штанги на задние дельты",3,14,18],["Подъём штанги на бицепс",4,12,20]]},
-   {name:"Ноги + плечи",focus:"Ноги · дельты",ex:[["Приседания со штангой",4,10,60],["Становая тяга",3,6,70],["Армейский жим стоя",4,10,27],["Махи гантелей перед собой",3,15,8]]}]},
 ];
 let currentBody=null;
 function openProg(p,eyebrow,computed){
@@ -3014,13 +3001,12 @@ function openProg(p,eyebrow,computed){
   nextStepBlock(p,w);
   show("bodyprog");
 }
-function nextStepBlock(p,w){
-  if(p.next){let nx=null;try{nx=AUTH.find(q=>q.id===p.next);}catch(e){}
-    if(nx){const h=document.createElement("p");h.className="bb-lbl";h.innerHTML="Следующий шаг<small>освоил технику базы за 1–2 месяца — переходи</small>";w.appendChild(h);
-      const b=document.createElement("button");b.className="disc au-cur next-step";
-      b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${nx.meta}</span></span><span class="go">›</span>`;
-      b.querySelector("span span").textContent=nx.name;b.onclick=()=>authOpen(nx);w.appendChild(b);}}
-}
+function nextStepBlock(p,w){let L=[];try{L=auLadder(p);}catch(e){}if(!L.length)return;
+  const why=(typeof AU_LADDER_WHY!=="undefined"&&(AU_LADDER_WHY[p.id]||(!p.id&&AU_LADDER_WHY.base)))||"";
+  const h=document.createElement("p");h.className="bb-lbl";h.innerHTML="Следующий шаг"+(L.length>1?" · на выбор":"")+(why?`<small>${why}</small>`:"");w.appendChild(h);
+  L.forEach(nx=>{const b=document.createElement("button");b.className="disc next-step"+(auDone(nx)?" au-done":" au-cur");
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${nx.meta}${auDone(nx)?" · ✓ пройдена":""}</span></span><span class="go">›</span>`;
+    b.querySelector("span span").textContent=nx.name;b.onclick=()=>authOpen(nx);w.appendChild(b);});}
 function progButton(p,eyebrow){const b=document.createElement("button");b.className="disc"+(p.pending?" disc-soon":"");
   b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${p.name}</span><span class="disc-sub">${p.meta}</span></span><span class="go">›</span>`;
   b.onclick=()=>openProg(p,eyebrow);return b;}
@@ -3040,7 +3026,7 @@ function renderBody(){const w=el("bodyProgs");w.innerHTML="";
       const nm=p.name.split(" · ")[0];
       b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${p.meta}<span class="lvl-dots" aria-label="сложность ${p.lvl} из 5">${[1,2,3,4,5].map(k=>`<i class="${k<=p.lvl?"on":""}"></i>`).join("")}</span></span>${dn?`<span class="au-tag ok">✓ пройдена</span>`:n?`<span class="au-tag">${n} / ${p.total} трен.</span>`:p===nh?`<span class="au-tag nx">→ следующая</span>`:""}</span><span class="go">›</span>`;
       b.querySelector("span span").textContent=nm;b.onclick=()=>authOpen(p);w.appendChild(b);});
-    lb("Базовые программы","классические сплиты");}
+    lb("Базовая программа","только штанга, без тренажёров");}
   BODY.forEach(p=>{if(p!==fbN)w.appendChild(progButton(p,"Бодибилдинг · программа"));});}
 renderBody();
 /* ---------- GVT · персональный цикл (алгоритм «ШТУРМ: Режим силы», перенос владельцем) ----------
@@ -7093,7 +7079,14 @@ const AU_DAYNAME=(()=>{const m={};AUTH.forEach(p=>p.weeks.forEach(w=>w.days.forE
 function auCount(id){let n=0;try{safe.get().forEach(h=>{if(!h)return;const a=h.au&&h.au.id?h.au.id:(h.sec==="body"||!h.sec?AU_DAYNAME[h.name]:null);if(a===id)n++;});}catch(e){}return n;}
 function auDone(p){const v=auSt();return !!v.done[p.id]||auCount(p.id)>=p.total;}
 /* следующая программа: дальше в блоке автора; если блок пройден — первая непройденная по сложности */
-function auNext(p){const i=AUTH.indexOf(p),inBlock=AUTH.slice(i+1).find(q=>q.by===p.by&&!auDone(q));if(inBlock)return inBlock;
+/* лестница бодибилдинга: следующий шаг после программы (первая непройденная из списка) */
+const AU_LADDER={fbn:["pcfb"],pcfb:["pcul","wl"],pcul:["cbum"],wl:["cbum"],cbum:["y3t","bts"],y3t:["jpcm","ft","fst7"],bts:["jpcm","ft","fst7"],
+ jpcm:["jc"],ft:["jc"],fst7:["jc"],jc:["dc","bg"],dc:["bg"],bg:[],hd:["cbum","y3t"],hiit:["fst7","jc"]};
+const AU_LADDER_WHY={fbn:"освоил технику базы — переходи к работе до отказа",pcfb:"сплит: каждая мышца 2 раза в неделю",pcul:"6 дней, больше объёма",wl:"6 дней, больше объёма",
+ cbum:"12 недель с периодизацией",y3t:"интенсивные техники",bts:"интенсивные техники",jpcm:"максимальный объём",ft:"максимальный объём",fst7:"максимальный объём",
+ jc:"высокая интенсивность для опытных",dc:"вершина — Дориан Ятс",hd:"вернуться к объёму",hiit:"после сушки — снова масса",base:"авторская программа с объёмом"};
+function auLadder(p){const L=p.next?[].concat(p.next):AU_LADDER[p.id]||[];return L.map(id=>AUTH.find(q=>q.id===id)).filter(Boolean);}
+function auNext(p){const L=auLadder(p);if(L.length)return L.find(q=>!auDone(q))||L[0];if(AU_LADDER[p.id])return null;const i=AUTH.indexOf(p),inBlock=AUTH.slice(i+1).find(q=>q.by===p.by&&!auDone(q));if(inBlock)return inBlock;
   return AUTH.slice().sort((a,b)=>a.lvl-b.lvl||AUTH.indexOf(a)-AUTH.indexOf(b)).find(q=>q!==p&&!auDone(q)&&q.lvl>=p.lvl)||AUTH.find(q=>q!==p&&!auDone(q))||null;}
 function auNextHint(){const v=AUTH.find(p=>!auDone(p)&&auCount(p.id)>0)||AUTH.find(p=>!auDone(p));return v;}
 /* выбранная неделя программы запоминается */
@@ -7115,7 +7108,7 @@ function auPlanEnd(p,early){const v=auSt(),a=(v.act||{})[p.id];if(!a)return;cons
   mpArch({kind:"au",prog:"au:"+p.id,title:p.name,start:a.start||"",total:p.total,done:Math.min(n,p.total),unit:"трен.",verdict:early?"Завершена досрочно: "+n+" из "+p.total+" тренировок.":"Пройдена полностью: "+n+" тренировок."});
   delete v.act[p.id];if(!early)v.done[p.id]=Date.now();auSave(v);}
 function authRender(p){const wi=authWeek(p),W=p.weeks[wi];const w=el("bodyDays");w.innerHTML="";
-  {const n=auCount(p.id),dn=auDone(p),nx=p.next?AUTH.find(q=>q.id===p.next):p.ext?null:auNext(p),pc=Math.min(100,Math.round(n/p.total*100)),st=auSt(),c=document.createElement("div");c.className="card au-prog";
+  {const n=auCount(p.id),dn=auDone(p),nx=auNext(p),pc=Math.min(100,Math.round(n/p.total*100)),st=auSt(),c=document.createElement("div");c.className="card au-prog";
    c.innerHTML=`<div class="au-pr-h"><b>${dn?"Программа пройдена ✓":"Прогресс"}</b><span class="num">${n} / ${p.total} трен.</span></div><div class="au-bar"><i style="width:${dn?100:pc}%"></i></div>
      ${dn&&nx?`<button class="btn au-next" type="button">Дальше: ${nx.name.replace(/</g,"&lt;")} ›</button>`:""}
      <button class="tm-mini au-mark" type="button">${st.done[p.id]?"Снять отметку «пройдена»":"Отметить пройденной"}</button>`;

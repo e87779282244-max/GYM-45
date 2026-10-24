@@ -13,10 +13,10 @@ async def m():
   async with async_playwright() as p:
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none';show('programs');show('body')");await pg.wait_for_timeout(150)
-    await pg.evaluate("[...el('bodyProgs').querySelectorAll('.disc')].find(b=>b.textContent.includes('Трёхдневный сплит')).scrollIntoView({block:'center'})");await pg.wait_for_timeout(100)
+    await pg.evaluate("[...el('bodyProgs').querySelectorAll('.disc')].find(b=>b.textContent.includes('BAZA GYM 45')).scrollIntoView({block:'center'})");await pg.wait_for_timeout(100)
     y0=await pg.evaluate("window.scrollY")
     ok('список прокручен вниз',y0>500,y0)
-    await pg.evaluate("[...el('bodyProgs').querySelectorAll('.disc')].find(b=>b.textContent.includes('Трёхдневный сплит')).click()");await pg.wait_for_timeout(150)
+    await pg.evaluate("[...el('bodyProgs').querySelectorAll('.disc')].find(b=>b.textContent.includes('BAZA GYM 45')).click()");await pg.wait_for_timeout(150)
     ok('новый экран открывается сверху',await pg.evaluate("window.scrollY===0&&currentScreen==='bodyprog'"))
     await pg.evaluate("document.querySelector('#scr-bodyprog .back-btn').click()");await pg.wait_for_timeout(200)
     y1=await pg.evaluate("window.scrollY")
