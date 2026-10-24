@@ -26,7 +26,7 @@ async def m():
     await pg.evaluate("el('login').style.display='none';show('progress')");await pg.wait_for_timeout(200)
     ok('«Прогресс»: без демо-данных («пример»)',await pg.evaluate("!el('scr-progress').innerText.includes('пример')"))
     ok('плитки: тренировок и тонн за 7 дней с динамикой',await pg.evaluate("+el('tWeek').textContent>=1&&el('tVol').textContent!==''"))
-    ok('5 вкладок (с «Питанием»), по умолчанию «Нагрузка»',await pg.evaluate("el('anTabs').querySelectorAll('button').length===5&&!el('anLoad').hidden&&el('anEx').hidden"))
+    ok('3 вкладки + подвкладки тренировок, по умолчанию «Нагрузка»',await pg.evaluate("el('anTabs').querySelectorAll('button').length===3&&el('anSub').querySelectorAll('button').length===3&&!el('anSub').hidden&&!el('anLoad').hidden&&el('anEx').hidden"))
     ok('нагрузка: 8 недельных столбцов',await pg.evaluate("el('anBars').querySelectorAll('.an-bar').length===8"))
     await pg.evaluate("el('anBars').querySelectorAll('.an-bar')[5].dispatchEvent(new MouseEvent('click',{bubbles:true}))")
     ok('нажатие на столбец — подробности недели',await pg.evaluate("el('anBars').querySelector('.an-cap').innerText.startsWith('Неделя с')"),await pg.evaluate("el('anBars').querySelector('.an-cap').innerText"))
@@ -43,7 +43,7 @@ async def m():
     ok('«Стрит-воркаут»: последние круговые',await pg.evaluate("el('anLoad').innerText.includes('Сотка · день 3')"))
     await pg.evaluate("document.querySelector('#anDisc [data-v=\"all\"]').click();document.querySelector('#anMet [data-v=\"vol\"]').click()")
     # упражнения
-    await pg.evaluate("document.querySelector('#anTabs [data-v=\"ex\"]').click()");await pg.wait_for_timeout(60)
+    await pg.evaluate("document.querySelector('#anSub [data-v=\"ex\"]').click()");await pg.wait_for_timeout(60)
     await pg.select_option('#anExSel','Жим лёжа');await pg.wait_for_timeout(60)
     e=json.loads(await pg.evaluate("JSON.stringify(anExData(anRecs())['Жим лёжа'].map(s=>Math.round(s.e1rm*10)/10))"))
     ok('расчётный 1ПМ по Эпли (80×5 → 93,3 кг)',e[0]==93.3 and len(e)==12,e[:3])
@@ -63,7 +63,7 @@ async def m():
     ok('график веса со средним за 7 дней',await pg.evaluate("!!el('anWChart').querySelector('.an-avg')&&el('anBody').innerText.includes('среднее за неделю')"))
     if SHOT:await pg.evaluate("el('anTabs').scrollIntoView()");await pg.screenshot(path=SHOT+'/an-body.png')
     # восстановление
-    await pg.evaluate("document.querySelector('#anTabs [data-v=\"rec\"]').click()");await pg.wait_for_timeout(60)
+    await pg.evaluate("document.querySelector('#anTabs [data-v=\"train\"]').click();document.querySelector('#anSub [data-v=\"rec\"]').click()");await pg.wait_for_timeout(60)
     await pg.evaluate("document.querySelector('#anSlQ [data-v=\"7\"]').click()");await pg.click('#anSlP');await pg.evaluate("document.querySelector('#anFeel [data-v=\"4\"]').click()")
     ok('сон 7 → +0,5 = 7,5 ч и самочувствие сохранены',await pg.evaluate("(s=>s.h===7.5&&s.f==='4')(anSt().sleep[localDate()])"))
     ok('график сна за 14 дней',await pg.evaluate("el('anSlChart').querySelectorAll('.an-bar').length===14"))
