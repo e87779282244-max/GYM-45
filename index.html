@@ -2976,7 +2976,7 @@ function renderStreet(){const w=el("streetDays");w.innerHTML="";
 renderStreet();
 /* ---------- БОДИБИЛДИНГ · 5 программ ---------- */
 const BODY=[
- {name:"Фулбади для новичков",meta:"3 дня/нед · всё тело",
+ {name:"Фулбади для новичков",next:"pcfb",meta:"3 дня/нед · всё тело",
   desc:"Старт для новичков: всё тело за тренировку, через день. Чередуй День A и День B, 3 раза в неделю. Фокус — техника базовых движений и постепенный рост веса.",
   days:[
    {name:"День A · всё тело",focus:"База A",ex:[["Приседания со штангой",3,8,50],["Жим лёжа",3,8,40],["Тяга штанги в наклоне",3,8,40],["Армейский жим стоя",3,10,25],["Подъём штанги на бицепс",3,12,20],["Планка",3,45,0]]},
@@ -3014,6 +3014,11 @@ function openProg(p,eyebrow,computed){
     b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${d.name}</span><span class="disc-sub">${d.focus} · ${d.ex.length} упр.</span></span><span class="go">›</span>`;
     const sec=/^TRX/.test(eyebrow||"")?"trx":/^Стритлифтинг/.test(eyebrow||"")?"street":/^Кроссфит/.test(eyebrow||"")?"cross":(/Бодибилдинг/i.test(eyebrow||"")||/^GVT/.test(p.name))?"body":"other";
     b.onclick=()=>startWorkout({name:d.name,focus:p.name+" · "+d.focus,ex:d.ex,sec:sec,fixed:/^Пауэрлифтинг/.test(eyebrow||"")?1:0},computed);w.appendChild(b);});
+  if(p.next){let nx=null;try{nx=AUTH.find(q=>q.id===p.next);}catch(e){}
+    if(nx){const h=document.createElement("p");h.className="bb-lbl";h.innerHTML="Следующий шаг<small>освоил технику базы за 1–2 месяца — переходи</small>";w.appendChild(h);
+      const b=document.createElement("button");b.className="disc au-cur next-step";
+      b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${nx.meta}</span></span><span class="go">›</span>`;
+      b.querySelector("span span").textContent=nx.name;b.onclick=()=>authOpen(nx);w.appendChild(b);}}
   show("bodyprog");
 }
 function progButton(p,eyebrow){const b=document.createElement("button");b.className="disc"+(p.pending?" disc-soon":"");
@@ -3025,6 +3030,9 @@ function renderBody(){const w=el("bodyProgs");w.innerHTML="";
   g.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span><span class="emb">German Volume Training</span></span><span class="disc-sub">5 этапов · 10×10 → метод 4 %</span></span><span class="go">›</span>`;
   g.onclick=()=>show("gvt");w.appendChild(g);
   const lb=(t,s)=>{const d=document.createElement("p");d.className="bb-lbl";d.innerHTML=t+(s?`<small>${s}</small>`:"");w.appendChild(d);};
+  /* старт новичка — сразу перед фулбади Картера: база → переход на авторский фулбади */
+  const fbN=BODY.find(p=>p.name==="Фулбади для новичков");
+  if(fbN){lb("С чего начать","техника базы → затем «Фулбади 3 дня» Картера");w.appendChild(progButton(fbN,"Бодибилдинг · программа"));}
   if(typeof AUTH!=="undefined"&&typeof auCount==="function"){lb("Авторские программы","блоками по авторам · внутри блока — от простой к сложной");
     const nh=auNextHint();let by=null;
     AUTH.forEach(p=>{if(p.by!==by){by=p.by;const k=AUTH.filter(q=>q.by===by).length;const h=document.createElement("p");h.className="au-by";h.textContent=by+(k>1?" · "+k+" программы":"");w.appendChild(h);}
@@ -3033,7 +3041,7 @@ function renderBody(){const w=el("bodyProgs");w.innerHTML="";
       b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${p.meta}<span class="lvl-dots" aria-label="сложность ${p.lvl} из 5">${[1,2,3,4,5].map(k=>`<i class="${k<=p.lvl?"on":""}"></i>`).join("")}</span></span>${dn?`<span class="au-tag ok">✓ пройдена</span>`:n?`<span class="au-tag">${n} / ${p.total} трен.</span>`:p===nh?`<span class="au-tag nx">→ следующая</span>`:""}</span><span class="go">›</span>`;
       b.querySelector("span span").textContent=nm;b.onclick=()=>authOpen(p);w.appendChild(b);});
     lb("Базовые программы","классические сплиты");}
-  BODY.forEach(p=>w.appendChild(progButton(p,"Бодибилдинг · программа")));}
+  BODY.forEach(p=>{if(p!==fbN)w.appendChild(progButton(p,"Бодибилдинг · программа"));});}
 renderBody();
 /* ---------- GVT · персональный цикл (алгоритм «ШТУРМ: Режим силы», перенос владельцем) ----------
    42 дня · 14 занятий · А → Б → В · занятие раз в 3 дня.
