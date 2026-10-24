@@ -287,6 +287,7 @@
   .au-wk button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:8px 13px;font:inherit;font-weight:700;font-size:13px;white-space:nowrap}
   .au-wk button.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .au-note{margin:0 2px;font-size:13px;line-height:1.4;color:var(--muted)}
+  .wk-circ{display:inline-block;margin:6px 0 2px;padding:4px 10px;border-radius:999px;background:var(--accent,#6b7f3a);color:#fff;font-size:12px;font-weight:700;letter-spacing:.02em}
   .ex-note{font-size:13px;line-height:1.4;color:var(--accent-ink);background:var(--accent-weak);border-radius:10px;padding:7px 10px;margin:6px 0 4px}
   /* аналитика */
   .tile-d{font-size:11.5px;font-weight:700;min-height:14px;margin-top:3px;color:var(--muted)}
@@ -2644,6 +2645,11 @@ function exDone(i){if(current.stop&&current.stop[i])return true;
   const st=current.sets[i].filter(x=>!x.warm);return st.length>0&&st.every(x=>x.done);}
 function nextUndone(i){const n=current.sets.length;
   for(let k=1;k<n;k++){const j=(i+k)%n;if(!exDone(j))return j;}return -1;}
+/* круги и суперсеты: упражнение связано со следующим, если отдых ≤10 с и в подсказке «сразу →» / «пауза N с →» */
+function wkLinked(i){const E=current&&current.program&&current.program.ex;if(!E||current.program.g2||i<0||i>=E.length-1)return false;const e=E[i];
+  return e[6]>0&&e[6]<=10&&/(сразу|пауза \d+ с)[^.;]*→/i.test(e[5]||"");}
+function wkGroup(i){if(!current||!current.program||current.program.g2)return null;let a=i,b=i;while(a>0&&wkLinked(a-1))a--;while(wkLinked(b))b++;return b>a?[a,b]:null;}
+function wkExLbl(k){const m=/^([A-Z]\d+) ·/.exec(current.program.ex[k][5]||"");return (m?m[1]+" · ":"")+current.program.ex[k][0];}
 function goEx(i){if(!current)return;const n=current.program.ex.length;
   current.idx=Math.max(0,Math.min(n-1,i));saveDraft();renderWorkout();}
 function markCur(){const rows=el("exList").querySelectorAll(".wk-sets .set-row:not(.head)");
@@ -2702,7 +2708,10 @@ function renderWorkout(){
   const tgt=G?gvtTargetLine(i):`${ns} ${plural(ns,"подход","подхода","подходов")} × ${ex[2]} повт.${ex[3]?" · "+ex[3]+" кг":""}${_rmv?" · 1ПМ "+(/с весом/.test(ex[0])?"+":"")+_rmv+" кг":""}`;
   const extra=G?`${gvtSrcLine(i)}${stopR?`<div class="gvt-stop">Блок остановлен: ${stopR}. Остальные подходы не засчитаны.</div>`:""}`:(ex[5]?`<div class="ex-note">${ex[5]}</div>`:"");
   const add=(G&&G.main)?"":`<button class="addset" type="button">+ подход</button>`;
-  c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">${tgt}</div>${extra}${_prev}
+  const _g=G?null:wkGroup(i);let _circ="";
+  if(_g){const tot=Math.max(...current.sets.slice(_g[0],_g[1]+1).map(se=>se.filter(x=>!x.warm).length)),dn=Math.min(...current.sets.slice(_g[0],_g[1]+1).map(se=>se.filter(x=>!x.warm&&x.done).length));
+    const _ss=_g[1]-_g[0]===1;_circ=`<div class="wk-circ">${_ss?"Суперсет · подход":"Круг"} ${Math.min(dn+1,tot)} из ${tot} · упражнение ${i-_g[0]+1} из ${_g[1]-_g[0]+1}</div>`;}
+  c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">${tgt}</div>${_circ}${extra}${_prev}
     <div class="wk-sets">${rows}${add}</div>`;
   wrap.appendChild(c);
   c.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
@@ -2716,6 +2725,11 @@ function renderWorkout(){
     b.classList.toggle("on",s.done);b.textContent=s.done?"✓":"";saveDraft();markCur();
     if(G&&G.main&&!s.warm&&gvtStopUpdate(i))return;
     if(!s.done)return;
+    const grp=s.warm?null:wkGroup(i);
+    if(grp){const [a,b]=grp;let nx2=-1,f2=-1;for(let k=i+1;k<=b;k++)if(!exDone(k)){nx2=k;break;}
+      if(nx2>=0){restStop();setTimeout(()=>{if(current&&current.idx===i){goEx(nx2);wkFocusNext();toast("Сразу → "+wkExLbl(nx2));}},350);return;}
+      for(let k=a;k<=b;k++)if(!exDone(k)){f2=k;break;}
+      if(f2>=0){restStart(current.program.ex[b][6]);restAfter=()=>{if(!current)return;goEx(f2);wkFocusNext();toast("Новый круг → "+wkExLbl(f2));};return;}}
     if(!exDone(i)){restStart();return;}
     const nx=nextUndone(i);
     if(nx<0){restStop();renderWorkout();wkAllDone();return;}
