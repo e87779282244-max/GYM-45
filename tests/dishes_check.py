@@ -18,7 +18,7 @@ async def m():
     ok('ккал как в таблице (сырники 218, шашлык 290)',await pg.evaluate("(()=>{const a=ntAllFoods();return a.find(f=>f.name==='Сырники').kcal===218&&a.find(f=>f.name==='Шашлык свиной').kcal===290})()"))
     await pg.evaluate("show('food')");await pg.wait_for_timeout(100)
     await pg.evaluate("el('ntQ').value='суп';ntSearch()")
-    ok('поиск «суп»: 4 блюда со словом «суп»',await pg.evaluate("el('ntHits').querySelectorAll('.nt-hit').length===4"),await pg.evaluate("el('ntHits').innerText"))
+    ok('поиск «суп»: 4 готовых блюда со словом «суп» идут первыми',await pg.evaluate("(()=>{const h=[...el('ntHits').querySelectorAll('.nt-hit span')].map(s=>s.textContent);return h.length>=4&&h.slice(0,4).every(n=>!/\\(/.test(n))})()"),await pg.evaluate("el('ntHits').innerText"))
     await pg.evaluate("el('ntQ').value='сырники';ntSearch();el('ntHits').querySelector('.nt-hit').click()");await pg.wait_for_timeout(80)
     ok('по умолчанию 1 порция 250 г = 545 ккал',await pg.evaluate("el('ntQUnit').value==='piece'&&el('ntQUnit').options[0].text==='Порции'&&el('ntPickRes').textContent.includes('545')"),await pg.evaluate("el('ntPickRes').innerText"))
     if SHOT:await pg.screenshot(path=SHOT+'/dish-pick.png',full_page=False)
