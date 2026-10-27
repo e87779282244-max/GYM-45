@@ -27,7 +27,7 @@ async def m():
     async def train():
       await pg.evaluate("[...el('dashActive').querySelectorAll('.mp-open')].find(b=>b.textContent.includes('Фулбади')).click()");await pg.wait_for_timeout(150)
       await pg.evaluate("el('bodyDays').querySelector('.au-go').click()");await pg.wait_for_timeout(120);await pg.evaluate("el('dayStart').click()");await pg.wait_for_timeout(150)
-      await pg.evaluate("current.sets.forEach(se=>se.forEach(s=>{s.done=true;}));finishWorkout()");await pg.wait_for_timeout(150);await pg.evaluate("show('home')");await pg.wait_for_timeout(80)
+      await pg.evaluate("current.sets.forEach(se=>se.forEach(s=>{s.done=true;if(!s.w)s.w=40;}));finishWorkout()");await pg.wait_for_timeout(150);await pg.evaluate("show('home')");await pg.wait_for_timeout(80)
     await train()
     ok('после 1-й: следующая Ср · День B',await pg.evaluate("auPlanNext(FBN_PROG).w===0&&auPlanNext(FBN_PROG).d===1&&auCount('fbn')===1"))
     await train();await train()
