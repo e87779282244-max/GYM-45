@@ -1187,7 +1187,6 @@
       <button class="disc" data-disc="Стритлифтинг">Стритлифтинг<span class="go">›</span></button>
       <button class="disc" data-disc="Кроссфит">Кроссфит<span class="go">›</span></button>
       <button class="disc" data-disc="Стрит воркаут">Стрит воркаут<span class="go">›</span></button>
-      <button class="disc" data-disc="TRX">TRX<span class="go">›</span></button>
     </div>
   </section>
 
@@ -6711,7 +6710,7 @@ function anLoad(R){const box=el("anLoad"),sec=AN_UI.sec,recs=R.filter(r=>sec==="
     return {L,vol:L.reduce((a,r)=>a+r.vol,0),sets:L.reduce((a,r)=>a+r.sets,0),n:L.length,time:L.reduce((a,r)=>a+(r.dur||0),0),rpe:rp.length?rp.reduce((a,r)=>a+r.rpe,0)/rp.length:0,rir:ri.length?ri.reduce((a,b)=>a+b,0)/ri.length:0};});
   const M=AN_MET[AN_UI.met],vals=agg.map(a=>a[AN_UI.met]),lab=W.map(w=>{const d=new Date(w+"T00:00");return d.getDate()+"."+String(d.getMonth()+1).padStart(2,"0");});
   const cur=agg[7],prev=agg[6];
-  box.innerHTML=`<div class="an-disc" id="anDisc">${AN_SECS.map(([k,t])=>`<button type="button" data-v="${k}">${t}</button>`).join("")}</div>
+  box.innerHTML=`<div class="an-disc" id="anDisc">${AN_SECS.filter(([k])=>k!=="trx"||safe.get().some(h=>h&&h.sec==="trx")).map(([k,t])=>`<button type="button" data-v="${k}">${t}</button>`).join("")}</div>
    <div class="card"><div class="an-h"><h3>По неделям</h3><span class="nt-sub">8 недель · нажми на столбец</span></div>
    <div class="an-met" id="anMet">${mets.map(k=>`<button type="button" data-v="${k}">${AN_MET[k][0]}</button>`).join("")}</div>
    <div id="anBars"></div>
