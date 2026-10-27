@@ -333,6 +333,9 @@
   .an-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
   .an-row:first-of-type{border-top:none}.an-row span{display:flex;flex-direction:column;min-width:0}.an-row small{color:var(--muted);font-size:12px}.an-row small i{font-style:normal;color:var(--accent-ink);font-weight:700}
   .an-row>b{flex:none;white-space:nowrap}
+  .an-keyr{width:100%;background:none;border:none;border-top:1px solid var(--line);font:inherit;color:var(--fg);text-align:left;cursor:pointer}
+  .an-keyr:first-of-type{border-top:none}.an-keyr>b{display:flex;flex-direction:column;align-items:flex-end;font-family:var(--dsp);font-size:16px}.an-keyr>b small{font-size:11.5px}
+  .an-spark{color:var(--accent);flex:none;margin-left:auto}
   .an-sleep{display:flex;align-items:center;gap:14px}.an-sleep button{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--surface);font-size:22px;font-weight:700;color:var(--fg)}
   .an-sleep b{font-family:var(--dsp);font-size:26px;min-width:90px;text-align:center}
   .an-feel{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
@@ -1980,12 +1983,13 @@
         <span id="coachText" style="flex:1;min-width:0;font-size:14px;line-height:1.45"></span>
         <button id="coachClose" class="icon-btn" title="Скрыть" style="background:transparent;flex:none">✕</button>
       </div>
-      <p class="an-tl">Последние 7 дней · изменение к предыдущим 7</p>
+      <p class="an-tl">Тренировки и тоннаж — 7 дней против предыдущих 7 · план — с понедельника</p>
       <div class="tiles">
         <div class="tile"><div class="v num" id="tWeek">0</div><div class="l">тренировок</div><div class="tile-d" id="tWeekD"></div></div>
         <div class="tile"><div class="v num" id="tVol">0</div><div class="l">тонн</div><div class="tile-d" id="tVolD"></div></div>
-        <div class="tile"><div class="v num" id="tStreak">0</div><div class="l">дней подряд</div><div class="tile-d"></div></div>
+        <div class="tile"><div class="v num" id="tStreak">0</div><div class="l" id="tStreakL">по плану недели</div><div class="tile-d" id="tStreakD"></div></div>
       </div>
+      <div id="anKey"></div>
       <div class="an-tabs" id="anTabs" role="tablist"><button type="button" data-v="train">Тренировки</button><button type="button" data-v="food">Питание</button><button type="button" data-v="body">Тело</button></div>
       <div class="sk-lvl an-sub" id="anSub"><button type="button" data-v="load">Нагрузка</button><button type="button" data-v="ex">Упражнения</button><button type="button" data-v="rec">Восстановление</button></div>
       <div class="stack an-panel" id="anLoad"></div>
@@ -6993,13 +6997,34 @@ function anHist(R){const hist=el("hist");hist.innerHTML="";const S=anSt();
       row.querySelectorAll(".an-rpe button").forEach(q=>q.classList.toggle("on",+q.dataset.v===+s.rpe[key]));const bb=row.querySelector(".an-rpe-b");const v=row.querySelector(".v");if(bb)bb.remove();if(s.rpe[key])v.insertAdjacentHTML("beforeend",` <i class="an-rpe-b">тяжесть ${s.rpe[key]}</i>`);});
     hist.appendChild(row);});}
 /* ---- сборка экрана ---- */
+/* ---------- главные движения: расчётный 1ПМ, рост за 8 недель, рекорд ---------- */
+const AN_KEY=[["Присед",["Приседания со штангой","Присед со штангой"]],["Жим лёжа",["Жим лёжа","Жим штанги лёжа"]],["Становая",["Становая тяга"]],
+  ["Жим стоя",["Армейский жим стоя","Жим стоя","Жим штанги стоя"]],["Подтягивания с весом",["Подтягивания с весом"]],["Брусья с весом",["Отжимания на брусьях с весом"]]];
+function anKeyLifts(R){const E=anExData(R),d56=new Date();d56.setDate(d56.getDate()-56);const s56=localDate(d56),d28=new Date();d28.setDate(d28.getDate()-28);const s28=localDate(d28),out=[];
+  AN_KEY.forEach(([t,names])=>{const S=[].concat(...names.map(n=>(E[n]||[]).map(x=>Object.assign({n:n},x)))).filter(x=>x.e1rm>0).sort((a,b)=>a.date.localeCompare(b.date));if(!S.length)return;
+    const recent=S.filter(x=>x.date>=s28),cur=Math.max(...(recent.length?recent:S.slice(-1)).map(x=>x.e1rm)),old=S.filter(x=>x.date<=s56),base=old.length?Math.max(...old.map(x=>x.e1rm)):S[0].e1rm;
+    const best=S.reduce((b,x)=>x.e1rm>b.e1rm?x:b,S[0]),last=S[S.length-1];
+    out.push({t:t,n:last.n,cur:cur,delta:cur-base,since:old.length?"за 8 нед.":"с начала",best:best.e1rm,bestDate:best.date,cnt:S.length,pts:S.slice(-12).map(x=>x.e1rm)});});
+  return out;}
+function anSpark(v){if(v.length<2)return "";const W=64,H=20,mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1;
+  return `<svg class="an-spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${v.map((y,i)=>(i/(v.length-1)*(W-2)+1).toFixed(1)+","+(H-1-(y-mn)/r*(H-2)).toFixed(1)).join(" ")}"/></svg>`;}
+function anKey(R){const box=el("anKey");if(!box)return;const L=anKeyLifts(R);
+  if(!L.length){box.innerHTML=`<div class="card an-key"><div class="an-h"><h3>Главные движения</h3></div><p class="nt-sub">После первой тренировки с приседом, жимом, становой или подтягиваниями с весом здесь будет расчётный 1ПМ и его рост.</p></div>`;return;}
+  box.innerHTML=`<div class="card an-key"><div class="an-h"><h3>Главные движения</h3><span class="nt-sub">расчётный 1ПМ · нажми — динамика</span></div>`+
+    L.map((x,i)=>`<button type="button" class="an-row an-keyr" data-i="${i}"><span><b>${x.t}</b><small>рекорд ${ntF(x.best,1)} кг · ${fmtDate(x.bestDate)}</small></span>${anSpark(x.pts)}<b class="num">${ntF(x.cur,1)} кг<small class="an-d ${x.delta>0.05?"up":x.delta<-0.05?"dn":""}">${x.delta>0.05?"+":""}${Math.abs(x.delta)<0.05?"±0":ntF(x.delta,1)} кг ${x.since}</small></b></button>`).join("")+`</div>`;
+  box.querySelectorAll(".an-keyr").forEach(b=>b.onclick=()=>{const x=L[+b.dataset.i];AN_UI.tab="ex";AN_UI.trainSub="ex";AN_UI.ex=x.n;AN_UI.exm="e1rm";anUISave();anRender();
+    try{el("anEx").scrollIntoView({behavior:"smooth",block:"start"});}catch(e){}});}
 function anRender(){const R=anRecs();
   /* плитки: за 7 дней против предыдущих 7 */
   const d7=new Date();d7.setDate(d7.getDate()-6);const d14=new Date();d14.setDate(d14.getDate()-13);const s7=localDate(d7),s14=localDate(d14);
   const c=R.filter(r=>r.date>=s7),p=R.filter(r=>r.date>=s14&&r.date<s7),cv=c.reduce((a,r)=>a+r.vol,0),pv=p.reduce((a,r)=>a+r.vol,0);
   el("tWeek").textContent=c.length;el("tWeekD").innerHTML=p.length?`<span class="an-d ${c.length>p.length?"up":c.length<p.length?"dn":""}">${c.length-p.length>0?"+":""}${c.length-p.length}</span>`:"";
   el("tVol").textContent=cv?ntF(cv/1000,1):"0";el("tVolD").innerHTML=pv?anDelta(anPct(cv,pv),false):"";
-  el("tStreak").textContent=streak(R);
+  /* выполнение плана: тренировок с понедельника из запланированных активными программами */
+  {let pl=0,dn=0;try{pl=weekPlan();dn=weekDone();}catch(e){}el("tStreak").textContent=pl?dn+"/"+pl:String(dn);
+   el("tStreakL").textContent=pl?"по плану недели":"с понедельника";
+   el("tStreakD").innerHTML=pl?(dn>=pl?`<span class="an-d up">план выполнен</span>`:`<span class="an-d">осталось ${pl-dn}</span>`):"";}
+  try{anKey(R);}catch(e){console.error(e);}
   const top=["load","ex","rec"].includes(AN_UI.tab)?"train":AN_UI.tab;
   ntChips("anTabs",top,v=>{AN_UI.tab=v==="train"?(AN_UI.trainSub||"load"):v;anUISave();anRender();});
   el("anSub").hidden=top!=="train";if(top==="train"){AN_UI.trainSub=AN_UI.tab;ntChips("anSub",AN_UI.tab,v=>{AN_UI.tab=v;AN_UI.trainSub=v;anUISave();anRender();});}
