@@ -1269,6 +1269,21 @@
 
   <div class="gvt-modal" id="gvtModal" hidden><div class="card gvt-mbox" id="gvtMbox"></div></div>
 
+  <!-- ПАУЭРЛИФТИНГ · 5/3/1 · Джим Вендлер -->
+  <section class="screen" id="scr-w531" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Пауэрлифтинг · Джим Вендлер</p><h1>5/3/1</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card wod-card">
+        <span class="tag">Жим стоя · становая · жим лёжа · присед</span>
+        <p class="wod-desc">Медленный, но долгий рост силы: 4-недельные циклы от тренировочного максимума (90% 1ПМ), последний подход — на рекорд повторов, после цикла ТМ растёт на 2,5–5 кг. Есть классика с шаблонами подсобки и полная подготовка к соревнованиям: межсезонье → предсоревновательный → подводка к старту.</p>
+      </div>
+      <div class="stack" id="w5Body"></div>
+    </div>
+  </section>
+
   <!-- ПАУЭРЛИФТИНГ · 5×5 · недели -->
   <section class="screen" id="scr-pl5" hidden>
     <div class="hd">
@@ -2504,7 +2519,7 @@ function renderDay(){
   el("dayTitle").textContent=p.name;
   el("dayEyebrow").textContent=(p.focus||"Программа дня")+(act?" · идёт":"");
   let tot=0;const w=el("dayList");w.innerHTML="";
-  p.ex.forEach((e,i)=>{const pl=p.preset?gvtPlanOf(p,i):planOf(e,p);
+  p.ex.forEach((e,i)=>{const pl=p.preset?(p.w5?w5PlanOf(p,i):gvtPlanOf(p,i)):planOf(e,p);
     const sets=act?current.sets[i].filter(s=>!s.warm):null,ns=sets?sets.length:pl.sets;tot+=ns;
     const nd=sets?sets.filter(s=>s.done).length:0,fin=sets&&(nd===ns||!!(current.stop&&current.stop[i]));
     const m=p.g2&&p.gx[i]&&G2X[p.gx[i].key]&&G2X[p.gx[i].key].m?{p:"media/"+G2X[p.gx[i].key].m+".jpg"}:(p.g2?null:MEDIA[e[0]]);
@@ -2836,6 +2851,7 @@ function finishWorkout(){
   if(!anyDone){toast(current.program.gvt?"Нет выполненных подходов — занятие не сохранено":"Отметьте выполненные подходы ✓");return;} // считаем только отмеченное
   const gRec=current.program.gvt?gvtRecord():null;
   const g2Rec=current.program.g2?g2Record():null;if(g2Rec)vol=g2Rec.ton;
+  const w5Rec=current.program.w5?w5Record():null;
   const prog=current.program;
   // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
   const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(anSetOut);log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
@@ -2861,12 +2877,14 @@ function finishWorkout(){
     if(full<sets.length)short.push(e[0]);});
   const uniqShort=[...new Set(short)];
   let note=rmMsg;
-  if(uniqShort.length&&!gRec&&!g2Rec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
+  if(uniqShort.length&&!gRec&&!g2Rec&&!w5Rec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
   try{if(auP&&!auWas&&auDone(auP)){const nx=auNext(auP);note=`Программа «${auP.name}» пройдена 🎉`+(nx?` Следующая — «${nx.name}»: открой её в разделе «Бодибилдинг».`:"")+(note?" "+note:"");}else if(auP){note=`«${auP.name}»: ${auCount(auP.id)} из ${auP.total} тренировок.`+(note?" "+note:"");}}catch(e){}
   window.__coachPending=note||"";
   clearDraft();current=null;restStop();
   if(g2Rec){toast(g2Rec.status==="full"?"Занятие выполнено полностью":"Результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     show("gvt");g2Summary(g2Rec.uid);return;}
+  if(w5Rec){toast(w5Rec.pr.length?"Рекорд! Занятие сохранено":"Занятие сохранено");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
+    w5LastUid=w5Rec.uid;show("w531");window.scrollTo(0,0);return;}
   if(gRec){toast(gRec.full?"Занятие выполнено полностью":"Частичный результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     show("gvt");gvtRateOpen(gRec.uid);return;}
   toast("Тренировка сохранена");show("progress");
@@ -3250,6 +3268,267 @@ function gvtArchiveHTML(v,w){const arch=v.cycles.filter(c=>c.closedAt);if(!arch.
   w.appendChild(d);}
 /* экран рисуется при открытии (applyScreen → renderGvt) */
 /* карточка «Активная программа» на главном: только если программа активирована */
+
+/* ===================== 5/3/1 · Джим Вендлер =====================
+   Источники (файлы владельца): «5/3/1: The Simplest and Most Effective Training System» (2009),
+   «5/3/1 for Powerlifting» (2011), конспект «Система 5/3/1». ТМ (тренировочный максимум) = 90 % от 1ПМ,
+   все проценты — от ТМ. Цикл: волны 1–3 + разгрузка; после цикла ТМ +2,5 кг (верх) / +5 кг (низ). */
+const W5K="gym45_w531_v1";
+const W5L={press:{n:"Армейский жим стоя",s:"Жим стоя",up:1},dead:{n:"Становая тяга",s:"Становая"},bench:{n:"Жим лёжа",s:"Жим лёжа",up:1},squat:{n:"Приседания со штангой",s:"Присед"}};
+const W5_ORDER=["press","dead","bench","squat"];
+const W5_DL=[[40,5],[50,5],[60,5]];
+const W5_PCT={
+  v1:{1:[[65,5],[75,5],[85,5]],2:[[70,3],[80,3],[90,3]],3:[[75,5],[85,3],[95,1]],4:W5_DL},
+  v2:{1:[[75,5],[80,5],[85,5]],2:[[80,3],[85,3],[90,3]],3:[[75,5],[85,3],[95,1]],4:W5_DL},
+  pl:{1:[[70,3],[80,3],[90,3]],2:[[65,5],[75,5],[85,5]],3:[[75,5],[85,3],[95,1]],4:W5_DL}};
+const W5_WLBL={v1:{1:"3×5 · 5+",2:"3×3 · 3+",3:"5/3/1+",4:"разгрузка"},v2:{1:"3×5 · 5+",2:"3×3 · 3+",3:"5/3/1+",4:"разгрузка"},pl:{1:"3×3",2:"3×5",3:"5/3/1",4:"разгрузка"}};
+/* этапы: amrap — full (максимум повторов), pick (выкладываться, когда самочувствие отличное), soft (можно больше, без отказа), none (ровно норма) */
+const W5_PH={
+  classic:{t:"Классика 5/3/1",sub:"Книга «5/3/1» · последний подход на максимум повторов",amrap:"full",comp:0},
+  off_strength:{t:"Межсезонье · сила",sub:"больше 8 недель до старта · лучший вариант, если не знаешь, что выбрать",amrap:"pick",chins:1,as:"pl_str",cond:"ul",comp:1},
+  off_mass:{t:"Межсезонье · масса",sub:"основное — только норма повторов, упор на объём подсобки",amrap:"none",chins:1,drop:1,as:"pl_mass",cond:"mass",comp:1},
+  off_cond:{t:"Межсезонье · кондиции",sub:"упор на функциональную подготовку, сила может просесть",amrap:"pick",chins:1,as:"pl_cond",cond:"hard",comp:1},
+  nov:{t:"N.O.V. · круглый год",sub:"рекорды + 2–3 подсобных + тяжёлые кондиции",amrap:"pick",as:"tri",cond:"hard",comp:1},
+  noncomp:{t:"Сила без соревнований",sub:"рекорды в повторах + тяжёлый сингл по самочувствию",amrap:"full",single:"rm",comp:1},
+  premeet:{t:"Предсоревновательный · 4 нед.",sub:"за 8–5 недель до старта · синглы от цели на старт",amrap:"soft",single:"pre",as3:1,cond:"maint",comp:1},
+  meetprep:{t:"Подводка к старту · 4 нед.",sub:"последние 4 недели · 4-я неделя — старт, без тренировок",amrap:"none",single:"prep",asNone:1,comp:1}};
+const W5_PH_ORDER=["classic","off_strength","off_mass","off_cond","nov","noncomp","premeet","meetprep"];
+const W5_AS={
+  bbb:{t:"Boring But Big · 5×10",press:[["@main",5,"10"],["Подтягивания",5,"10",1]],dead:[["@main",5,"10"],["Подъём ног в висе",5,"15",1]],bench:[["@main",5,"10"],["Тяга гантели одной рукой",5,"10"]],squat:[["@main",5,"10"],["Сгибание ног лёжа в тренажёре",5,"10"]]},
+  tri:{t:"Триумвират · 3 упражнения",press:[["Отжимания на брусьях",5,"15",1],["Подтягивания",5,"10",1]],dead:[["Наклоны со штангой (гуд морнинг)",5,"12"],["Подъём ног в висе",5,"15",1]],bench:[["Жим гантелей лёжа",5,"15"],["Тяга гантели одной рукой",5,"10"]],squat:[["Жим ногами",5,"15"],["Сгибание ног лёжа в тренажёре",5,"10"]]},
+  bw:{t:"Свой вес · 75 повт. в сумме",press:[["Подтягивания",5,"15",1],["Отжимания на брусьях",5,"15",1]],dead:[["Гиперэкстензия",5,"15",1],["Подъём ног в висе",5,"15",1]],bench:[["Подтягивания",5,"15",1],["Отжимания от пола",5,"15",1]],squat:[["Выпады",5,"15",1],["Скручивания",5,"15",1]]},
+  bible:{t:"Библия периодизации · 5×10–20",press:[["Жим гантелей",5,"10–20"],["Тяга гантели одной рукой",5,"10–20"],["Разгибание рук на трицепс на блоке",5,"10–20"]],dead:[["Сгибание ног лёжа в тренажёре",5,"10–20"],["Жим ногами",5,"10–20"],["Подъём ног в висе",5,"10–20",1]],bench:[["Жим гантелей лёжа",5,"10–20"],["Тяга верхнего блока",5,"10–20"],["Разгибание рук на трицепс на блоке",5,"10–20"]],squat:[["Гиперэкстензия",5,"10–20",1],["Выпады",5,"10–20"],["Скручивания",5,"10–20",1]]},
+  none:{t:"Без подсобки («I'm Not Doing Shit Today»)",press:[],dead:[],bench:[],squat:[]},
+  pl_mass:{press:[["Жим гантелей",5,"10"],["Сгибание рук со штангой",5,"10"],["Махи гантелей в стороны",3,"10"],["Обратное разведение гантелей",3,"10"]],dead:[["Наклоны со штангой (гуд морнинг)",4,"10"],["Тяга штанги в наклоне",4,"10"],["Сгибание ног лёжа в тренажёре",4,"12"],["Ролик для пресса",4,"12",1]],bench:[["Жим гантелей лёжа",5,"10"],["Тяга гантели с упором грудью",5,"12"],["Разгибание рук на трицепс на блоке",5,"20"],["Тяга каната к лицу",5,"20"]],squat:[["Жим ногами",4,"10"],["Глют-хам рейз",4,"10",1],["Подъём ног в висе",4,"10",1]]},
+  pl_str:{press:[["Жим гантелей",3,"10"],["Отжимания на брусьях с весом",3,"10"],["Тяга каната к лицу",3,"20"],["Сгибание рук со штангой",3,"10"]],dead:[["Наклоны со штангой (гуд морнинг)",3,"10"],["Тяга штанги в наклоне",3,"10"],["Сгибание ног лёжа в тренажёре",3,"12"],["Ролик для пресса",4,"12",1]],bench:[["Жим гантелей лёжа",3,"10"],["Отжимания от пола",3,"до отказа",1],["Тяга гантели с упором грудью",3,"12"],["Обратное разведение гантелей",3,"20"]],squat:[["Жим ногами",3,"10"],["Глют-хам рейз",3,"10–15",1],["Подъём ног в висе",3,"10",1]]},
+  pl_cond:{press:[["Жим гантелей",3,"10"],["Сгибание рук со штангой",3,"10"]],dead:[["Наклоны со штангой (гуд морнинг)",3,"10"],["Ролик для пресса",4,"12",1]],bench:[["Жим гантелей лёжа",3,"10"],["Тяга гантели с упором грудью",3,"12"]],squat:[["Жим ногами",3,"10"],["Подъём ног в висе",3,"10",1]]}};
+const W5_AS_PICK=["bbb","tri","bw","bible","none"];
+const W5_COND={hard:"Тяжело: Prowler 15 × 40 м (отдых 90 с), спринты в гору или по лестнице",easy:"Легко: Prowler 8 × 40 м (отдых 60 с) или быстрая ходьба",
+  mass:"Лёгкие, без ущерба массе: Prowler, долгая прогулка, фермерская прогулка",maint:"Поддерживающие: столько, чтобы сохранить форму, не больше"};
+const W5_ATT=[85,92.5,100];
+
+function w5Store(){try{const v=JSON.parse(localStorage.getItem(W5K));if(v&&Array.isArray(v.cycles))return v;}catch(e){}return {cycles:[],activeId:null,meet:null};}
+function w5Save(v){try{localStorage.setItem(W5K,JSON.stringify(v))}catch(e){}cloudPush();}
+function w5Active(v){v=v||w5Store();return v.cycles.find(c=>c.id===v.activeId&&!c.closedAt)||null;}
+function w5Now(){return new Date().toISOString();}
+function w5R(x,step){step=step||2.5;return Math.round(x/step+1e-9)*step;}
+function w5E1(w,r){return r>0&&w>0?w*r*0.0333+w:0;}
+function mergeW5(a,b){const m=mergeGvt(a,b);const ma=a&&a.meet,mb=b&&b.meet;
+  m.meet=(ma&&mb)?((ma.updatedAt||"")>=(mb.updatedAt||"")?ma:mb):(ma||mb||null);return m;}
+/* схема процентов: соревновательные этапы — порядок книги «5/3/1 for Powerlifting» (3×3 → 3×5 → 5/3/1) */
+function w5PctKey(c){return c.phase==="classic"?(c.variant||"v1"):"pl";}
+function w5AmrapWave(c,wave){if(wave===4)return false;const P=W5_PH[c.phase];if(P.amrap==="none")return false;
+  return w5PctKey(c)==="pl"?(wave===1||wave===3):true;}
+/* расписание цикла: 4 дня — по движению в день; 3 дня — те же 16 занятий подряд; 2 дня — по два движения; 1 день — без разгрузки */
+function w5Sessions(c){const out=[],d=c.days||4,waves=d===1?[1,2,3]:[1,2,3,4];
+  const meet=c.phase==="meetprep";
+  if(d===4||d===3){let k=0;waves.forEach(w=>{if(meet&&w===4)return;W5_ORDER.forEach(l=>{out.push({lifts:[l],wave:w,wk:Math.floor(k/d)});k++;});});}
+  else{let k=0;waves.forEach(w=>{if(meet&&w===4)return;[["squat","bench"],["dead","press"]].forEach(ls=>{out.push({lifts:ls,wave:w,wk:Math.floor(k/d)});k++;});});}
+  return out;}
+function w5Weeks(c){const s=w5Sessions(c);return s.length?s[s.length-1].wk+1+(c.phase==="meetprep"?1:0):0;}
+function w5Recs(c,i){return c.recs.filter(r=>r.s===i);}
+function w5Next(c){const S=w5Sessions(c);for(let i=0;i<S.length;i++)if(!w5Recs(c,i).length)return i;return -1;}
+/* лучший расчётный 1ПМ по движению — по всем циклам (для «побей рекорд») */
+function w5Best(v,lift,exceptUid){let b=0;(v||w5Store()).cycles.forEach(c=>c.recs.forEach(r=>{if(r.uid===exceptUid)return;const x=r.lifts&&r.lifts[lift];if(x&&x.e1>b)b=x.e1;}));return b;}
+function w5Goal(v,lift){const m=(v||w5Store()).meet;return m&&m.goal&&m.goal[lift]>0?m.goal[lift]:0;}
+function w5WeeksToMeet(v){const m=(v||w5Store()).meet;if(!m||!m.date)return null;
+  return Math.ceil((new Date(m.date+"T12:00")-new Date(localDate()+"T12:00"))/864e5/7);}
+function w5RecPhase(v){const n=w5WeeksToMeet(v);if(n==null||n<=0)return null;return n<=4?"meetprep":n<=8?"premeet":"off";}
+
+function w5AsList(c,lift){const P=W5_PH[c.phase];if(P.asNone)return [];
+  const key=P.as||c.assist||"bbb",T=W5_AS[key]||W5_AS.bbb;let L=(T[lift]||[]).map(x=>x.slice());
+  if(P.as3)L=L.map(x=>{x[1]=Math.min(3,x[1]);return x;});
+  return L;}
+function w5Build(c,i){const S=w5Sessions(c),s=S[i],P=W5_PH[c.phase],pk=w5PctKey(c),v=w5Store();
+  const ex=[],preset=[],rows=[],combo=s.lifts.length>1,step=c.step||2.5;
+  const pushRow=(e,sets,meta)=>{ex.push(e);preset.push(sets);rows.push(meta);};
+  s.lifts.forEach((lift,li)=>{const L=W5L[lift],tm=c.tm[lift],sch=W5_PCT[pk][s.wave],am=w5AmrapWave(c,s.wave);
+    const sets=[];
+    if(c.warm!==false&&s.wave!==4)[[40,5],[50,5],[60,3]].forEach(([pc,r])=>sets.push({w:w5R(tm*pc/100,step),r:r,done:false,warm:true,pct:pc}));
+    sch.forEach(([pc,r],j)=>{const last=j===sch.length-1;sets.push({w:w5R(tm*pc/100,step),r:r,done:false,pct:pc,need:r,amrap:last&&am?P.amrap:""});});
+    /* синглы */
+    let sg=[],sgNote="";
+    if(P.single==="pre"&&lift!=="press"&&(s.wave===1||s.wave===3)){const g=w5Goal(v,lift);if(g){sg=s.wave===1?[85,92.5]:[85,95];sg.forEach(pc=>sets.push({w:w5R(g*pc/100,step),r:1,done:false,pct:pc,single:"goal"}));sgNote=" · синглы "+sg.map(fmtW).join("/")+"% от цели "+fmtW(g)+" кг";}}
+    if(P.single==="prep"&&lift!=="press"&&s.wave===1){const g=w5Goal(v,lift);if(g){sets.push({w:w5R(g*.85,step),r:1,done:false,pct:85,single:"goal"});sgNote=" · сингл 85% от цели "+fmtW(g)+" кг";}}
+    if(P.single==="rm"&&(s.wave===1||s.wave===3)){const pm=Math.max(c.rm1&&c.rm1[lift]||0,w5Best(v,lift));if(pm){sets.push({w:w5R(pm*.9,step),r:1,done:false,pct:90,single:"rm"});sgNote=" · тяжёлый сингл ≈90% (не выше "+fmtW(w5R(pm*.95,step))+" кг)";}}
+    /* дроп-сет (межсезонье · масса) */
+    if(P.drop&&s.wave!==4){const w0=lift==="squat"?w5R(tm*.5,step):sets.find(x=>!x.warm).w;sets.push({w:w0,r:lift==="squat"?20:10,done:false,drop:true,need:lift==="squat"?20:10});}
+    const work=sets.filter(x=>!x.warm);
+    const lbl=sch.map(([pc,r],j)=>fmtW(pc)+"%×"+r+(j===sch.length-1&&w5AmrapWave(c,s.wave)?"+":"")).join(" · ");
+    const tgt=lbl+" · ТМ "+fmtW(tm)+" кг"+sgNote+(P.drop&&s.wave!==4?" · дроп-сет "+(lift==="squat"?"20":"10–15")+" повт.":"");
+    let note="";const amS=work.find(x=>x.amrap);
+    if(amS){const best=w5Best(v,lift);let pr="";
+      if(best>0){const n=Math.floor((best/amS.w-1)/0.0333)+1;if(n>amS.need)pr=` Рекорд (расч. 1ПМ ${fmtW(Math.round(best))} кг) побьёшь с ${n} повт.`;}
+      note=(amS.amrap==="full"?"Последний подход — максимум повторов, но не до отказа: 1–2 в запасе.":amS.amrap==="pick"?"Последний подход: при отличном самочувствии — на рекорд (1–2 в запасе), иначе ровно норма. Выбирай свои битвы: 1 движение на рекорд раз в 1–2 недели.":"Последний подход: можно больше нормы, но без отказа.")+pr;}
+    else if(s.wave===4)note="Разгрузка: ровно по 5 повторов, без рекордов.";
+    else if(P.amrap==="none")note="Только норма повторов — силы на подсобку и восстановление.";
+    else if(pk==="pl"&&s.wave===2)note="Неделя 3×5 — без максимума повторов.";
+    if(combo&&li===1)note=(note?note+" ":"")+"Второе движение дня: если сил заметно меньше, работай по норме.";
+    if(work.some(x=>x.single==="goal"))note=(note?note+" ":"")+"Синглы — уверенно и быстро, без отказа.";
+    pushRow([L.n,work.length,sch[sch.length-1][1],work[work.length-1].w,work.map(x=>x.w),note||undefined,undefined,tgt],sets,{lift:lift,main:1});
+    if(P.chins&&(lift==="press"||lift==="bench"))
+      pushRow(["Подтягивания",3,"5–10",0,undefined,"В суперсете с каждым рабочим подходом основного жима (можно тяга верхнего блока).",undefined,"3 подхода × 5–10 · в суперсете с жимом"],[0,1,2].map(()=>({w:0,r:5,done:false})),{lift:lift});
+    if(s.wave===4&&!combo&&c.deloadAs===false)return;
+    /* подсобка */
+    let AS=w5AsList(c,lift);if(combo)AS=AS.slice(0,1);
+    AS.forEach(([nm,ns,rp,bw])=>{
+      if(nm==="@main"){const pc=Math.min(60,40+5*Math.max(0,(c.n||1)-1)),w=w5R(tm*pc/100,step),k=s.wave===4?3:ns;
+        pushRow([L.n,k,"10",w,Array(k).fill(w),"Boring But Big: "+fmtW(pc)+"% ТМ. Вес можно снижать от подхода к подходу — главное, чтобы основная работа не страдала.",undefined,k+" × 10 · BBB · "+fmtW(pc)+"% ТМ"],Array.from({length:k},()=>({w:w,r:10,done:false})),{lift:lift,bbb:1});return;}
+      const k=s.wave===4?Math.min(3,ns):ns,r0=parseInt(rp,10)||10,pr=bw?null:lastResult(nm);
+      const sets2=Array.from({length:k},(_,j)=>{const pv=pr?(pr.sets[j]||pr.sets[pr.sets.length-1]):null;return {w:bw?0:(pv?pv.w:0),r:r0,done:false};});
+      pushRow([nm,k,rp,bw?0:null,undefined,W5_AS[c.assist]&&c.assist==="bw"&&W5_PH[c.phase].as==null?"В сумме ~75 повторов — набирай любым числом подходов.":undefined,undefined,k+" × "+rp+(bw?" · свой вес":pr?" · вес из прошлой тренировки":" · вес подбери сам")+(s.wave===4?" · разгрузка — легко":"")],sets2,{lift:lift});});
+  });
+  /* кондиции */
+  const cd=P.cond==="ul"?(s.lifts.some(l=>l==="dead"||l==="squat")?"hard":"easy"):P.cond;
+  if(cd&&s.wave!==4)pushRow(["Кондиции",1,"1",0,undefined,W5_COND[cd],undefined,W5_COND[cd]],[{w:0,r:1,done:false}],{cond:1});
+  const nm=s.lifts.map(l=>W5L[l].s).join(" + ");
+  return {name:"5/3/1 · "+nm,focus:"Цикл "+(c.n||1)+" · неделя "+(s.wave)+" ("+W5_WLBL[pk][s.wave]+") · "+W5_PH[c.phase].t,
+    ex:ex,sec:"pwr",preset:preset,w5:{cycleId:c.id,s:i,wave:s.wave,rows:rows,phase:c.phase,n:c.n||1}};}
+function w5PlanOf(p,i){const st=p.preset[i].filter(s=>!s.warm),e=p.ex[i],R=p.w5.rows[i];
+  const ws=st.map(s=>s.w).filter(x=>x>0);let w="";
+  if(ws.length){const lo=Math.min(...ws),hi=Math.max(...ws);w=(lo===hi?fmtW(lo):fmtW(lo)+"–"+fmtW(hi))+" кг";}
+  else if(e[3]===null)w="вес вручную";
+  const nw=p.preset[i].filter(s=>s.warm).length;
+  return {sets:st.length,reps:R.main?st.filter(s=>!s.single&&!s.drop).map(s=>s.r+(s.amrap?"+":"")).join("/"):e[2],w:w,extra:(nw?" · +"+nw+" разминка":"")+(st.some(s=>s.single)?" · синглы":"")};}
+function w5Record(){const p=current.program,g=p.w5,v=w5Store(),c=v.cycles.find(x=>x.id===g.cycleId);if(!c)return null;
+  const lifts={};let full=true;
+  g.rows.forEach((R,i)=>{if(!R.main)return;const st=current.sets[i].filter(s=>!s.warm),wk=st.filter(s=>s.need&&!s.drop);
+    if(!wk.every(s=>s.done))full=false;
+    const last=wk[wk.length-1];if(!last)return;
+    const done=last.done&&last.r>0;
+    lifts[R.lift]={w:last.w,r:done?last.r:0,need:last.need,amrap:last.amrap||"",e1:done?Math.round(w5E1(last.w,last.r)*10)/10:0,ok:done&&last.r>=last.need,
+      singles:st.filter(s=>s.single&&s.done).map(s=>s.w)};});
+  const now=w5Now(),rec={uid:c.id+"-"+g.s+"-"+Date.now().toString(36),s:g.s,wave:g.wave,finishedAt:now,updatedAt:now,lifts:lifts,full:full};
+  rec.pr=Object.keys(lifts).filter(l=>lifts[l].e1>0&&lifts[l].amrap&&lifts[l].e1>w5Best(v,l));
+  c.recs.push(rec);if(w5Next(c)<0&&!c.completedAt)c.completedAt=now;c.updatedAt=now;w5Save(v);return rec;}
+/* предложение ТМ на следующий цикл: не закрыл норму в последнем подходе → откат к 90% расчётного 1ПМ, иначе +шаг */
+function w5Suggest(c){const out={},inc=c.inc==="small"?{up:1,low:2.5}:{up:2.5,low:5};
+  W5_ORDER.forEach(l=>{const rs=c.recs.map(r=>r.lifts&&r.lifts[l]).filter(Boolean);
+    const miss=rs.filter(x=>x.need&&x.w&&!x.ok&&(x.r>0||x.amrap));
+    const best=Math.max(0,...rs.map(x=>x.e1||0));
+    if(miss.length){const nt=best>0?w5R(best*.9,c.step):w5R(c.tm[l]*.9,c.step);out[l]={tm:Math.min(nt,c.tm[l]),why:"не закрыта норма ("+miss.map(x=>fmtW(x.w)+"×"+x.r+" из "+x.need).join(", ")+") → откат к 90% расч. 1ПМ"};}
+    else out[l]={tm:c.tm[l]+(W5L[l].up?inc.up:inc.low),why:rs.length?"норма закрыта → +"+fmtW(W5L[l].up?inc.up:inc.low)+" кг":"+"+fmtW(W5L[l].up?inc.up:inc.low)+" кг"};});
+  return out;}
+
+/* ---------- экран ---------- */
+let w5Form=null,w5Arm=0,w5LastUid=null;
+function w5Seg(id,opts,val){return `<div class="seg" id="${id}">${opts.map(([k,t])=>`<button class="seg-b${String(k)===String(val)?" on":""}" type="button" data-v="${k}">${t}</button>`).join("")}</div>`;}
+function w5SegVal(id){const b=el(id)&&el(id).querySelector(".seg-b.on");return b?b.dataset.v:null;}
+function w5SegWire(root){root.querySelectorAll(".seg").forEach(sg=>sg.querySelectorAll(".seg-b").forEach(b=>b.onclick=()=>{sg.querySelectorAll(".seg-b").forEach(x=>x.classList.toggle("on",x===b));if(sg.id==="w5Ph")w5FormPhase();}));}
+function w5PhaseSel(val){return `<select id="w5Phase" class="food-in">${W5_PH_ORDER.map(k=>`<option value="${k}"${k===val?" selected":""}>${W5_PH[k].t}</option>`).join("")}</select>`;}
+function w5MeetCard(v){const m=v.meet||{},n=w5WeeksToMeet(v),rp=w5RecPhase(v);
+  const att=["squat","bench","dead"].filter(l=>m.goal&&m.goal[l]>0).map(l=>`<div class="rm-row"><span class="k">${W5L[l].s} · цель ${fmtW(m.goal[l])}</span><span class="v">${W5_ATT.map(pc=>fmtW(w5R(m.goal[l]*pc/100))).join(" / ")} <small>кг</small></span></div>`).join("");
+  return `<details class="card gvt-about" id="w5Meet"${m.date?"":""}><summary><span class="tag">${m.date?"Старт "+gvtDD(m.date)+(n!=null?(n>0?" · через "+n+" нед.":" · прошёл"):""):"Соревнования · не заданы"}</span><span class="gvt-more">${m.date?"Изменить":"Задать"}</span></summary>
+    ${m.date&&n>0?`<p class="gvt-note" style="margin:10px 0 0">Рекомендованный этап сейчас: <b>${rp==="off"?"межсезонье":W5_PH[rp].t}</b>. Больше 8 недель до старта — межсезонье, за 8–5 недель — предсоревновательный, последние 4 — подводка.</p>`:""}
+    ${att?`<p class="nt-eb" style="margin-top:12px">Подходы на помосте · 85 / 92,5 / 100 % цели</p><div class="rm-list">${att}</div>`:""}
+    <div class="field" style="margin-top:12px"><label for="w5MDate">Дата старта</label><input id="w5MDate" type="date" value="${m.date||""}"></div>
+    <div class="gvt-rm">${["squat","bench","dead"].map(l=>`<label for="w5G_${l}">Цель · ${W5L[l].s}<small>результат на помосте</small></label><input id="w5G_${l}" inputmode="decimal" placeholder="кг" value="${m.goal&&m.goal[l]||""}">`).join("")}</div>
+    <button class="btn btn-alt" type="button" id="w5MSave">Сохранить старт</button>
+    ${m.date?`<button class="tm-mini" type="button" id="w5MDel" style="margin-top:10px">Убрать старт</button>`:""}</details>`;}
+function w5FormHTML(v,a){const next=!!a,r=rmReg(),sug=next?w5Suggest(a):null,rp=w5RecPhase(v);
+  /* этап по умолчанию: при заданном старте — по числу недель до него, иначе — как в прошлом цикле */
+  let ph=next?a.phase:"classic";
+  if(rp==="off"){if(!next||a.phase==="premeet"||a.phase==="meetprep"||a.phase==="classic")ph="off_strength";}
+  else if(rp)ph=rp;
+  else if(next&&a.phase==="meetprep")ph="classic";
+  const src=a||{days:4,variant:"v1",assist:"bbb",inc:"std",warm:true,step:2.5};
+  const lifts=W5_ORDER.map(l=>{const val=next?fmtW(sug[l].tm).replace(",","."):(r[W5L[l].n]||"");
+    return `<label for="w5In_${l}">${W5L[l].s}<small>${next?(sug[l].why+" · было "+fmtW(a.tm[l])):"1ПМ сейчас · ТМ = "+"<span id=\"w5Tm_"+l+"\"></span>"}</small></label><input id="w5In_${l}" inputmode="decimal" placeholder="кг" value="${val}">`;}).join("");
+  return `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">${next?"Цикл "+((a.n||1)+1)+" · настройки":"Старт программы"}</h3>
+    <p class="gvt-note" style="margin-bottom:12px">${next?"Тренировочный максимум (ТМ) на новый цикл уже посчитан по правилам Вендлера — можно поправить.":"Введи реальный 1ПМ, который поднимешь сегодня, а не лучший за всё время. Если не знаешь — сделай 80–85% от примерного максимума на максимум повторов: вес × повторы × 0,0333 + вес. Все проценты считаются от ТМ = 90% 1ПМ."}</p>
+    <div class="gvt-rm">${lifts}</div>
+    ${next?"":`<div class="gvt-opt" style="margin-bottom:12px"><span>ТМ от 1ПМ</span>${w5Seg("w5TmPct",[[90,"90%"],[85,"85%"]],90)}</div>`}
+    <label class="nt-lab" style="margin-bottom:6px">Этап${w5PhaseSel(ph)}</label><p class="gvt-note" id="w5PhSub" style="margin-bottom:12px"></p>
+    <div class="gvt-opt" style="margin-bottom:10px"><span>Дней в неделю</span>${w5Seg("w5Days",[[4,"4"],[3,"3"],[2,"2"],[1,"1"]],src.days||4)}</div>
+    <p class="gvt-note" id="w5DaysNote" style="margin:-4px 0 12px"></p>
+    <div class="gvt-opt" style="margin-bottom:10px" id="w5VarRow"><span>Проценты</span>${w5Seg("w5Var",[["v1","Вариант 1"],["v2","Вариант 2"]],src.variant||"v1")}</div>
+    <label class="nt-lab" style="margin-bottom:12px" id="w5AsRow">Подсобка<select id="w5As" class="food-in">${W5_AS_PICK.map(k=>`<option value="${k}"${k===(src.assist||"bbb")?" selected":""}>${W5_AS[k].t}</option>`).join("")}</select></label>
+    <div class="gvt-opt" style="margin-bottom:10px"><span>Прибавка ТМ за цикл</span>${w5Seg("w5Inc",[["std","+2,5 / +5"],["small","+1 / +2,5"]],src.inc||"std")}</div>
+    <div class="gvt-opt" style="margin-bottom:10px"><span>Разминка 40/50/60%</span>${w5Seg("w5Warm",[["1","Вкл"],["0","Выкл"]],src.warm===false?"0":"1")}</div>
+    <div class="gvt-opt" style="margin-bottom:14px"><span>Округление</span>${w5Seg("w5Step",[["2.5","2,5 кг"],["1","1 кг"]],String(src.step||2.5))}</div>
+    <button class="btn" type="button" id="w5Go">${next?"Начать цикл "+((a.n||1)+1):"Начать 5/3/1"}</button>
+    ${a?`<button class="tm-mini" type="button" id="w5Cancel" style="margin-top:10px">Отмена</button>`:""}</div>`;}
+function w5FormPhase(){const ph=el("w5Phase")&&el("w5Phase").value;if(!ph)return;const P=W5_PH[ph];
+  el("w5PhSub").textContent=P.sub+(P.comp&&ph!=="classic"?" · проценты: 3×3 → 3×5 → 5/3/1 → разгрузка":"");
+  el("w5VarRow").hidden=ph!=="classic";el("w5AsRow").hidden=!!(P.as||P.asNone);
+  const d=+w5SegVal("w5Days");el("w5DaysNote").textContent=d===4?"Пн жим стоя · Вт становая · Чт жим лёжа · Пт присед — цикл 4 недели.":d===3?"Те же 16 занятий по кругу — цикл растягивается до ~5,5 недель.":d===2?"Присед + жим лёжа, становая + жим стоя — цикл 4 недели. Второе движение дня — по норме, если сил меньше.":"Неделя А: присед + жим лёжа, неделя Б: становая + жим стоя · 6 недель без разгрузки.";
+  W5_ORDER.forEach(l=>{const t=el("w5Tm_"+l);if(!t)return;const x=parseFloat(String(el("w5In_"+l).value).replace(",","."));const pc=+(w5SegVal("w5TmPct")||90);t.textContent=isFinite(x)&&x>0?fmtW(w5R(x*pc/100,+(w5SegVal("w5Step")||2.5)))+" кг":"—";});}
+function w5Start(){const v=w5Store(),a=w5Active(v),next=w5Form==="next"&&a,tm={},rm1={};let bad=false;
+  const pc=+(w5SegVal("w5TmPct")||90),step=+(w5SegVal("w5Step")||2.5);
+  W5_ORDER.forEach(l=>{const inp=el("w5In_"+l),x=parseFloat(String(inp.value).replace(",","."));const ok=isFinite(x)&&x>0&&x<1000;inp.classList.toggle("bad",!ok);if(!ok){bad=true;return;}
+    if(next){tm[l]=x;rm1[l]=Math.max(a.rm1&&a.rm1[l]||0,w5Best(v,l));}else{rm1[l]=x;tm[l]=w5R(x*pc/100,step);}});
+  if(bad){toast("Заполни все четыре движения (> 0)");return;}
+  const ph=el("w5Phase").value;
+  if((ph==="premeet"||ph==="meetprep")&&!["squat","bench","dead"].every(l=>w5Goal(v,l))){toast("Для этого этапа задай цели на старт в блоке «Соревнования»");const d=el("w5Meet");if(d){d.open=true;d.scrollIntoView({behavior:"smooth"});}return;}
+  if(a&&!next&&Date.now()-w5Arm>4000){w5Arm=Date.now();toast("Текущий цикл уйдёт в архив. Нажми ещё раз");return;}
+  const now=w5Now();if(a){a.closedAt=now;a.updatedAt=now;}
+  const c={id:"w5-"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),createdAt:now,updatedAt:now,start:localDate(),n:next?(a.n||1)+1:1,
+    phase:ph,days:+w5SegVal("w5Days")||4,variant:w5SegVal("w5Var")||"v1",assist:el("w5As").value,inc:w5SegVal("w5Inc")||"std",warm:w5SegVal("w5Warm")!=="0",step:step,
+    tm:tm,rm1:rm1,recs:[],closedAt:null,completedAt:null};
+  v.cycles.push(c);v.activeId=c.id;w5Save(v);w5Form=null;w5Arm=0;toast(next?"Цикл "+c.n+" начат":"5/3/1 активирована");renderW5();window.scrollTo(0,0);}
+function renderW5(){const w=el("w5Body");if(!w)return;const v=w5Store(),c=w5Active(v);
+  let html=w5MeetCard(v);
+  if(!c||w5Form){html+=w5FormHTML(v,w5Form==="next"?c:null);w.innerHTML=html;w5Wire(v,c);
+    w5SegWire(w);el("w5Phase").onchange=w5FormPhase;W5_ORDER.forEach(l=>{const i=el("w5In_"+l);if(i)i.oninput=w5FormPhase;});w5FormPhase();
+    el("w5Go").onclick=w5Start;if(el("w5Cancel"))el("w5Cancel").onclick=()=>{w5Form=null;renderW5();};w5Archive(v,w);return;}
+  const S=w5Sessions(c),nx=w5Next(c),done=S.filter((_,i)=>w5Recs(c,i).length).length,pk=w5PctKey(c),P=W5_PH[c.phase];
+  const last=w5LastUid&&c.recs.find(r=>r.uid===w5LastUid);
+  if(last){const ls=Object.keys(last.lifts).map(l=>{const x=last.lifts[l];return `<div class="rm-row"><span class="k">${W5L[l].s} · ${fmtW(x.w)} кг × ${x.r||"—"}${x.need?" <small>(норма "+x.need+")</small>":""}</span><span class="v">${x.e1?fmtW(Math.round(x.e1))+" <small>расч. 1ПМ</small>":""}${last.pr.includes(l)?" 🏆":""}</span></div>`;}).join("");
+    html+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Итог занятия${last.pr.length?" · рекорд!":""}</h3><div class="rm-list">${ls}</div>${Object.values(last.lifts).some(x=>x.need&&!x.ok)?`<p class="gvt-note" style="margin-top:8px">Норма в последнем подходе не закрыта — это нормально в плохой день. Если повторится, на следующий цикл ТМ откатится к 90% расчётного 1ПМ.</p>`:""}</div>`;}
+  html+=`<div class="card gvt-sum"><h3>${c.completedAt?"Цикл "+(c.n||1)+" завершён ✓":"Цикл "+(c.n||1)+" · "+P.t}</h3>
+    <div class="gvt-bar"><i style="width:${Math.round(done/S.length*100)}%"></i></div>
+    <div class="gvt-kv"><span>Занятий ${done} из ${S.length}</span><span>${c.days} ${plural(c.days,"день","дня","дней")}/нед · ~${w5Weeks(c)} нед.</span>${c.phase==="classic"?`<span>${c.variant==="v2"?"Вариант 2":"Вариант 1"}</span>`:""}</div>
+    <div class="gvt-kv">${W5_ORDER.map(l=>`<span>${W5L[l].s} ТМ ${fmtW(c.tm[l])}</span>`).join("")}</div>
+    <p class="gvt-note">${P.sub}${P.as||P.asNone?"":" · подсобка: "+W5_AS[c.assist||"bbb"].t}</p></div>
+    <div class="stack gvt-sess" id="w5Sess"></div>`;
+  if(c.phase==="meetprep"){const m=v.meet||{};html+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Неделя ${w5Weeks(c)} · старт${m.date?" "+gvtDD(m.date):""}</h3><p class="gvt-note">Неделя перед стартом — без тренировок: разминка, мобильность, ролик. Опенеры заново не проверяй. Первый подход — 85% цели: «раздави» его, и дальше пойдёт уверенно.</p>${["squat","bench","dead"].map(l=>w5Goal(v,l)?`<div class="rm-row"><span class="k">${W5L[l].s}</span><span class="v">${W5_ATT.map(pc=>fmtW(w5R(w5Goal(v,l)*pc/100))).join(" / ")} <small>кг</small></span></div>`:"").join("")}</div>`;}
+  html+=`<button class="btn${c.completedAt?"":" btn-alt"}" type="button" id="w5NextC">${c.completedAt?"Следующий цикл →":"Перейти к следующему циклу"}</button>
+    <button class="tm-mini" type="button" id="w5Reset" style="margin-top:4px">Начать заново с новым 1ПМ</button>
+    <details class="card gvt-about"><summary><span class="tag">Правила 5/3/1</span><span class="gvt-more">Подробнее</span></summary><div class="wod-desc">
+      <p><b>ТМ</b> — 90% реального 1ПМ; все проценты от него. Стартуй легко: так прогресс идёт дольше.</p>
+      <p><b>Последний подход</b> с «+» — максимум повторов, но не до отказа. Именно он двигает прогресс. На разгрузке «+» нет.</p>
+      <p><b>После цикла</b> ТМ: +2,5 кг жимы, +5 кг присед и становая. Не закрыл норму — откат движения к 90% расчётного 1ПМ (вес × повт × 0,0333 + вес); остальные растут дальше. Обычно 5–7 циклов до первого отката.</p>
+      <p><b>Плохой день</b> — сделай норму и уходи, но не пропускай. Отдых между подходами 3–5 мин, в подсобке 30 с – 3 мин.</p>
+      <p><b>Соревнования</b>: межсезонье (8+ нед.) → предсоревновательный (4 нед., синглы 85/92,5 и 85/95% цели) → подводка (3 недели + неделя старта). Подходы на помосте: 85 / 92,5 / 100% цели. После старта — 1–3 недели отдыха.</p></div></details>`;
+  w.innerHTML=html;w5Wire(v,c);
+  const list=el("w5Sess");let wk=-1;
+  S.forEach((s,i)=>{if(s.wk!==wk){wk=s.wk;const h=document.createElement("p");h.className="bb-lbl";h.textContent="Неделя "+(wk+1)+(c.days>=3?"":" · "+W5_WLBL[pk][s.wave]);list.appendChild(h);}
+    const rs=w5Recs(c,i),st=rs.length?(rs.some(r=>r.full)?"✓":"◐"):(i===nx?"▶":"");
+    const b=document.createElement("button");b.type="button";b.className="disc"+(i===nx?" next":"")+(rs.length?" full":"");
+    const top=s.lifts.map(l=>{const sch=W5_PCT[pk][s.wave],L=sch[sch.length-1];return W5L[l].s+" "+fmtW(w5R(c.tm[l]*L[0]/100,c.step))+"×"+L[1]+(w5AmrapWave(c,s.wave)?"+":"");}).join(" · ");
+    const res=rs.length?Object.entries(rs[rs.length-1].lifts).map(([l,x])=>x.r?fmtW(x.w)+"×"+x.r:"").filter(Boolean).join(", "):"";
+    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${W5_WLBL[pk][s.wave]} · ${top}${res?" · сделано "+res:""}${i===nx?" · следующее":""}</span></span><span class="gvt-st${rs.length?" full":""}">${st}</span>`;
+    b.querySelector("span span").textContent="№"+(i+1)+" · "+s.lifts.map(l=>W5L[l].s).join(" + ");
+    b.onclick=()=>{const cc=w5Active();if(!cc)return;startWorkout(w5Build(cc,i),true);};list.appendChild(b);});
+  el("w5NextC").onclick=()=>{if(!c.completedAt&&Date.now()-w5Arm>4000){w5Arm=Date.now();toast("Цикл не закончен ("+done+" из "+S.length+"). Нажми ещё раз — перейдём к следующему");return;}
+    w5Arm=0;w5Form="next";renderW5();window.scrollTo(0,0);};
+  el("w5Reset").onclick=()=>{w5Form="new";w5Arm=0;renderW5();window.scrollTo(0,0);};
+  try{if(!w.querySelector(".mp-endin")){const eb=mpEndBtn("w531","Завершить 5/3/1 · итог в «Прогресс»");eb.addEventListener("click",()=>setTimeout(()=>{if(!w5Active())renderW5();},60));w.appendChild(eb);}}catch(e){}
+  w5Archive(v,w);}
+function w5Wire(v,c){const ms=el("w5MSave");if(!ms)return;
+  ms.onclick=()=>{const v2=w5Store(),d=el("w5MDate").value,g={};let bad=false;
+    ["squat","bench","dead"].forEach(l=>{const inp=el("w5G_"+l),s=String(inp.value).trim(),x=parseFloat(s.replace(",","."));
+      if(!s){g[l]=0;inp.classList.remove("bad");return;}const ok=isFinite(x)&&x>0&&x<1000;inp.classList.toggle("bad",!ok);if(ok)g[l]=x;else bad=true;});
+    if(bad||!d){toast(d?"Проверь цели — числа больше нуля":"Укажи дату старта");return;}
+    v2.meet={date:d,goal:g,updatedAt:w5Now()};w5Save(v2);toast("Старт сохранён");renderW5();};
+  if(el("w5MDel"))el("w5MDel").onclick=()=>{const v2=w5Store();v2.meet={date:"",goal:{},updatedAt:w5Now()};w5Save(v2);renderW5();};}
+function w5Archive(v,w){const arch=v.cycles.filter(c=>c.closedAt);if(!arch.length)return;
+  const d=document.createElement("div");d.className="card";
+  d.innerHTML=`<h3 style="margin:0 0 8px;font-family:var(--dsp)">Прошлые циклы</h3><div class="rm-list">${arch.slice().reverse().map(c=>{const S=w5Sessions(c),f=S.filter((_,i)=>w5Recs(c,i).length).length;
+    return `<div class="rm-row"><span class="k">Цикл ${c.n||1} · ${W5_PH[c.phase].t}<br><small>${gvtDD(c.start)} · ТМ ${W5_ORDER.map(l=>fmtW(c.tm[l])).join("/")}</small></span><span class="v">${f}/${S.length}</span></div>`;}).join("")}</div>`;
+  w.appendChild(d);}
+function w5Button(){const b=document.createElement("button");b.className="disc";
+  let sub="Джим Вендлер · 4 недели · ТМ 90% · классика и подготовка к старту";
+  try{const c=w5Active();if(c){const S=w5Sessions(c),n=w5Next(c);sub="Цикл "+(c.n||1)+" · "+W5_PH[c.phase].t+(n>=0?" · занятие "+(n+1)+" из "+S.length:" · цикл завершён");}}catch(e){}
+  b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>5/3/1</span><span class="disc-sub"></span></span><span class="go">›</span>`;
+  b.querySelector(".disc-sub").textContent=sub;b.onclick=()=>show("w531");return b;}
+/* подключение: экран, «Активные программы», облако */
+scr.w531=el("scr-w531");
+{const _as=applyScreen;applyScreen=function(n,y){_as(n,y);if(n==="w531")try{renderW5();}catch(e){console.error(e);}};}
+{const _mp=mpList;mpList=function(){const out=_mp();try{const v=w5Store(),c=w5Active(v);if(c){const S=w5Sessions(c),n=w5Next(c),dn=S.filter((_,i)=>w5Recs(c,i).length).length;
+  out.push({k:"w531",t:"5/3/1 · Вендлер",s:"Цикл "+(c.n||1)+" · "+W5_PH[c.phase].t+" · занятие "+(n>=0?n+1:S.length)+" из "+S.length,start:c.start,open:()=>show("w531"),
+    fin:()=>{const v2=w5Store(),c2=w5Active(v2);if(!c2)return;c2.closedAt=w5Now();c2.updatedAt=c2.closedAt;v2.activeId=null;w5Save(v2);
+      mpArch({kind:"w531",prog:"w531",title:"5/3/1 · Вендлер",start:c.start,total:S.length,done:dn,unit:"зан.",verdict:"Цикл "+(c.n||1)+" ("+W5_PH[c.phase].t+") завершён вручную. ТМ: "+W5_ORDER.map(l=>W5L[l].s+" "+fmtW(c.tm[l])).join(", ")+"."});}});}}catch(e){}return out;};}
 
 /* ===================== GERMAN VOLUME TRAINING 2.0 — пять этапов (ТЗ «Штурм 30» v2.0) ===================== */
 const G2K="gym45_gvt2_v1",G2VER="2.0";
@@ -3813,6 +4092,7 @@ function renderPwr(){const w=el("pwrProgs");w.innerHTML="";
   PWR.forEach(p=>w.appendChild(progButton(p,"Пауэрлифтинг · этап")));}
 renderPwr();
 function renderPwrPrograms(){const w=el("pwrPrograms");w.innerHTML="";
+  try{w.appendChild(w5Button());}catch(e){}
   const mk=(name,sub,fn)=>{const b=document.createElement("button");b.className="disc";
     b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${name}</span><span class="disc-sub">${sub}</span></span><span class="go">›</span>`;
     b.onclick=fn;w.appendChild(b);};
@@ -7200,7 +7480,7 @@ try{renderBody();}catch(e){}
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
 /* CLOUD_EXTRA — поля облачного документа, которых эта версия не знает: сохраняем их, а не стираем */
-function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()});}
+function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),w531:w5Store(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()});}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -7213,6 +7493,7 @@ function cloudRefreshUI(){
       if(currentScreen==="food")renderFood();
       if(currentScreen==="onerm")rmLoadLift(rmLift);
       if(currentScreen==="gvt")g2Render();
+      if(currentScreen==="w531")renderW5();
       if(currentScreen==="home")renderDashActive();
       if(currentScreen==="cross")renderCross();
       if(currentScreen==="cfcat")cfRenderCat();
@@ -7245,6 +7526,7 @@ async function cloudInit(){
       try{localStorage.setItem(RMK,JSON.stringify(mergeRm(rmReg(),d.rm)))}catch(e){}
       try{if(d.gvt)localStorage.setItem(GVTK,JSON.stringify(mergeGvt(gvtStore(),d.gvt)))}catch(e){}
       try{if(d.gvt2)localStorage.setItem(G2K,JSON.stringify(mergeG2(g2Store(),d.gvt2)))}catch(e){}
+      try{if(d.w531)localStorage.setItem(W5K,JSON.stringify(mergeW5(w5Store(),d.w531)))}catch(e){}
       try{if(d.sotka)localStorage.setItem(SKK,JSON.stringify(mergeSk(skGet(),d.sotka)))}catch(e){}
       try{if(d.pp)localStorage.setItem(PPK,JSON.stringify(mergePP(ppAll(),d.pp)))}catch(e){}
       try{if(d.rr&&(d.rr.upd||0)>(rrGet().upd||0))localStorage.setItem(RRK,JSON.stringify(d.rr))}catch(e){}
