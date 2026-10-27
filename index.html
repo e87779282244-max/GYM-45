@@ -611,6 +611,18 @@
     border-color:#1b1e11;box-shadow:0 4px 0 #14160c}
   .key-active:active{transform:translateY(3px);box-shadow:0 1px 0 #14160c}
   .dash-logo{width:100%;display:flex;justify-content:center;padding:6px 0 2px}
+  /* главная «Сегодня»: логотип компактнее, главное — следующая тренировка */
+  #scr-home .dash-logo-img{max-width:170px}
+  .td-card{display:flex;flex-direction:column;gap:10px;margin:10px 0 14px;border-left:5px solid var(--good)}
+  .td-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.td-h b{font-family:var(--dsp);font-size:20px}.td-h span{color:var(--muted);font-size:13px;font-weight:600}
+  .td-main{display:flex;flex-direction:column;gap:2px}.td-main small{color:var(--muted);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  .td-main b{font-family:var(--dsp);font-size:18px;line-height:1.2}.td-main span{color:var(--muted);font-size:13.5px}
+  .td-rest{background:var(--accent-weak);color:var(--accent-ink);border-radius:12px;padding:10px 12px;font-size:14px;font-weight:600}
+  .td-row{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;border:none;border-top:1px solid var(--line);background:none;padding:9px 0 2px;color:var(--fg);font:inherit}
+  .td-row span{display:flex;flex-direction:column;min-width:0}.td-row span b{font-weight:700;font-size:14px}.td-row span small{color:var(--muted);font-size:12.5px}
+  .td-row i{font-style:normal;flex:none;font-size:12.5px;font-weight:700;color:var(--accent-ink)}
+  .td-stats{display:flex;gap:8px;flex-wrap:wrap}.td-stats button{border:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;text-align:left}
+  #scr-home .dash-two{display:none}
   .dash-logo svg{width:100%;max-width:150px}
   .dash-logo-img{display:block;width:100%;max-width:300px;height:auto;margin:0 auto;
     filter:drop-shadow(0 2px 1px rgba(40,34,14,.55)) drop-shadow(0 6px 6px rgba(40,34,14,.38)) drop-shadow(0 16px 18px rgba(40,34,14,.30));transform:translateY(-3px)}
@@ -1137,6 +1149,17 @@
       <button id="draftDiscard" class="icon-btn" title="Отменить" style="background:transparent">✕</button>
     </div>
 
+    <div class="card td-card" id="dashToday"></div>
+    <div class="ready">
+      <div class="ready-head"><b>Готовность к тренировке</b><span id="readyState">Норма</span></div>
+      <div class="seg">
+        <button class="seg-b" data-ready="Устал">Устал</button>
+        <button class="seg-b on" data-ready="Норма">Норма</button>
+        <button class="seg-b" data-ready="Заряжен">Заряжен</button>
+      </div>
+      <div class="ready-note" id="readyNote">всё по программе</div>
+    </div>
+  
         <div class="dash-panel">
       <div class="dash-logo">
         <img class="dash-logo-img" src="media/gymlogo3.png?v=2" alt="GYM 45" width="1283" height="753">
@@ -1153,9 +1176,9 @@
 
 
     <div class="dash-two">
-      <button class="dash-tile" data-go="programs">
-        <span class="dt-ico">+</span>
-        <span class="dt-body"><b>Выбрать программу</b><span>Готовые и собственные</span></span>
+      <button class="dash-tile" data-go="nutrition" id="dashFood" type="button">
+        <span class="dt-ico">🍽</span>
+        <span class="dt-body"><b>Питание сегодня</b><span id="dashFoodT">0 ккал</span></span>
       </button>
       <button class="dash-tile dash-week" id="dashWeek" type="button">
         <span class="dt-ico">📈</span>
@@ -1163,16 +1186,7 @@
       </button>
     </div>
 
-    <div class="ready">
-      <div class="ready-head"><b>Готовность к тренировке</b><span id="readyState">Норма</span></div>
-      <div class="seg">
-        <button class="seg-b" data-ready="Устал">Устал</button>
-        <button class="seg-b on" data-ready="Норма">Норма</button>
-        <button class="seg-b" data-ready="Заряжен">Заряжен</button>
-      </div>
-      <div class="ready-note" id="readyNote">всё по программе</div>
-    </div>
-  </section>
+</section>
 
   <!-- PROGRAMS -->
   <section class="screen" id="scr-programs" hidden>
@@ -6019,6 +6033,47 @@ function renderDashActive(){const c=el("dashActive");if(!c)return;const L=mpList
     (L.length>3?`<p class="mp-warn">Больше трёх программ одновременно — следи за восстановлением: тяжёлые дни разных программ не ставь подряд.</p>`:`<p class="mp-note">Программы идут параллельно: например, GVT в зале, а в дни отдыха — кроссфит или стрит-воркаут дома.</p>`);
   c.querySelectorAll(".mp-row").forEach(r=>{const x=L[+r.dataset.i];r.querySelector("b").textContent=x.t;r.querySelector("small").textContent=x.s;r.querySelector(".mp-open").onclick=()=>x.open();});
   c.querySelectorAll(".mp-end").forEach(b=>b.onclick=()=>{const x=L[+b.dataset.i];if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();b.textContent="Точно?";b.classList.add("arm");toast("Нажми ещё раз — «"+x.t+"» завершится, итог сохранится в «Прогрессе»");setTimeout(()=>{if(b.isConnected){b.textContent="Завершить";b.classList.remove("arm");}},4200);return;}mpFinish(x.k);});}
+/* ===================== ГЛАВНАЯ «СЕГОДНЯ» =====================
+   Сверху — одна карточка: что делать сегодня. Тренировка по плану → «Начать» сразу открывает
+   обзор дня этой тренировки (без пути через разделы). Нет тренировки → «Сегодня отдых» и ближайшая.
+   Ниже — неделя по плану и питание за день. */
+/* сколько тренировок в неделю запланировано активными программами */
+function weekPlanOf(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"au:"+q.id===x.k);if(!p)return 0;const nn=auPlanNext(p),t=nn?nn.w:0;return p.pw||Math.min(6,p.weeks[t].days.length);}
+  if(x.k==="cf"){const p=cfProg();return p?cfProgPer(p):0;}if(x.k==="w531"){const c=w5Active();return c?c.days||4:0;}if(x.k==="lz")return 3;}catch(e){}return 0;}
+function weekStart(){const d=new Date();const wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd);return localDate(d);}
+function weekDone(){const s0=weekStart();return safe.get().filter(h=>h&&!h.archived&&h.date>=s0).length;}
+function weekPlan(){return mpList().reduce((a,x)=>a+weekPlanOf(x),0);}
+/* «Начать» прямо из главной */
+function dashGo(x){try{
+  if(x.k.startsWith("au:")){const p=auAll().find(q=>"au:"+q.id===x.k),nn=p&&auPlanNext(p);if(nn){auPlanStart(p,nn);return;}}
+  if(x.k==="w531"){const c=w5Active(),n=c?w5Next(c):-1;if(n>=0){startWorkout(w5Build(c,n),true);return;}}
+  if(x.k==="lz"){const P=lzActive();if(P){startWorkout(lzPlan(P,lzState(P)),true);return;}}
+  if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx){openWod(nx,cfVariants(nx)[0]);return;}}
+}catch(e){}x.open();}
+function dashNextName(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"au:"+q.id===x.k),nn=p&&auPlanNext(p);if(nn)return p.weeks[nn.w].days[nn.d].name;}
+  if(x.k==="w531"){const c=w5Active(),n=c?w5Next(c):-1;if(n>=0)return w5Build(c,n).name;}
+  if(x.k==="lz"){const P=lzActive();if(P)return "Level Zero · "+LZ_DAY[lzState(P).next];}
+  if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx)return nx.name;}}catch(e){}return "";}
+function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),L=mpList();
+  const dd=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);};
+  let html=`<div class="td-h"><b>Сегодня</b><span>${dd(t)}</span></div>`;
+  if(!L.length){html+=`<p class="td-rest">Нет активной программы. Выбери программу — приложение поведёт по тренировкам: что делать, когда и с каким весом.</p><button class="btn" type="button" id="tdPick">Выбрать программу</button>`;}
+  else{const S=L.map((x,i)=>({x,i,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),due=S.filter(o=>o.n<=t),first=due[0];
+    if(first){const x=first.x;html+=`<div class="td-main"><small>Тренировка по плану</small><b></b><span></span></div><button class="btn" type="button" id="tdGo">Начать ›</button>`;}
+    else{const nx=S.find(o=>o.n!=="9999");html+=`<p class="td-rest">Сегодня отдых.${nx?" Следующая — "+dd(nx.n)+": "+nx.x.t+".":""}</p>`;}
+    S.filter(o=>!first||o!==first).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
+  const pl=weekPlan(),dn=weekDone();
+  let food="";try{const m=anFoodDays()[t]||{kcal:0,p:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&(tg.kcal||tg.target);food="Еда: "+ntF(m.kcal)+(kt?" из "+ntF(kt):"")+" ккал · белок "+ntF(m.p)+(tg&&tg.p?" / "+ntF(tg.p):"")+" г";}catch(e){}
+  html+=`<div class="td-stats"><button type="button" id="tdWeek">Неделя: ${dn}${pl?" из "+pl:""} ${plural(pl||dn,"тренировка","тренировки","тренировок")} ›</button>${food?`<button type="button" id="tdFood">${food} ›</button>`:""}</div>`;
+  c.innerHTML=html;
+  if(el("tdPick"))el("tdPick").onclick=()=>show("programs");
+  if(el("tdWeek"))el("tdWeek").onclick=()=>show("progress");if(el("tdFood"))el("tdFood").onclick=()=>{try{el("homeFoodGo")?el("homeFoodGo").click():document.querySelector('#scr-home [data-go="nutrition"]').click();}catch(e){}};
+  if(el("tdGo")){const S=L.map((x,i)=>({x,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),x=S[0].x;
+    const m=c.querySelector(".td-main");m.querySelector("b").textContent=x.t;m.querySelector("span").textContent=dashNextName(x)||x.s;el("tdGo").onclick=()=>dashGo(x);}
+  c.querySelectorAll(".td-row").forEach(b=>{const x=L[+b.dataset.i];b.querySelector("b").textContent=x.t;b.querySelector("small").textContent=dashNextName(x)||x.s;b.onclick=()=>x.open();});
+  try{const m=anFoodDays()[t]||{kcal:0,p:0};el("dashFoodT").textContent=ntF(m.kcal)+" ккал · белок "+ntF(m.p)+" г";}catch(e){}
+  try{const w=el("dashWeekT");if(w&&pl)w.textContent=dn+" из "+pl+" по плану";}catch(e){}}
+{const _rd=renderDashActive;renderDashActive=function(){_rd();try{renderToday();}catch(e){console.error(e);}};}
 /* кнопка досрочного завершения внутри экрана программы */
 function mpEndBtn(k,label){const b=document.createElement("button");b.type="button";b.className="tm-reset sk-reset mp-endin";b.textContent=label||"Завершить программу досрочно · итог в «Прогресс»";
   b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — программа завершится, итог сохранится в «Прогрессе»");return;}mpFinish(k);
