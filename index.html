@@ -1196,9 +1196,9 @@
     <div class="cross-head">
       <button class="icon-btn back-btn cross-back" title="Назад">←</button>
       <img class="cross-logo" src="media/streetlogo.png?v=1" alt="Streetlifting" width="827" height="656">
-      <h1 class="cross-h1">Классический цикл</h1>
+      <h1 class="cross-h1">Программы</h1>
     </div>
-    <p class="street-note">4 тренировки в неделю. База — подтягивания и брусья с весом: рабочий подход, затем 3×5 на −10%. Адаптировано из программы WSF.</p>
+    <p class="street-note">Подтягивания и брусья с отягощением. Выбери программу, затем день тренировки.</p>
     <div class="stack" id="streetDays"></div>
   </section>
 
@@ -2433,7 +2433,7 @@ function fmtDate(iso){const d=new Date(iso+"T00:00"),m=["янв","фев","ма�
   return d.getDate()+" "+m[d.getMonth()];}
 
 /* ---------- navigation ---------- */
-const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),pu:el("scr-pu"),workout:el("scr-workout"),progress:el("scr-progress"),cfb:el("scr-cfb"),cfcat:el("scr-cfcat")};
+const scr={home:el("scr-home"),programs:el("scr-programs"),street:el("scr-street"),body:el("scr-body"),pwr:el("scr-pwr"),pwrta:el("scr-pwr-ta"),pl5:el("scr-pl5"),trx:el("scr-trx"),gvt:el("scr-gvt"),onerm:el("scr-onerm"),food:el("scr-food"),bodyprog:el("scr-bodyprog"),cross:el("scr-cross"),wod:el("scr-wod"),day:el("scr-day"),sw:el("scr-sw"),swc:el("scr-swc"),sotka:el("scr-sotka"),hfk:el("scr-hfk"),pp:el("scr-pp"),rr:el("scr-rr"),hc:el("scr-hc"),pu:el("scr-pu"),workout:el("scr-workout"),progress:el("scr-progress"),cfb:el("scr-cfb"),cfcat:el("scr-cfcat")};
 function el(id){return document.getElementById(id);}
 let histStack=[],currentScreen=null;
 const SCROLL_MEM={};
@@ -3007,10 +3007,13 @@ const STREET=[
    ["Подтягивания (объём)",3,10,0],["Отжимания на брусьях (пауза)",3,10,0],
    ["Стойка на руках у стены",2,30,0]]},
 ];
+const STREET_PROG={name:"Классический цикл",meta:"WSF · 4 тренировки в неделю",
+  desc:"База — подтягивания и брусья с весом: рабочий подход, затем 3×5 на −10%. День 1 — подтягивания, день 2 — брусья, день 3 — ноги и плечи, день 4 — объём и ОФП. Адаптировано из программы WSF.",
+  days:STREET.map(d=>({name:d.name,focus:d.sub,ex:d.ex}))};
 function renderStreet(){const w=el("streetDays");w.innerHTML="";
-  STREET.forEach((d,i)=>{const b=document.createElement("button");b.className="disc";
-    b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${d.name}</span><span class="disc-sub">${d.sub}</span></span><span class="go">›</span>`;
-    b.onclick=()=>startWorkout({name:d.name,focus:d.focus,ex:d.ex});w.appendChild(b);});}
+  const b=document.createElement("button");b.className="disc";
+  b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${STREET_PROG.name}</span><span class="disc-sub">${STREET_PROG.meta} · подтягивания и брусья с весом</span></span><span class="go">›</span>`;
+  b.onclick=()=>openProg(STREET_PROG,"Стритлифтинг · программа");w.appendChild(b);}
 renderStreet();
 /* ---------- БОДИБИЛДИНГ · 5 программ ---------- */
 const BODY=[
@@ -7377,6 +7380,7 @@ const STREET_PROGS=[
   {name:"Комплекс 2 · пирамида 5-4-3-2-1-2-3-4-5",focus:"9 кругов, отдых до 45 с",ex:[X(SLP,9,5,20,"Вес на 8 повт. Повторы по кругам: 5-4-3-2-1-2-3-4-5. Суперсет: сразу → отжимания на брусьях",5,"9 подходов · 5-4-3-2-1-2-3-4-5 повт."),X(SLD,9,5,30,"Вес на 8 повт. Повторы по кругам: 5-4-3-2-1-2-3-4-5. Отдых минимальный — не больше 45 с",45,"9 подходов · 5-4-3-2-1-2-3-4-5 повт.")]},
   {name:"Комплекс 3 · дроп до своего веса",focus:"3 круга на максимум",ex:[X(SLP,3,8,10,"Вес на 10 повт. Круг 1 — на максимум с весом, круг 2 — вес вдвое меньше, круг 3 — свой вес. Суперсет: сразу → отжимания на брусьях",5,"3 подхода на максимум · вес → ½ веса → свой вес"),X(SLD,3,8,20,"Вес на 10 повт. Круг 1 — с весом, 2 — половина веса, 3 — свой вес; всё на максимум. После пары отдых 2–3 мин",150,"3 подхода на максимум · вес → ½ веса → свой вес")]}]}];
 function renderStreetProgs(){const w=el("streetDays");if(!w)return;const h=document.createElement("p");h.className="bb-lbl";h.innerHTML="Программы<small>подтягивания и брусья с отягощением · Calisthetics</small>";w.appendChild(h);
+  {const c=w.querySelector(".disc");if(c&&c.textContent.includes("Классический цикл"))w.appendChild(c);}
   try{w.appendChild(lzButton());}catch(e){}
   STREET_PROGS.forEach(p=>w.appendChild(progButton(p,"Стритлифтинг · программа")));
   [EXT_PROGS.slpp,EXT_PROGS.blft].forEach(p=>w.appendChild(extButton(p)));}
