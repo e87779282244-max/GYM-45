@@ -30,7 +30,7 @@ async def m():
     ok('кроссфит: кнопка программы на месяц',await pg.evaluate("currentScreen==='cross'&&!!el('cfProgBtn')&&el('crossDays').querySelectorAll('#cfProgBtn').length===1"))
     if SHOT:await pg.screenshot(path=SHOT+'/cross.png')
     await pg.evaluate("el('cfProgBtn').click()");await pg.wait_for_timeout(120)
-    ok('Phil Team: 24 тренировки',await pg.evaluate("el('bodyDays').querySelectorAll('.disc').length===24"))
+    ok('Phil Team: 24 тренировки — по неделям, 6 в неделю',await pg.evaluate("CF_PROG.weeks.reduce((a,w)=>a+w.days.length,0)===24&&el('bodyDays').querySelectorAll('.disc').length===6&&el('auWk').querySelectorAll('button').length===4"))
     ok('нет повторов блоков внутри дня',await pg.evaluate("CF_PROG.days.every(d=>new Set(d.ex.map(e=>e[0])).size===d.ex.length)"))
     await pg.evaluate("el('bodyDays').querySelectorAll('.disc')[0].click()");await pg.wait_for_timeout(100);await pg.evaluate("el('dayStart').click()");await pg.wait_for_timeout(150)
     ok('блок: время и круги в строке цели',await pg.evaluate("el('exList').querySelector('.target').textContent.includes('2 круга — отметь')"))

@@ -4762,7 +4762,7 @@ function renderCross(){const w=el("crossDays");w.innerHTML="";const s=cfGet();
   let _cp=null;try{_cp=CF_PROG;}catch(e){}
   if(_cp){const pb=document.createElement("button");pb.type="button";pb.className="disc";pb.id="cfProgBtn";
     pb.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Программа на месяц · Phil Team</span><span class="disc-sub">${_cp.meta}</span></span><span class="go">›</span>`;
-    pb.onclick=()=>openProg(_cp,"Кроссфит · программа");w.appendChild(pb);}
+    pb.onclick=()=>authOpen(_cp);w.appendChild(pb);}
   const g=document.createElement("div");g.className="cf-cats";
   CF_CATS.forEach((c,i)=>{const own=CFW.filter(d=>cfCatOf(d)===c.k);const b=document.createElement("button");b.type="button";b.className="cf-cat c"+i;
     b.innerHTML=`<span class="cf-cat-h"><b>${c.t}</b><small>${c.en}</small></span><span class="cf-cat-n num">${own.length}</span><span class="cf-cat-d">${c.d}</span>`;b.onclick=()=>cfOpenCat(c.k);g.appendChild(b);});
@@ -5929,8 +5929,21 @@ function mpDD(iso){return iso?fmtDate(iso):"";}
 function cfProg(){const p=cfGet().prog;return p&&p.lvl?p:null;}
 function cfProgList(p){return CFW.filter(d=>cfCatOf(d)===p.lvl);}
 function cfProgDone(p){const ids=new Set(cfProgList(p).map(d=>d.id));return cfGet().res.filter(r=>(r.ts||0)>=p.ts&&ids.has(r.wod));}
-function cfProgNext(p){const list=cfProgList(p),done=new Set(cfProgDone(p).map(r=>r.wod));return list.find(d=>!done.has(d.id))||list[cfProgDone(p).length%Math.max(1,list.length)];}
-function cfProgStart(lvl){const s=cfGet();s.prog={lvl,ts:Date.now(),start:localDate()};cfSave(s);toast("Кроссфит «"+CF_CATS.find(c=>c.k===lvl).t+"» — активная программа");}
+function cfProgNext(p){const list=cfProgList(p),done=new Set(cfProgDone(p).map(r=>r.wod));return list.find(d=>!done.has(d.id))||null;}
+function cfProgStart(lvl,per,round){const s=cfGet();s.prog={lvl,ts:Date.now(),start:localDate(),per:per||(s.prog&&s.prog.per)||3,round:round||1};cfSave(s);toast("Кроссфит «"+CF_CATS.find(c=>c.k===lvl).t+"» — активная программа");}
+/* частота: N тренировок в неделю → пауза между ними */
+const CF_PERS=[2,3,4,5];
+function cfProgPer(p){return p.per||3;}
+function cfProgGap(p){const n=cfProgPer(p);return n>=5?1:n>=3?2:3;}
+function cfProgUniq(p){return new Set(cfProgDone(p).map(r=>r.wod)).size;}
+function cfProgRoundDone(p){return !cfProgNext(p)&&cfProgList(p).length>0;}
+function cfProgNextDate(p){const t=localDate(),dn=cfProgDone(p);if(!dn.length)return t;
+  const last=new Date(Math.max(...dn.map(r=>r.ts||0)));last.setDate(last.getDate()+cfProgGap(p));const x=localDate(last);return x<t?t:x;}
+function cfLvlNext(lvl){const o=CF_CATS.map(c=>c.k),i=o.indexOf(lvl);return i>=0&&i<o.length-1?o[i+1]:null;}
+function cfProgArch(p,verdict){const c=CF_CATS.find(x=>x.k===p.lvl),list=cfProgList(p),dn=cfProgDone(p);
+  mpArch({kind:"cf",prog:"cf:"+p.lvl,title:"Кроссфит · "+c.t+(p.round>1?" · круг "+p.round:""),start:p.start,total:list.length,done:cfProgUniq(p),unit:"компл.",verdict:verdict+" Тренировок: "+dn.length+", рекордов: "+dn.filter(r=>r.pr).length+"."});}
+function cfProgAgain(){const p=cfProg();if(!p)return;cfProgArch(p,"Круг "+(p.round||1)+" пройден полностью.");const s=cfGet();s.prog=Object.assign({},p,{ts:Date.now(),start:localDate(),round:(p.round||1)+1});cfSave(s);toast("Круг "+s.prog.round+": цель — побить свои рекорды");}
+function cfProgUp(){const p=cfProg();if(!p)return;const nx=cfLvlNext(p.lvl);if(!nx)return;cfProgArch(p,"Уровень пройден полностью — переход на «"+CF_CATS.find(c=>c.k===nx).t+"».");cfProgStart(nx,p.per,1);}
 /* все активные программы */
 function mpList(){const out=[];
   try{const P=g2Active();if(P){const S=G2S[P.stage],st=P.st[P.stage],nd=g2NextDate(P);const tot=G2S.reduce((s,x)=>s+(x.n||0),0),tr=P.recs.filter(r=>r.kind==="train").length;
@@ -5946,9 +5959,9 @@ function mpList(){const out=[];
   try{const s=hcGet();if(s.sessions>0)out.push({k:"hc",t:"Hybrid Calisthenics",s:"Тренировок: "+s.sessions+" · следующая "+(s.next||"A"),start:s.start||"",
     open:()=>{renderHC();show("hc");},fin:()=>{mpArch({kind:"hc",prog:"hc",title:"Hybrid Calisthenics",start:s.start||"",total:s.sessions,done:s.sessions,unit:"трен.",verdict:"Завершена вручную. Ступени сброшены к началу."});try{localStorage.removeItem(HCK);}catch(e){}cloudPush();}});}catch(e){}
   try{const p=cfProg();if(p){const c=CF_CATS.find(x=>x.k===p.lvl),dn=cfProgDone(p),nx=cfProgNext(p);
-    out.push({k:"cf",t:"Кроссфит · "+c.t,s:"Выполнено комплексов: "+dn.length+(nx?" · следующий: "+nx.name:""),start:p.start,
-      open:()=>cfOpenCat(p.lvl),fin:()=>{const list=cfProgList(p);mpArch({kind:"cf",prog:"cf:"+p.lvl,title:"Кроссфит · "+c.t,start:p.start,total:list.length,done:new Set(dn.map(r=>r.wod)).size,unit:"компл.",verdict:"Выполнено тренировок: "+dn.length+", рекордов: "+dn.filter(r=>r.pr).length+"."});
-        const s=cfGet();s.prog=null;cfSave(s);}});}}catch(e){}
+    const L=cfProgList(p),rd=p.round||1;
+    out.push({k:"cf",t:"Кроссфит · "+c.t,s:(rd>1?"Круг "+rd+" · ":"")+cfProgUniq(p)+" из "+L.length+" комплексов · "+cfProgPer(p)+" р/нед"+(nx?" · следующий: "+nx.name:" · круг пройден — выбери, что дальше"),next:nx?cfProgNextDate(p):null,start:p.start,
+      open:()=>cfOpenCat(p.lvl),fin:()=>{cfProgArch(p,nx?"Завершена досрочно.":"Круг пройден.");const s=cfGet();s.prog=null;cfSave(s);}});}}catch(e){}
   try{auPlanActive().forEach(p=>{const n=auCount(p.id),nn=auPlanNext(p);
     out.push({k:"au:"+p.id,t:p.name,s:nn?p.weeks[nn.w].name+" · тренировка "+Math.min(n+1,p.total)+" из "+p.total:"Все тренировки сделаны — заверши программу",next:nn?auPlanDate(p):null,start:auSt().act[p.id].start,
       open:()=>{authOpen(p);},fin:()=>auPlanEnd(p,!!nn)});});}catch(e){}
@@ -5965,7 +5978,7 @@ function renderDashActive(){const c=el("dashActive");if(!c)return;const L=mpList
 /* кнопка досрочного завершения внутри экрана программы */
 function mpEndBtn(k,label){const b=document.createElement("button");b.type="button";b.className="tm-reset sk-reset mp-endin";b.textContent=label||"Завершить программу досрочно · итог в «Прогресс»";
   b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — программа завершится, итог сохранится в «Прогрессе»");return;}mpFinish(k);
-    if(k==="gvt2")g2Render();else if(k.startsWith("au:")){try{authRender(FBN_PROG);}catch(e){}}else if(k==="rr")renderRR();else if(k==="hc")renderHC();else if(k==="cf")cfRenderCat();};return b;}
+    if(k==="gvt2")g2Render();else if(k.startsWith("au:")){try{authRender(k==="au:phil"?CF_PROG:FBN_PROG);}catch(e){}}else if(k==="rr")renderRR();else if(k==="hc")renderHC();else if(k==="cf")cfRenderCat();};return b;}
 /* встроить кнопки «Завершить досрочно» в экраны программ */
 {const _g2R=g2Render;g2Render=function(){_g2R();try{if(g2Active()&&!el("gvtBody").querySelector(".mp-endin"))el("gvtBody").appendChild(mpEndBtn("gvt2"));}catch(e){}};}
 {const _rr=renderRR;renderRR=function(){_rr();const b=el("rrReset"),s=rrGet();const o=b.parentNode.querySelector(".mp-endin");if(o)o.remove();if(s.sessions>0)b.after(mpEndBtn("rr"));};}
@@ -5975,11 +5988,24 @@ function mpEndBtn(k,label){const b=document.createElement("button");b.type="butt
 /* кроссфит: активировать уровень как программу */
 {const _cr=cfRenderCat;cfRenderCat=function(){_cr();const k=CF_CUR_CAT;if(!k||k==="my")return;const w=el("cfCatList"),p=cfProg(),c=CF_CATS.find(x=>x.k===k);
   const box=document.createElement("div");box.className="card mp-cf";
-  if(p&&p.lvl===k){const dn=cfProgDone(p),nx=cfProgNext(p);
-    box.innerHTML=`<b>Активная программа с ${mpDD(p.start)}</b><p class="cf-sub">Выполнено комплексов: ${dn.length} · рекордов: ${dn.filter(r=>r.pr).length}. Иди по списку сверху вниз — результаты считаются автоматически.</p>${nx?`<button type="button" class="btn" id="mpCfNext">Следующий: ${nx.name}</button>`:""}`;
-    w.prepend(box);if(nx)el("mpCfNext").onclick=()=>openWod(nx,cfVariants(nx)[0]);box.appendChild(mpEndBtn("cf"));}
+  const perChips=cur=>`<div class="gvt-opt"><span>Тренировок в неделю</span><div class="seg" id="mpCfPer">${CF_PERS.map(n=>`<button type="button" class="seg-b${n===cur?" on":""}" data-v="${n}">${n}</button>`).join("")}</div></div>`;
+  if(p&&p.lvl===k){const dn=cfProgDone(p),nx=cfProgNext(p),L=cfProgList(p),u=cfProgUniq(p),rd=p.round||1,nd=cfProgNextDate(p),up=cfLvlNext(k);
+    box.innerHTML=`<b>Активная программа${rd>1?" · круг "+rd:""} · с ${mpDD(p.start)}</b>
+      <div class="gvt-bar"><i style="width:${Math.round(u/Math.max(1,L.length)*100)}%"></i></div>
+      <p class="cf-sub">Сделано ${u} из ${L.length} комплексов · рекордов: ${dn.filter(r=>r.pr).length}. Порядок — сверху вниз по списку; можно делать и вразнобой, сделанный засчитается.</p>
+      ${perChips(cfProgPer(p))}
+      ${nx?`<p class="cf-sub"><b>Следующая тренировка — ${nd<=localDate()?"сегодня":mpDD(nd)}</b></p><button type="button" class="btn" id="mpCfNext">Следующий: ${nx.name}</button>`
+        :`<p class="cf-sub"><b>Круг пройден — все ${L.length} комплексов сделаны 🎉</b> ${up?"Можно переходить на «"+CF_CATS.find(c=>c.k===up).t+"» или пройти ещё круг и побить свои рекорды.":"Это высший уровень — дальше круги на рекорды."}</p>
+         ${up?`<button type="button" class="btn" id="mpCfUp">Перейти на «${CF_CATS.find(c=>c.k===up).t}» ›</button>`:""}<button type="button" class="btn${up?" btn-alt":""}" id="mpCfAgain">Ещё круг на рекорды</button>`}`;
+    w.prepend(box);if(nx)el("mpCfNext").onclick=()=>openWod(nx,cfVariants(nx)[0]);
+    if(el("mpCfUp"))el("mpCfUp").onclick=()=>{cfProgUp();const q=cfProg();if(q){CF_CUR_CAT=q.lvl;}cfRenderCat();try{renderDashActive();}catch(e){}};
+    if(el("mpCfAgain"))el("mpCfAgain").onclick=()=>{cfProgAgain();cfRenderCat();try{renderDashActive();}catch(e){}};
+    box.querySelectorAll("#mpCfPer .seg-b").forEach(b=>b.onclick=()=>{const s=cfGet();s.prog=Object.assign({},s.prog,{per:+b.dataset.v});cfSave(s);cfRenderCat();try{renderDashActive();}catch(e){}});
+    box.appendChild(mpEndBtn("cf"));}
   else{box.innerHTML=`<p class="cf-sub">${p?"Сейчас активна программа «"+CF_CATS.find(x=>x.k===p.lvl).t+"». ":""}Сделай этот уровень активной программой — он появится на главном рядом с другими программами (GVT, стрит-воркаут), а выполненные комплексы и рекорды будут считаться в ней.</p><button type="button" class="btn btn-alt" id="mpCfGo">${p?"Переключиться на «"+c.t+"»":"Сделать «"+c.t+"» активной программой"}</button>`;
-    w.prepend(box);el("mpCfGo").onclick=()=>{const b=el("mpCfGo");if(p){if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — «"+CF_CATS.find(x=>x.k===p.lvl).t+"» завершится с сохранением итога");return;}mpFinish("cf");}cfProgStart(k);cfRenderCat();};}};}
+    box.querySelector("#mpCfGo").insertAdjacentHTML("beforebegin",perChips(3));
+    box.querySelectorAll("#mpCfPer .seg-b").forEach(b=>b.onclick=()=>box.querySelectorAll("#mpCfPer .seg-b").forEach(x=>x.classList.toggle("on",x===b)));
+    w.prepend(box);el("mpCfGo").onclick=()=>{const b=el("mpCfGo"),per=+((box.querySelector("#mpCfPer .seg-b.on")||{}).dataset||{}).v||3;if(p){if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — «"+CF_CATS.find(x=>x.k===p.lvl).t+"» завершится с сохранением итога");return;}mpFinish("cf");}cfProgStart(k,per);cfRenderCat();};}};}
 
 /* ---------- Питание · норма, план на 7 дней, меры, покупки ----------
    Адаптер интерфейса Gym 45 к движку ШТУРМ 30 (Sites154 + PR9), встроенному выше отдельными
@@ -7420,6 +7446,9 @@ const PHIL_DAYS=[
 const CF_PROG={name:"1 месяц кросс-тренинга · Phil Team",meta:"4 недели · 6 дней/нед · без инвентаря · продвинутый",
  desc:"Программа французской Phil Team для тренировок дома или в отпуске: 24 тренировки до 60 минут. Включи секундомер на весь час — время у каждого блока указано по часам (0:00–15:00 и т. д.), так держится нужная интенсивность. Вместо гантелей — рюкзак, сумка или бутылки с водой. Блок = упражнение: отмечай каждый круг, отдых между блоками ставится сам. Незнакомое движение — ищи название + «crossfit». Слушай тело: отдыхай больше или заменяй движение, если что-то не так.",
  days:PHIL_DAYS.map(([d,ex])=>({name:"Phil Team · "+d,focus:["","Неделя 1","Неделя 2","Неделя 3","Неделя 4"][+d[1]]+" · "+ex.length+" "+(ex.length<5?"блока":"блоков"),ex}))};
+/* ведение по плану: 4 недели × 6 дней, следующая тренировка — на следующий день (gap 1) */
+Object.assign(CF_PROG,{id:"phil",plan:1,total:24,sec:"cross",eb:"Кроссфит · программа",gap:1,lvl:4,
+  weeks:[1,2,3,4].map(n=>({name:"Неделя "+n,days:CF_PROG.days.filter(d=>d.focus.startsWith("Неделя "+n)).map(d=>Object.assign({},d,{focus:"дома, без инвентаря"}))}))});
 /* ---------- Французские программы: Streetlift 5j PPLPP, Powerbuild 6j PPL×2, Body-lifting (rbt_pau) ---------- */
 const EXT_PROGS={
  slpp:{id:"slpp",ext:1,sec:"street",eb:"Стритлифтинг · программа",total:30,lvl:3,name:"Streetlift 5 дней · Push/Pull/Legs/Push/Pull",meta:"6 недель · 5 дней/нед · масса + сила в стритлифтинге",
@@ -7615,11 +7644,11 @@ function auPlanLast(p){let L=null;try{safe.get().forEach(h=>{if(h&&h.au&&h.au.id
 function auPlanNext(p){const L=auPlanLast(p);if(!L)return {w:0,d:0};
   const w=+L.au.w||0,d=Math.max(0,p.weeks[w].days.findIndex(x=>x.name===L.name));
   if(d+1<p.weeks[w].days.length)return {w,d:d+1};if(w+1<p.weeks.length)return {w:w+1,d:0};return null;}
-function auPlanDate(p){const L=auPlanLast(p),t=localDate();if(!L)return t;if(L.date===t){const d=new Date();d.setDate(d.getDate()+2);return localDate(d);}
-  const d=new Date(L.date+"T12:00:00");d.setDate(d.getDate()+2);const x=localDate(d);return x<t?t:x;}
+function auPlanDate(p){const L=auPlanLast(p),t=localDate(),gp=p.gap||2;if(!L)return t;if(L.date===t){const d=new Date();d.setDate(d.getDate()+gp);return localDate(d);}
+  const d=new Date(L.date+"T12:00:00");d.setDate(d.getDate()+gp);const x=localDate(d);return x<t?t:x;}
 function auPlanStart(p,n){const w=p.weeks[n.w],d=w.days[n.d];authSetWeek(p,n.w);
   startWorkout({name:d.name,focus:p.name+" · "+w.name,ex:d.ex,sec:p.sec||"body",rest:d.rest||w.rest||p.rest,au:{id:p.id,w:n.w},planR:d.planR?1:0,fixed:p.sec==="pwr"?1:0},false);}
-function auPlanActive(){const v=auSt(),out=[];try{[FBN_PROG].forEach(p=>{if(v.act&&v.act[p.id])out.push(p);});}catch(e){}return out;}
+function auPlanActive(){const v=auSt(),out=[];try{[FBN_PROG,CF_PROG].forEach(p=>{if(v.act&&v.act[p.id])out.push(p);});}catch(e){}return out;}
 function auPlanEnd(p,early){const v=auSt(),a=(v.act||{})[p.id];if(!a)return;const n=auCount(p.id);
   mpArch({kind:"au",prog:"au:"+p.id,title:p.name,start:a.start||"",total:p.total,done:Math.min(n,p.total),unit:"трен.",verdict:early?"Завершена досрочно: "+n+" из "+p.total+" тренировок.":"Пройдена полностью: "+n+" тренировок."});
   delete v.act[p.id];if(!early)v.done[p.id]=Date.now();auSave(v);}
