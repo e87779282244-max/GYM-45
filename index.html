@@ -6539,6 +6539,11 @@ function dsCount(){let n=0;try{n=JSON.parse(localStorage.getItem("gym45_history_
 function dsDT(iso){const d=new Date(iso);return d.toLocaleDateString("ru-RU",{day:"numeric",month:"short"})+" "+d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});}
 function dsDownload(){const pack={app:"Gym 45",format:1,at:new Date().toISOString(),data:dsAll()};const txt=JSON.stringify(pack);
   const name="gym45-backup-"+localDate()+".json",blob=new Blob([txt],{type:"application/json"});
+  /* внутри Claude файл отдаётся только через «downloads» (с подтверждением) */
+  if(window.claude&&claude.use&&!dsDownload._plain){(async()=>{let d=null;try{d=await claude.use("downloads");}catch(e){}
+    if(!d){dsDownload._plain=1;dsDownload();dsDownload._plain=0;return;}
+    try{await d.save({filename:name,data:txt});try{localStorage.setItem("gym45_lastexport_v1",JSON.stringify({at:new Date().toISOString()}));}catch(e){}renderDS();toast("Копия сохранена: "+name);}
+    catch(e){toast(e&&e.code==="declined"?"Сохранение отменено":"Не удалось сохранить файл здесь");}})();return;}
   try{const f=new File([blob],name,{type:"application/json"});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:"Gym 45 — резервная копия"}).catch(()=>{});return;}}catch(e){}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
   try{localStorage.setItem("gym45_lastexport_v1",JSON.stringify({at:new Date().toISOString()}));}catch(e){}renderDS();}
