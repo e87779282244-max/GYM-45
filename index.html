@@ -90,8 +90,8 @@
   .stack{display:flex;flex-direction:column;gap:12px}
 
   /* ---- login ---- */
-  #login{position:absolute;inset:0;z-index:40;background:var(--app);
-    display:flex;flex-direction:column;justify-content:center;
+  #login{position:fixed;inset:0;max-width:440px;margin:0 auto;overflow-y:auto;z-index:40;background:var(--app);
+    display:flex;flex-direction:column;justify-content:safe center;
     padding:32px max(26px,env(safe-area-inset-left,0px)) calc(32px + env(safe-area-inset-bottom,0px))}
   .brand{display:flex;align-items:center;gap:12px;margin-bottom:34px}
   .logo{width:52px;height:52px;border-radius:15px;background:var(--accent);color:#fff;
@@ -105,6 +105,14 @@
     border:1px solid var(--line);border-radius:12px;padding:13px 14px;width:100%}
   .field input:focus{outline:none;border-color:var(--accent)}
   .pwrap{position:relative}
+  .fb-alt{display:flex;justify-content:space-between;margin:12px 2px 4px}
+  .fb-alt button,.fb-skip{background:none;border:none;font:inherit;font-size:14px;font-weight:600;color:var(--accent-ink);padding:8px 0}
+  .fb-g{width:100%;margin-top:10px;padding:13px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-weight:700;font-size:15px}
+  .fb-g b{font-family:var(--dsp);color:#4285f4;margin-right:6px}
+  .fb-skip{display:block;width:100%;text-align:center;color:var(--muted);font-weight:500;font-size:13px;margin-top:4px}
+  #login .hint.fb-bad{color:#c0392b;font-weight:600}
+  #login button:disabled{opacity:.55}
+  .fb-acc h3{margin:0 0 4px}.fb-acc .fb-skip{text-align:left;color:#c0392b}
   .pwrap input{padding-right:96px}
   .pwtg{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;
     color:var(--accent-ink);font-size:12.5px;font-weight:600;font-family:var(--body);padding:6px 8px}
@@ -6536,7 +6544,7 @@ function dsDownload(){const pack={app:"Gym 45",format:1,at:new Date().toISOStrin
   try{localStorage.setItem("gym45_lastexport_v1",JSON.stringify({at:new Date().toISOString()}));}catch(e){}renderDS();}
 /* восстановление: текущее состояние сначала уходит в снимок, затем ключи из копии записываются поверх */
 function dsRestore(data,label){if(!data||typeof data!=="object"){toast("Файл не похож на копию Gym 45");return;}
-  const keys=Object.keys(data).filter(k=>k.startsWith("gym45_")&&k!==DS_K);if(!keys.length){toast("В копии нет данных Gym 45");return;}
+  const keys=Object.keys(data).filter(k=>k.startsWith("gym45_")&&k!==DS_K&&k!=="gym45_fb_v1");if(!keys.length){toast("В копии нет данных Gym 45");return;}
   try{const st={snaps:dsSnaps()};st.snaps.push({at:new Date().toISOString(),build:"перед восстановлением",h:Date.now(),n:Object.keys(dsAll()).length,data:dsAll()});while(st.snaps.length>3)st.snaps.shift();localStorage.setItem(DS_K,JSON.stringify(st));}catch(e){}
   keys.forEach(k=>{try{localStorage.setItem(k,data[k]);}catch(e){}});
   toast("Восстановлено: "+label+". Перезапускаю…");setTimeout(()=>location.reload(),900);}
@@ -7891,12 +7899,14 @@ function cloudRefreshUI(){
 }
 function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;}
 async function cloudInit(){
+  if(cloudInit._busy)return;cloudInit._busy=true;
   try{
+    if(!CLOUD){
     if(!(window.claude&&claude.use))return;
     const user=await claude.use("user"); const db=await claude.use("db");
     if(!user||!db)return;
     const uid=await user.id(); if(!uid)return;
-    CLOUD={db,user};CLOUD_UID=uid;
+    CLOUD={db,user};CLOUD_UID=uid;}
     const snap=await cloudDoc().get();
     if(snap&&snap.exists&&snap.data()){
       const d=snap.data();
@@ -7935,6 +7945,7 @@ async function cloudInit(){
     }
     cloudStatus("☁ Синхронизация включена");
   }catch(e){cloudStatus("Gym 45 · локально");}
+  finally{cloudInit._busy=false;}
 }
 function cloudPush(){
   if(!cloudReady||!CLOUD)return;
@@ -7946,6 +7957,86 @@ function cloudPush(){
 
 if(!draftAutoRestore(true))show("home");
 cloudInit();
+
+/* ===================== СВОЁ ОБЛАКО: Firebase (версия на GitHub Pages) =====================
+   Внутри Claude работает облако Claude (выше). Вне Claude — вход по почте/Google и Firestore.
+   Данные — тот же снимок cloudSnapshot() и то же объединение (ничего не затирается):
+   users/{uid}/data/meta + c0..cN (JSON частями ≤200 тыс. символов, пишутся одной атомарной пачкой). */
+const FB_VER="10.14.1",FB_CFG={apiKey:"AIzaSyAnrWTmSnVDY3XCxwWHVKb7bikwJe215kM",authDomain:"gym-45-8aa8e.firebaseapp.com",projectId:"gym-45-8aa8e",
+  storageBucket:"gym-45-8aa8e.firebasestorage.app",messagingSenderId:"506281962269",appId:"1:506281962269:web:9d6323fdcbd7ce3f9c4ff4"};
+const FBK="gym45_fb_v1",FB_CH=200000;let FB=null;
+function fbMode(){return !(window.claude&&window.claude.use)&&(!!window.firebase||(location.protocol==="https:"&&/\.github\.io$/.test(location.hostname)));}
+function fbSt(){try{return JSON.parse(localStorage.getItem(FBK)||"{}")||{};}catch(e){return {};}}
+function fbSave(o){try{localStorage.setItem(FBK,JSON.stringify(Object.assign(fbSt(),o)));}catch(e){}}
+function fbLoad(){if(fbLoad._p)return fbLoad._p;
+  fbLoad._p=(async()=>{
+    if(!(window.firebase&&firebase.firestore&&firebase.auth))for(const m of ["app","auth","firestore"])
+      await new Promise((ok,no)=>{const sc=document.createElement("script");sc.src=`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-${m}-compat.js`;sc.onload=ok;sc.onerror=()=>no(new Error("sdk"));document.head.appendChild(sc);});
+    if(!(firebase.apps&&firebase.apps.length))firebase.initializeApp(FB_CFG);
+    FB={auth:firebase.auth(),fs:firebase.firestore()};return FB;})();
+  fbLoad._p.catch(()=>{fbLoad._p=null;});return fbLoad._p;}
+function fbStore(uid){const col=()=>FB.fs.collection("users").doc(uid).collection("data");
+  const d={async get(){const m=await col().doc("meta").get();if(!m.exists)return {exists:false,data:()=>null};
+      const md=m.data()||{},n=md.n|0;const P=await Promise.all([...Array(n)].map((_,i)=>col().doc("c"+i).get()));
+      if(!n||P.some(p=>!p.exists||(p.data()||{}).v!==md.v))throw new Error("облако: неполная запись");
+      const obj=JSON.parse(P.map(p=>p.data().s).join(""));fbStore.n=n;return {exists:true,data:()=>obj};},
+    async set(obj){const str=JSON.stringify(obj),n=Math.max(1,Math.ceil(str.length/FB_CH)),v=Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+      const b=FB.fs.batch();for(let i=0;i<n;i++)b.set(col().doc("c"+i),{s:str.slice(i*FB_CH,(i+1)*FB_CH),v});
+      for(let i=n;i<(fbStore.n||0);i++)b.delete(col().doc("c"+i));
+      b.set(col().doc("meta"),{n,v,at:Date.now(),size:str.length});await b.commit();fbStore.n=n;}};
+  return {doc:()=>d};}
+const FB_ERR={"auth/invalid-credential":"Неверная почта или пароль","auth/wrong-password":"Неверная почта или пароль","auth/user-not-found":"Такой почты нет — нажми «Создать аккаунт»",
+  "auth/invalid-email":"Проверь адрес почты","auth/missing-password":"Введи пароль","auth/email-already-in-use":"Эта почта уже зарегистрирована — просто войди",
+  "auth/weak-password":"Пароль слишком короткий — минимум 6 символов","auth/network-request-failed":"Нет сети — попробуй ещё раз","auth/too-many-requests":"Слишком много попыток — подожди пару минут",
+  "auth/popup-closed-by-user":"Окно Google закрыто","auth/cancelled-popup-request":"Окно Google закрыто","sdk":"Нет связи с облаком — проверь интернет"};
+function fbMsg(t,bad){const m=el("fbMsg");if(m){m.textContent=t;m.classList.toggle("fb-bad",!!bad);}}
+function fbErr(e){fbMsg(FB_ERR[(e&&(e.code||e.message))]||"Не получилось: "+((e&&(e.code||e.message))||"ошибка"),true);}
+async function fbDo(fn){const f=el("loginForm");f.querySelectorAll("button").forEach(b=>b.disabled=true);
+  try{await fbLoad();await fn();}catch(e){fbErr(e);}finally{f.querySelectorAll("button").forEach(b=>b.disabled=false);}}
+function fbCred(){return [el("email").value.trim(),el("pass").value];}
+function fbLoginUI(){const f=el("loginForm");f.setAttribute("autocomplete","on");
+  f.innerHTML=`<div class="field"><label for="email">Эл. почта</label><input id="email" type="email" inputmode="email" autocomplete="username" placeholder="you@mail.com"></div>
+    <div class="field"><label for="pass">Пароль</label><div class="pwrap"><input id="pass" type="password" autocomplete="current-password" placeholder="не короче 6 символов"><button type="button" id="pwToggle" class="pwtg">Показать</button></div></div>
+    <button class="btn" type="submit" id="loginBtn">Войти</button>
+    <div class="fb-alt"><button type="button" id="fbReg">Создать аккаунт</button><button type="button" id="fbForgot">Забыли пароль?</button></div>
+    <button class="fb-g" type="button" id="fbGoogle"><b>G</b> Войти через Google</button>
+    <p class="hint" id="fbMsg">Вход нужен, чтобы тренировки хранились в облаке и были на всех устройствах.</p>
+    <button type="button" class="fb-skip" id="fbSkip">Продолжить без входа · записи только на этом телефоне</button>`;
+  el("pwToggle").onclick=()=>{const p=el("pass"),sh=p.type==="password";p.type=sh?"text":"password";el("pwToggle").textContent=sh?"Скрыть":"Показать";};
+  f.onsubmit=e=>{e.preventDefault();const [m,p]=fbCred();fbDo(()=>FB.auth.signInWithEmailAndPassword(m,p));};
+  el("fbReg").onclick=()=>{const [m,p]=fbCred();fbDo(()=>FB.auth.createUserWithEmailAndPassword(m,p));};
+  el("fbForgot").onclick=()=>{const [m]=fbCred();if(!m){fbMsg("Введи почту — пришлём ссылку для нового пароля",true);return;}
+    fbDo(async()=>{await FB.auth.sendPasswordResetEmail(m);fbMsg("Письмо отправлено на "+m+" — проверь почту (и «Спам»)");});};
+  el("fbGoogle").onclick=()=>fbDo(async()=>{const pr=new firebase.auth.GoogleAuthProvider();
+    try{await FB.auth.signInWithPopup(pr);}catch(e){if(e&&/popup-blocked|operation-not-supported/.test(e.code||""))await FB.auth.signInWithRedirect(pr);else throw e;}});
+  el("fbSkip").onclick=()=>{fbSave({skip:true});el("login").style.display="none";fbAccRender();};}
+function fbAccRender(){if(!fbMode())return;let c=el("fbAcc");
+  if(!c){const st=document.querySelector("#scr-profile .stack");if(!st)return;c=document.createElement("div");c.className="card fb-acc";c.id="fbAcc";st.insertBefore(c,st.firstChild);}
+  const u=FB&&FB.auth&&FB.auth.currentUser;
+  c.innerHTML=u?`<h3>Аккаунт</h3><p class="nt-sub"><b>${(u.email||"Google").replace(/</g,"&lt;")}</b> · ${cloudReady?"☁ записи сохраняются в облаке":"подключение к облаку…"}</p><button type="button" class="fb-skip" id="fbOut">Выйти из аккаунта</button>`
+    :`<h3>Аккаунт</h3><p class="nt-sub">Вход не выполнен — записи хранятся только на этом устройстве.</p><button class="btn" type="button" id="fbIn">Войти и сохранять в облако</button>`;
+  if(el("fbOut"))el("fbOut").onclick=async()=>{clearTimeout(cloudPush._t);try{if(cloudReady)await CLOUD.db.doc().set(cloudSnapshot());}catch(e){}
+    try{await FB.auth.signOut();}catch(e){}fbSave({uid:null,email:"",skip:false});toast("Вы вышли. Записи на телефоне остались");};
+  if(el("fbIn"))el("fbIn").onclick=()=>{fbSave({skip:false});el("login").style.display="";};}
+async function fbStart(){if(!fbMode())return;fbLoginUI();
+  const st=fbSt();if(st.uid||st.skip)el("login").style.display="none";
+  cloudStatus(st.uid?"☁ Подключение…":"Gym 45 · локально");fbAccRender();
+  try{await fbLoad();}catch(e){cloudStatus("Gym 45 · локально · нет сети");return;}
+  try{await FB.auth.getRedirectResult();}catch(e){fbErr(e);}
+  FB.auth.onAuthStateChanged(async u=>{
+    if(u){fbSave({uid:u.uid,email:u.email||"",skip:false});el("login").style.display="none";
+      if(CLOUD_UID!==u.uid){CLOUD={db:fbStore(u.uid),user:null,fb:true};CLOUD_UID=u.uid;cloudReady=false;fbStore.n=0;}
+      fbAccRender();await cloudInit();
+      if(cloudReady){fbAccRender();if(!fbStart._hi){fbStart._hi=1;toast("☁ Облако подключено: "+(u.email||"Google"));}}}
+    else{const was=fbSt().uid;CLOUD=null;CLOUD_UID=null;cloudReady=false;cloudStatus("Gym 45 · локально");
+      if(was||!fbSt().skip){fbSave({uid:null});el("login").style.display="";}}
+    fbAccRender();});
+  /* вернулся в приложение — подтянуть записи с других устройств; ушёл — отправить несохранённое сразу */
+  let last=Date.now();
+  document.addEventListener("visibilitychange",()=>{if(!(CLOUD&&CLOUD.fb&&cloudReady))return;
+    if(document.visibilityState==="hidden"){if(cloudPush._t){clearTimeout(cloudPush._t);cloudPush._t=null;CLOUD.db.doc().set(cloudSnapshot()).catch(()=>{});}}
+    else if(Date.now()-last>30000){last=Date.now();cloudInit();}});}
+fbStart();
 </script>
 
 </html>
