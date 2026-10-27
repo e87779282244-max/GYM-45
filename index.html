@@ -4293,6 +4293,10 @@ function renderPwr(){const w=el("pwrProgs");w.innerHTML="";
   PWR.forEach(p=>w.appendChild(progButton(p,"Пауэрлифтинг · этап")));}
 renderPwr();
 function renderPwrPrograms(){const w=el("pwrPrograms");w.innerHTML="";
+  let _rdy=false;try{_rdy=!!TA_PROG;}catch(e){}
+  if(_rdy){lblHead(w,"Программы","от простой к сложной · звёзды — сложность");
+    const L=[[2,()=>extButton(TA_PROG)],[2,()=>extButton(P5_PROG)],[2,()=>extButton(BP_BEG)],[3,()=>extButton(FAL_PROG)],[3,()=>addLvl(w5Button(),3)],[4,()=>extButton(EXT_PROGS.pbx2)],[5,()=>extButton(BP_ADV)]];
+    L.forEach(([l,f])=>{try{w.appendChild(addLvl(f(),l));}catch(e){}});return;}
   try{w.appendChild(w5Button());}catch(e){}
   const mk=(name,sub,fn)=>{const b=document.createElement("button");b.className="disc";
     b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>${name}</span><span class="disc-sub">${sub}</span></span><span class="go">›</span>`;
@@ -5559,6 +5563,20 @@ function swBtn(d,sub){const b=document.createElement("button");b.className="disc
   b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="go">›</span>`;
   const s=b.querySelectorAll("span span");s[0].textContent=d;s[1].textContent=sub;return b;}
 function renderSw(){const w=el("swList");w.innerHTML="";
+  {const sk=skGet(),L=[];
+   const add=(l,t,sub,fn)=>L.push([l,()=>{const b=swBtn(t,sub);b.classList.add("sw-folder");b.onclick=fn;return addLvl(b,l);}]);
+   const pp=(id,l)=>{const P=PP[id];if(!P)return;const st=ppGet(id);add(l,P.title,P.author+(st.start?" · день "+ppToday(st,P.total)+" из "+P.total:""),()=>openPP(id));};
+   add(1,"Подтягивания: с нуля до 25","Лайфхакер → Цацулин → Армстронг · 3 ступени",()=>{renderPU();show("pu");});
+   pp("push100",1);add(1,"Recommended Routine","r/bodyweightfitness · всё тело, 3 раза в неделю",()=>{renderRR();show("rr");});
+   pp("dips150",2);add(2,"Сотка · 100-дневный воркаут",sk.start?"Антон Кучумов · сейчас день "+skToday(sk)+" из 100":"Антон Кучумов · 100 дней, 3 блока",()=>{skView=null;renderSotka();show("sotka");});
+   pp("bb12",2);add(2,"Hybrid Calisthenics","Хэмптон Лю · 5 лестниц от лёгкого к мастерскому",()=>{renderHC();show("hc");});
+   pp("seal",3);add(3,"Hannibal For King","Вокруг света, круг и лесенка Ганнибала · "+HFK.length+" программ",()=>{renderHfk();show("hfk");});
+   pp("seal31",4);
+   lblHead(w,"Программы","от простой к сложной · звёзды — сложность");L.forEach(([l,f])=>w.appendChild(f()));
+   const g2=document.createElement("div");g2.className="sw-group";g2.textContent="Отдельные комплексы";w.appendChild(g2);
+   let lv="";SW.forEach(d=>{if(d.lvl!==lv){lv=d.lvl;const h=document.createElement("div");h.className="sw-lvl";h.textContent=lv;w.appendChild(h);}
+     const b=swBtn(d.name,d.fmt);b.onclick=()=>openSw(d);w.appendChild(b);});
+   return;}
   const sk=skGet();const sb=swBtn("Сотка · 100-дневный воркаут",sk.start?"Антон Кучумов · сейчас день "+skToday(sk)+" из 100":"Антон Кучумов · 100 дней, 3 блока");sb.classList.add("sw-folder");sb.onclick=()=>{skView=null;renderSotka();show("sotka");};w.appendChild(sb);
   const hb=swBtn("Hannibal For King","Вокруг света, круг и лесенка Ганнибала · "+HFK.length+" программ");hb.classList.add("sw-folder");hb.onclick=()=>{renderHfk();show("hfk");};w.appendChild(hb);
   const g=document.createElement("div");g.className="sw-group";g.textContent="Программы с прогрессией";w.appendChild(g);
@@ -7430,11 +7448,23 @@ const STREET_PROGS=[
   days:[{name:"Комплекс 1 · лесенка 10 → 2",focus:"5 кругов: 10-8-6-4-2",ex:[X(SLP,5,10,10,"Вес на 12 повт. Повторы по кругам: 10, 8, 6, 4, 2. Суперсет: сразу → отжимания на брусьях",5,"5 подходов · 10-8-6-4-2 повт."),X(SLD,5,10,20,"Вес на 12 повт. Повторы по кругам: 10, 8, 6, 4, 2. После пары отдых 2–3 мин",150,"5 подходов · 10-8-6-4-2 повт.")]},
   {name:"Комплекс 2 · пирамида 5-4-3-2-1-2-3-4-5",focus:"9 кругов, отдых до 45 с",ex:[X(SLP,9,5,20,"Вес на 8 повт. Повторы по кругам: 5-4-3-2-1-2-3-4-5. Суперсет: сразу → отжимания на брусьях",5,"9 подходов · 5-4-3-2-1-2-3-4-5 повт."),X(SLD,9,5,30,"Вес на 8 повт. Повторы по кругам: 5-4-3-2-1-2-3-4-5. Отдых минимальный — не больше 45 с",45,"9 подходов · 5-4-3-2-1-2-3-4-5 повт.")]},
   {name:"Комплекс 3 · дроп до своего веса",focus:"3 круга на максимум",ex:[X(SLP,3,8,10,"Вес на 10 повт. Круг 1 — на максимум с весом, круг 2 — вес вдвое меньше, круг 3 — свой вес. Суперсет: сразу → отжимания на брусьях",5,"3 подхода на максимум · вес → ½ веса → свой вес"),X(SLD,3,8,20,"Вес на 10 повт. Круг 1 — с весом, 2 — половина веса, 3 — свой вес; всё на максимум. После пары отдых 2–3 мин",150,"3 подхода на максимум · вес → ½ веса → свой вес")]}]}];
-function renderStreetProgs(){const w=el("streetDays");if(!w)return;const h=document.createElement("p");h.className="bb-lbl";h.innerHTML="Программы<small>подтягивания и брусья с отягощением · Calisthetics</small>";w.appendChild(h);
+function renderStreetProgs(){const w=el("streetDays");if(!w)return;
+  let _rdy=false;try{_rdy=!!AU_EXTRA;}catch(e){}
+  if(_rdy){w.innerHTML="";lblHead(w,"Программы","от простой к сложной · подтягивания и брусья с весом");
+    const prep=STREET_PROGS[0],L=[[1,()=>lzButton()],[2,()=>extButton(STREET_PROG)]];
+    if(auCount(prep.id)>0||auAct(prep))L.push([1,()=>extButton(prep)]); // скрыта: новичка без веса ведёт Level Zero; видна, если уже начата
+    L.push([3,()=>extButton(STREET_PROGS[1])],[3,()=>extButton(STREET_PROGS[2])],[EXT_PROGS.slpp.lvl,()=>extButton(EXT_PROGS.slpp)],[EXT_PROGS.blft.lvl,()=>extButton(EXT_PROGS.blft)]);
+    L.sort((a,b)=>a[0]-b[0]).forEach(([l,f])=>{try{w.appendChild(addLvl(f(),l));}catch(e){}});
+    lblHead(w,"Комплексы","отдельные тренировки, без прогрессии");w.appendChild(progButton(STREET_PROGS[3],"Стритлифтинг · комплексы"));return;}
+  const h=document.createElement("p");h.className="bb-lbl";h.innerHTML="Программы<small>подтягивания и брусья с отягощением · Calisthetics</small>";w.appendChild(h);
   {const c=w.querySelector(".disc");if(c&&c.textContent.includes("Классический цикл"))w.appendChild(c);}
   try{w.appendChild(lzButton());}catch(e){}
   STREET_PROGS.forEach(p=>w.appendChild(p.plan?extButton(p):progButton(p,"Стритлифтинг · программа")));
   [EXT_PROGS.slpp,EXT_PROGS.blft].forEach(p=>w.appendChild(extButton(p)));}
+/* сложность звёздами (1–5) — одинаково во всех разделах */
+function lvlDots(n){return `<span class="lvl-dots" aria-label="сложность ${n} из 5">${[1,2,3,4,5].map(k=>`<i class="${k<=n?"on":""}"></i>`).join("")}</span>`;}
+function addLvl(b,n){const s=b.querySelector(".disc-sub");if(s&&n&&!b.querySelector(".lvl-dots"))s.insertAdjacentHTML("beforeend",lvlDots(n));return b;}
+function lblHead(w,t,sub){const h=document.createElement("p");h.className="bb-lbl";h.innerHTML=t+(sub?`<small>${sub}</small>`:"");w.appendChild(h);}
 function extButton(p){const n=auCount(p.id),dn=auDone(p),b=document.createElement("button");b.className="disc"+(dn?" au-done":"");
   b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub">${p.meta}<span class="lvl-dots" aria-label="сложность ${p.lvl} из 5">${[1,2,3,4,5].map(k=>`<i class="${k<=p.lvl?"on":""}"></i>`).join("")}</span></span>${dn?`<span class="au-tag ok">✓ пройдена</span>`:auAct(p)?`<span class="au-tag nx">▶ идёт · ${auPos(p)}${auTotal(p)?" / "+auTotal(p):""}</span>`:n?`<span class="au-tag">${n}${p.cyc?"":" / "+p.total} трен.</span>`:""}</span><span class="go">›</span>`;
   b.querySelector("span span").textContent=p.name;b.onclick=()=>{if(p.rebuild)p.rebuild();authOpen(p);};return b;}

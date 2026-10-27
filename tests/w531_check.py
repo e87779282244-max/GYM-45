@@ -16,9 +16,9 @@ async def m():
     # старая история и GVT не трогаются
     await pg.evaluate("localStorage.setItem(KEY,JSON.stringify([{date:'2026-10-01',name:'Старая',vol:1000,log:{'Жим лёжа':[{w:80,r:5,done:true}]}}]))")
     await pg.evaluate("document.querySelector('.disc[data-disc=\"Пауэрлифтинг\"]').click()");await pg.wait_for_timeout(100)
-    first=await pg.evaluate("el('pwrPrograms').querySelector('.disc span span').textContent")
-    ok('5/3/1 — первая в «Пауэрлифтинге»',first=='5/3/1',first)
-    await pg.evaluate("el('pwrPrograms').querySelector('.disc').click()");await pg.wait_for_timeout(100)
+    names=await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc span span')].map(s=>s.textContent)")
+    ok('5/3/1 в «Пауэрлифтинге», со звёздами сложности',('5/3/1' in names) and await pg.evaluate("!![...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.startsWith('5/3/1')).querySelector('.lvl-dots')"),names)
+    await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.startsWith('5/3/1')).click()");await pg.wait_for_timeout(100)
     ok('экран открыт, форма старта',await pg.evaluate("!el('scr-w531').hidden&&!!el('w5Go')"))
     for k,v in {'press':60,'dead':160,'bench':100,'squat':140}.items():
       await pg.fill(f'#w5In_{k}',str(v))
