@@ -40,7 +40,7 @@ async def m():
     # прыжок в конец: симулируем 24 тренировки
     await pg.evaluate("const h=safe.get();FBN_PROG.weeks.forEach((w,wi)=>w.days.forEach(d=>h.push({date:'2026-01-01',name:d.name,vol:1,log:{},au:{id:'fbn',w:wi},sec:'body'})));safe.set?safe.set(h):localStorage.setItem(HK,JSON.stringify(h))")
     await pg.evaluate("authOpen(FBN_PROG)");await pg.wait_for_timeout(150)
-    ok('пройдена: «Дальше: Фулбади Картера» и «Завершить и сохранить итог»',await pg.evaluate("auPlanNext(FBN_PROG)===null&&!!el('bodyDays').querySelector('.au-fin')&&el('bodyDays').querySelector('.au-next').textContent.includes('Фулбади 3 дня')"))
+    ok('пройдена: «Дальше: Фулбади Картера» и «Завершить и сохранить итог»',await pg.evaluate("auPlanNext(FBN_PROG)===null&&!!el('bodyDays').querySelector('.au-fin')&&el('bodyDays').querySelector('.au-next').textContent.includes('Последний патрон')"))
     await pg.evaluate("el('bodyDays').querySelector('.au-fin').click()");await pg.wait_for_timeout(150)
     ok('итог в архиве, программа больше не активна',await pg.evaluate("parGet().some(r=>r.prog==='au:fbn')&&!auSt().act.fbn&&!mpList().some(x=>x.k==='au:fbn')"))
     ok('ошибок JS нет',not errs,errs[:3])

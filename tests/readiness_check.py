@@ -19,7 +19,7 @@ async def m():
     ok('подсказка «Устал»',await pg.evaluate("el('readyNote').textContent.includes('−10')"))
     # Фалеев, база, Вт — тяжёлый жим 5×8
     await pg.evaluate("show('programs');document.querySelector('.disc[data-disc=\"Пауэрлифтинг\"]').click()");await pg.wait_for_timeout(150)
-    await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.includes('Фалеев')).click()");await pg.wait_for_timeout(150)
+    await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.includes('Последний герой')).click()");await pg.wait_for_timeout(150)
     await pg.evaluate("el('auWk').querySelectorAll('button')[1].click()");await pg.wait_for_timeout(100)
     await pg.evaluate("[...el('bodyDays').querySelectorAll('.disc')].find(b=>b.textContent.includes('Вт · тяжёлый жим')).click()");await pg.wait_for_timeout(150)
     ok('день: план → сегодня и −1 подход',await pg.evaluate("el('dayList').textContent.includes('82,5 → 75 кг')&&el('dayList').textContent.includes('подходов 5 → 4')"),await pg.evaluate("el('dayList').textContent.slice(0,160)"))
@@ -35,7 +35,7 @@ async def m():
     # Заряжен: пауэрлифтинг без изменений, бодибилдинг +5 %
     await ready('Заряжен')
     await pg.evaluate("show('programs');document.querySelector('.disc[data-disc=\"Пауэрлифтинг\"]').click()");await pg.wait_for_timeout(150)
-    await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.includes('Фалеев')).click()");await pg.wait_for_timeout(150)
+    await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.includes('Последний герой')).click()");await pg.wait_for_timeout(150)
     await pg.evaluate("el('auWk').querySelectorAll('button')[1].click()");await pg.wait_for_timeout(100)
     await pg.evaluate("[...el('bodyDays').querySelectorAll('.disc')].find(b=>b.textContent.includes('Вт · тяжёлый жим')).click()");await pg.wait_for_timeout(150)
     ok('Заряжен в цикле: план не меняется',await pg.evaluate("el('dayList').textContent.includes('5 подходов')&&el('dayList').textContent.includes('82,5 кг')&&!el('dayList').textContent.includes('82,5 → ')&&el('dayReady').textContent.includes('план без изменений')"))

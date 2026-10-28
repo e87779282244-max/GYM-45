@@ -17,7 +17,7 @@ async def m():
     ok('дубля «Выбрать программу» в плитках нет, есть «Питание сегодня»',await pg.evaluate("![...document.querySelectorAll('#scr-home .dash-tile')].some(b=>b.textContent.includes('Выбрать программу'))&&!!el('dashFood')"))
     # активируем Y3T
     await pg.evaluate("const v=auSt();v.act={y3t:{start:localDate(),base:0}};auSave(v);show('programs');show('home')");await pg.wait_for_timeout(100)
-    ok('по плану сегодня: Y3T, следующая тренировка названа',await pg.evaluate("el('dashToday').textContent.includes('Тренировка по плану')&&el('dashToday').querySelector('.td-main b').textContent.includes('Y3T')&&el('dashToday').querySelector('.td-main span').textContent.length>3"))
+    ok('по плану сегодня: Y3T, следующая тренировка названа',await pg.evaluate("el('dashToday').textContent.includes('Тренировка по плану')&&el('dashToday').querySelector('.td-main b').textContent.includes('Пульс на взлёт')&&el('dashToday').querySelector('.td-main span').textContent.length>3"))
     ok('неделя: 0 из 5 по плану',await pg.evaluate("el('dashToday').textContent.includes('Неделя: 0 из 5')"),await pg.evaluate("el('dashToday').querySelector('.td-stats').textContent"))
     if SHOT:await pg.screenshot(path=SHOT+'/home-today.png',full_page=True)
     await pg.evaluate("el('tdGo').click()");await pg.wait_for_timeout(150)

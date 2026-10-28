@@ -23,7 +23,7 @@ async def m():
     await pg.evaluate("const h=safe.get();h.push({date:'2026-10-20',name:'Вт · Низ · акцент квадрицепс',vol:1000,log:{},sec:'body'});localStorage.setItem(KEY,JSON.stringify(h))")
     ok('старая запись без au учитывается по названию дня',await pg.evaluate("auCount('wl')===2"))
     await pg.evaluate("show('body');renderBody()")
-    ok('в списке у Warlock — «2 / 32 трен.»',await pg.evaluate("[...el('bodyProgs').querySelectorAll('.disc')].some(b=>b.textContent.includes('Warlock')&&b.textContent.includes('2 / 32'))"))
+    ok('в списке у Warlock — «2 / 32 трен.»',await pg.evaluate("[...el('bodyProgs').querySelectorAll('.disc')].some(b=>b.textContent.includes('Штурм без пощады')&&b.textContent.includes('2 / 32'))"))
     # отметка «пройдена» → «Дальше: …» (у Медоуза одна программа — следующая по порядку)
     await pg.evaluate("authOpen(AUTH.find(x=>x.id==='wl'));el('bodyDays').querySelector('.au-mark').click()");await pg.wait_for_timeout(80)
     nx=await pg.evaluate("auNext(AUTH.find(x=>x.id==='wl')).name.split(' · ')[0]")
@@ -31,7 +31,7 @@ async def m():
     if O:await pg.screenshot(path=O+'/au-prog.png')
     await pg.evaluate("el('bodyDays').querySelector('.au-next').click()");await pg.wait_for_timeout(80)
     ok('кнопка открывает следующую программу',await pg.evaluate("el('bodyName').textContent.includes("+json.dumps(nx)+")"))
-    ok('пройденная — «✓ пройдена» в списке',await pg.evaluate("show('body');renderBody();[...el('bodyProgs').querySelectorAll('.disc.au-done')].some(b=>b.textContent.includes('Warlock'))"))
+    ok('пройденная — «✓ пройдена» в списке',await pg.evaluate("show('body');renderBody();[...el('bodyProgs').querySelectorAll('.disc.au-done')].some(b=>b.textContent.includes('Штурм без пощады'))"))
     ok('блок пройден → следующая по сложности',await pg.evaluate("(()=>{const v=auSt();v.done.pcfb=1;v.done.pcul=1;auSave(v);return auNext(AUTH.find(x=>x.id==='pcul')).lvl>=1})()"))
     ok('отметка в облачном снимке',await pg.evaluate("!!cloudSnapshot().auprog.done.wl"))
     await pg.evaluate("show('body');renderBody()");

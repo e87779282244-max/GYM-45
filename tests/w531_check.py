@@ -17,8 +17,8 @@ async def m():
     await pg.evaluate("localStorage.setItem(KEY,JSON.stringify([{date:'2026-10-01',name:'Старая',vol:1000,log:{'Жим лёжа':[{w:80,r:5,done:true}]}}]))")
     await pg.evaluate("document.querySelector('.disc[data-disc=\"Пауэрлифтинг\"]').click()");await pg.wait_for_timeout(100)
     names=await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc span span')].map(s=>s.textContent)")
-    ok('5/3/1 в «Пауэрлифтинге», со звёздами сложности',('5/3/1' in names) and await pg.evaluate("!![...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.startsWith('5/3/1')).querySelector('.lvl-dots')"),names)
-    await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.startsWith('5/3/1')).click()");await pg.wait_for_timeout(100)
+    ok('5/3/1 в «Пауэрлифтинге», со звёздами сложности',('Батя в здании' in names) and await pg.evaluate("!![...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.startsWith('Батя в здании')).querySelector('.lvl-dots')"),names)
+    await pg.evaluate("[...el('pwrPrograms').querySelectorAll('.disc')].find(b=>b.textContent.startsWith('Батя в здании')).click()");await pg.wait_for_timeout(100)
     ok('экран открыт, форма старта',await pg.evaluate("!el('scr-w531').hidden&&!!el('w5Go')"))
     for k,v in {'press':60,'dead':160,'bench':100,'squat':140}.items():
       await pg.fill(f'#w5In_{k}',str(v))
@@ -46,7 +46,7 @@ async def m():
     ok('после занятия — экран 5/3/1 с итогом',await pg.evaluate("currentScreen==='w531'&&el('w5Body').textContent.includes('Итог занятия')&&el('w5Body').textContent.includes('47,5 кг × 11')"))
     rec=await pg.evaluate("w5Active().recs[0]")
     ok('расч. 1ПМ 47.5×11 = 64.9',abs(rec['lifts']['press']['e1']-64.9)<0.1 and rec['lifts']['press']['ok'],rec['lifts'])
-    ok('в истории: запись 5/3/1, раздел pwr, старая история цела',await pg.evaluate("(()=>{const h=safe.get();return h.length===2&&h[0].name==='Старая'&&h[1].name.startsWith('5/3/1')&&h[1].sec==='pwr'})()"),await pg.evaluate("JSON.stringify(safe.get().map(h=>[h.name,h.sec]))"))
+    ok('в истории: запись 5/3/1, раздел pwr, старая история цела',await pg.evaluate("(()=>{const h=safe.get();return h.length===2&&h[0].name==='Старая'&&h[1].name.startsWith('Батя в здании')&&h[1].sec==='pwr'})()"),await pg.evaluate("JSON.stringify(safe.get().map(h=>[h.name,h.sec]))"))
     # рекорд на следующем занятии жима
     nt=await pg.evaluate("w5Build(w5Active(),4).ex[0][5]")
     ok('подсказка «побей рекорд» на 2-й неделе',nt and 'Рекорд' in nt,nt)
