@@ -112,7 +112,10 @@
   .fb-skip{display:block;width:100%;text-align:center;color:var(--muted);font-weight:500;font-size:13px;margin-top:4px}
   #login .hint.fb-bad{color:#c0392b;font-weight:600}
   #login button:disabled{opacity:.55}
-  .fb-acc h3{margin:0 0 4px}.fb-acc .fb-skip{text-align:left;color:#c0392b}
+  .fb-acc h3{margin:0 0 4px}.fb-acc .fb-skip.fb-no{color:var(--muted);text-align:center}
+  .fb-del-open{display:block;background:none;border:none;font:inherit;font-size:13px;color:var(--muted);padding:8px 0 0;text-decoration:underline}
+  .fb-del{margin-top:8px;display:flex;flex-direction:column;gap:8px}.fb-del .fb-bad{color:#c0392b;font-weight:600;margin:0}.fb-del .fb-bad:empty{display:none}
+  .btn.fb-del-go{background:#b23a2c;box-shadow:0 4px 0 #7d2419}.fb-acc .fb-skip{text-align:left;color:#c0392b}
   .pwrap input{padding-right:96px}
   .pwtg{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;
     color:var(--accent-ink);font-size:12.5px;font-weight:600;font-family:var(--body);padding:6px 8px}
@@ -7987,6 +7990,8 @@ function fbStore(uid){const col=()=>FB.fs.collection("users").doc(uid).collectio
       if(!n||P.some(p=>!p.exists||(p.data()||{}).v!==md.v))throw new Error("облако: неполная запись");
       const obj=JSON.parse(P.map(p=>p.data().s).join(""));fbStore.n=n;return {exists:true,data:()=>obj};},
     async set(obj){const str=JSON.stringify(obj),n=Math.max(1,Math.ceil(str.length/FB_CH)),v=Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+      /* сколько частей сейчас в облаке (могло записать другое устройство) — лишние удаляем */
+      try{const m=await col().doc("meta").get();if(m.exists)fbStore.n=Math.max(fbStore.n||0,(m.data()||{}).n|0);}catch(e){}
       const b=FB.fs.batch();for(let i=0;i<n;i++)b.set(col().doc("c"+i),{s:str.slice(i*FB_CH,(i+1)*FB_CH),v});
       for(let i=n;i<(fbStore.n||0);i++)b.delete(col().doc("c"+i));
       b.set(col().doc("meta"),{n,v,at:Date.now(),size:str.length});await b.commit();fbStore.n=n;}};
@@ -7994,7 +7999,7 @@ function fbStore(uid){const col=()=>FB.fs.collection("users").doc(uid).collectio
 const FB_ERR={"auth/invalid-credential":"Неверная почта или пароль","auth/wrong-password":"Неверная почта или пароль","auth/user-not-found":"Такой почты нет — нажми «Создать аккаунт»",
   "auth/invalid-email":"Проверь адрес почты","auth/missing-password":"Введи пароль","auth/email-already-in-use":"Эта почта уже зарегистрирована — просто войди",
   "auth/weak-password":"Пароль слишком короткий — минимум 6 символов","auth/network-request-failed":"Нет сети — попробуй ещё раз","auth/too-many-requests":"Слишком много попыток — подожди пару минут",
-  "auth/popup-closed-by-user":"Окно Google закрыто","auth/cancelled-popup-request":"Окно Google закрыто","sdk":"Нет связи с облаком — проверь интернет"};
+  "auth/popup-closed-by-user":"Окно Google закрыто","auth/cancelled-popup-request":"Окно Google закрыто","sdk":"Нет связи с облаком — проверь интернет","auth/requires-recent-login":"Войди заново и повтори удаление","auth/user-mismatch":"Это другой аккаунт Google"};
 function fbMsg(t,bad){const m=el("fbMsg");if(m){m.textContent=t;m.classList.toggle("fb-bad",!!bad);}}
 function fbErr(e){fbMsg(FB_ERR[(e&&(e.code||e.message))]||"Не получилось: "+((e&&(e.code||e.message))||"ошибка"),true);}
 async function fbDo(fn){const f=el("loginForm");f.querySelectorAll("button").forEach(b=>b.disabled=true);
@@ -8042,6 +8047,36 @@ async function fbStart(){if(!fbMode())return;fbLoginUI();
   document.addEventListener("visibilitychange",()=>{if(!(CLOUD&&CLOUD.fb&&cloudReady))return;
     if(document.visibilityState==="hidden"){if(cloudPush._t){clearTimeout(cloudPush._t);cloudPush._t=null;CLOUD.db.doc().set(cloudSnapshot()).catch(()=>{});}}
     else if(Date.now()-last>30000){last=Date.now();cloudInit();}});}
+
+/* ---------- удаление аккаунта (требование App Store) ----------
+   Порядок: подтвердить личность → стереть данные в облаке → удалить вход. Синхронизация останавливается до начала,
+   чтобы ничего не залилось обратно. Записи на этом телефоне остаются (их можно стереть вместе с приложением). */
+function fbIsPass(u){return !!(u&&(u.providerData||[]).some(p=>p&&p.providerId==="password"));}
+async function fbDeleteAccount(pass){const u=FB.auth.currentUser;if(!u)return;
+  if(fbIsPass(u))await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pass));
+  else await u.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());
+  clearTimeout(cloudPush._t);cloudPush._t=null;cloudReady=false;
+  const col=FB.fs.collection("users").doc(u.uid).collection("data");const m=await col.doc("meta").get();
+  const n=Math.max(m.exists?((m.data()||{}).n|0):0,fbStore.n||0),b=FB.fs.batch(),del=new Set(["meta"]);
+  for(let i=0;i<n;i++)del.add("c"+i);
+  try{(await col.get()).forEach(d=>del.add(d.id));}catch(e){} // всё, что лежит в папке, даже забытые части
+  del.forEach(id=>b.delete(col.doc(id)));await b.commit();
+  CLOUD=null;CLOUD_UID=null;fbStore.n=0;
+  await u.delete();fbSave({uid:null,email:"",skip:false});}
+{const _ar=fbAccRender;fbAccRender=function(){_ar();const c=el("fbAcc"),u=FB&&FB.auth&&FB.auth.currentUser;if(!c||!u)return;
+  const pw=fbIsPass(u);
+  c.insertAdjacentHTML("beforeend",`<button type="button" class="fb-del-open" id="fbDelOpen">Удалить аккаунт</button>
+    <div class="fb-del" id="fbDelBox" hidden><p class="nt-sub">Удалятся аккаунт и <b>все записи в облаке</b> — восстановить их будет нельзя. Записи на этом телефоне останутся.</p>
+    ${pw?`<input id="fbDelPass" class="food-in" type="password" autocomplete="current-password" placeholder="Пароль для подтверждения">`:`<p class="nt-sub">Для подтверждения откроется вход Google.</p>`}
+    <p class="nt-sub fb-bad" id="fbDelMsg"></p><button type="button" class="btn fb-del-go" id="fbDelGo">Удалить навсегда</button><button type="button" class="fb-skip fb-no" id="fbDelNo">Отмена</button></div>`);
+  el("fbDelOpen").onclick=()=>{el("fbDelBox").hidden=false;el("fbDelOpen").hidden=true;};
+  el("fbDelNo").onclick=()=>{el("fbDelBox").hidden=true;el("fbDelOpen").hidden=false;};
+  el("fbDelGo").onclick=async()=>{const p=pw?el("fbDelPass").value:"";if(pw&&!p){el("fbDelMsg").textContent="Введи пароль";return;}
+    const b=el("fbDelGo");b.disabled=true;el("fbDelMsg").textContent="";
+    try{await fbDeleteAccount(p);toast("Аккаунт и облачные записи удалены");}
+    catch(e){el("fbDelMsg").textContent=(e&&/wrong-password|invalid-credential/.test(e.code||"")?"Неверный пароль":FB_ERR[e&&e.code])||("Не получилось: "+((e&&(e.code||e.message))||"ошибка"));b.disabled=false;
+      if(!CLOUD&&FB.auth.currentUser){CLOUD={db:fbStore(FB.auth.currentUser.uid),user:null,fb:true};CLOUD_UID=FB.auth.currentUser.uid;}
+      if(CLOUD&&!cloudReady)cloudInit();}};};}
 fbStart();
 </script>
 

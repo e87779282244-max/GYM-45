@@ -23,6 +23,8 @@ def fs(op,a=None,b=None):
     if a not in ACC:return {'code':'auth/user-not-found'}
     if ACC[a]!=b:return {'code':'auth/invalid-credential'}
     return {'uid':'u_'+str(abs(hash(a))%10**8),'email':a}
+  if op=='list':return [k[len(a)+1:] for k in FS if k.startswith(a+'/') and '/' not in k[len(a)+1:]]
+  if op=='deluser':ACC.pop(a,None);return True
   if op=='signup':
     if a in ACC:return {'code':'auth/email-already-in-use'}
     if len(b)<6:return {'code':'auth/weak-password'}
@@ -30,12 +32,14 @@ def fs(op,a=None,b=None):
 MOCK=r'''(()=>{const L=[];let cur=null;try{cur=JSON.parse(localStorage.getItem("__mauth")||"null");}catch(e){}
 const setU=u=>{cur=u;localStorage.setItem("__mauth",JSON.stringify(u));L.forEach(f=>f(u));};
 const call=async(op,a,b)=>{const r=await window.__fs(op,a,b);if(r&&r.code){const e=new Error(r.code);e.code=r.code;throw e;}return r;};
-const auth={get currentUser(){return cur;},onAuthStateChanged(f){L.push(f);setTimeout(()=>f(cur),0);},getRedirectResult:async()=>null,
+const wrap=u=>u&&Object.assign({},u,{providerData:[{providerId:u.uid==="u_google"?"google.com":"password"}],
+  reauthenticateWithCredential:async c=>{await call("signin",u.email,c.p);},reauthenticateWithPopup:async()=>{},delete:async()=>{await call("deluser",u.email);setU(null);}});
+const auth={get currentUser(){return wrap(cur);},onAuthStateChanged(f){L.push(f);setTimeout(()=>f(cur),0);},getRedirectResult:async()=>null,
   signInWithEmailAndPassword:async(m,p)=>{setU(await call("signin",m,p));},createUserWithEmailAndPassword:async(m,p)=>{setU(await call("signup",m,p));},
   sendPasswordResetEmail:async m=>{window.__reset=m;},signOut:async()=>setU(null),signInWithPopup:async()=>{setU({uid:"u_google",email:"g@gmail.com"});}};
-const ref=p=>({collection:c=>({doc:d=>ref(p+"/"+c+"/"+d)}),path:p,get:async()=>{const v=await window.__fs("get",p);return {exists:v!=null,data:()=>v};}});
+const ref=p=>({collection:c=>({doc:d=>ref(p+"/"+c+"/"+d),get:async()=>{const ids=await window.__fs("list",p+"/"+c);return {forEach:f=>ids.forEach(id=>f({id}))};}}),path:p,get:async()=>{const v=await window.__fs("get",p);return {exists:v!=null,data:()=>v};}});
 const store={collection:c=>({doc:d=>ref(c+"/"+d)}),batch(){const ops=[];return {set:(r,v)=>ops.push(["set",r.path,v]),delete:r=>ops.push(["del",r.path]),commit:()=>window.__fs("commit",ops)};}};
-const fb={apps:[],initializeApp(c){fb.apps.push(c);window.__cfg=c;},auth:()=>auth,firestore:()=>store};fb.auth.GoogleAuthProvider=function(){};window.firebase=fb;})();'''
+const fb={apps:[],initializeApp(c){fb.apps.push(c);window.__cfg=c;},auth:()=>auth,firestore:()=>store};fb.auth.GoogleAuthProvider=function(){};fb.auth.EmailAuthProvider={credential:(m,p)=>({m,p})};window.firebase=fb;})();'''
 def hist(n,tag):return [{'date':'2026-0%d-%02d'%(1+i%9,1+i%28),'name':tag+' '+str(i),'vol':1000+i,'log':[{'n':'Жим лёжа','sets':[[80+i%20,5]]*4}],'dur':3600} for i in range(n)]
 async def m():
   async with async_playwright() as p:
@@ -81,7 +85,7 @@ async def m():
     ok('первое устройство получило записи второго',await a.evaluate("safe.get().length")==2503)
     # история уменьшилась → лишние части удаляются
     await bb.evaluate("()=>{const h=safe.get().slice(0,3);localStorage.setItem(KEY,JSON.stringify(h));CLOUD.db.doc().set(cloudSnapshot());}");await bb.wait_for_timeout(300)
-    ok('старые части удалены',not any(k.startswith(base+'/c') and int(k.split('/c')[-1])>=FS[base+'/meta']['n'] for k in FS))
+    ok('старые части удалены (и записанные другим устройством)',not any(k.startswith(base+'/c') and int(k.split('/c')[-1])>=FS[base+'/meta']['n'] for k in FS))
     # перезапуск: вход сохраняется, экран входа не показывается
     await a.reload();await a.wait_for_timeout(50)
     ok('перезапуск: экрана входа нет сразу',await a.evaluate("el('login').style.display==='none'"))
@@ -92,6 +96,19 @@ async def m():
     if SHOT:await bb.screenshot(path=SHOT+'/fb-profile.png')
     await bb.click('#fbOut');await bb.wait_for_timeout(300)
     ok('выход: снова экран входа, записи на телефоне остались',await bb.evaluate("el('login').style.display!=='none'&&safe.get().length>0"))
+    # удаление аккаунта: неверный пароль → ошибка, данные целы; верный → облако пусто, вход удалён, записи на телефоне остались
+    await bb.fill('#email','ev@mail.ru');await bb.fill('#pass','secret77');await bb.click('#loginBtn');await bb.wait_for_timeout(700)
+    await bb.evaluate("show('profile')");await bb.wait_for_timeout(100)
+    if SHOT:await bb.screenshot(path=SHOT+'/fb-profile.png')
+    FS[base+'/c7']={'s':'забытая часть','v':'old'}
+    await bb.click('#fbDelOpen');await bb.fill('#fbDelPass','nope!!');await bb.click('#fbDelGo');await bb.wait_for_timeout(300)
+    ok('удаление: неверный пароль — ошибка, облако не тронуто',await bb.evaluate("el('fbDelMsg').textContent.includes('Неверный пароль')") and (base+'/meta') in FS)
+    if SHOT:await bb.screenshot(path=SHOT+'/fb-delete.png')
+    await bb.fill('#fbDelPass','secret77');await bb.click('#fbDelGo');await bb.wait_for_timeout(500)
+    ok('удаление: облако пусто, аккаунта нет, экран входа',not any(k.startswith(base) for k in FS) and 'ev@mail.ru' not in ACC and await bb.evaluate("el('login').style.display!=='none'"),[k for k in FS if k.startswith(base)])
+    ok('удаление: записи на телефоне остались',await bb.evaluate("safe.get().length")>0)
+    await bb.wait_for_timeout(2000)
+    ok('после удаления ничего не залилось обратно',not any(k.startswith(base) for k in FS))
     # Google
     await bb.click('#fbGoogle');await bb.wait_for_timeout(600)
     ok('вход через Google',await bb.evaluate("el('login').style.display==='none'&&CLOUD_UID==='u_google'"))
