@@ -227,6 +227,7 @@
   .g2-plan{font-size:11.5px;color:var(--muted);font-weight:600}
   .g2-cnt{font-size:11.5px;font-weight:700;color:var(--accent-ink)}
   .g2-setw{background:var(--panel-top);border-color:var(--gold);margin-left:4px}
+  .wk-swap{display:inline-block;margin:2px 0 6px}
   .g2-swap{margin-top:4px;font-size:11px;font-weight:700;color:var(--accent-ink);background:none;border:1px solid var(--line);border-radius:8px;padding:4px 6px}
   .g2-next{font-size:12.5px;color:var(--fg);background:var(--accent-weak);border-radius:9px;padding:6px 9px;margin:8px 0 4px;flex:none}
   .g2-row{display:grid;grid-template-columns:22px 1fr 1fr;gap:6px;align-items:center;padding:4px 0;border-top:1px solid var(--line)}
@@ -2616,8 +2617,10 @@ el("dayStart").addEventListener("click",()=>{
 el("dayFinish").addEventListener("click",()=>{
   if(!dayView||!isActive(dayView.p)){toast("Сначала начни программу");return;}
   finishWorkout();});
+
 function beginWorkout(p,computed){
-  const prevMap={};
+  const prevMap={};let _wsOrig={};
+  if(!p.preset&&!p.g2){try{const r=wsubApply(p);p=r.p;_wsOrig=r.orig;}catch(e){}}
   if(p.preset){ // GVT: подходы уже рассчитаны циклом (проценты + память фактических весов)
     const sets=JSON.parse(JSON.stringify(p.preset));
     (p.prevShow||[]).forEach((ps,i)=>{if(ps&&ps.length)prevMap[p.ex[i][0]]={sets:ps};});
@@ -2637,7 +2640,7 @@ function beginWorkout(p,computed){
       let w=pv?rScaleW(pv.w,p):(psw?rScaleW(psw[j],p):baseW),r=pv&&!p.planR?pv.r:e[2];
       if(sg&&sg.w)w=sg.w[j]>0?rScaleW(sg.w[j],p):0;if(sg&&sg.r)r=sg.r[j];
       return {w:w,r:r,done:false,prev:pv||null};});});
-  current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),startedAt:new Date().toISOString(),sec:anSecOf(p),why:why};
+  current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),startedAt:new Date().toISOString(),sec:anSecOf(p),why:why,orig:_wsOrig};
   dayView={p:p,computed:computed};restStop();
   el("wkTitle").textContent=p.name;
   el("wkEyebrow").textContent=p.focus+" · готовность: "+readiness;
@@ -2835,9 +2838,11 @@ function renderWorkout(){
   const _rr=current.readiness||"Норма",_rf=_rr==="Устал"?0.9:(_rr==="Заряжен"&&!rFixed(current.program))?1.05:1;
   const _rdy=(_rr!=="Норма"&&!current.program.preset&&!current.program.g2)?`<div class="prev-line rdy-line">${_rr}: ${ex[3]&&!Array.isArray(ex[4])&&_rf!==1?"план "+fmtW(ex[3])+" кг → сегодня "+fmtW(rScaleW(ex[3],current.program))+" кг · ":""}${rNote(_rr,rFixed(current.program))}</div>`:"";
   const _why=current.why&&current.why[i]?`<div class="prev-line pr-why${/^↑/.test(current.why[i])?" up":""}">${current.why[i]}</div>`:"";
-  c.innerHTML=`${_media}<h3>${ex[0]}</h3><div class="target">${tgt}</div>${_circ}${extra}${_prev}${_why}${_rdy}
+  const _sw=(!G&&!current.program.preset&&wsubRep((current.orig&&current.orig[i])||ex[0]))?`<button class="g2-swap wk-swap" type="button">⇄ Заменить</button>`:"";
+  c.innerHTML=`${_media}<h3>${ex[0]}</h3>${_sw}<div class="target">${tgt}</div>${_circ}${extra}${_prev}${_why}${_rdy}
     <div class="wk-sets">${rows}${add}</div>`;
   wrap.appendChild(c);
+  {const b=c.querySelector(".wk-swap");if(b)b.onclick=()=>wsubOpen(i);}
   c.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
     const{s:si,f}=e.target.dataset;const v=parseFloat(String(e.target.value).replace(",","."))||0;
     current.sets[i][si][f]=v;saveDraft();});
@@ -3829,6 +3834,203 @@ const G2ALT={
  calfS:["calfSt"],calfSt:["calfS"],revCurl:["tbRev","scottRev"],tbRev:["revCurl","scottRev"],scottRev:["revCurl","tbRev"],
  ezFr:["cblFr"],cblFr:["ezFr"],rdl:["dlBent","ghr"],ghr:["rdl","lcurl"],cblCr:["twist"],twist:["cblCr"],
 };
+
+/* ---------- замены GVT: до 6 вариантов на ту же мышцу, разное оборудование ----------
+   Сначала — самые близкие по механике (G2ALT), затем по очереди: штанга, гантели, тренажёр, блок, свой вес, гиря, резина. */
+Object.assign(G2X,{
+ chestMach:{n:"Жим от груди в тренажёре",e:"тренажёр"},
+ smithInc:{n:"Жим в тренажёре Смита на наклонной скамье",e:"тренажёр"},
+ pushFeet:{n:"Отжимания с ногами на возвышении",m:"0279",bw:1},
+ pushUp:{n:"Отжимания от пола",m:"0662",bw:1},
+ pecDeck:{n:"Сведение рук в тренажёре «бабочка»",m:"0596",e:"тренажёр"},
+ cblCross:{n:"Сведение рук на блоках (кроссовер)",e:"блок"},
+ pushWide:{n:"Отжимания с широкой постановкой рук",m:"0662",bw:1},
+ latPd:{n:"Тяга верхнего блока к груди",m:"0150",e:"блок"},
+ latPdN:{n:"Тяга верхнего блока узким хватом",m:"0150",e:"блок"},
+ pullChin:{n:"Подтягивания обратным хватом",m:"1326",bw:1},
+ pullBand:{n:"Подтягивания с резиной",m:"0652",e:"резина"},
+ pullGrav:{n:"Подтягивания в гравитроне",e:"тренажёр"},
+ bbRow:{n:"Тяга штанги в наклоне",m:"0027"},
+ seatRow:{n:"Тяга нижнего блока сидя",e:"блок"},
+ leverRow:{n:"Тяга в наклоне в рычажном тренажёре",m:"0574",e:"тренажёр"},
+ ausRow:{n:"Австралийские подтягивания",m:"0499",bw:1},
+ legPress:{n:"Жим ногами",e:"тренажёр"},
+ hackSq:{n:"Гакк-присед",e:"тренажёр"},
+ smithSq:{n:"Присед в тренажёре Смита",e:"тренажёр"},
+ goblet:{n:"Гоблет-присед",m:"0534",e:"гиря"},
+ bulg:{n:"Болгарские сплит-приседания",bw:1},
+ pistol:{n:"Пистолетик с опорой",bw:1},
+ rdlDb:{n:"Румынская тяга с гантелями",m:"0085",db:2},
+ hyper:{n:"Гиперэкстензия",m:"0489",e:"тренажёр"},
+ kbSwing:{n:"Махи гирей",m:"0549",e:"гиря"},
+ goodM:{n:"Наклоны со штангой на плечах",e:"штанга"},
+ crunch:{n:"Скручивания на полу",m:"0274",bw:1},
+ hlr:{n:"Подъём ног в висе",m:"0472",bw:1},
+ barsLr:{n:"Подъём ног в упоре на брусьях",m:"0826",bw:1},
+ abMach:{n:"Скручивания в тренажёре",e:"тренажёр"},
+ decCr:{n:"Скручивания с блином на наклонной скамье",e:"блин"},
+ bandCr:{n:"Скручивания с резиной стоя на коленях",e:"резина"},
+ calfDb:{n:"Подъём на носки с гантелями стоя",m:"0417",db:2},
+ calfLP:{n:"Подъём на носки в жиме ногами",e:"тренажёр"},
+ calfOne:{n:"Подъём на носок на одной ноге",bw:1},
+ calfSm:{n:"Подъём на носки в тренажёре Смита",e:"тренажёр"},
+ pushdown:{n:"Разгибание рук на блоке с канатом",e:"блок"},
+ skull:{n:"Французский жим лёжа с EZ-грифом",m:"0186",an:"похожий вариант: разгибание на блоке лёжа"},
+ dbOH:{n:"Разгибание гантели из-за головы",db:1},
+ diamond:{n:"Алмазные отжимания",m:"0283",bw:1},
+ benchDip:{n:"Обратные отжимания от скамьи",m:"0813",bw:1},
+ dipMach:{n:"Отжимания в тренажёре для брусьев",e:"тренажёр"},
+ bbCurl:{n:"Подъём штанги на бицепс",m:"0031"},
+ cblCurl:{n:"Сгибание рук на нижнем блоке",e:"блок"},
+ preachM:{n:"Сгибание рук в тренажёре Скотта",e:"тренажёр"},
+ bandCurl:{n:"Сгибание рук с резиной",e:"резина"},
+ cblRev:{n:"Обратные сгибания на нижнем блоке",e:"блок"},
+ cblLat:{n:"Отведение руки в сторону на нижнем блоке",e:"блок"},
+ latMach:{n:"Разведение рук в тренажёре на средние дельты",e:"тренажёр"},
+ uprRow:{n:"Тяга штанги к подбородку широким хватом",m:"0120"},
+ bandLat:{n:"Разведение рук в стороны с резиной",e:"резина"},
+ revPec:{n:"Обратная «бабочка» в тренажёре",e:"тренажёр"},
+ facePull:{n:"Тяга каната к лицу",e:"блок"},
+ bbRear:{n:"Тяга штанги на задние дельты",m:"0076"},
+ bandPA:{n:"Разведение резины перед собой",e:"резина"},
+ lungeBw:{n:"Выпады",m:"3470",bw:1},
+ bbLunge:{n:"Выпады со штангой",e:"штанга"},
+ stepUp:{n:"Зашагивания на тумбу с гантелями",db:2},
+ smithLunge:{n:"Выпады в тренажёре Смита",e:"тренажёр"},
+ kbCarry:{n:"Прогулка фермера с гирями",e:"гиря"},
+ hang:{n:"Вис на перекладине",bw:1},
+ shrug:{n:"Шраги со штангой",m:"0095"},
+});
+["lcurl","lcurlOut","lcurlIn","lcurlSeat","calfS","calfSt"].forEach(k=>G2X[k].e="тренажёр");["lcurlCbl","cblCr","cblFr"].forEach(k=>G2X[k].e="блок");
+Object.assign(G2X,{flyLowCbl:{n:"Сведение рук на нижних блоках снизу вверх",e:"блок"},flyMach:{n:"Жим-сведение в рычажном тренажёре",e:"тренажёр"},
+ rearDbInc:{n:"Разведение гантелей лёжа грудью на наклонной скамье",db:2},shrugDb:{n:"Шраги с гантелями",db:2},trapCarry:{n:"Прогулка с трэп-грифом",e:"штанга"}});
+/* группы: одна мышца — один список кандидатов */
+const G2GRP=[
+ ["dFlat","bench","dInc","bInc","bInc30","dDecl","chestMach","smithInc","pushFeet","pushUp"],
+ ["flyInc","flyFlat","pecDeck","cblCross","flyLowCbl","flyMach","pushWide","dFlat"],
+ ["pull","pullW","pullLean","pullCN","pullChin","latPd","latPdN","pullGrav","pullBand"],
+ ["rowDb","arcRow","elbRow","ezRow","bbRow","leverRow","seatRow","ausRow"],
+ ["squat","frSq","smithSq","legPress","hackSq","goblet","bulg","pistol"],
+ ["lcurl","lcurlSeat","lcurlCbl","lcurlDb","lcurlSl","ghr","rdlDb","lcurlOut","lcurlIn"],
+ ["dlBent","rdl","rdlDb","goodM","hyper","kbSwing","ghr"],
+ ["cblCr","twist","crunch","decCr","abMach","hlr","barsLr","bandCr"],
+ ["calfS","calfSt","calfDb","calfLP","calfSm","calfOne"],
+ ["dips","cgBench","cgDecl","dipMach","pushdown","skull","dbOH","diamond","benchDip"],
+ ["ezFr","cblFr","skull","dbOH","pushdown","dipMach","diamond","benchDip","cgBench"],
+ ["hammer","incCurl","offCurl","zott","bbCurl","cblCurl","preachM","pullChin","bandCurl"],
+ ["revCurl","tbRev","scottRev","zott","hammer","cblRev","bandCurl"],
+ ["latSeat","latSeat3","latSt","cblLat","latMach","uprRow","bandLat"],
+ ["rearDelt","rearDbInc","revPec","facePull","bbRear","bandPA","ausRow"],
+ ["lunge","lungeBw","bulg","bbLunge","stepUp","smithLunge","goblet"],
+ ["farmer","kbCarry","trapCarry","shrugDb","shrug","hang"],
+];
+function g2Eq(k){const X=G2X[k]||{};return X.e||(X.bw?"свой вес":X.db?"гантели":"штанга");}
+function g2Alts(key){const out=[],seen=new Set([key]);const add=k=>{if(!seen.has(k)&&G2X[k]&&out.length<6){seen.add(k);out.push(k);}};
+  (G2ALT[key]||[]).slice(0,3).forEach(add);
+  const gs=G2GRP.filter(g=>g.includes(key)).sort((a,b)=>a.indexOf(key)-b.indexOf(key)),pool=(gs[0]||[]).slice(),more=[];
+  gs.slice(1).forEach(g=>g.forEach(k=>{if(!pool.includes(k)&&!more.includes(k))more.push(k);}));
+  const ORD=["штанга","гантели","тренажёр","блок","свой вес","гиря","блин","резина"];
+  ORD.forEach(eq=>{if(out.some(k=>g2Eq(k)===eq))return;const k=pool.find(k=>!seen.has(k)&&g2Eq(k)===eq);if(k)add(k);});
+  pool.forEach(add);more.forEach(add);return out;}
+
+/* ===================== ЗАМЕНА УПРАЖНЕНИЙ В СИЛОВЫХ ПРОГРАММАХ =====================
+   Бодибилдинг, пауэрлифтинг, стритлифтинг: кнопка «⇄ Заменить» у упражнения. До 6 вариантов на ту же мышцу
+   (каталог и подбор — те же, что в GVT: штанга, гантели, тренажёр, блок, свой вес, гиря, резина).
+   «Только сегодня» — меняется текущая тренировка; «Во всех следующих» — запоминается для программы.
+   У замены своя история весов: вес подставляется из прошлого раза именно с этим упражнением. */
+Object.assign(G2X,{
+ legExtM:{n:"Разгибания ног в тренажёре",e:"тренажёр"},legExtOne:{n:"Разгибание одной ноги в тренажёре",e:"тренажёр"},
+ legExtBand:{n:"Разгибание ног с резиной",e:"резина"},sissy:{n:"Сисси-присед",bw:1},
+ pullDb:{n:"Пуловер с гантелью",m:"0375",db:1},pullCblSt:{n:"Пуловер на блоке прямыми руками",e:"блок"},pullMach:{n:"Пуловер в тренажёре",e:"тренажёр"},
+ pullEz:{n:"Пуловер с EZ-грифом лёжа",e:"штанга"},pullBandSt:{n:"Пуловер с резиной стоя",e:"резина"},
+ frDb:{n:"Махи гантелей перед собой",m:"0310",db:2},frPlate:{n:"Подъём блина перед собой",e:"блин"},frBb:{n:"Подъём штанги перед собой",e:"штанга"},
+ frCbl:{n:"Подъём руки перед собой на нижнем блоке",e:"блок"},frBand:{n:"Подъём рук перед собой с резиной",e:"резина"},frInc:{n:"Подъём гантелей вперёд лёжа на наклонной скамье",db:2},
+ ohpBb:{n:"Жим штанги стоя",m:"1457"},ohpDb:{n:"Жим гантелей сидя",db:2},ohpMach:{n:"Жим вверх в тренажёре",e:"тренажёр"},ohpSmith:{n:"Жим сидя в тренажёре Смита",e:"тренажёр"},
+ arnold:{n:"Жим Арнольда",db:2},pikePush:{n:"Отжимания уголком",bw:1},kbPress:{n:"Жим гири одной рукой",e:"гиря"},bandPress:{n:"Жим резины над головой",e:"резина"},
+ wristBb:{n:"Сгибание запястий со штангой",e:"штанга"},wristDb:{n:"Сгибание запястий с гантелями",db:2},wristCbl:{n:"Сгибание запястий на нижнем блоке",e:"блок"},
+ wristBand:{n:"Сгибание запястий с резиной",e:"резина"},
+ hipThr:{n:"Ягодичный мост со штангой",e:"штанга"},gluteBr:{n:"Ягодичный мост",bw:1},gluteMach:{n:"Ягодичный мост в тренажёре",e:"тренажёр"},
+ gluteKick:{n:"Отведение ноги назад на нижнем блоке",e:"блок"},gluteHyp:{n:"Гиперэкстензия на ягодицы",e:"тренажёр"},gluteDb:{n:"Ягодичный мост с гантелью",db:1},
+});
+G2GRP.push(["legExtM","legExtOne","legExtBand","sissy","goblet","legPress","bulg"],
+ ["pullDb","pullCblSt","pullMach","pullEz","pullBandSt","latPd","pull"],
+ ["frDb","frBb","frPlate","frCbl","frBand","frInc"],
+ ["ohpBb","ohpDb","ohpMach","ohpSmith","arnold","pikePush","kbPress","bandPress"],
+ ["wristBb","wristDb","wristCbl","wristBand","hang"],
+ ["hipThr","gluteDb","gluteMach","gluteKick","gluteBr","gluteHyp","kbSwing"]);
+/* какое упражнение к какой мышце: первая совпавшая строка */
+const WSUB_RE=[
+ [/запяст/,"wristBb"],
+ [/австралийск|тяга с упором грудью|тяга штанги одной рукой/,"rowDb"],
+ [/подтягив|верхнего блока|гравитрон/,"pull"],
+ [/пуловер/,"pullDb"],
+ [/ягодичн|отведение ноги назад|тяга бедр|hip/,"hipThr"],
+ [/румынск|на прямых ногах|наклоны со штангой|гуд ?морн/,"rdl"],
+ [/становая|с плинтов|трэп-гриф/,"dlBent"],
+ [/гиперэкст/,"hyper"],
+ [/нордическ|ягодично-икронож/,"ghr"],
+ [/сгибани[ея] ног|сгибание (одной )?ноги|сгибание ноги/,"lcurl"],
+ [/разгибани[ея] ног|разгибания ноги/,"legExtM"],
+ [/носк|«ослик»/,"calfSt"],
+ [/выпад|сплит|зашагив|болгар/,"lunge"],
+ [/жим ногами/,"legPress"],
+ [/присед|гакк|сисси/,"squat"],
+ [/скруч|подъём ног|подъёмы ног|подъёмы корпуса|ролик для пресса/,"cblCr"],
+ [/шраг|фермер/,"farmer"],
+ [/наклоны в сторону/,"cblCr"],
+ [/к подбородку|протяжка/,"latSt"],
+ [/задн(юю|ие|яя) дельт|обратн(ая|ый) (бабочк|кроссовер)|махи гантелями в наклоне|тяга каната к лицу|y-подъём|махи гантелями лёжа на наклонной|тяга к лицу/,"rearDelt"],
+ [/тяга (т-грифа|в наклоне|в тренажёре|в рычажном|нижнего блока|медоуза|пендли|гантел|штанги в наклоне|ez)|австралийск|наклонная тяга/,"rowDb"],
+ [/в сторон|махи на (нижнем )?блоке|шестисторонн/,"latSt"],
+ [/перед собой|(подъём|махи)[^·]*вперёд/,"frDb"],
+ [/жим (штанги |гантелей |гири )?(стоя|сидя)|армейск|арнольд|из-за головы сидя|жим вверх|швунг|жим (сидя )?в смите сидя|жим сидя|толчок штанги|стойка на руках|отжимания уголком|жим в (рычажном )?тренажёре сидя|взятие и жим|жим гири/,"ohpBb"],
+ [/(сгибани[ея]|подъём)[^·]*обратн|обратные сгибания/,"revCurl"],
+ [/сгибани|на бицепс|бицепс|молотк|паук|концентрир|драг-сгиб|подъём (ez-)?штанги (узким|широким)/,"hammer"],
+ [/трицепс|разгибани[ея] (на блоке|руки|гантел|с гантел|с канатом|на трицепс)|разгибания на блоке|французск|jm-жим|узким хватом|брусь|обратные отжимания|алмазн/,"dips"],
+ [/бабочк|разводк|разведени[ея] гантелей (лёжа|на наклонной)|кроссовер|сведени[ея] рук/,"flyFlat"],
+ [/жим|отжимани|хекс-пресс/,"bench"],
+];
+const WSUBK="gym45_wsub_v1";
+function wsubAll(){try{return JSON.parse(localStorage.getItem(WSUBK)||"{}")||{};}catch(e){return {};}}
+function wsubKey(p){return p&&p.au&&p.au.id?"au:"+p.au.id:String((p&&p.name)||"").split(" · ")[0];}
+function wsubBase(n){return String(n||"").split(" · ")[0].trim();}
+function wsubRep(n){const t=wsubBase(n).toLowerCase();
+  const r=WSUB_RE.find(([re])=>re.test(t));return r?r[1]:null;}
+function wsubAlts(n){let rep=wsubRep(n);if(rep==="pull"&&/блок/i.test(n))rep="latPd";if(!rep)return [];const base=wsubBase(n).toLowerCase();
+  const L=[rep,...g2Alts(rep)].filter(k=>G2X[k]&&G2X[k].n.toLowerCase()!==base);
+  return L.slice(0,6).map(k=>({n:G2X[k].n,eq:g2Eq(k),m:G2X[k].m}));}
+/* перед стартом тренировки: замены «во всех следующих» для этой программы */
+function wsubApply(p){const m=wsubAll()[wsubKey(p)];if(!m||!p||!p.ex)return {p:p,orig:{}};const orig={};
+  const ex=p.ex.map((e,i)=>{const to=m[e[0]];if(!to)return e;orig[i]=e[0];const c=e.slice();c[0]=to;c[5]="вместо: "+e[0]+(e[5]?" · "+e[5]:"");return c;});
+  return Object.keys(orig).length?{p:Object.assign({},p,{ex:ex}),orig:orig}:{p:p,orig:{}};}
+function wsubSetAll(p,orig,to){const a=wsubAll(),k=wsubKey(p);a[k]=a[k]||{};if(to)a[k][orig]=to;else delete a[k][orig];if(!Object.keys(a[k]).length)delete a[k];
+  try{localStorage.setItem(WSUBK,JSON.stringify(a));}catch(e){}try{cloudPush();}catch(e){}}
+function wsubDo(i,to,scope){const p=current.program,e=p.ex[i],orig=(current.orig&&current.orig[i])||e[0];current.orig=current.orig||{};
+  const ex=p.ex.slice();const c=e.slice();
+  if(to&&to!==orig){c[0]=to;c[5]="вместо: "+orig;current.orig[i]=orig;}else{c[0]=orig;c[5]=(current.origNote&&current.origNote[i])||"";delete current.orig[i];}
+  current.origNote=current.origNote||{};if(current.origNote[i]==null)current.origNote[i]=e[5]&&!/^вместо:/.test(e[5])?e[5]:"";
+  ex[i]=c;current.program=Object.assign({},p,{ex:ex});
+  /* вес — из прошлого раза с этим упражнением, иначе пусто (подберёшь сам) */
+  const pr=lastResult(c[0]);current.prev=current.prev||{};if(pr)current.prev[c[0]]=pr;
+  current.sets[i].forEach((st,j)=>{if(st.done)return;const pv=pr?(pr.sets[j]||pr.sets[pr.sets.length-1]):null;st.w=pv?pv.w:(c[3]&&to===orig?c[3]:0);st.prev=pv||null;});
+  if(current.why)delete current.why[i];
+  if(scope==="all")wsubSetAll(p,orig,to===orig?null:to);
+  saveDraft();renderWorkout();toast(to===orig?"Вернул исходное: "+orig:"Заменено: "+to+(scope==="all"?" (во всех следующих)":" (сегодня)"));}
+function wsubOpen(i){const p=current.program,e=p.ex[i],orig=(current.orig&&current.orig[i])||e[0];const alts=wsubAlts(orig);
+  if(!alts.length){toast("Для этого упражнения нет подходящих замен");return;}
+  const box=el("gvtMbox"),saved=(wsubAll()[wsubKey(p)]||{})[orig];
+  box.innerHTML=`<h3>Замена: ${wsubBase(orig)}</h3><p>Та же мышечная группа: штанга, гантели, тренажёр, блок, свой вес. Повторы и подходы остаются прежними — вес подбери так, чтобы выполнить их чисто. У замены своя история весов.</p>
+    <div class="gvt-opt"><span>Применить</span><div class="seg"><button class="seg-b on" id="wsT" type="button">Только сегодня</button><button class="seg-b" id="wsA" type="button">Во всех следующих</button></div></div>
+    <div class="stack">${alts.map((a,k)=>`<button class="disc${e[0]===a.n?" au-cur":""}" data-k="${k}" type="button"><span>${a.n}</span><span class="disc-sub">${a.eq}${a.m?"":" · без анимации"}</span></button>`).join("")}</div>
+    ${current.orig&&current.orig[i]||saved?`<button class="tm-mini" type="button" id="wsBack">↺ Вернуть исходное: ${orig}${saved?" (и в следующих)":""}</button>`:""}
+    <button class="tm-mini" type="button" id="wsX">Отмена</button>`;
+  el("gvtModal").hidden=false;let all=false;
+  el("wsT").onclick=()=>{all=false;el("wsT").classList.add("on");el("wsA").classList.remove("on");};
+  el("wsA").onclick=()=>{all=true;el("wsA").classList.add("on");el("wsT").classList.remove("on");};
+  el("wsX").onclick=()=>{el("gvtModal").hidden=true;};
+  if(el("wsBack"))el("wsBack").onclick=()=>{el("gvtModal").hidden=true;if(saved)wsubSetAll(p,orig,null);wsubDo(i,orig,"once");};
+  box.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{el("gvtModal").hidden=true;wsubDo(i,alts[+b.dataset.k].n,all?"all":"once");});}
+
 /* этапы */
 const G2S=[
  {k:"I",name:"10×10",title:"German Volume Training 10×10",n:18,days:36,algo:"rm",rm:20,inc:5,rest:[90,60],
@@ -4099,11 +4301,11 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
 function g2OpenMedia(key){const X=G2X[key];if(!X||!X.m)return;const v=el("pvideo");el("pname").textContent=X.n+(X.an?" ("+X.an+")":"");el("pcred").textContent="ID: edb-"+X.m+" · "+MEDIA_CREDIT;
   v.poster="media/"+X.m+".jpg";v.src="media/"+X.m+".mp4?v=2";el("player").hidden=false;mediaSync();try{v.currentTime=0;v.play().catch(()=>{});}catch(e){}}
 /* замена упражнения */
-function g2SwapOpen(i){const p=current.program,G=p.gx[i],alts=(G2ALT[G.key]||[]).filter(k=>k!==G.key).slice(0,6);const box=el("gvtMbox");
+function g2SwapOpen(i){const p=current.program,G=p.gx[i],alts=g2Alts(G.key);const box=el("gvtMbox");
   if(!alts.length){toast("Для этого упражнения нет подходящих замен");return;}
-  box.innerHTML=`<h3>Замена: ${(G2X[G.key]||{n:G.key}).n}</h3><p>Подбор по той же мышечной группе и близкой механике. У замены — своя история весов; прежние килограммы не переносятся.</p>
+  box.innerHTML=`<h3>Замена: ${(G2X[G.key]||{n:G.key}).n}</h3><p>Та же мышечная группа: сначала самые близкие по механике, затем варианты со штангой, гантелями, в тренажёре, на блоке и с собственным весом. У замены — своя история весов; прежние килограммы не переносятся.</p>
     <div class="gvt-opt"><span>Применить</span><div class="seg"><button class="seg-b on" id="g2scT" type="button">Только сегодня</button><button class="seg-b" id="g2scA" type="button">Во всех следующих</button></div></div>
-    <div class="stack">${alts.map(k=>`<button class="disc" data-k="${k}" type="button"><span>${G2X[k].n}</span><span class="disc-sub">${G2X[k].m?"":"без анимации"}</span></button>`).join("")}</div>
+    <div class="stack">${alts.map(k=>`<button class="disc" data-k="${k}" type="button"><span>${G2X[k].n}</span><span class="disc-sub">${g2Eq(k)}${G2X[k].m?"":" · без анимации"}</span></button>`).join("")}</div>
     <button class="tm-mini" type="button" id="g2scX">Отмена</button>`;
   el("gvtModal").hidden=false;let all=false;
   el("g2scT").onclick=()=>{all=false;el("g2scT").classList.add("on");el("g2scA").classList.remove("on");};
@@ -7348,6 +7550,7 @@ function anRender(){const R=anRecs();
   try{if(AN_UI.tab==="load")anLoad(R);else if(AN_UI.tab==="ex")anEx(R);else if(AN_UI.tab==="body")anBody();else if(AN_UI.tab==="food")anFood();else anRec(R);}catch(e){console.error(e);}
   anHist(R);}
 {const _csa=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csa(),{auprog:auSt()});};}
+{const _csw=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csw(),{wsub:wsubAll()});};}
 /* облако: незавершённая тренировка тоже в общий документ — переживает перезагрузку и смену устройства */
 {const _csd=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csd(),{draft:getDraft()});};}
 /* облако: данные аналитики — в общий документ, при загрузке объединяем */
@@ -8274,6 +8477,7 @@ async function cloudInit(){
       try{if(d.cf)localStorage.setItem(CFK,JSON.stringify(mergeCf(cfGet(),d.cf)))}catch(e){}
       try{if(d.parch)localStorage.setItem(PARK,JSON.stringify(mergePar(parGet(),d.parch)))}catch(e){}
       try{if(d.sub){const a=subAll();Object.keys(d.sub).forEach(k=>{a[k]=Object.assign({},d.sub[k],a[k]||{});});localStorage.setItem(SUBK,JSON.stringify(a));}}catch(e){}
+      try{if(d.wsub&&typeof d.wsub==="object"){const a=wsubAll();Object.keys(d.wsub).forEach(k=>{a[k]=Object.assign({},d.wsub[k],a[k]||{});});localStorage.setItem(WSUBK,JSON.stringify(a));}}catch(e){}
       cloudRefreshUI();
       cloudReady=true;
       try{await cloudDoc().set(cloudSnapshot());}catch(e){} // пишем объединённый результат обратно
