@@ -6555,8 +6555,9 @@ function dsRestore(data,label){if(!data||typeof data!=="object"){toast("Файл
   toast("Восстановлено: "+label+". Перезапускаю…");setTimeout(()=>location.reload(),900);}
 function renderDS(){const box=el("dsBox");if(!box)return;const sn=dsSnaps().slice().reverse();let le=null;try{le=JSON.parse(localStorage.getItem("gym45_lastexport_v1")||"null");}catch(e){}
   box.innerHTML=`<p class="ds-sub">Всё хранится на этом устройстве. Тренировок в истории: <b>${dsCount()}</b>. Приложение само делает снимок данных при каждом запуске — обновление не может их потерять. Копия в файл защищает от очистки данных iPhone.</p>
-   ${window.claude&&claude.use?`<p class="ds-sub">Это основная версия: данные автоматически сохраняются в облако, копия в файл не нужна. Восстановить из файла — чтобы перенести записи из приложения с иконки «Домой».</p>`:`<button class="btn" type="button" id="dsExport">Сохранить копию в файл</button>
-   <p class="ds-sub">${le?"Последняя копия в файл: "+dsDT(le.at):"Копию в файл ещё не сохраняли — сделай после тренировки и отправь себе в «Файлы» или мессенджер."}</p>`}
+   ${window.claude&&claude.use?`<p class="ds-sub">Здесь данные сами сохраняются в облако Claude. Копия в файл — чтобы перенести записи в версию на GitHub (там «Восстановить из файла») или держать запасную.</p>`:""}
+   <button class="btn" type="button" id="dsExport">Сохранить копию в файл</button>
+   <p class="ds-sub">${le?"Последняя копия в файл: "+dsDT(le.at):"Копию в файл ещё не сохраняли — сохрани в «Файлы» или отправь себе в мессенджер."}</p>
    <label class="btn btn-alt ds-file">Восстановить из файла<input type="file" id="dsImport" accept="application/json,.json" hidden></label>
    ${sn.length?`<details class="ds-snaps"><summary>Автоснимки (${sn.length})</summary>${sn.map((s,i)=>`<div class="ds-snap"><span>${dsDT(s.at)}<small>${s.n} разделов · версия ${s.build}</small></span><button type="button" class="tm-reset" data-i="${i}">Откатить</button></div>`).join("")}</details>`:""}`;
   if(el("dsExport"))el("dsExport").onclick=dsDownload;
