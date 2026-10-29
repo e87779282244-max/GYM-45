@@ -112,8 +112,6 @@
   .fb-skip{display:block;width:100%;text-align:center;color:var(--muted);font-weight:500;font-size:13px;margin-top:4px}
   #login .hint.fb-bad{color:#c0392b;font-weight:600}
   #login button:disabled{opacity:.55}
-  .disc.disc-mob{border-left-color:var(--good)}
-  .mob-t{border-top:1px solid var(--line);padding:10px 0 4px}.mob-t:first-of-type{border-top:none}.mob-t .nt-sub{margin:2px 0 8px}
   .fb-acc h3{margin:0 0 4px}.fb-acc .fb-skip.fb-no{color:var(--muted);text-align:center}
   .fb-del-open{display:block;background:none;border:none;font:inherit;font-size:13px;color:var(--muted);padding:8px 0 0;text-decoration:underline}
   .fb-del{margin-top:8px;display:flex;flex-direction:column;gap:8px}.fb-del .fb-bad{color:#c0392b;font-weight:600;margin:0}.fb-del .fb-bad:empty{display:none}
@@ -638,7 +636,6 @@
   .td-row{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;border:none;border-top:1px solid var(--line);background:none;padding:9px 0 2px;color:var(--fg);font:inherit}
   .td-row span{display:flex;flex-direction:column;min-width:0}.td-row span b{font-weight:700;font-size:14px}.td-row span small{color:var(--muted);font-size:12.5px}
   .td-row i{font-style:normal;flex:none;font-size:12.5px;font-weight:700;color:var(--accent-ink)}
-  .td-mob b{color:var(--good)}
   .td-stats{display:flex;gap:8px;flex-wrap:wrap}.td-stats button{border:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;text-align:left}
   #scr-home .dash-two{display:none}
   .dash-logo svg{width:100%;max-width:150px}
@@ -1221,8 +1218,6 @@
       <button class="disc" data-disc="Стритлифтинг">Стритлифтинг<span class="go">›</span></button>
       <button class="disc" data-disc="Кроссфит">Кроссфит<span class="go">›</span></button>
       <button class="disc" data-disc="Стрит воркаут">Стрит воркаут<span class="go">›</span></button>
-      <p class="bb-lbl" style="margin-top:14px">Восстановление<small>заминка после тренировки · дни отдыха · подвижность</small></p>
-      <button class="disc disc-mob" data-disc="Смазка суставов">Смазка суставов<span class="go">›</span></button>
     </div>
   </section>
 
@@ -1238,19 +1233,6 @@
   </section>
 
   <!-- СТРИТЛИФТИНГ · Level Zero -->
-  <section class="screen" id="scr-mob" hidden>
-    <div class="hd">
-      <div><p class="eyebrow">Подвижность · каждый день</p><h1>Смазка суставов</h1></div>
-      <button class="icon-btn back-btn" title="Назад">←</button>
-    </div>
-    <div class="stack">
-      <div class="card wod-card">
-        <span class="tag">До 20 минут · дома · без инвентаря</span>
-        <p class="wod-desc">Короткие ежедневные движения, которые возвращают суставам свободу: встать с пола, глубоко присесть, поднять руки, держать равновесие. Подходит для новичков, после 40 и для дней отдыха от зала.</p>
-      </div>
-      <div id="mobBody" class="stack"></div>
-    </div>
-  </section>
   <section class="screen" id="scr-cj" hidden>
     <div class="hd">
       <div><p class="eyebrow">Пауэрлифтинг · для опытных</p><h1>Тяжёлая артиллерия</h1></div>
@@ -2630,7 +2612,7 @@ function renderDay(){
   el("dayTitle").textContent=p.name;
   el("dayEyebrow").textContent=(p.focus||"Программа дня")+(act?" · идёт":"");
   let tot=0;const w=el("dayList");w.innerHTML="";
-  p.ex.forEach((e,i)=>{const pl=p.preset?(p.w5?w5PlanOf(p,i):p.lz?lzPlanOf(p,i):p.tx?txPlanOf(p,i):p.cj?cjPlanOf(p,i):(p.mob||p.mobx)?mobPlanOf(p,i):gvtPlanOf(p,i)):planOf(e,p);
+  p.ex.forEach((e,i)=>{const pl=p.preset?(p.w5?w5PlanOf(p,i):p.lz?lzPlanOf(p,i):p.tx?txPlanOf(p,i):p.cj?cjPlanOf(p,i):gvtPlanOf(p,i)):planOf(e,p);
     const sets=act?current.sets[i].filter(s=>!s.warm):null,ns=sets?sets.length:pl.sets;tot+=ns;
     const nd=sets?sets.filter(s=>s.done).length:0,fin=sets&&(nd===ns||!!(current.stop&&current.stop[i]));
     const m=p.g2&&p.gx[i]&&G2X[p.gx[i].key]&&G2X[p.gx[i].key].m?{p:"media/"+G2X[p.gx[i].key].m+".jpg"}:(p.g2?null:MEDIA[e[0]]);
@@ -2943,11 +2925,10 @@ function wkAllSetsDone(){return !!current&&current.sets.every((se,i)=>(current.s
 /* все подходы отмечены — окно «Тренировка завершена» */
 function wkAllDone(){if(!current)return;const box=el("gvtMbox");let n=0,ton=0;current.sets.forEach(se=>se.forEach(s=>{if(s.done&&!s.warm){n++;ton+=(+s.w||0)*(+s.r||0);}}));
   box.innerHTML=`<h3>Тренировка завершена 💪</h3><p></p><div class="nt-kv"><div><span>Время</span><b class="num">${wkElapsedTx()}</b></div><div><span>Подходов</span><b class="num">${n}</b></div>${ton?`<div><span>Тоннаж</span><b class="num">${fmtW(Math.round(ton))} кг</b></div>`:""}</div>
-    <button class="btn" type="button" id="wkDoneGo">Сохранить тренировку</button>${current.program.mob||current.program.mobx?"":`<button class="btn btn-alt" type="button" id="wkDoneCool" style="margin-top:8px">Сохранить и сделать заминку · 5–7 мин</button>`}<button class="tm-mini" type="button" id="wkDoneX">Вернуться к тренировке</button>`;
+    <button class="btn" type="button" id="wkDoneGo">Сохранить тренировку</button><button class="tm-mini" type="button" id="wkDoneX">Вернуться к тренировке</button>`;
   box.querySelector("p").textContent=current.program.name;
   el("gvtModal").hidden=false;el("wkDoneX").onclick=()=>{el("gvtModal").hidden=true;};
-  el("wkDoneGo").onclick=()=>{el("gvtModal").hidden=true;finishWorkout();};
-  if(el("wkDoneCool"))el("wkDoneCool").onclick=()=>{el("gvtModal").hidden=true;const pr=current.program;finishWorkout();if(!current)setTimeout(()=>{try{startWorkout(mobCoolPlan(pr),true);}catch(e){}},400);};}
+  el("wkDoneGo").onclick=()=>{el("gvtModal").hidden=true;finishWorkout();};}
 function restTick(){const left=Math.ceil((restEnd-Date.now())/1000);
   if(left<=0){restStop();try{if(typeof beep==="function"){beep(1046,0.2,0.35);setTimeout(()=>beep(1320,0.35,0.4),240);}}catch(e){}
     try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}
@@ -2975,7 +2956,6 @@ function finishWorkout(){
   const lzRec=current.program.lz?lzRecord():null;
   const txRec=current.program.tx?txRecord():null;
   const cjRec=current.program.cj?cjRecord():null;
-  const mobRec=current.program.mob?mobRecord():null;
   const prog=current.program;
   // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
   const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(anSetOut);log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
@@ -3001,14 +2981,12 @@ function finishWorkout(){
     if(full<sets.length)short.push(e[0]);});
   const uniqShort=[...new Set(short)];
   let note=rmMsg;
-  if(uniqShort.length&&!gRec&&!g2Rec&&!w5Rec&&!lzRec&&!txRec&&!cjRec&&!mobRec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
+  if(uniqShort.length&&!gRec&&!g2Rec&&!w5Rec&&!lzRec&&!txRec&&!cjRec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
   try{if(auP&&!auWas&&auDone(auP)){const nx=auNext(auP);note=`Программа «${auP.name}» пройдена 🎉`+(nx?` Следующая — «${nx.name}»: открой её в разделе «Бодибилдинг».`:"")+(note?" "+note:"");}else if(auP){note=`«${auP.name}»: ${auCount(auP.id)} из ${auP.total} тренировок.`+(note?" "+note:"");}}catch(e){}
   window.__coachPending=note||"";
   clearDraft();current=null;restStop();
   if(g2Rec){toast(g2Rec.status==="full"?"Занятие выполнено полностью":"Результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     show("gvt");g2Summary(g2Rec.uid);return;}
-  if(mobRec){toast("Готово! Хорошего дня");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
-    mobLast=mobRec;show("mob");window.scrollTo(0,0);return;}
   if(cjRec){toast(cjRec.me&&cjRec.me.best>cjRec.me.prev&&cjRec.me.prev?"Новый рекорд! Тренировка сохранена":"Тренировка сохранена");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     cjLast=cjRec;show("cj");window.scrollTo(0,0);return;}
   if(txRec){const pr=Object.keys(txRec.lifts).filter(k=>{const x=txRec.lifts[k];return x.prog&&x.reps.every((n,i)=>n>=x.need[i]);});
@@ -4088,137 +4066,16 @@ scr.cj=el("scr-cj");
       mpArch({kind:"cj",prog:"cj",title:"Тяжёлая артиллерия",start:P.start,total:n,done:n,unit:"трен.",verdict:"Завершена вручную: круг "+st.cycle+", неделя "+st.week+". Рекордов вариантов: "+Object.keys(cjPRs()).length+"."});}});}}catch(e){}return out;};}
 {const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{cj:cjStore()});};}
 
-/* ===================== «СМАЗКА СУСТАВОВ» — подвижность и движение каждый день =====================
-   Отдельный раздел. Две части:
-   1) Проверка подвижности раз в неделю: 7 простых тестов (пол, дыхание, бедро, плечи, присед, равновесие, шаги).
-   2) Программа на 4 недели, до 20 минут в день: ежедневная «перезагрузка» (5 движений по 10 раз)
-      и одна задача дня: вставания с пола, «гора» отжиманий и приседаний, переноска, ползание, прогулка.
-      После 4 недель рабочие части длиннее на 5 минут.
-   Методика — по книгам о подвижности и «силе привычки»; тексты свои. Состояние — из записей (надёжно при слиянии с облаком). */
+/* «Смазка суставов» убрана из приложения. Старые данные (gym45_mob_v1) не трогаем:
+   они остаются на устройстве и в облаке без изменений. */
 const MOBK="gym45_mob_v1";
-const MOB_RESET=[["Дыхание животом","10 вдохов","Нос, рот закрыт, язык к нёбу. Вдох — живот поднимается, грудь почти неподвижна."],
- ["Кивки головой","10 раз","Лёжа на животе на локтях или на четвереньках: медленно смотри вверх и вниз, глаза ведут движение."],
- ["Перекаты на спине","10 раз","Подтяни колени к груди, обхвати их и перекатывайся по спине вперёд-назад, как качалка."],
- ["Раскачивания на четвереньках","10 раз","Спина ровная, голова поднята: таз плавно назад к пяткам и обратно вперёд."],
- ["Марш с касанием колена","10 касаний","Стоя: поднимай колено и касайся его противоположной ладонью, поочерёдно."]];
-/* задача дня: [название, минут, подсказка, мера] */
-const MOB_DAYS=[
- {t:"Вставания с пола",w:[["Вставания с пола",10,"Ложись на спину и вставай. Каждый раз — другим способом: через колено, через бок, без рук. Помогай себе руками или опорой, если нужно. Отдыхай по самочувствию.","мин"]],eve:"Вечером — 5 минут спокойного дыхания животом."},
- {t:"Ползание и «гора»",w:[["Ползание на четвереньках",5,"Колени на полу, голова поднята — смотри, куда ползёшь. Наколенники не помешают.","мин"],["«Гора»: отжимания + приседания",10,"1 отжимание и 1 приседание, затем 2 и 2, 3 и 3… до 10 и 10 и обратно вниз. Запиши, до какой ступени дошёл.","ступень"],["Раскачивания на четвереньках",0,"10 раз в конце.","раз"]],eve:"Вечером — 5 минут медленных кивков головой."},
- {t:"Переноска груза",w:[["Переноска груза перед собой",10,"Груз на 6–7 из 10 по тяжести: гантель, гиря, рюкзак. Подними наклоном от бёдер с прямой спиной, держи у груди, пройди 10 шагов, поставь так же, развернись. Повторяй, отдыхая по самочувствию.","мин"],["Марш с касанием колена",3,"3 минуты без остановки.","мин"]],eve:"Вечером — 5 минут «дворников»: лёжа на спине, колени согнуты, плавно клади их вправо и влево."},
- {t:"Вставания и наклоны",w:[["Вставания с пола",10,"Как в первый день — разными способами.","мин"],["Становая на одной ноге в ходьбе",5,"Наклон на одной ноге, вторая тянется назад, рука тянется к полу. Выпрямился — шаг вперёд и наклон на другой ноге. Грудь вперёд, взгляд на горизонт.","мин"]],eve:"Вечером — 5 минут раскачиваний на четвереньках."},
- {t:"Тяга и ползание",w:[["Статическая тяга в дверном проёме",5,"Упрись одной рукой в косяк, второй тяни косяк на себя на 70 % усилия 6 секунд, дыши. Смени руки. Повторяй 5 минут.","мин"],["Проползти и встать",10,"4–6 шагов на четвереньках, затем встань, снова опустись и ползи. Голова поднята, таз не задирай.","мин"]],eve:"Вечером — 5 минут дыхания животом."},
- {t:"Прогулка",w:[["Быстрая прогулка",30,"30–45 минут бодрым шагом, как будто спешишь. Руки работают от плеч, взгляд на горизонт, дыши носом. Плохая погода — 10 минут марша на месте дома.","мин"]],eve:"Вечером — по 10 раз: марш с касанием колена, раскачивания, «дворники», кивки, вдохи животом."},
- {t:"Свободный день",w:[["Движение в удовольствие",0,"Любая активность, которая нравится: игра с детьми, плавание, велосипед, танцы.","—"]],eve:"Вечером — по 10 раз: марш с касанием колена, раскачивания, «дворники», кивки, вдохи животом."}];
-/* тесты подвижности: [ключ, название, как выполнять, тип, варианты] */
-const MOB_TESTS=[
- ["sit","Сесть на пол и встать","Скрести ноги, сядь на пол и встань, не опираясь ни на что. Начни с 10 баллов и вычти по 1 за каждую опору: рука, колено, предплечье, бок стопы; ещё −0,5 за потерю равновесия.","sel",[[10,"10 — без опор"],[9,"9"],[8,"8"],[7,"7"],[6,"6"],[5,"5"],[4,"4"],[3,"3 и меньше"]],"floor"],
- ["breath","Задержка дыхания","Спокойно вдохни носом, спокойно выдохни, зажми нос и считай секунды до первого желания вдохнуть (не до предела).","num","с","breath"],
- ["hip","Растяжка у дивана","Колено одной ноги у стены (или спинки дивана), голень вверх по стене, вторая нога впереди. Можешь выпрямить корпус и напрячь ягодицу?","sel",[[3,"Корпус вертикально, ягодица напряжена"],[2,"Корпус наклонён вперёд"],[1,"Колено к стене не встаёт"]],"hip"],
- ["arms","Руки вверх у стены","Спиной к стене: пятки, таз, спина и затылок касаются её. Подними прямые руки вверх — получается коснуться стены большими пальцами, не отрывая поясницу?","sel",[[3,"Да, легко"],[2,"Только с прогибом в пояснице"],[1,"Руки до стены не достают"]],"shoulder"],
- ["squat","Глубокий присед","Присядь как можно ниже, пятки на полу, и посиди минуту.","sel",[[3,"Минуту, пятки на полу, без опоры"],[2,"Только с опорой или пятки отрываются"],[1,"Глубоко присесть не получается"]],"squat"],
- ["bal","Равновесие с закрытыми глазами","Встань на одну ногу, закрой глаза и считай секунды. Лучший результат из двух ног; цель — 20 секунд.","num","с","balance"],
- ["steps","Шаги в день","Среднее за последние 3 дня по телефону или часам. Цель — 8–10 тысяч.","num","шагов","walk"]];
-const MOB_FIX={floor:"сидение на полу и вставания с пола",breath:"дыхание животом каждый день",hip:"растяжка у дивана и выпады",shoulder:"висы и мобилизация плеч",squat:"присед с опорой, по минуте в день",balance:"стойка на одной ноге во время чистки зубов",walk:"прогулка после еды"};
 function mobStore(){try{const v=JSON.parse(localStorage.getItem(MOBK));if(v&&Array.isArray(v.progs))return Object.assign({tests:[]},v);}catch(e){}return {progs:[],activeId:null,tests:[]};}
-function mobSave(v){try{localStorage.setItem(MOBK,JSON.stringify(v))}catch(e){}cloudPush();}
-function mobActive(v){v=v||mobStore();return v.progs.find(p=>p.id===v.activeId&&!p.closedAt)||null;}
-function mobNow(){return new Date().toISOString();}
 function mergeMob(a,b){a=a&&a.progs?a:{progs:[],activeId:null,tests:[]};b=b&&b.progs?b:{progs:[],activeId:null,tests:[]};
   const g=mergeGvt({cycles:a.progs,activeId:a.activeId},{cycles:b.progs,activeId:b.activeId}),t={};
   [...(b.tests||[]),...(a.tests||[])].forEach(x=>{if(x&&x.uid)t[x.uid]=x;});
   return {progs:g.cycles,activeId:g.activeId,tests:Object.values(t).sort((x,y)=>(x.at||"").localeCompare(y.at||""))};}
-function mobState(P){const n=(P.recs||[]).length;return {n:n,day:n%7,week:Math.floor(n/7)+1,plus:Math.floor(n/28)*5};}
-function mobPlan(P,st,day){day=day==null?st.day:day;const D=MOB_DAYS[day],ex=[],preset=[];
-  MOB_RESET.forEach(([n,r,h])=>{ex.push([n,1,r,0,undefined,h,10,"1 × "+r]);preset.push([{w:0,r:10,done:false}]);});
-  D.w.forEach(([n,min,h,u])=>{const m=min>0?min+(u==="мин"||u==="ступень"?st.plus:0):0,lbl=u==="ступень"?m+" мин · запиши ступень":u==="мин"?m+" мин":u==="раз"?"10 раз":"по желанию";
-    ex.push([n,1,u==="ступень"?"ступень":u==="мин"?m+" мин":u==="раз"?"10":"—",0,undefined,h,10,lbl]);preset.push([{w:0,r:u==="ступень"?1:u==="мин"?m:u==="раз"?10:0,done:false}]);});
-  return {name:"Смазка суставов · "+D.t,focus:"Неделя "+st.week+" · день "+(day+1)+" из 7"+(st.plus?" · +"+st.plus+" мин к рабочим частям":""),ex:ex,sec:"mob",preset:preset,mob:{progId:P.id,day:day,week:st.week,eve:D.eve}};}
-function mobPlanOf(p,i){const e=p.ex[i];return {sets:1,reps:e[2],w:"",extra:""};}
-function mobRecord(){const p=current.program,g=p.mob,v=mobStore(),P=v.progs.find(x=>x.id===g.progId);if(!P)return null;
-  let climb=null;p.ex.forEach((e,i)=>{if(/«Гора»/.test(e[0])){const s=current.sets[i][0];if(s&&s.done)climb=s.r;}});
-  const now=mobNow(),rec={uid:P.id+"-"+Date.now().toString(36),day:g.day,week:g.week,finishedAt:now,updatedAt:now,climb:climb};
-  P.recs.push(rec);P.updatedAt=now;mobSave(v);return rec;}
-/* ---------- экран ---------- */
-let mobLast=null,mobTestOpen=false;
-function mobTestVerdict(T,v){if(v==null||v==="")return "";const [k,,,type,opt]=T;
-  if(k==="sit")return v>=8?"отлично":v>=6?"норма":"есть над чем работать";
-  if(k==="breath")return v>=30?"норма":v>=20?"почти норма":v>=10?"стоит поработать":"мало — дыши животом каждый день";
-  if(k==="bal")return v>=20?"норма":"стоит поработать";
-  if(k==="steps")return v>=8000?"норма":"мало — добавь прогулки";
-  return v>=3?"норма":v>=2?"частично":"есть над чем работать";}
-function mobWeak(t){if(!t)return [];return MOB_TESTS.filter(T=>{const v=t.v[T[0]];if(v==null||v==="")return false;const vd=mobTestVerdict(T,v);return !/^(норма|отлично)/.test(vd);}).map(T=>MOB_FIX[T[5]]);}
-function mobInfo(){return `<details class="card gvt-about"><summary><span class="tag">Как устроено</span><span class="gvt-more">Подробнее</span></summary><div class="wod-desc">
-  <p><b>Зачем.</b> Сидячая жизнь «засушивает» суставы: тяжелее встать с пола, глубоко присесть, поднять руки вверх. Здесь — короткие ежедневные движения, которые возвращают свободу и помогают силовым тренировкам.</p>
-  <p><b>Перезагрузка каждый день.</b> 5 движений по 10 раз, 3–5 минут: дыхание животом, кивки, перекаты, раскачивания на четвереньках, марш с касанием колена. Можно делать и перед силовой как разминку.</p>
-  <p><b>Задача дня — до 20 минут.</b> Вставания с пола, «гора» из отжиманий и приседаний, переноска груза, ползание, становая на одной ноге, прогулка. Темп свой, отдыхай по самочувствию. Всё делается дома почти без инвентаря.</p>
-  <p><b>Через 4 недели</b> рабочие части становятся длиннее на 5 минут. Можно продолжать столько, сколько нравится.</p>
-  <p><b>Проверка раз в неделю.</b> 7 тестов покажут слабые места — для них есть подсказка, что делать в течение дня.</p>
-  <p><b>Вместе с силовой.</b> «Смазку» удобно делать в дни отдыха от зала или по 5 минут перезагрузки перед тренировкой.</p></div></details>`;}
-function renderMob(){const w=el("mobBody");if(!w)return;const v=mobStore(),P=mobActive(v),last=v.tests[v.tests.length-1],prev=v.tests[v.tests.length-2];let html="";
-  if(mobLast&&P&&P.recs.some(r=>r.uid===mobLast.uid)){html+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Готово: ${MOB_DAYS[mobLast.day].t}</h3>${mobLast.climb?`<p class="gvt-note" style="margin:0 0 6px">«Гора»: ступень ${mobLast.climb}</p>`:""}<p class="gvt-note" style="margin:0">${MOB_DAYS[mobLast.day].eve}</p></div>`;}
-  if(!P){html+=`<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Программа на 4 недели</h3><p class="gvt-note" style="margin-bottom:12px">Каждый день: перезагрузка 3–5 минут и одна задача до 20 минут. Сначала стоит пройти проверку подвижности ниже — чтобы через месяц увидеть разницу.</p><button class="btn" type="button" id="mobGo">Начать программу</button></div>`;}
-  else{const st=mobState(P),plan=mobPlan(P,st),climbs=P.recs.filter(r=>r.climb).map(r=>r.climb);
-    html+=`<div class="card gvt-sum"><h3>Неделя ${st.week} · день ${st.day+1} из 7 · старт ${gvtDD(P.start)}</h3>
-      <div class="rm-list"><div class="rm-row"><span class="k">Выполнено дней</span><span class="v">${st.n}</span></div>
-      ${climbs.length?`<div class="rm-row"><span class="k">«Гора» — высшая ступень</span><span class="v">${climbs.slice(-6).join(" · ")}</span></div>`:""}</div>
-      ${st.plus?`<div class="gvt-kv"><span>рабочие части длиннее на ${st.plus} мин</span></div>`:""}</div>
-      <p class="bb-lbl">Сегодня</p><div class="stack gvt-sess" id="mobNext"></div>`;}
-  /* проверка подвижности */
-  const days=last?Math.floor((Date.now()-new Date(last.at).getTime())/864e5):null;
-  html+=`<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Проверка подвижности</h3>
-    <p class="gvt-note" style="margin-bottom:10px">${last?"Последняя — "+gvtDD(last.at.slice(0,10))+(days>=7?" · пора повторить":" · следующая через "+(7-days)+" дн."):"Раз в неделю, 5–10 минут. Результаты сохраняются, видно прогресс."}</p>`;
-  if(last&&!mobTestOpen){html+=`<div class="rm-list">${MOB_TESTS.map(T=>{const x=last.v[T[0]],p=prev?prev.v[T[0]]:null;if(x==null||x==="")return "";
-      const lbl=T[3]==="sel"?(T[4].find(o=>o[0]==x)||[0,x])[1]:x+" "+T[4],d=p!=null&&p!==""&&T[3]==="num"?(x-p):null;
-      return `<div class="rm-row"><span class="k">${T[1]}<small style="display:block;color:var(--muted)">${mobTestVerdict(T,x)}</small></span><span class="v">${lbl}${d?` <small class="an-d ${d>0?"up":"dn"}">${d>0?"+":""}${d}</small>`:""}</span></div>`;}).join("")}</div>`;
-    const wk=mobWeak(last);if(wk.length)html+=`<p class="gvt-note" style="margin:10px 0 0">Слабые места — добавь в течение дня: ${wk.join("; ")}.</p>`;
-    html+=`<button class="btn btn-alt" type="button" id="mobTest" style="margin-top:12px">Пройти проверку ${days>=7?"":"снова"}</button>`;}
-  else html+=`${MOB_TESTS.map(T=>`<div class="mob-t"><b>${T[1]}</b><p class="nt-sub">${T[2]}</p>${T[3]==="sel"?`<select id="mobT_${T[0]}" class="food-in"><option value="">— пропустить —</option>${T[4].map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select>`:`<input id="mobT_${T[0]}" class="food-in" inputmode="numeric" placeholder="${T[4]}">`}</div>`).join("")}
-    <button class="btn" type="button" id="mobTSave" style="margin-top:12px">Сохранить результаты</button>${last?`<button class="tm-mini" type="button" id="mobTX" style="margin-top:8px">Отмена</button>`:""}`;
-  html+=`</div>`+mobInfo();w.innerHTML=html;
-  if(el("mobGo"))el("mobGo").onclick=()=>{const v2=mobStore(),now=mobNow(),np={id:"mob-"+Date.now().toString(36),createdAt:now,updatedAt:now,start:localDate(),recs:[],closedAt:null};
-    v2.progs.push(np);v2.activeId=np.id;mobSave(v2);toast("«Смазка суставов» активирована");renderMob();};
-  if(el("mobNext")){const P2=mobActive(),st=mobState(P2),plan=mobPlan(P2,st);const nb=document.createElement("button");nb.type="button";nb.className="disc next";
-    nb.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="gvt-st">▶</span>`;
-    nb.querySelector("span span").textContent=MOB_DAYS[st.day].t;nb.querySelector(".disc-sub").textContent="Перезагрузка 5 × 10 · "+MOB_DAYS[st.day].w.filter(x=>x[1]>0||x[3]==="—").map(x=>x[0]+(x[1]?" "+(x[1]+(x[3]==="мин"||x[3]==="ступень"?st.plus:0))+" мин":"")).join(" · ");
-    nb.onclick=()=>{const P3=mobActive();if(P3)startWorkout(mobPlan(P3,mobState(P3)),true);};el("mobNext").appendChild(nb);
-    try{const eb=mpEndBtn("mob","Завершить «Смазку суставов» · итог в «Прогресс»");eb.addEventListener("click",()=>setTimeout(()=>{if(!mobActive())renderMob();},60));w.insertBefore(eb,w.querySelector(".gvt-about"));}catch(e){}}
-  if(el("mobTest"))el("mobTest").onclick=()=>{mobTestOpen=true;renderMob();};
-  if(el("mobTX"))el("mobTX").onclick=()=>{mobTestOpen=false;renderMob();};
-  if(el("mobTSave"))el("mobTSave").onclick=()=>{const val={};let any=false;MOB_TESTS.forEach(T=>{const s=String(el("mobT_"+T[0]).value).trim().replace(",",".");if(s!==""){const x=parseFloat(s);if(isFinite(x)){val[T[0]]=x;any=true;}}});
-    if(!any){toast("Заполни хотя бы один тест");return;}
-    const v2=mobStore();v2.tests.push({uid:"t-"+Date.now().toString(36),at:mobNow(),v:val});mobSave(v2);mobTestOpen=false;toast("Результаты сохранены");renderMob();};}
-
-/* ---------- заминка после тренировки и восстановление в день отдыха ---------- */
-const MOB_COOL_LOW=[["Растяжка у дивана","по 1 мин","Колено у стены, голень вверх по стене, вторая нога впереди. Корпус вертикально, ягодица напряжена. По минуте на ногу."],
- ["Голубь на скамье","по 1 мин","Голень одной ноги поперёк скамьи, вторая нога назад. Корпус ровно, плавно наклоняйся вперёд. По минуте на сторону."],
- ["Наклон к прямым ногам сидя","1 мин","Сидя, ноги вместе и прямые: тянись грудью к коленям, спина длинная, дыши животом."],
- ["Глубокий присед с опорой","1 мин","Держись за стойку или раму, пятки на полу, колени в стороны. Просто посиди внизу и подыши."]];
-const MOB_COOL_UP=[["Растяжка груди в дверном проёме","по 30 с","Предплечье на косяк, локоть на уровне плеча, шаг вперёд до лёгкого натяжения груди. По 30 секунд на сторону."],
- ["Вис на перекладине","30–45 с","Расслабленный вис: плечи тянутся вверх, ноги свободно, дыши спокойно."],
- ["Растяжка широчайших у стойки","по 30 с","Возьмись за стойку на уровне пояса, таз отведи назад и в сторону — тянется бок спины. По 30 секунд на сторону."],
- ["Растяжка трицепса за головой","по 30 с","Локоть вверх, кисть за голову, второй рукой мягко тяни локоть. По 30 секунд на руку."]];
-function mobCoolPlan(prog){const names=((prog&&prog.ex)||[]).map(e=>String(e[0]).toLowerCase()).join(" ");
-  const low=/присед|станов|выпад|ног|ягод|румынск|гакк|носк|бедр|бег|прыж|бёрпи|махи гир/.test(names),up=/жим|тяг|подтяг|отжим|брусь|бицепс|трицепс|плеч|мах|развед|сгиб|пулов/.test(names);
-  let L=[];if(low&&up)L=[MOB_COOL_LOW[0],MOB_COOL_LOW[2],MOB_COOL_UP[0],MOB_COOL_UP[1]];else if(low)L=MOB_COOL_LOW;else if(up)L=MOB_COOL_UP;else L=[MOB_COOL_LOW[0],MOB_COOL_LOW[2],MOB_COOL_UP[0],MOB_COOL_UP[1]];
-  L=L.concat([["Дыхание животом","10 вдохов",MOB_RESET[0][2]]]);
-  return {name:"Заминка · растяжка",focus:"5–7 минут после тренировки"+(low&&!up?" · акцент на ноги":up&&!low?" · акцент на верх":""),sec:"mob",mobx:true,
-    ex:L.map(([n,r,h])=>[n,1,r,0,undefined,h,10,"1 × "+r]),preset:L.map(([n,r])=>[{w:0,r:parseInt(r.replace(/\D/g,""),10)||1,done:false}])};}
-function mobRestPlan(){const L=MOB_RESET.concat([MOB_COOL_LOW[0],MOB_COOL_LOW[1],MOB_COOL_LOW[3],MOB_COOL_UP[0],MOB_COOL_UP[1]]);
-  return {name:"Восстановление · день отдыха",focus:"Около 15 минут: перезагрузка суставов и растяжка",sec:"mob",mobx:true,
-    ex:L.map(([n,r,h])=>[n,1,r,0,undefined,h,10,"1 × "+r]),preset:L.map(([n,r])=>[{w:0,r:parseInt(String(r).replace(/\D/g,""),10)||1,done:false}])};}
-/* анимации раздела: только с открытой лицензией */
-Object.assign(MEDIA,{"Дыхание животом":{p:"media/mob_breath.jpg",v:"media/mob_breath.mp4?v=1",id:"mob-breath",name:"Дыхание животом (работа диафрагмы)",cred:"Анимация: John Pierce, Wikimedia Commons · CC0"},
- "Вис на перекладине":{p:"media/mob_hang.jpg",v:"media/mob_hang.mp4?v=1",id:"mob-hang",name:"Вис на перекладине",cred:"Схематическая анимация · свободное использование"}});
-function mobButton(){const b=document.createElement("button");b.className="disc";b.dataset.disc="Смазка суставов";b.innerHTML=`Смазка суставов<span class="go">›</span>`;return b;}
-scr.mob=el("scr-mob");
-{const _as=applyScreen;applyScreen=function(n,y){_as(n,y);if(n==="mob")try{renderMob();}catch(e){console.error(e);}};}
-{const _mp=mpList;mpList=function(){const out=_mp();try{const v=mobStore(),P=mobActive(v);if(P){const st=mobState(P);
-  const lr=P.recs.length?P.recs[P.recs.length-1].finishedAt:"",td=localDate(),nx=lr&&localDate(new Date(lr))===td?addDays(td,1):td;
-  out.push({k:"mob",t:"Смазка суставов · подвижность каждый день",s:"Неделя "+st.week+" · сегодня: "+MOB_DAYS[st.day].t,start:P.start,next:nx,open:()=>show("mob"),
-    fin:()=>{const v2=mobStore(),P2=mobActive(v2);if(!P2)return;P2.closedAt=mobNow();P2.updatedAt=P2.closedAt;v2.activeId=null;mobSave(v2);
-      mpArch({kind:"mob",prog:"mob",title:"Смазка суставов",start:P.start,total:st.n,done:st.n,unit:"дн.",verdict:"Выполнено дней: "+st.n+"."});}});}}catch(e){}return out;};}
 {const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{mob:mobStore()});};}
+Object.assign(MEDIA,{"Вис на перекладине":{p:"media/mob_hang.jpg",v:"media/mob_hang.mp4?v=1",id:"hang",name:"Вис на перекладине",cred:"Схематическая анимация · свободное использование"}});
 
 /* ===================== GERMAN VOLUME TRAINING 2.0 — пять этапов (ТЗ «Штурм 30» v2.0) ===================== */
 const G2K="gym45_gvt2_v1",G2VER="2.0";
@@ -5042,7 +4899,6 @@ document.querySelectorAll(".disc[data-disc]").forEach(b=>b.onclick=()=>{
   const d=b.dataset.disc;
   if(d==="Стритлифтинг"){renderStreet();if(typeof renderStreetProgs==="function")renderStreetProgs();show("street");}else if(d==="Кроссфит"){renderCross();show("cross");}
   else if(d==="Стрит воркаут"){renderSw();show("sw");}
-  else if(d==="Смазка суставов"){show("mob");}
   else if(d==="TRX"){renderTrx();show("trx");}
   else if(d==="Бодибилдинг")show("body");else if(d==="Пауэрлифтинг"){try{renderPwrPrograms();}catch(e){}show("pwr");}
   else toast("«"+d+"» — скоро");});
@@ -6728,7 +6584,6 @@ function dashGo(x){try{
   if(x.k==="lz"){const P=lzActive();if(P){startWorkout(lzPlan(P,lzState(P)),true);return;}}
   if(x.k==="tx"){const P=txActive();if(P){startWorkout(txPlan(P,txState(P)),true);return;}}
   if(x.k==="cj"){const P=cjActive();if(P){startWorkout(cjPlan(P,cjState(P)),true);return;}}
-  if(x.k==="mob"){const P=mobActive();if(P){startWorkout(mobPlan(P,mobState(P)),true);return;}}
   if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx){openWod(nx,cfVariants(nx)[0]);return;}}
 }catch(e){}x.open();}
 function dashNextName(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"au:"+q.id===x.k),nn=p&&auPlanNext(p);if(nn)return p.weeks[nn.w].days[nn.d].name;}
@@ -6736,27 +6591,24 @@ function dashNextName(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"
   if(x.k==="lz"){const P=lzActive();if(P)return "Рождённый ползать · "+LZ_DAY[lzState(P).next];}
   if(x.k==="tx"){const P=txActive();if(P)return "Техасский рейнджер · "+txDayName(P,txState(P).next);}
   if(x.k==="cj"){const P=cjActive();if(P)return "Тяжёлая артиллерия · "+CJ_DAY[cjState(P).next];}
-  if(x.k==="mob"){const P=mobActive();if(P)return "Смазка суставов · "+MOB_DAYS[mobState(P).day].t;}
   if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx)return nx.name;}}catch(e){}return "";}
 function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),L=mpList();
   const dd=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);};
   let html=`<div class="td-h"><b>Сегодня</b><span>${dd(t)}</span></div>`;
   if(!L.length){html+=`<p class="td-rest">Нет активной программы. Выбери программу — приложение поведёт по тренировкам: что делать, когда и с каким весом.</p><button class="btn" type="button" id="tdPick">Выбрать программу</button>`;}
-  else{const S=L.map((x,i)=>({x,i,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),due=S.filter(o=>o.n<=t),first=due.find(o=>o.x.k!=="mob");
+  else{const S=L.map((x,i)=>({x,i,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),due=S.filter(o=>o.n<=t),first=due[0];
     if(first){const x=first.x;html+=`<div class="td-main"><small>Тренировка по плану</small><b></b><span></span></div><button class="btn" type="button" id="tdGo">Начать ›</button>`;}
-    else{const nx=S.find(o=>o.n!=="9999"&&o.x.k!=="mob");html+=`<p class="td-rest">Сегодня отдых.${nx?" Следующая — "+dd(nx.n)+": "+nx.x.t+".":""}</p>`;
-      const mo=S.find(o=>o.x.k==="mob");if(!mo||mo.n<=t)html+=`<button type="button" class="td-row td-mob" id="tdMob"><span><b>Рекомендация на день отдыха</b><small>${mo?(dashNextName(mo.x)||"Смазка суставов")+" · до 20 мин":"Смазка суставов · суставы и растяжка · ~15 мин"}</small></span><i>›</i></button>`;}
-    S.filter(o=>(!first||o!==first)&&!(o.x.k==="mob"&&!first&&o.n<=t)).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
+    else{const nx=S.find(o=>o.n!=="9999");html+=`<p class="td-rest">Сегодня отдых.${nx?" Следующая — "+dd(nx.n)+": "+nx.x.t+".":""}</p>`;}
+    S.filter(o=>!first||o!==first).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
   const pl=weekPlan(),dn=weekDone();
   let food="";try{const m=anFoodDays()[t]||{kcal:0,p:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&(tg.kcal||tg.target);food="Еда: "+ntF(m.kcal)+(kt?" из "+ntF(kt):"")+" ккал · белок "+ntF(m.p)+(tg&&tg.p?" / "+ntF(tg.p):"")+" г";}catch(e){}
   html+=`<div class="td-stats"><button type="button" id="tdWeek">Неделя: ${dn}${pl?" из "+pl:""} ${plural(pl||dn,"тренировка","тренировки","тренировок")} ›</button>${food?`<button type="button" id="tdFood">${food} ›</button>`:""}</div>`;
   c.innerHTML=html;
   if(el("tdPick"))el("tdPick").onclick=()=>show("programs");
-  if(el("tdMob"))el("tdMob").onclick=()=>{try{const x=L.find(x=>x.k==="mob");if(x)dashGo(x);else startWorkout(mobRestPlan(),true);}catch(e){}};
   if(el("tdWeek"))el("tdWeek").onclick=()=>show("progress");if(el("tdFood"))el("tdFood").onclick=()=>{try{el("homeFoodGo")?el("homeFoodGo").click():document.querySelector('#scr-home [data-go="nutrition"]').click();}catch(e){}};
-  if(el("tdGo")){const S=L.map((x,i)=>({x,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),x=(S.find(o=>o.n<=t&&o.x.k!=="mob")||S[0]).x;
+  if(el("tdGo")){const S=L.map((x,i)=>({x,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),x=(S.find(o=>o.n<=t)||S[0]).x;
     const m=c.querySelector(".td-main");m.querySelector("b").textContent=x.t;m.querySelector("span").textContent=dashNextName(x)||x.s;el("tdGo").onclick=()=>dashGo(x);}
-  c.querySelectorAll(".td-row:not(.td-mob)").forEach(b=>{const x=L[+b.dataset.i];b.querySelector("b").textContent=x.t;b.querySelector("small").textContent=dashNextName(x)||x.s;b.onclick=()=>x.open();});
+  c.querySelectorAll(".td-row").forEach(b=>{const x=L[+b.dataset.i];b.querySelector("b").textContent=x.t;b.querySelector("small").textContent=dashNextName(x)||x.s;b.onclick=()=>x.open();});
   try{const m=anFoodDays()[t]||{kcal:0,p:0};el("dashFoodT").textContent=ntF(m.kcal)+" ккал · белок "+ntF(m.p)+" г";}catch(e){}
   try{const w=el("dashWeekT");if(w&&pl)w.textContent=dn+" из "+pl+" по плану";}catch(e){}}
 {const _rd=renderDashActive;renderDashActive=function(){_rd();try{renderToday();}catch(e){console.error(e);}};}
@@ -7751,7 +7603,7 @@ function wtMerge(a,b){if(!b||typeof b!=="object")return a;const out=Object.assig
    восстановление (сон, самочувствие). Только чтение истории — старые записи не меняются.
    Свои данные аналитики — в отдельном ключе gym45_an_v1: оценки RPE, сон, замеры тела. */
 const ANK="gym45_an_v1";
-const AN_SECS=[["all","Все"],["body","Бодибилдинг"],["pwr","Пауэрлифтинг"],["street","Стритлифтинг"],["sw","Стрит-воркаут"],["cross","Кроссфит"],["mob","Смазка суставов"],["trx","TRX"]];
+const AN_SECS=[["all","Все"],["body","Бодибилдинг"],["pwr","Пауэрлифтинг"],["street","Стритлифтинг"],["sw","Стрит-воркаут"],["cross","Кроссфит"],["mob","Смазка суставов"],["trx","TRX"]].filter(([k])=>k!=="mob");
 const AN_SEC_LBL={body:"Бодибилдинг",pwr:"Пауэрлифтинг",street:"Стритлифтинг",sw:"Стрит-воркаут",cross:"Кроссфит",mob:"Смазка суставов",trx:"TRX",other:"Другое"};
 let AN_SEC=null,AN_UI={tab:"load",sec:"all",met:"vol",ex:null,exm:"e1rm",bar:null};
 try{Object.assign(AN_UI,JSON.parse(sessionStorage.getItem("gym45_anui")||"{}"));}catch(e){}
@@ -7781,11 +7633,8 @@ function anSessionMeta(){const m={sec:(current&&current.sec)||anSecOf(current&&c
   try{if(current.readiness)m.ready=current.readiness;}catch(e){}
   try{if(current.startedAt)m.st=current.startedAt;}catch(e){}
   return m;}
-/* «Смазка суставов»: в шапке подходов — минуты или ступень вместо «Повт.» */
-{const _rm=renderWorkout;renderWorkout=function(){_rm();try{if(!current||!(current.program.mob||current.program.mobx))return;const e=current.program.ex[current.idx],h=el("exList").querySelector(".set-row.head span:nth-child(3)");
-  if(h)h.textContent=/ступень/.test(e[2])?"Ступень":/мин/.test(e[2])?"Минут":/\d\s*с(\b|$)/.test(e[2])?"Секунд":"Раз";}catch(err){}};}
 /* «запас повторов» (RIR) последнего подхода — необязательная отметка под упражнением */
-{const _rw=renderWorkout;renderWorkout=function(){_rw();try{if(!current||current.program.g2||current.program.mob||current.program.mobx)return;const i=current.idx,G=current.program.gx?current.program.gx[i]:null;if(G&&G.main)return;
+{const _rw=renderWorkout;renderWorkout=function(){_rw();try{if(!current||current.program.g2)return;const i=current.idx,G=current.program.gx?current.program.gx[i]:null;if(G&&G.main)return;
   const card=el("exList").querySelector(".wk-card");if(!card||card.querySelector(".rir-row"))return;const v=current.rirEx&&current.rirEx[i];
   const r=document.createElement("div");r.className="rir-row";
   r.innerHTML=`<span>Запас повторов в последнем подходе <small>(RIR)</small></span><div>${["0","1","2","3","4+"].map(x=>`<button type="button" data-v="${x}" class="${v===x?"on":""}">${x}</button>`).join("")}</div>`;
@@ -8909,7 +8758,6 @@ function cloudRefreshUI(){
       if(currentScreen==="lz")renderLz();
       if(currentScreen==="tx")renderTx();
       if(currentScreen==="cj")renderCj();
-      if(currentScreen==="mob")renderMob();
       if(currentScreen==="home")renderDashActive();
       if(currentScreen==="cross")renderCross();
       if(currentScreen==="cfcat")cfRenderCat();

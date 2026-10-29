@@ -14,7 +14,7 @@ async def m():
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844});errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none';show('programs')");await pg.wait_for_timeout(150)
     d=await pg.evaluate("[...document.querySelectorAll('#scr-programs .disc[data-disc]')].map(b=>b.dataset.disc).join(',')")
-    ok('направления без TRX',d=='Бодибилдинг,Пауэрлифтинг,Стритлифтинг,Кроссфит,Стрит воркаут,Смазка суставов',d)
+    ok('направления без TRX',d=='Бодибилдинг,Пауэрлифтинг,Стритлифтинг,Кроссфит,Стрит воркаут',d)
     ok('все экраны подключены к навигации',await pg.evaluate("(()=>{const ids=new Set(Object.values(scr).map(x=>x&&x.id));return [...document.querySelectorAll('section.screen')].every(s=>ids.has(s.id))})()"))
     await pg.evaluate("show('progress')");await pg.wait_for_timeout(150)
     ok('аналитика без вкладки TRX, если нет таких тренировок',await pg.evaluate("!!el('anDisc')&&![...el('anDisc').querySelectorAll('button')].some(b=>b.dataset.v==='trx')"))
