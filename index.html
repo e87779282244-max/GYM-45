@@ -2793,7 +2793,7 @@ const MEDIA={
 };
 const MEDIA_CREDIT="ExerciseDB v1 / AscendAPI · некоммерческое использование, атрибуция обязательна";
 function openMedia(key){const m=MEDIA[key];if(!m)return;const v=el("pvideo");
-  el("pname").textContent=m.name;el("pcred").textContent="ID: "+m.id+" · "+MEDIA_CREDIT;
+  el("pname").textContent=m.name;el("pcred").textContent=m.cred||("ID: "+m.id+" · "+MEDIA_CREDIT);
   v.poster=m.p;v.src=m.v;el("player").hidden=false;mediaSync();
   try{v.currentTime=0;v.play().catch(()=>{});}catch(e){}}
 function closeMedia(){const v=el("pvideo");try{v.pause();}catch(e){}
@@ -4207,6 +4207,9 @@ function mobCoolPlan(prog){const names=((prog&&prog.ex)||[]).map(e=>String(e[0])
 function mobRestPlan(){const L=MOB_RESET.concat([MOB_COOL_LOW[0],MOB_COOL_LOW[1],MOB_COOL_LOW[3],MOB_COOL_UP[0],MOB_COOL_UP[1]]);
   return {name:"Восстановление · день отдыха",focus:"Около 15 минут: перезагрузка суставов и растяжка",sec:"mob",mobx:true,
     ex:L.map(([n,r,h])=>[n,1,r,0,undefined,h,10,"1 × "+r]),preset:L.map(([n,r])=>[{w:0,r:parseInt(String(r).replace(/\D/g,""),10)||1,done:false}])};}
+/* анимации раздела: только с открытой лицензией */
+Object.assign(MEDIA,{"Дыхание животом":{p:"media/mob_breath.jpg",v:"media/mob_breath.mp4?v=1",id:"mob-breath",name:"Дыхание животом (работа диафрагмы)",cred:"Анимация: John Pierce, Wikimedia Commons · CC0"},
+ "Вис на перекладине":{p:"media/mob_hang.jpg",v:"media/mob_hang.mp4?v=1",id:"mob-hang",name:"Вис на перекладине",cred:"Схематическая анимация · свободное использование"}});
 function mobButton(){const b=document.createElement("button");b.className="disc";b.dataset.disc="Смазка суставов";b.innerHTML=`Смазка суставов<span class="go">›</span>`;return b;}
 scr.mob=el("scr-mob");
 {const _as=applyScreen;applyScreen=function(n,y){_as(n,y);if(n==="mob")try{renderMob();}catch(e){console.error(e);}};}
