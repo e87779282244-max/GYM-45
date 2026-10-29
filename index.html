@@ -1233,6 +1233,19 @@
   </section>
 
   <!-- СТРИТЛИФТИНГ · Level Zero -->
+  <section class="screen" id="scr-cj" hidden>
+    <div class="hd">
+      <div><p class="eyebrow">Пауэрлифтинг · для опытных</p><h1>Тяжёлая артиллерия</h1></div>
+      <button class="icon-btn back-btn" title="Назад">←</button>
+    </div>
+    <div class="stack">
+      <div class="card wod-card">
+        <span class="tag">Максимум · скорость · 4 дня</span>
+        <p class="wod-desc">Сила через разнообразие: два дня рекордов в новых вариантах упражнений и два скоростных дня. Варианты меняются каждую неделю, рекорды по каждому запоминаются, проценты считаются от 1ПМ.</p>
+      </div>
+      <div id="cjBody" class="stack"></div>
+    </div>
+  </section>
   <section class="screen" id="scr-tx" hidden>
     <div class="hd">
       <div><p class="eyebrow">Пауэрлифтинг · средний уровень</p><h1>Техасский рейнджер</h1></div>
@@ -2599,7 +2612,7 @@ function renderDay(){
   el("dayTitle").textContent=p.name;
   el("dayEyebrow").textContent=(p.focus||"Программа дня")+(act?" · идёт":"");
   let tot=0;const w=el("dayList");w.innerHTML="";
-  p.ex.forEach((e,i)=>{const pl=p.preset?(p.w5?w5PlanOf(p,i):p.lz?lzPlanOf(p,i):p.tx?txPlanOf(p,i):gvtPlanOf(p,i)):planOf(e,p);
+  p.ex.forEach((e,i)=>{const pl=p.preset?(p.w5?w5PlanOf(p,i):p.lz?lzPlanOf(p,i):p.tx?txPlanOf(p,i):p.cj?cjPlanOf(p,i):gvtPlanOf(p,i)):planOf(e,p);
     const sets=act?current.sets[i].filter(s=>!s.warm):null,ns=sets?sets.length:pl.sets;tot+=ns;
     const nd=sets?sets.filter(s=>s.done).length:0,fin=sets&&(nd===ns||!!(current.stop&&current.stop[i]));
     const m=p.g2&&p.gx[i]&&G2X[p.gx[i].key]&&G2X[p.gx[i].key].m?{p:"media/"+G2X[p.gx[i].key].m+".jpg"}:(p.g2?null:MEDIA[e[0]]);
@@ -2942,6 +2955,7 @@ function finishWorkout(){
   const w5Rec=current.program.w5?w5Record():null;
   const lzRec=current.program.lz?lzRecord():null;
   const txRec=current.program.tx?txRecord():null;
+  const cjRec=current.program.cj?cjRecord():null;
   const prog=current.program;
   // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
   const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(anSetOut);log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
@@ -2967,12 +2981,14 @@ function finishWorkout(){
     if(full<sets.length)short.push(e[0]);});
   const uniqShort=[...new Set(short)];
   let note=rmMsg;
-  if(uniqShort.length&&!gRec&&!g2Rec&&!w5Rec&&!lzRec&&!txRec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
+  if(uniqShort.length&&!gRec&&!g2Rec&&!w5Rec&&!lzRec&&!txRec&&!cjRec)note+="Не закрыт план по: "+uniqShort.join(", ")+". Совет — повтори эту неделю или снизь рабочий 1ПМ на 2,5–5 % и закрепи вес, прежде чем двигаться дальше.";
   try{if(auP&&!auWas&&auDone(auP)){const nx=auNext(auP);note=`Программа «${auP.name}» пройдена 🎉`+(nx?` Следующая — «${nx.name}»: открой её в разделе «Бодибилдинг».`:"")+(note?" "+note:"");}else if(auP){note=`«${auP.name}»: ${auCount(auP.id)} из ${auP.total} тренировок.`+(note?" "+note:"");}}catch(e){}
   window.__coachPending=note||"";
   clearDraft();current=null;restStop();
   if(g2Rec){toast(g2Rec.status==="full"?"Занятие выполнено полностью":"Результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     show("gvt");g2Summary(g2Rec.uid);return;}
+  if(cjRec){toast(cjRec.me&&cjRec.me.best>cjRec.me.prev&&cjRec.me.prev?"Новый рекорд! Тренировка сохранена":"Тренировка сохранена");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
+    cjLast=cjRec;show("cj");window.scrollTo(0,0);return;}
   if(txRec){const pr=Object.keys(txRec.lifts).filter(k=>{const x=txRec.lifts[k];return x.prog&&x.reps.every((n,i)=>n>=x.need[i]);});
     toast(pr.length&&/id|d3|d4/.test(txRec.kind)?"Рекорд! Тренировка сохранена":"Тренировка сохранена");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     txLast=txRec;show("tx");window.scrollTo(0,0);return;}
@@ -3930,6 +3946,126 @@ scr.tx=el("scr-tx");
       mpArch({kind:"tx",prog:"tx",title:"Техасский рейнджер",start:P.start,total:n,done:n,unit:"трен.",verdict:"Завершена вручную на неделе "+st.week+". "+TX_ORDER.filter(k=>st.t[k]>0).map(k=>TXL[k].s+": "+fmtW(st.t[k])+" кг").join(", ")});}});}}catch(e){}return out;};}
 {const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{tx:txStore()});};}
 
+/* ===================== ПАУЭРЛИФТИНГ · «Тяжёлая артиллерия» (Conjugate Method) =====================
+   Для опытных. 4 дня: Пн — максимум (низ), Ср — максимум (жим), Пт — скорость (низ), Сб — скорость (жим).
+   Дни максимума: вариант упражнения меняется каждую неделю, выход на рекорд в 1–3 повторах; рекорд хранится по каждому варианту.
+   Скоростные дни: вариант держится 3 недели, проценты от 1ПМ волной; каждое повторение — взрывом, отдых до минуты.
+   Подсобка — на слабые места, меняется каждые 3 недели. Круг — 6 недель; следующий круг — с другими вариантами.
+   Состояние вычисляется из настроек и записей; рекорды вариантов — из записей всех кругов. */
+const CJK="gym45_cj_v1";
+const CJ_DAY={mel:"Пн · максимум, низ",meu:"Ср · максимум, жим",del:"Пт · скорость, низ",deu:"Сб · скорость, жим"};
+const CJ_SEQ=["mel","meu","del","deu"];
+/* варианты дней максимума: [название, базовое движение, повторов в рекорде, доля 1ПМ базового движения] */
+const CJ_MEL=[[["Присед узкой стойкой ниже параллели","sq",1,.95],["Тяга с плинтов на уровне колен","dl",1,1.1],["Бокс-присед широкой стойкой выше параллели","sq",1,1],
+  ["Наклоны со штангой на плечах","sq",3,.5],["Присед Зерхера","sq",1,.75],["Становая сумо с дефицита 5 см","dl",1,.9]],
+ [["Становая тяга с плинтов ниже колен","dl",1,1.05],["Присед с паузой 2 с внизу","sq",3,.8],["Становая тяга с дефицита 5 см","dl",1,.9],
+  ["Фронтальный присед","sq",3,.7],["Становая с паузой у колен","dl",1,.85],["Бокс-присед на низкий ящик","sq",1,.95]]];
+const CJ_MEU=[[["Жим лёжа с двух досок","bp",1,1.05],["Жим лёжа узким хватом","bp",1,.92],["Жим лёжа с пола","bp",1,.95],
+  ["Жим гантелей лёжа","bp",3,.33],["Жим из стоек с середины амплитуды","bp",1,1],["Жим лёжа с одной доски","bp",1,1.02]],
+ [["Жим лёжа с паузой 3 с на груди","bp",1,.9],["Жим с пола узким хватом","bp",1,.88],["Жим штанги на наклонной скамье","bp",1,.82],
+  ["Жим с двух досок узким хватом","bp",1,.98],["Жим из стоек от груди","bp",1,.9],["Жим лёжа широким хватом","bp",3,.85]]];
+const CJ_DEL=[["Бокс-присед широкой стойкой ниже параллели","Становая тяга — скоростные одиночные"],["Бокс-присед на параллель (с резиной, если есть)","Становая сумо — скоростные одиночные"]];
+const CJ_DEU=["Жим лёжа узким хватом — скоростной","Жим лёжа с пола — скоростной"];
+/* подсобка: группа мышц → два варианта, меняются каждые 3 недели */
+const CJ_ACC_LOW=[["Ягодично-икроножный подъём","Сгибание ног лёжа",3,"8–12"],["Гиперэкстензия","Гиперэкстензия с весом",3,"10–12"],["Тяга верхнего блока к груди","Тяга штанги в наклоне",4,"8–12"],["Подъём ног в висе","Скручивания на нижнем блоке",3,"10–15"]];
+const CJ_ACC_UP=[["Разгибание рук на блоке с канатом","Французский жим лёжа с EZ-грифом",4,"10–15"],["Тяга гантели одной рукой","Тяга нижнего блока сидя",4,"8–12"],["Махи гантелями в стороны","Жим гантелей сидя",3,"10–12"],["Подтягивания","Тяга верхнего блока к груди",3,"8–12"]];
+function cjStore(){try{const v=JSON.parse(localStorage.getItem(CJK));if(v&&Array.isArray(v.progs))return v;}catch(e){}return {progs:[],activeId:null};}
+function cjSave(v){try{localStorage.setItem(CJK,JSON.stringify(v))}catch(e){}cloudPush();}
+function cjActive(v){v=v||cjStore();return v.progs.find(p=>p.id===v.activeId&&!p.closedAt)||null;}
+function cjNow(){return new Date().toISOString();}
+function cjR(x,st){st=st||2.5;return Math.max(0,Math.round(x/st+1e-9)*st);}
+function mergeCj(a,b){a=a&&a.progs?a:{progs:[],activeId:null};b=b&&b.progs?b:{progs:[],activeId:null};
+  const g=mergeGvt({cycles:a.progs,activeId:a.activeId},{cycles:b.progs,activeId:b.activeId});return {progs:g.cycles,activeId:g.activeId};}
+/* рекорды вариантов — из записей всех кругов */
+function cjPRs(){const pr={};cjStore().progs.forEach(P=>(P.recs||[]).forEach(r=>{if(r.me&&r.me.best>0){const k=r.me.n+"|"+r.me.reps;if(!pr[k]||r.me.best>pr[k].w)pr[k]={w:r.me.best,at:r.finishedAt};}}));return pr;}
+function cjState(P){const recs=(P.recs||[]).slice().sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||""));
+  const n=recs.length,wk=Math.floor(n/4),st={n:n,day:n%4,weekAbs:wk+1,cycle:Math.floor(wk/6)+1,week:wk%6+1,log:recs};
+  st.next=CJ_SEQ[st.day];st.set=(st.cycle-1)%2;st.block=st.week<=3?0:1;st.wib=(st.week-1)%3;st.accAlt=Math.floor(wk/3)%2;return st;}
+function cjMeVar(st,kind){const L=kind==="mel"?CJ_MEL:CJ_MEU;return L[st.set][st.week-1];}
+function cjPlan(P,st,kind){kind=kind||st.next;const rm=P.cfg.rm,ex=[],preset=[],rows=[];
+  const push=(e,s,m)=>{ex.push(e);preset.push(s);rows.push(m||{});};
+  const acc=(L)=>L.forEach(a=>{const nm=a[st.accAlt],n=a[2],bwx=/Подтягивания|Подъём ног|Ягодично-икроножный/.test(nm);
+    push([nm,n,a[3],bwx?0:null,undefined,"Подсобка на слабое место: тяжело, но с чистой техникой. Через 3 недели упражнение сменится.",90,n+" × "+a[3]],
+      Array.from({length:n},()=>({w:0,r:parseInt(a[3],10)||10,done:false})),{});});
+  if(kind==="mel"||kind==="meu"){const [nm,base,reps,f]=cjMeVar(st,kind),pr=cjPRs()[nm+"|"+reps],est=pr?pr.w:cjR(rm[base]*f);
+    const tgt=pr?cjR(pr.w+2.5):est,sets=[];
+    [[40,5],[55,3],[70,2],[80,1],[88,1],[94,1]].forEach(([pc,r])=>sets.push({w:cjR(tgt*pc/100),r:r,done:false,warm:true}));
+    sets.push({w:tgt,r:reps,done:false,need:reps});sets.push({w:cjR(tgt+2.5),r:reps,done:false,need:reps});
+    push([nm,2,String(reps),tgt,[tgt,cjR(tgt+2.5)],(pr?"Рекорд в этом варианте — "+fmtW(pr.w)+" кг × "+reps+". Попробуй побить: ":"Первый раз в этом варианте — ориентир от твоего 1ПМ: ")+"разогрев по ступеням, затем 1–2 попытки. Не идёт — остановись на лучшем чистом подходе. Отдых между попытками 3–5 мин.",300,"рекорд × "+reps+" · ориентир "+fmtW(tgt)+" кг"],sets,{me:{n:nm,reps:reps}});
+    acc(kind==="mel"?CJ_ACC_LOW:CJ_ACC_UP);}
+  if(kind==="del"){const pct=[.75,.8,.85][st.wib],ns=[12,12,10][st.wib],[sqn,dln]=CJ_DEL[st.block],w=cjR(rm.sq*pct),dw=cjR(rm.dl*[.6,.65,.7][st.wib]);
+    push([sqn,ns,"2",w,Array(ns).fill(w),"Скоростной день: "+Math.round(pct*100)+" % от 1ПМ, каждое повторение — максимально быстро вверх. Отдых до 60 с. Волна 3 недели: 75 → 80 → 85 %.",60,ns+" × 2 · "+fmtW(w)+" кг"],
+      Array.from({length:ns},()=>({w:w,r:2,done:false})),{});
+    push([dln,8,"1",dw,Array(8).fill(dw),"Одиночные со скоростью: штанга с пола рывком, без пауз в верхней точке. Отдых 30–60 с.",45,"8 × 1 · "+fmtW(dw)+" кг"],Array.from({length:8},()=>({w:dw,r:1,done:false})),{});
+    acc(CJ_ACC_LOW);}
+  if(kind==="deu"){const nm=CJ_DEU[st.block],w=cjR(rm.bp*.5);
+    push([nm,9,"3",w,Array(9).fill(w),"9 × 3 на 50 % от 1ПМ: каждое повторение взрывом, отдых до 60 с. С резиной — та же схема, вес чуть меньше.",60,"9 × 3 · "+fmtW(w)+" кг"],Array.from({length:9},()=>({w:w,r:3,done:false})),{});
+    acc(CJ_ACC_UP);}
+  return {name:"Тяжёлая артиллерия · "+CJ_DAY[kind],focus:"Круг "+st.cycle+" · неделя "+st.week+" из 6",ex:ex,sec:"pwr",preset:preset,cj:{progId:P.id,kind:kind,rows:rows,week:st.week,cycle:st.cycle}};}
+function cjPlanOf(p,i){const st=p.preset[i].filter(s=>!s.warm),e=p.ex[i],ws=st.map(s=>s.w).filter(x=>x>0);let w="";
+  if(ws.length){const lo=Math.min(...ws),hi=Math.max(...ws);w=(lo===hi?fmtW(lo):fmtW(lo)+"–"+fmtW(hi))+" кг";}
+  const nw=p.preset[i].filter(s=>s.warm).length;return {sets:st.length,reps:e[2],w:w,extra:nw?" · +"+nw+" разминка":""};}
+function cjRecord(){const p=current.program,g=p.cj,v=cjStore(),P=v.progs.find(x=>x.id===g.progId);if(!P)return null;let me=null;
+  g.rows.forEach((R,i)=>{if(!R.me)return;const ok=current.sets[i].filter(s=>!s.warm&&s.done&&s.r>=R.me.reps).map(s=>s.w);
+    const prev=cjPRs()[R.me.n+"|"+R.me.reps];me={n:R.me.n,reps:R.me.reps,best:ok.length?Math.max(...ok):0,prev:prev?prev.w:0};});
+  const now=cjNow(),rec={uid:P.id+"-"+Date.now().toString(36),kind:g.kind,week:g.week,cycle:g.cycle,finishedAt:now,updatedAt:now,me:me};
+  P.recs.push(rec);P.updatedAt=now;cjSave(v);return rec;}
+/* ---------- экран ---------- */
+let cjFormOpen=false,cjArm=0,cjLast=null;
+function cjButton(){const b=document.createElement("button");b.className="disc";let sub="для опытных · рекорды и скорость · 4 дня/нед";
+  try{const P=cjActive();if(P){const st=cjState(P);sub="Круг "+st.cycle+" · неделя "+st.week+" · следующая: "+CJ_DAY[st.next];}}catch(e){}
+  b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Тяжёлая артиллерия</span><span class="disc-sub"></span></span><span class="go">›</span>`;
+  b.querySelector(".disc-sub").textContent=sub;b.onclick=()=>show("cj");return b;}
+function cjInfo(){return `<details class="card gvt-about"><summary><span class="tag">Как устроена программа</span><span class="gvt-more">Подробнее</span></summary><div class="wod-desc">
+  <p><b>Для кого.</b> Для опытных, когда обычные циклы уже не дают прибавки. Нужен уверенный опыт в приседе, жиме и становой.</p>
+  <p><b>Идея.</b> Не повторять одно и то же: в дни максимума каждую неделю новый вариант упражнения, тело не успевает привыкнуть. Сила растёт через рекорды в разных вариантах и через скорость.</p>
+  <p><b>Неделя.</b> Пн — максимум для низа: присед, становая или наклоны в новом варианте, выход на рекорд в 1–3 повторах. Ср — то же для жима. Пт — скоростной присед 10–12 × 2 и скоростные одиночные в становой. Сб — скоростной жим 9 × 3 на 50 %. Между днями — хотя бы день отдыха, если получается.</p>
+  <p><b>Рекорды.</b> Приложение запоминает лучший результат в каждом варианте. Когда вариант вернётся (в следующем круге), задача — побить его хотя бы на 2,5 кг. Не рвись прибавить много сразу.</p>
+  <p><b>Скорость.</b> Проценты считаются от твоего 1ПМ и растут волной 3 недели: 75 → 80 → 85 %. Затем новый вариант и снова с 75 %. Если штанга замедлилась — вес великоват.</p>
+  <p><b>Подсобка.</b> После главного упражнения — упражнения на слабые места: для низа — задняя поверхность бедра, поясница, широчайшие, пресс; для жима — трицепс, верх спины, плечи, широчайшие. Каждые 3 недели они меняются.</p>
+  <p><b>Резина и цепи.</b> Если есть — добавляй в скоростные дни, это отдельный вариант. Без них программа тоже работает.</p></div></details>`;}
+function renderCj(){const w=el("cjBody");if(!w)return;const v=cjStore(),P=cjActive(v);
+  if(!P||cjFormOpen){const r=rmReg(),g=(...ks)=>{for(const k of ks)if(r[k])return fmtW(r[k]);return "";};
+    w.innerHTML=`<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Старт программы</h3>
+    <p class="gvt-note" style="margin-bottom:12px">Нужен <b>1ПМ</b> — от него считаются скоростные дни и ориентиры для рекордов. Если в «Рабочих весах» он уже есть, поля заполнены.</p>
+    <div class="gvt-rm"><label for="cjRm_sq">Присед<small>1ПМ, кг</small></label><input id="cjRm_sq" inputmode="decimal" placeholder="кг" value="${g("Приседания со штангой","Присед со штангой")}"></div>
+    <div class="gvt-rm"><label for="cjRm_bp">Жим лёжа<small>1ПМ, кг</small></label><input id="cjRm_bp" inputmode="decimal" placeholder="кг" value="${g("Жим штанги лёжа","Жим лёжа")}"></div>
+    <div class="gvt-rm"><label for="cjRm_dl">Становая<small>1ПМ, кг</small></label><input id="cjRm_dl" inputmode="decimal" placeholder="кг" value="${g("Становая тяга")}"></div>
+    <button class="btn" type="button" id="cjGo" style="margin-top:6px">Начать программу</button>${P?`<button class="tm-mini" type="button" id="cjCancel" style="margin-top:10px">Отмена</button>`:""}</div>`+cjInfo();
+    el("cjGo").onclick=()=>{const rm={};let bad=false;
+      ["sq","bp","dl"].forEach(k=>{const x=parseFloat(String(el("cjRm_"+k).value).replace(",","."));el("cjRm_"+k).classList.remove("bad");if(isFinite(x)&&x>=30&&x<600)rm[k]=x;else{bad=true;el("cjRm_"+k).classList.add("bad");}});
+      if(bad){toast("Укажи 1ПМ в приседе, жиме и становой");return;}
+      if(P&&Date.now()-cjArm>4000){cjArm=Date.now();toast("Текущая программа уйдёт в архив. Нажми ещё раз");return;}
+      const v2=cjStore(),a2=cjActive(v2),now=cjNow();if(a2){a2.closedAt=now;a2.updatedAt=now;}
+      const np={id:"cj-"+Date.now().toString(36),createdAt:now,updatedAt:now,start:localDate(),cfg:{rm:rm},recs:[],closedAt:null};
+      v2.progs.push(np);v2.activeId=np.id;cjSave(v2);cjFormOpen=false;cjArm=0;toast("«Тяжёлая артиллерия» активирована");renderCj();window.scrollTo(0,0);};
+    if(el("cjCancel"))el("cjCancel").onclick=()=>{cjFormOpen=false;renderCj();};return;}
+  const st=cjState(P),plan=cjPlan(P,st),prs=cjPRs();let html="";
+  if(cjLast&&cjLast.uid&&P.recs.some(r=>r.uid===cjLast.uid)){const r=cjLast;
+    html+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Итог: ${CJ_DAY[r.kind]}</h3>${r.me?`<div class="rm-list"><div class="rm-row"><span class="k">${r.me.n} · рекорд × ${r.me.reps}</span><span class="v">${r.me.best?fmtW(r.me.best)+" кг"+(r.me.prev&&r.me.best>r.me.prev?" <small>новый рекорд, было "+fmtW(r.me.prev)+"</small>":r.me.prev?" <small>рекорд "+fmtW(r.me.prev)+"</small>":" <small>первый результат</small>"):"—"}</span></div></div>`:`<p class="gvt-note" style="margin:0">Скоростной день записан.</p>`}</div>`;}
+  const nextMe=["mel","meu"].map(k=>{const [nm,,reps]=cjMeVar(st,k),pr=prs[nm+"|"+reps];return `<div class="rm-row"><span class="k">${k==="mel"?"Низ":"Жим"}: ${nm}</span><span class="v">${pr?fmtW(pr.w)+" <small>кг × "+reps+" · рекорд</small>":"<small>новый вариант</small>"}</span></div>`;}).join("");
+  html+=`<div class="card gvt-sum"><h3>Круг ${st.cycle} · неделя ${st.week} из 6 · старт ${gvtDD(P.start)}</h3>
+    <div class="rm-list">${nextMe}
+    <div class="rm-row"><span class="k">1ПМ: присед / жим / становая</span><span class="v">${fmtW(P.cfg.rm.sq)} / ${fmtW(P.cfg.rm.bp)} / ${fmtW(P.cfg.rm.dl)} <small>кг</small></span></div></div>
+    <div class="gvt-kv"><span>скорость: ${[75,80,85][st.wib]} % в приседе</span><span>подсобка сменится через ${3-((st.weekAbs-1)%3)} нед.</span></div></div>
+    <p class="bb-lbl">Следующая тренировка</p><div class="stack gvt-sess" id="cjNext"></div>
+    <button class="tm-mini" type="button" id="cjNew" style="margin-top:4px">Начать заново с новым 1ПМ</button>`;
+  const prl=Object.keys(prs);if(prl.length)html+=`<details class="card gvt-about"><summary><span class="tag">Рекорды вариантов · ${prl.length}</span><span class="gvt-more">Показать</span></summary><div class="rm-list" style="margin-top:8px">${prl.map(k=>{const [n,r]=k.split("|");return `<div class="rm-row"><span class="k">${n} × ${r}</span><span class="v">${fmtW(prs[k].w)} <small>кг · ${gvtDD(prs[k].at.slice(0,10))}</small></span></div>`;}).join("")}</div></details>`;
+  html+=cjInfo();w.innerHTML=html;
+  const nb=document.createElement("button");nb.type="button";nb.className="disc next";
+  nb.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="gvt-st">▶</span>`;
+  nb.querySelector("span span").textContent=CJ_DAY[st.next];nb.querySelector(".disc-sub").textContent=plan.ex.map(e=>e[0]+" "+e[7]).join(" · ");
+  nb.onclick=()=>{const P2=cjActive();if(!P2)return;startWorkout(cjPlan(P2,cjState(P2)),true);};el("cjNext").appendChild(nb);
+  el("cjNew").onclick=()=>{cjFormOpen=true;cjArm=0;renderCj();window.scrollTo(0,0);};
+  try{const eb=mpEndBtn("cj","Завершить «Тяжёлая артиллерия» · итог в «Прогресс»");eb.addEventListener("click",()=>setTimeout(()=>{if(!cjActive())renderCj();},60));w.appendChild(eb);}catch(e){}}
+scr.cj=el("scr-cj");
+{const _as=applyScreen;applyScreen=function(n,y){_as(n,y);if(n==="cj")try{renderCj();}catch(e){console.error(e);}};}
+{const _mp=mpList;mpList=function(){const out=_mp();try{const v=cjStore(),P=cjActive(v);if(P){const st=cjState(P),n=st.n;
+  out.push({k:"cj",t:"Тяжёлая артиллерия · рекорды и скорость",s:"Круг "+st.cycle+" · неделя "+st.week+" · следующая: "+CJ_DAY[st.next],start:P.start,open:()=>show("cj"),
+    fin:()=>{const v2=cjStore(),P2=cjActive(v2);if(!P2)return;P2.closedAt=cjNow();P2.updatedAt=P2.closedAt;v2.activeId=null;cjSave(v2);
+      mpArch({kind:"cj",prog:"cj",title:"Тяжёлая артиллерия",start:P.start,total:n,done:n,unit:"трен.",verdict:"Завершена вручную: круг "+st.cycle+", неделя "+st.week+". Рекордов вариантов: "+Object.keys(cjPRs()).length+"."});}});}}catch(e){}return out;};}
+{const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{cj:cjStore()});};}
+
 /* ===================== GERMAN VOLUME TRAINING 2.0 — пять этапов (ТЗ «Штурм 30» v2.0) ===================== */
 const G2K="gym45_gvt2_v1",G2VER="2.0";
 /* каталог упражнений: m — id анимации; db — сколько гантелей; bw — собственный вес (вес = доп. отягощение) */
@@ -4697,7 +4833,7 @@ renderPwr();
 function renderPwrPrograms(){const w=el("pwrPrograms");w.innerHTML="";
   let _rdy=false;try{_rdy=!!TA_PROG;}catch(e){}
   if(_rdy){lblHead(w,"Программы","от простой к сложной · звёзды — сложность");
-    const L=[[2,()=>extButton(TA_PROG)],[2,()=>extButton(P5_PROG)],[2,()=>extButton(BP_BEG)],[3,()=>addLvl(txButton(),3)],[3,()=>extButton(FAL_PROG)],[3,()=>addLvl(w5Button(),3)],[4,()=>extButton(EXT_PROGS.pbx2)],[5,()=>extButton(BP_ADV)]];
+    const L=[[2,()=>extButton(TA_PROG)],[2,()=>extButton(P5_PROG)],[2,()=>extButton(BP_BEG)],[3,()=>addLvl(txButton(),3)],[3,()=>extButton(FAL_PROG)],[3,()=>addLvl(w5Button(),3)],[4,()=>extButton(EXT_PROGS.pbx2)],[5,()=>extButton(BP_ADV)],[5,()=>addLvl(cjButton(),5)]];
     L.forEach(([l,f])=>{try{w.appendChild(addLvl(f(),l));}catch(e){}});return;}
   try{w.appendChild(w5Button());}catch(e){}
   const mk=(name,sub,fn)=>{const b=document.createElement("button");b.className="disc";
@@ -6426,7 +6562,7 @@ function renderDashActive(){const c=el("dashActive");if(!c)return;const L=mpList
    Ниже — неделя по плану и питание за день. */
 /* сколько тренировок в неделю запланировано активными программами */
 function weekPlanOf(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"au:"+q.id===x.k);if(!p)return 0;const nn=auPlanNext(p),t=nn?nn.w:0;return p.pw||Math.min(6,p.weeks[t].days.length);}
-  if(x.k==="cf"){const p=cfProg();return p?cfProgPer(p):0;}if(x.k==="w531"){const c=w5Active();return c?c.days||4:0;}if(x.k==="lz")return 3;if(x.k==="tx"){const P=txActive();return P?P.cfg.days||3:0;}}catch(e){}return 0;}
+  if(x.k==="cf"){const p=cfProg();return p?cfProgPer(p):0;}if(x.k==="w531"){const c=w5Active();return c?c.days||4:0;}if(x.k==="lz")return 3;if(x.k==="tx"){const P=txActive();return P?P.cfg.days||3:0;}if(x.k==="cj")return cjActive()?4:0;}catch(e){}return 0;}
 function weekStart(){const d=new Date();const wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd);return localDate(d);}
 function weekDone(){const s0=weekStart();return safe.get().filter(h=>h&&!h.archived&&h.date>=s0).length;}
 function weekPlan(){return mpList().reduce((a,x)=>a+weekPlanOf(x),0);}
@@ -6436,12 +6572,14 @@ function dashGo(x){try{
   if(x.k==="w531"){const c=w5Active(),n=c?w5Next(c):-1;if(n>=0){startWorkout(w5Build(c,n),true);return;}}
   if(x.k==="lz"){const P=lzActive();if(P){startWorkout(lzPlan(P,lzState(P)),true);return;}}
   if(x.k==="tx"){const P=txActive();if(P){startWorkout(txPlan(P,txState(P)),true);return;}}
+  if(x.k==="cj"){const P=cjActive();if(P){startWorkout(cjPlan(P,cjState(P)),true);return;}}
   if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx){openWod(nx,cfVariants(nx)[0]);return;}}
 }catch(e){}x.open();}
 function dashNextName(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"au:"+q.id===x.k),nn=p&&auPlanNext(p);if(nn)return p.weeks[nn.w].days[nn.d].name;}
   if(x.k==="w531"){const c=w5Active(),n=c?w5Next(c):-1;if(n>=0)return w5Build(c,n).name;}
   if(x.k==="lz"){const P=lzActive();if(P)return "Рождённый ползать · "+LZ_DAY[lzState(P).next];}
   if(x.k==="tx"){const P=txActive();if(P)return "Техасский рейнджер · "+txDayName(P,txState(P).next);}
+  if(x.k==="cj"){const P=cjActive();if(P)return "Тяжёлая артиллерия · "+CJ_DAY[cjState(P).next];}
   if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx)return nx.name;}}catch(e){}return "";}
 function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),L=mpList();
   const dd=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);};
@@ -8608,6 +8746,7 @@ function cloudRefreshUI(){
       if(currentScreen==="w531")renderW5();
       if(currentScreen==="lz")renderLz();
       if(currentScreen==="tx")renderTx();
+      if(currentScreen==="cj")renderCj();
       if(currentScreen==="home")renderDashActive();
       if(currentScreen==="cross")renderCross();
       if(currentScreen==="cfcat")cfRenderCat();
@@ -8645,6 +8784,7 @@ async function cloudInit(){
       try{if(d.w531)localStorage.setItem(W5K,JSON.stringify(mergeW5(w5Store(),d.w531)))}catch(e){}
       try{if(d.lz)localStorage.setItem(LZK,JSON.stringify(mergeLz(lzStore(),d.lz)))}catch(e){}
       try{if(d.tx)localStorage.setItem(TXK,JSON.stringify(mergeTx(txStore(),d.tx)))}catch(e){}
+      try{if(d.cj)localStorage.setItem(CJK,JSON.stringify(mergeCj(cjStore(),d.cj)))}catch(e){}
       try{if(d.sotka)localStorage.setItem(SKK,JSON.stringify(mergeSk(skGet(),d.sotka)))}catch(e){}
       try{if(d.pp)localStorage.setItem(PPK,JSON.stringify(mergePP(ppAll(),d.pp)))}catch(e){}
       try{if(d.rr&&(d.rr.upd||0)>(rrGet().upd||0))localStorage.setItem(RRK,JSON.stringify(d.rr))}catch(e){}
