@@ -724,6 +724,13 @@
   .day-foot{display:flex;flex-direction:column;gap:12px}
   .day-sum{color:var(--muted);font-size:13.5px;font-weight:600;margin:-6px 0 12px}
   .day-list{display:flex;flex-direction:column;gap:10px}
+  .day-cool{display:flex;flex-direction:column;gap:10px;margin-top:18px}.day-cool .day-n{color:var(--good)}
+  .cool-play{position:fixed;inset:0;z-index:75;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;align-items:center;gap:8px;padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));overflow:auto;text-align:center}
+  .cool-play[hidden]{display:none}.cool-play h2{margin:0;font-family:var(--dsp)}
+  .cool-play video{width:100%;max-width:420px;aspect-ratio:16/10;background:#fff;border-radius:14px;object-fit:contain}
+  .cl-time{font-family:var(--dsp);font-size:56px;font-variant-numeric:tabular-nums;line-height:1}.cl-side{margin:0;color:var(--good);font-weight:600;min-height:1.2em}
+  .cl-hint{margin:0;max-width:420px;color:var(--muted)}.cl-btns{display:flex;gap:10px;width:100%;max-width:420px}.cl-btns .btn{flex:1}
+  .cool-play .pcred{font-size:11px;color:var(--muted);margin-top:auto}
   .day-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:var(--fg);
     background:linear-gradient(180deg,var(--card-top),var(--card-bot));border:1px solid var(--line);
     border-radius:14px;padding:8px 12px 8px 8px;box-shadow:0 3px 0 var(--edge)}
@@ -2064,6 +2071,18 @@
   </nav>
 </div>
 <div class="toast" id="toast">Сохранено</div>
+<div class="gvt-modal" id="coolModal" hidden></div>
+<div class="cool-play" id="coolPlay" hidden>
+  <p class="eyebrow" id="clStep"></p>
+  <h2 id="clName"></h2>
+  <video id="clVid" muted loop playsinline></video>
+  <div class="cl-time" id="clTime">1:00</div>
+  <p class="cl-side" id="clSide"></p>
+  <p class="cl-hint" id="clHint"></p>
+  <div class="cl-btns"><button class="btn btn-alt" type="button" id="clPause">Пауза</button><button class="btn" type="button" id="clNext">Следующее ›</button></div>
+  <button class="tm-mini" type="button" id="clSkip">Пропустить заминку</button>
+  <p class="pcred">Анимации: ExerciseDB v1 / AscendAPI</p>
+</div>
 <div class="player" id="player" hidden>
   <div class="pname" id="pname"></div>
   <video id="pvideo" muted loop playsinline preload="none" controls></video>
@@ -7633,6 +7652,89 @@ function anSessionMeta(){const m={sec:(current&&current.sec)||anSecOf(current&&c
   try{if(current.readiness)m.ready=current.readiness;}catch(e){}
   try{if(current.startedAt)m.st=current.startedAt;}catch(e){}
   return m;}
+/* ---------- ЗАМИНКА: бодибилдинг и пауэрлифтинг ----------
+   Подбор растяжки под мышцы дня (по названиям упражнений через WSUB_RE), блок «Заминка» в конце дня,
+   предложение после сохранения тренировки с кнопкой «Пропустить заминку». Заминка не пишется в историю. */
+const CL_X={/* id: [название, совет, по сторонам] */
+ "1271":["Растяжка груди с палкой","Возьми палку, полотенце или резинку широким хватом и плавно отводи прямые руки назад, раскрывая грудь. Без рывков.",0],
+ "1167":["Раскрытие груди","Руки в стороны на уровне плеч. Плавно сведи их перед собой и широко разведи назад, сводя лопатки.",0],
+ "1405":["Растяжка широчайших у скамьи","Ладони на скамью, отойди назад и наклонись, чтобы руки и спина были на одной линии. Опускай грудь к полу.",0],
+ "1346":["Растяжка широчайших на коленях","Встань на колени, вытяни руки вперёд по полу и отведи таз к пяткам. Ладони тянутся вперёд.",0],
+ "1365":["Растяжка верха спины","Сцепи пальцы перед собой, округли верх спины и тянись руками вперёд, разводя лопатки.",0],
+ "0690":["Боковая растяжка сидя","Сядь на край скамьи, подними руку и тянись ею вверх и в сторону. Таз не отрывай.",1],
+ "0794":["Боковая растяжка стоя","Ноги на ширине плеч, колени мягкие. Наклонись в сторону, вытягивая руку над головой.",1],
+ "0669":["Растяжка задней дельты","Заведи прямую руку поперёк груди и прижми её другой рукой за локоть. Плечо опущено.",1],
+ "0643":["Растяжка трицепса над головой","Рука за голову, кисть к лопатке. Другой рукой мягко тяни локоть к затылку.",1],
+ "0817":["Растяжка трицепса","Согнутую руку подними над головой и другой рукой мягко дави на локоть.",1],
+ "0721":["Растяжка предплечья","Вытяни руку вперёд и другой рукой мягко потяни кисть к себе — сначала ладонью вниз, затем вверх.",1],
+ "0613":["Растяжка квадрицепса лёжа на боку","Лёжа на боку, возьми стопу верхней ноги и подтяни пятку к ягодице. Таз чуть вперёд.",1],
+ "1512":["Растяжка квадрицепса на четвереньках","Из упора на коленях отведи одну ногу назад и мягко опускай таз к полу.",1],
+ "1511":["Растяжка задней поверхности бедра","Нога впереди на пятке, спина прямая. Наклоняйся от таза к стопе, не округляя поясницу.",1],
+ "1585":["Растяжка бегуна","Шаг вперёд, переднее колено согнуто, задняя нога прямая. Руки на бедро, таз вниз.",1],
+ "1576":["Растяжка бедра лёжа","Лёжа на спине, подтяни ногу к груди и выпрямляй её вверх, придерживая руками.",1],
+ "1424":["Растяжка ягодиц сидя","Лодыжку положи на колено другой ноги и мягко дави на колено. Спина прямая.",1],
+ "2567":["Скручивание сидя","Стопу поставь за колено вытянутой ноги, локтем упрись в колено и поворачивай корпус.",1],
+ "1419":["Скручивание лёжа","Лёжа на спине, руки в стороны. Опускай ноги в сторону, лопатки прижаты к полу. Чередуй стороны.",0],
+ "2571":["«Лягушка»","На четвереньках широко разведи колени и плавно покачивайся тазом назад-вперёд.",0],
+ "1377":["Растяжка икр у стены","Руки в стену, одна нога сзади прямая, пятка на полу. Подавайся корпусом к стене.",1],
+ "1398":["Растяжка икр стоя","Шаг назад, задняя нога прямая, пятка прижата. Переднее колено сгибай.",1],
+ "1363":["Растяжка спины сидя","Сядь, ноги вытянуты. Тянись руками вперёд к стопам, плавно округляя спину.",0],
+ "1403":["Растяжка шеи","Плечи опущены. Наклони голову ухом к плечу, не поднимая плечо.",1],
+ "0716":["Растяжка шеи с рукой","Наклони голову к плечу и рукой мягко добавь натяжение.",1],
+ "1604":["«Лучшая растяжка в мире»","Глубокий выпад, руки на пол у передней стопы. Разверни корпус и подними руку вверх.",1]};
+const CL_G={chest:["1271","1167"],lats:["1405","1346","0690"],upback:["1365","1346"],delt:["0669"],tri:["0643","0817"],bi:["0721"],
+ quads:["0613","1512"],hams:["1511","1585","1576"],glutes:["1424","2567"],adduct:["2571"],calves:["1377","1398"],
+ lowback:["1363","1419"],neck:["1403","0716"],hipflex:["1604"],abs:["0794","1419"]};
+const CL_MAP={bench:["chest","tri","delt"],flyFlat:["chest"],dips:["tri","chest"],pull:["lats","bi"],pullDb:["lats","chest"],rowDb:["upback","lats","bi"],
+ rearDelt:["delt","upback"],latSt:["delt","neck"],frDb:["delt"],ohpBb:["delt","tri"],hammer:["bi"],revCurl:["bi"],wristBb:["bi"],
+ squat:["quads","glutes","hipflex","adduct"],legPress:["quads","glutes"],lunge:["quads","glutes","hipflex"],legExtM:["quads"],lcurl:["hams"],ghr:["hams"],
+ rdl:["hams","glutes","lowback"],dlBent:["lowback","hams","glutes"],hyper:["lowback","hams"],hipThr:["glutes","hipflex"],calfSt:["calves"],cblCr:["abs"],farmer:["neck","bi"]};
+Object.keys(CL_X).forEach(id=>{MEDIA["Заминка · "+id]={p:"media/"+id+".jpg",v:"media/"+id+".mp4?v=1",id:id,name:CL_X[id][0]};});
+function coolFor(p){try{const s=anSecOf(p);return s==="body"||s==="pwr";}catch(e){return false;}}
+/* counts: число подходов по упражнениям (выполненных — после тренировки, плановых — в обзоре дня) */
+function coolPick(p,counts){const sc={};
+  (p.ex||[]).forEach((e,i)=>{const n=counts&&counts[i]!=null?counts[i]:(p.preset&&p.preset[i]?p.preset[i].filter(s=>!s.warm).length:(+e[1]||3));if(!n)return;
+    const G=CL_MAP[wsubRep(e[0])];if(!G)return;G.forEach((g,k)=>{sc[g]=(sc[g]||0)+(k?n*0.5:n);});});
+  let gs=Object.keys(sc).sort((a,b)=>sc[b]-sc[a]).slice(0,6);
+  ["lowback","upback","neck"].forEach(g=>{if(gs.length<4&&!gs.includes(g))gs.push(g);});
+  const day=Math.floor(Date.parse(localDate()+"T00:00Z")/864e5),used=new Set(),out=[];
+  gs.forEach(g=>{const o=CL_G[g];for(let k=0;k<o.length;k++){const id=o[(day+k)%o.length];if(!used.has(id)){used.add(id);out.push(id);return;}}});
+  return out;}
+function coolMin(L){return L.length;}
+/* обзор дня: раздел «Заминка» в конце */
+function coolDay(){const old=el("dayCool");if(old)old.remove();if(!dayView||!coolFor(dayView.p))return;
+  const L=coolPick(dayView.p);if(!L.length)return;const w=document.createElement("div");w.id="dayCool";w.className="day-cool";
+  w.innerHTML=`<p class="bb-lbl">Заминка<small>~${coolMin(L)} мин · растяжка мышц, которые работали сегодня</small></p>`;
+  L.forEach(id=>{const X=CL_X[id],b=document.createElement("button");b.type="button";b.className="day-row";
+    b.innerHTML=`<span class="day-n">✓</span><span class="day-th"><img src="media/${id}.jpg" alt="" loading="lazy"></span><span class="day-tx"><b></b><span>${X[2]?"по 30 с на сторону":"1 мин"}</span></span><span class="day-st">▶</span>`;
+    b.querySelector("b").textContent=X[0];b.onclick=()=>openMedia("Заминка · "+id);w.appendChild(b);});
+  el("dayList").after(w);}
+{const _rd=renderDay;renderDay=function(){_rd();try{coolDay();}catch(e){console.error(e);}};}
+/* предложение после сохранения тренировки */
+function coolOffer(L,title){const m=el("coolModal");m.innerHTML=`<div class="card gvt-mbox"><h3>Заминка · ~${coolMin(L)} мин</h3>
+  <p class="gvt-note" style="margin:0">Растяжка мышц, которые работали: ${L.map(id=>CL_X[id][0].toLowerCase()).join(", ")}.</p>
+  <button class="btn" type="button" id="coolGo">Начать заминку</button><button class="tm-mini" type="button" id="coolSkip">Пропустить заминку</button></div>`;
+  m.hidden=false;el("coolGo").onclick=()=>{m.hidden=true;coolStart(L);};el("coolSkip").onclick=()=>{m.hidden=true;};}
+{const _fw=finishWorkout;finishWorkout=function(){const c=current;let L=null;
+  try{if(c&&coolFor(c.program)){const cnt=c.sets.map(se=>se.filter(s=>s.done&&!s.warm).length);L=coolPick(c.program,cnt);}}catch(e){}
+  _fw.apply(this,arguments);
+  if(L&&L.length&&!current&&c)setTimeout(()=>coolOffer(L),350);};}
+/* проигрыватель заминки: анимация, таймер, смена стороны */
+let CL=null;
+function coolStart(L){CL={L:L,i:0,t:60,run:true,tm:null};el("coolPlay").hidden=false;coolShow();
+  CL.tm=setInterval(()=>{if(!CL||!CL.run)return;CL.t--;const X=CL_X[CL.L[CL.i]];
+    if(X[2]&&CL.t===30){try{beep(880,0.15,0.3);}catch(e){}el("clSide").textContent="Смени сторону";}
+    if(CL.t<=0){try{beep(1046,0.2,0.35);}catch(e){}coolNext();return;}coolTime();},1000);}
+function coolTime(){const t=Math.max(0,CL.t);el("clTime").textContent=Math.floor(t/60)+":"+String(t%60).padStart(2,"0");el("clPause").textContent=CL.run?"Пауза":"Продолжить";}
+function coolShow(){const id=CL.L[CL.i],X=CL_X[id],v=el("clVid");
+  el("clStep").textContent="Заминка · "+(CL.i+1)+" из "+CL.L.length;el("clName").textContent=X[0];el("clHint").textContent=X[1];
+  el("clSide").textContent=X[2]?"Первая сторона · 30 с":"";v.poster="media/"+id+".jpg";v.src="media/"+id+".mp4?v=1";try{v.play().catch(()=>{});}catch(e){}
+  el("clNext").textContent=CL.i<CL.L.length-1?"Следующее ›":"Завершить";coolTime();}
+function coolNext(){if(!CL)return;if(CL.i>=CL.L.length-1){coolStop();toast("Заминка выполнена");return;}CL.i++;CL.t=60;coolShow();}
+function coolStop(){if(CL&&CL.tm)clearInterval(CL.tm);CL=null;const v=el("clVid");try{v.pause();}catch(e){}v.removeAttribute("src");el("coolPlay").hidden=true;}
+el("clNext").onclick=()=>coolNext();
+el("clPause").onclick=()=>{if(CL){CL.run=!CL.run;coolTime();}};
+el("clSkip").onclick=()=>coolStop();
 /* «запас повторов» (RIR) последнего подхода — необязательная отметка под упражнением */
 {const _rw=renderWorkout;renderWorkout=function(){_rw();try{if(!current||current.program.g2)return;const i=current.idx,G=current.program.gx?current.program.gx[i]:null;if(G&&G.main)return;
   const card=el("exList").querySelector(".wk-card");if(!card||card.querySelector(".rir-row"))return;const v=current.rirEx&&current.rirEx[i];

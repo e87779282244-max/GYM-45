@@ -12,7 +12,7 @@ def ok(n,c,x=''):R.append(bool(c));print(('PASS ' if c else 'FAIL ')+n+(' · '+s
 async def m():
   async with async_playwright() as p:
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
-    await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none'")
+    await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none';coolOffer=function(){}")  # предложение заминки проверяется в cool_check
     # старая история и GVT не трогаются
     await pg.evaluate("localStorage.setItem(KEY,JSON.stringify([{date:'2026-10-01',name:'Старая',vol:1000,log:{'Жим лёжа':[{w:80,r:5,done:true}]}}]))")
     await pg.evaluate("document.querySelector('.disc[data-disc=\"Пауэрлифтинг\"]').click()");await pg.wait_for_timeout(100)
