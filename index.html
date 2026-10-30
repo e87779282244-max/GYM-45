@@ -2954,7 +2954,9 @@ function wkAllDone(){if(!current)return;const box=el("gvtMbox");let n=0,ton=0;cu
   box.querySelector("p").textContent=current.program.name;
   el("gvtModal").hidden=false;el("wkDoneX").onclick=()=>{el("gvtModal").hidden=true;};
   el("wkDoneGo").onclick=()=>{el("gvtModal").hidden=true;finishWorkout();};}
+let restLastTick=0;
 function restTick(){const left=Math.ceil((restEnd-Date.now())/1000);
+  if(left>0&&left<=3&&left!==restLastTick){restLastTick=left;try{beep(880,0.09,0.28);}catch(e){}} // 3-2-1 перед концом отдыха
   if(left<=0){restStop();try{if(typeof beep==="function"){beep(1046,0.2,0.35);setTimeout(()=>beep(1320,0.35,0.4),240);}}catch(e){}
     try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}
     if(current&&currentScreen==="workout")toast("Отдых окончен — работаем");restDone();return;}
@@ -6280,7 +6282,11 @@ el("swFinish").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
 /* ---- звук (Web Audio) ---- */
 let AC=null;
 function ac(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
-  if(AC.state==="suspended")AC.resume();}catch(e){}return AC;}
+  if(AC.state!=="running")AC.resume();}catch(e){}return AC;}
+/* iPhone: звук разрешается только из нажатия — «разблокируем» его при каждом касании (тихий сигнал), иначе таймер в конце молчит */
+function acUnlock(){try{const c=ac();if(!c)return;const b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);}catch(e){}}
+["touchend","pointerdown","keydown"].forEach(ev=>document.addEventListener(ev,acUnlock,{passive:true,capture:true}));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&AC&&AC.state!=="running")try{AC.resume();}catch(e){}});
 function beep(freq,dur,vol,type){const c=ac();if(!c)return;
   const t=c.currentTime,o=c.createOscillator(),g=c.createGain();
   o.type=type||"square";o.frequency.value=freq;o.connect(g);g.connect(c.destination);
