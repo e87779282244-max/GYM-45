@@ -2585,9 +2585,9 @@ function rLightAlt(p){if(readiness!=="Устал"||!p||!currentBody||/лёгк/i
 /* память результатов (логика Штурм 30: previousExerciseResult) */
 function lastResult(name){
   const all=safe.get();
-  for(let i=all.length-1;i>=0;i--){const h=all[i];
+  for(let i=all.length-1;i>=0;i--){const h=all[i];if(prSkipRec(h))continue; // GVT и лёгкая неделя — не образец для обычных программ
     if(h.log&&h.log[name]){const done=h.log[name].filter(s=>s.done&&s.r>0);
-      if(done.length)return {date:h.date,sets:done.map(s=>({r:s.r,w:s.w}))};}}
+      if(done.length)return {date:h.date,au:h.au&&h.au.id,sets:done.map(s=>({r:s.r,w:s.w}))};}}
   return null;
 }
 /* ---------- обзор дня ---------- */
@@ -7751,6 +7751,60 @@ function coolStop(){if(CL&&CL.tm)clearInterval(CL.tm);CL=null;const v=el("clVid"
 el("clNext").onclick=()=>coolNext();
 el("clPause").onclick=()=>{if(CL){CL.run=!CL.run;coolTime();}};
 el("clSkip").onclick=()=>coolStop();
+/* ---------- ПЕРЕХОД МЕЖДУ ПРОГРАММАМИ БОДИБИЛДИНГА ----------
+   1) Старт новой программы: лучший результат упражнения за 6 недель → расчётный максимум → вес под новый диапазон повторов, −10 %
+      (после перерыва больше 2 недель — −18 %). Записи GVT и лёгкой недели как образец не берём.
+   2) Программа без разгрузки пройдена → предлагаем лёгкую неделю (по желанию): те же упражнения, подходов на треть меньше, вес −15 %, без отказа. */
+function prSkipRec(h){return !h||h.lw||/^GVT · /.test(h.name||"");}
+function prE1(w,r){return w>0&&r>0?w*(1+Math.min(r,15)/30):0;}
+function prStart(e,p,pr,ns,rg){if(!p.au||(p.sec||"body")!=="body"||!rg)return null;
+  let a=null;try{a=auSt().act&&auSt().act[p.au.id];}catch(err){}
+  if(pr&&pr.au===p.au.id&&(!a||!a.start||pr.date>=a.start))return null; // упражнение уже делали в этой программе — обычная прогрессия
+  const all=safe.get(),t=localDate(),since=addDays(t,-42);let best=0;
+  all.forEach(h=>{if(prSkipRec(h)||!h.log||!h.log[e[0]]||h.date<since)return;h.log[e[0]].forEach(s=>{if(s.done&&s.w>0)best=Math.max(best,prE1(s.w,s.r));});});
+  if(!best&&pr&&pr.sets)pr.sets.forEach(s=>{best=Math.max(best,prE1(s.w,s.r));});
+  if(!best)return null;
+  let last="";all.forEach(h=>{if(h&&h.date&&h.date<t&&h.date>last)last=h.date;});
+  const gap=last?Math.round((Date.parse(t)-Date.parse(last))/864e5):0,f=gap>14?0.82:0.9;
+  const raw=best/(1+rg.hi/30)*f,w=raw>=20?Math.floor(raw/2.5)*2.5:Math.max(1,Math.floor(raw));if(!(w>0))return null;
+  return {w:Array(ns).fill(w),r:Array(ns).fill(rg.lo),why:"Старт программы: "+fmtW(w)+" кг — от твоего лучшего результата (≈"+fmtW(Math.round(best))+" кг на 1 раз) под "+rg.lo+"–"+rg.hi+" повт., "+(f<0.9?"−18 % после перерыва "+gap+" дн.":"−10 % на втягивание")};}
+{const _ps=prSug;prSug=function(e,p,pr){try{if(!(p.wPlan||Array.isArray(e[4])||!(e[3]!==0))){const r=prStart(e,p,pr,rScaleSets(e[1],e),prRange(e));if(r)return r;}}catch(err){console.error(err);}return _ps(e,p,pr);};}
+
+const LWK="gym45_lw_v1";
+function lwStore(){try{const v=JSON.parse(localStorage.getItem(LWK));if(v&&typeof v==="object")return Object.assign({act:null,hist:[]},v);}catch(e){}return {act:null,hist:[]};}
+function lwSave(v){v.updatedAt=new Date().toISOString();try{localStorage.setItem(LWK,JSON.stringify(v));}catch(e){}cloudPush();}
+function lwHasDeload(p){return (p.weeks||[]).some(w=>/разгруз|лёгк/i.test(w.name||""));}
+function lwFrom(id){try{return auAll().find(q=>q.id===id)||null;}catch(e){return null;}}
+function lwDays(p){if(p.rebuild&&!p.weeks)p.rebuild();const t=p.weeks.length-1;return {days:p.weeks[t].days,n:auPw(p,t)};}
+function lwPlan(a){const p=lwFrom(a.from);if(!p)return null;const D=lwDays(p),d=D.days[a.done%D.days.length];
+  const ex=d.ex.map(e=>{const x=e.slice();x[1]=Math.max(1,Math.round((+e[1]||3)*2/3));
+    if(x[3]!==0){const lr=lastResult(e[0]);const mw=lr?Math.max(...lr.sets.map(s=>s.w||0)):(+e[3]||0);if(mw>0){const w=mw>=20?Math.floor(mw*0.85/2.5)*2.5:Math.max(1,Math.floor(mw*0.85));x[3]=w;x[4]=Array(x[1]).fill(w);}}
+    x[5]="Лёгкая неделя: подходов на треть меньше, вес −15 %, без отказа — 2–3 повтора в запасе."+(e[5]?" "+e[5]:"");return x;});
+  return {name:"Лёгкая неделя · "+d.name,focus:"после «"+p.name+"» · "+(a.done+1)+" из "+a.n,ex:ex,sec:"body",rest:d.rest||p.rest,lw:{id:a.id,k:a.done},wPlan:1};}
+function lwGo(){const v=lwStore();if(!v.act)return;const pl=lwPlan(v.act);if(pl)startWorkout(pl,false);}
+function lwBegin(from){const p=lwFrom(from);if(!p)return;const v=lwStore();v.act={id:"lw-"+Date.now().toString(36),from:from,start:localDate(),n:lwDays(p).n,done:0,last:""};lwSave(v);
+  toast("Лёгкая неделя добавлена в «Сегодня»");try{renderDashActive();}catch(e){}lwGo();}
+function lwOffer(from){const p=lwFrom(from);if(!p)return;const nx=auNext(p),n=lwDays(p).n,m=el("coolModal");
+  m.innerHTML=`<div class="card gvt-mbox"><h3>Программа пройдена 🎉</h3>
+  <p class="gvt-note" style="margin:0">В «${p.name}» не было разгрузки. Перед ${nx?"«"+nx.name+"»":"следующей программой"} можно сделать лёгкую неделю: ${n} ${plural(n,"тренировка","тренировки","тренировок")}, те же упражнения, подходов на треть меньше, вес −15 %, без отказа. Следующая программа начнётся с весов на 10 % ниже лучших — догонишь их за 2–3 недели.</p>
+  <button class="btn" type="button" id="lwYes">Сделать лёгкую неделю</button><button class="tm-mini" type="button" id="lwNo">Пропустить${nx?" — сразу к «"+nx.name+"»":""}</button></div>`;
+  m.hidden=false;el("lwYes").onclick=()=>{m.hidden=true;lwBegin(from);};el("lwNo").onclick=()=>{m.hidden=true;};}
+/* предложение — когда закрыты окна заминки */
+function lwWhenFree(from){let n=0;const t=setInterval(()=>{n++;const busy=(el("coolModal")&&!el("coolModal").hidden)||(el("coolPlay")&&!el("coolPlay").hidden)||!!current;
+  if(!busy||n>2400){clearInterval(t);if(!busy)lwOffer(from);}},500);}
+{const _fw=finishWorkout;finishWorkout=function(){const c=current;let P=null,was=true;
+  try{if(c&&c.program.au&&(c.program.sec||"body")==="body"){P=lwFrom(c.program.au.id);was=P?auDone(P):true;}}catch(e){}
+  _fw.apply(this,arguments);if(current||!c)return;
+  try{if(c.program.lw){const v=lwStore();if(v.act&&v.act.id===c.program.lw.id){v.act.done++;v.act.last=localDate();
+      if(v.act.done>=v.act.n){const p=lwFrom(v.act.from),nx=p&&auNext(p);v.hist.push(Object.assign({},v.act,{end:localDate()}));v.act=null;setTimeout(()=>toast("Лёгкая неделя пройдена"+(nx?" — дальше «"+nx.name+"»":"")),1200);}
+      lwSave(v);}}}catch(e){console.error(e);}
+  try{if(P&&!was&&auDone(P)&&!lwHasDeload(P))setTimeout(()=>lwWhenFree(P.id),900);}catch(e){console.error(e);}};}
+{const _sm=anSessionMeta;anSessionMeta=function(){const m=_sm();try{if(current&&current.program.lw)m.lw=1;}catch(e){}return m;};}
+{const _mp=mpList;mpList=function(){const out=_mp();try{const v=lwStore(),a=v.act;if(a){const p=lwFrom(a.from);
+  const t=localDate(),nx=a.last?(a.last===t?addDays(t,2):(addDays(a.last,2)<t?t:addDays(a.last,2))):t;
+  out.push({k:"lw",t:"Лёгкая неделя · после «"+(p?p.name:"программы")+"»",s:"Тренировка "+(a.done+1)+" из "+a.n+" · без отказа",start:a.start,next:nx,open:()=>lwGo(),
+    fin:()=>{const v2=lwStore();if(v2.act){v2.hist.push(Object.assign({},v2.act,{end:localDate(),stopped:1}));v2.act=null;lwSave(v2);}}});}}catch(e){}return out;};}
+{const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{lw:lwStore()});};}
 /* «запас повторов» (RIR) последнего подхода — необязательная отметка под упражнением */
 {const _rw=renderWorkout;renderWorkout=function(){_rw();try{if(!current||current.program.g2)return;const i=current.idx,G=current.program.gx?current.program.gx[i]:null;if(G&&G.main)return;
   const card=el("exList").querySelector(".wk-card");if(!card||card.querySelector(".rir-row"))return;const v=current.rirEx&&current.rirEx[i];
@@ -8915,6 +8969,7 @@ async function cloudInit(){
       try{if(d.tx)localStorage.setItem(TXK,JSON.stringify(mergeTx(txStore(),d.tx)))}catch(e){}
       try{if(d.cj)localStorage.setItem(CJK,JSON.stringify(mergeCj(cjStore(),d.cj)))}catch(e){}
       try{if(d.mob)localStorage.setItem(MOBK,JSON.stringify(mergeMob(mobStore(),d.mob)))}catch(e){}
+      try{if(d.lw&&(d.lw.updatedAt||"")>(lwStore().updatedAt||""))localStorage.setItem(LWK,JSON.stringify(d.lw))}catch(e){}
       try{if(d.sotka)localStorage.setItem(SKK,JSON.stringify(mergeSk(skGet(),d.sotka)))}catch(e){}
       try{if(d.pp)localStorage.setItem(PPK,JSON.stringify(mergePP(ppAll(),d.pp)))}catch(e){}
       try{if(d.rr&&(d.rr.upd||0)>(rrGet().upd||0))localStorage.setItem(RRK,JSON.stringify(d.rr))}catch(e){}
