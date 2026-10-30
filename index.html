@@ -4415,10 +4415,15 @@ function mergeG2(a,b){a=a&&a.progs?a:{progs:[],activeId:null};b=b&&b.progs?b:{pr
   return {progs:progs,activeId:cand.length?cand[0].id:(a.activeId||b.activeId||null)};}
 
 /* ---------- вес, округление, тоннаж ---------- */
-function g2Step(P,key){const st=P.st[P.stage],o=st&&st.step&&st.step[key];if(o)return o;return G2X[key]&&G2X[key].db?P.stepDb:P.step;}
+function g2Step(P,key){const st=P.st[P.stage],o=st&&st.step&&st.step[key];if(o)return o;return G2X[key]&&G2X[key].bw?G2_BWSTEP:G2X[key]&&G2X[key].db?P.stepDb:P.step;}
+const G2_BWSTEP=2.5; /* доп. вес на поясе (подтягивания, брусья): шаг — один блин 2,5 кг */
+function g2BwUp(P,key,aw){const st=g2Step(P,key);return Math.round((Math.round((aw||0)/st)*st+st)*100)/100;}
+/* старые нерешённые предложения по доп. весу (шаг считался от общей нагрузки) → +1 шаг */
+function g2BwFixDec(P,rec){let ch=false;(rec.dec||[]).forEach(d=>{if(d.done||d.type!=="inc_confirm"||!(G2X[d.key]&&G2X[d.key].bw))return;const nw=g2BwUp(P,d.key,d.cur);if(nw===d.sug)return;
+  const X=G2X[d.key];d.sug=nw;d.pct=g2Pct(g2Load(P,d.key,nw),g2Load(P,d.key,d.cur));d.txt=X.n+": план выполнен → "+g2Fmt(d.cur,d.key)+" → "+g2Fmt(nw,d.key)+" (шаг "+fmtW(nw-d.cur)+" кг). Подтверди.";ch=true;});return ch;}
 function g2R(x,step){if(!(x>0))return 0;return Math.round(Math.ceil(x/step-1e-9)*step*100)/100;}
 function g2Load(P,key,w){return G2X[key]&&G2X[key].bw&&P.bw>0?P.bw+(w||0):(w||0);}  // полная нагрузка (для % расчётов)
-function g2FromLoad(P,key,L){const st=g2Step(P,key);if(G2X[key]&&G2X[key].bw&&P.bw>0)return Math.round((g2R(L,st)-P.bw)*100)/100;return g2R(L,st);}
+function g2FromLoad(P,key,L){const st=g2Step(P,key);if(G2X[key]&&G2X[key].bw&&P.bw>0){const x=L-P.bw;return x>0?Math.round(Math.round(x/st)*st*100)/100:0;}return g2R(L,st);}
 function g2Pct(a,b){return b>0?Math.round((a/b-1)*1000)/10:0;}
 function g2Ton(P,key,s){if(!s.done||!(s.r>0))return 0;const X=G2X[key]||{};return X.bw?((P.bw||0)+(s.w||0))*s.r:(s.w||0)*(X.db||1)*s.r;}
 function g2Fmt(w,key){const X=G2X[key]||{};return fmtW(w)+" кг"+(X.db===2?" × 2":X.db===1?" (1 гантель)":"")+(X.bw?" доп.":"");}
@@ -4520,9 +4525,9 @@ function g2Progress(P,si,e,rec){const S=G2S[si],st=P.st[si],key=e.key,X=G2X[key]
   if(S.algo==="rm"||S.algo==="range"){
     const T=S.algo==="rm"?(typeof e.sets[0].pr==="number"?e.sets[0].pr:parseInt(e.sets[0].pr)):S.top;
     if(!ws)ws=st.ws[key]={w:aw};
-    if(g2Full(e,T)){const L=g2Load(P,key,aw),nw=g2FromLoad(P,key,L*(1+S.inc/100)),pc=g2Pct(g2Load(P,key,nw),L);
-      if(S.algo==="range")rec.dec.push({key:key,type:"inc_confirm",cur:aw,sug:nw,pct:pc,txt:X.n+": верх диапазона во всех подходах — можно +5 %: "+g2Fmt(aw,key)+" → "+g2Fmt(nw,key)+" (+"+fmtW(pc)+" %)."});
-      else if(pc>S.inc+1)rec.dec.push({key:key,type:"inc_confirm",cur:aw,sug:nw,pct:pc,txt:X.n+": 10×"+T+" выполнено. Ближайший доступный вес "+g2Fmt(nw,key)+" — это +"+fmtW(pc)+" % вместо +5 %. Подтверди."});
+    if(g2Full(e,T)){const L=g2Load(P,key,aw),bwk=!!(X.bw),nw=bwk?g2BwUp(P,key,aw):g2FromLoad(P,key,L*(1+S.inc/100)),pc=g2Pct(g2Load(P,key,nw),L);
+      if(S.algo==="range")rec.dec.push({key:key,type:"inc_confirm",cur:aw,sug:nw,pct:pc,txt:X.n+": верх диапазона во всех подходах — можно "+(bwk?"+"+fmtW(nw-aw)+" кг":"+5 %")+": "+g2Fmt(aw,key)+" → "+g2Fmt(nw,key)+" (+"+fmtW(pc)+" %)."});
+      else if(!bwk&&pc>S.inc+1)rec.dec.push({key:key,type:"inc_confirm",cur:aw,sug:nw,pct:pc,txt:X.n+": 10×"+T+" выполнено. Ближайший доступный вес "+g2Fmt(nw,key)+" — это +"+fmtW(pc)+" % вместо +5 %. Подтверди."});
       else{ws.w=nw;rec.dec.push({key:key,type:"inc",done:true,txt:X.n+": 10×"+T+" выполнено → "+g2Fmt(aw,key)+" → "+g2Fmt(nw,key)+" (+"+fmtW(pc)+" %)."});}
     }else{ws.w=aw||ws.w;rec.dec.push({key:key,type:"keep",done:true,txt:X.n+": план не выполнен ("+e.sets.map(s=>s.done?s.r:"–").join(", ")+") — вес остаётся "+g2Fmt(ws.w,key)+"."});}
     return;}
@@ -4535,7 +4540,7 @@ function g2Progress(P,si,e,rec){const S=G2S[si],st=P.st[si],key=e.key,X=G2X[key]
     else rec.dec.push({key:key,type:"wave_ok",done:true,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+" выполнена"+(ws.ptr<=6?" → далее 10×"+(S.algo==="agvt"?AG_REPS[ws.ptr-1]:P4_REPS[ws.scheme||"543"][ws.ptr-1])+" · "+g2Fmt(ws.plan[ws.ptr]!=null?ws.plan[ws.ptr]:ws.sug6||ws.plan[5],key):" → все 6 пройдены")+"."});
   }else{const nx=ptr+1;const nw=nx<=6?(ws.plan[nx]!=null?ws.plan[nx]:ws.plan[5]):null;
     rec.dec.push({key:key,type:"wave_fail",ptr:ptr,cur:aw,next:nx<=6?nx:null,sug:nw,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+" не выполнена ("+e.sets.map(s=>s.done?s.r:"–").join(", ")+"). Вес автоматически не повышается — выбери, как дальше."});}}
-function g2Resolve(uid,i,opt,val){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid),d=rec.dec[i];if(!d||d.done)return;
+function g2Resolve(uid,i,opt,val){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid);g2BwFixDec(P,rec);const d=rec.dec[i];if(!d||d.done)return;
   const st=P.st[rec.stage],ws=st.ws[d.key];
   if(d.type==="inc_confirm"){if(opt==="yes")ws.w=d.sug;else if(opt==="keep")ws.w=d.cur;else if(opt==="man"&&val>0)ws.w=val;}
   else if(d.type==="ag6"){ws.plan[6]=opt==="man"&&val>0?val:d.sug;ws.conf6=true;}
@@ -4574,6 +4579,7 @@ function g2OpenTest(){const P=g2Active(),slot=P&&g2NextSlot(P);if(!slot||slot.ki
 
 /* ---------- итог занятия: решения ---------- */
 function g2Summary(uid){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid),S=G2S[rec.stage];
+  if(g2BwFixDec(P,rec)){rec.updatedAt=g2Now();P.updatedAt=rec.updatedAt;g2Save(v);}
   const box=el("gvtMbox");
   const head=`<h3>Итог · ${rec.variant}</h3><p>Этап ${S.k} · ${rec.status==="full"?"все подходы выполнены":"выполнено "+rec.setsDone+" из "+rec.setsPlanned+" подходов"} · тоннаж ${fmtW(rec.ton/1000)} т · ${rec.durMin} мин</p>`;
   const rows=rec.dec.map((d,i)=>{if(d.done)return `<p class="gvt-note">✓ ${d.txt}${d.choice?" <b>("+g2ChoiceTxt(d.choice)+")</b>":""}</p>`;
@@ -4694,7 +4700,7 @@ function g2SetupHTML(P,si){const S=G2S[si],st=P.st[si],keys=g2MainKeysOf(P,si);
       ${helper&&!X.bw?`<label>или 1ПМ → ${helper} %<input id="g2rm_${k}" inputmode="decimal"></label>`:g2BwPct(S,X)?`<label>или 1ПМ → ${g2BwPct(S,X)} %<input id="g2rm_${k}" inputmode="decimal"></label>`:""}
       ${S.algo==="p4"?`<label>Схема<select id="g2sch_${k}"><option value="543"${ws.scheme!=="654"?" selected":""}>5/4/3</option><option value="654"${ws.scheme==="654"?" selected":""}>6/5/4</option></select></label>
         <label>До программы: вес × повт<span style="display:flex;gap:4px"><input id="g2bw_${k}" inputmode="decimal" placeholder="кг" value="${ws.base?ws.base.w:""}"><input id="g2br_${k}" inputmode="numeric" placeholder="10" value="${ws.base?ws.base.r:""}"></span></label>`:""}
-      <label>Шаг, кг<select id="g2st_${k}"><option value="">по умолч. (${fmtW(X.db?P.stepDb:P.step)})</option>${[0.5,1,1.25,1.5,2,2.5,5].map(s=>`<option value="${s}"${st.step[k]===s?" selected":""}>${fmtW(s)}</option>`).join("")}</select></label></div></div>`;}).join("")}
+      <label>Шаг, кг<select id="g2st_${k}"><option value="">по умолч. (${fmtW(X.bw?G2_BWSTEP:X.db?P.stepDb:P.step)})</option>${[0.5,1,1.25,1.5,2,2.5,5].map(s=>`<option value="${s}"${st.step[k]===s?" selected":""}>${fmtW(s)}</option>`).join("")}</select></label></div></div>`;}).join("")}
    ${S.algo==="agvt"?`<div class="gvt-opt"><span>Прибавка появления 2</span><div class="seg">${[6,6.5,7].map(x=>`<button class="seg-b${st.d2===x?" on":""}" data-d2="${x}" type="button">+${fmtW(x)}%</button>`).join("")}</div></div>
      <div class="gvt-opt"><span>Прибавка появления 3</span><div class="seg">${[8,8.5,9].map(x=>`<button class="seg-b${st.d3===x?" on":""}" data-d3="${x}" type="button">+${fmtW(x)}%</button>`).join("")}</div></div>`:""}
    ${S.algo==="p4"?`<div class="gvt-opt"><span>Шаг волны Δ</span><div class="seg">${[4,4.5,5].map(x=>`<button class="seg-b${st.p4d===x?" on":""}" data-p4="${x}" type="button">${fmtW(x)}%</button>`).join("")}</div></div>`:""}
