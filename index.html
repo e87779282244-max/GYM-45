@@ -2888,9 +2888,15 @@ function renderWorkout(){
     <div class="wk-sets">${rows}${add}</div>`;
   wrap.appendChild(c);
   {const b=c.querySelector(".wk-swap");if(b)b.onclick=()=>wsubOpen(i);}
-  c.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
+  c.querySelectorAll("input").forEach(inp=>{
+    inp.onfocus=()=>{inp.dataset.old=String(current.sets[i][inp.dataset.s][inp.dataset.f]||0);};
+    inp.oninput=e=>{
     const{s:si,f}=e.target.dataset;const v=parseFloat(String(e.target.value).replace(",","."))||0;
-    current.sets[i][si][f]=v;saveDraft();});
+    const S=current.sets[i],old=parseFloat(inp.dataset.old)||0;S[si][f]=v;
+    /* следующие подходы подхватывают введённое, если у них стояло то же значение (или пусто) и они ещё не отмечены — схемы с разными весами по подходам не ломаются */
+    if(!S[si].warm)for(let k=+si+1;k<S.length;k++){const x=S[k];if(x.warm||x.done)continue;if((+x[f]||0)!==old&&(+x[f]||0)!==0)break;
+      x[f]=v;const o=c.querySelector(`input[data-s="${k}"][data-f="${f}"]`);if(o)o.value=f==="w"&&!v?"":String(e.target.value);}
+    inp.dataset.old=String(v);saveDraft();};});
   c.querySelectorAll(".rir").forEach(sel=>sel.onchange=()=>{
     const s=current.sets[i][sel.dataset.s];s.rir=sel.value;sel.classList.toggle("on",!!s.rir);saveDraft();
     if(s.done&&gvtStopUpdate(i))return;});
@@ -3084,6 +3090,10 @@ function drawChart(data){
   });
 }
 /* ---------- toast ---------- */
+/* нажал в числовое поле — число выделено целиком: «удалить» стирает его, или сразу вводишь новое */
+document.addEventListener("focusin",e=>{const t=e.target;if(!(t&&t.tagName==="INPUT"&&/^(decimal|numeric)$/.test(t.inputMode||"")))return;
+  const sel=()=>{try{t.setSelectionRange(0,t.value.length);}catch(err){try{t.select();}catch(e2){}}};sel();setTimeout(sel,0);setTimeout(sel,60);
+  t.addEventListener("mouseup",ev=>ev.preventDefault(),{once:true});});
 let tt;function toast(m){const t=el("toast");t.textContent=m;t.classList.add("show");
   clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),1900);}
 /* ---------- init ---------- */
