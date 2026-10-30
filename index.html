@@ -2646,7 +2646,8 @@ function renderDay(){
   {let n=el("dayReady");if(!n){n=document.createElement("div");n.id="dayReady";n.className="day-ready";el("dayList").before(n);}
    const r=act?current.readiness:readiness,alt=act?null:rLightAlt(p);
    n.hidden=r==="Норма"&&!alt;n.innerHTML="";
-   if(!n.hidden){const t=document.createElement("div");t.textContent="Готовность «"+r+"»: "+rNote(r,rFixed(p));n.appendChild(t);
+   if(!n.hidden){const t=document.createElement("div");const auto=!!(p.preset||p.g2);
+    t.textContent="Готовность «"+r+"»: "+(auto?(r==="Устал"?"программа сама рассчитывает веса — план не меняется, иначе собьётся прогрессия. Совсем тяжело — лучше перенеси тренировку на день.":"план без изменений — добей все повторы чисто."):rNote(r,rFixed(p)));n.appendChild(t);
     if(alt){const b=document.createElement("button");b.type="button";b.className="day-alt";b.textContent="Устал — лучше сделать лёгкий день: «"+alt.name+"» ›";
      b.onclick=()=>startWorkout(Object.assign({},p,{name:alt.name,ex:alt.ex,focus:(p.focus||"").split(" · ")[0]+" · "+(alt.focus||"лёгкий день")}),dayView.computed);n.appendChild(b);}}}
   el("dayStart").textContent=act?"Продолжить программу":"Начать программу";
@@ -3096,6 +3097,13 @@ function drawChart(data){
 document.addEventListener("focusin",e=>{const t=e.target;if(!(t&&t.tagName==="INPUT"&&/^(decimal|numeric)$/.test(t.inputMode||"")))return;
   const sel=()=>{try{t.setSelectionRange(0,t.value.length);}catch(err){try{t.select();}catch(e2){}}};sel();setTimeout(sel,0);setTimeout(sel,60);
   t.addEventListener("mouseup",ev=>ev.preventDefault(),{once:true});});
+/* экран не гаснет во время тренировки, заминки и таймера кроссфита */
+let WL=null,wlBusy=false;
+function wlNeed(){try{return !document.hidden&&(!!current||(el("coolPlay")&&!el("coolPlay").hidden)||(typeof TIMER!=="undefined"&&TIMER.phase&&TIMER.phase!=="idle"));}catch(e){return false;}}
+async function wlSync(){if(wlBusy)return;wlBusy=true;try{const need=wlNeed();
+  if(need&&!WL&&navigator.wakeLock){WL=await navigator.wakeLock.request("screen");WL.addEventListener("release",()=>{WL=null;});}
+  else if(!need&&WL){const w=WL;WL=null;await w.release();}}catch(e){}wlBusy=false;}
+setInterval(wlSync,3000);document.addEventListener("visibilitychange",()=>setTimeout(wlSync,300));document.addEventListener("click",()=>setTimeout(wlSync,300),true);
 let tt;function toast(m){const t=el("toast");t.textContent=m;t.classList.add("show");
   clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),1900);}
 /* ---------- init ---------- */
@@ -3111,10 +3119,12 @@ document.querySelectorAll("#scr-home [data-go]").forEach(b=>b.onclick=()=>{
 document.querySelectorAll(".seg-b").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".seg-b").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");
-  const v=b.dataset.ready;readiness=v;
+  const v=b.dataset.ready;readiness=v;try{localStorage.setItem("gym45_ready_v1",JSON.stringify({d:localDate(),v:v}));}catch(e){}
   el("readyState").textContent=v;
-  el("readyNote").textContent=v==="Устал"?"−10 % веса · −1 подход в тяжёлой базе · предложим лёгкий день":(v==="Заряжен"?"+5 % веса · в силовых циклах — по плану":"всё по программе");
+  el("readyNote").textContent=v==="Устал"?"−10 % веса · −1 подход в тяжёлой базе · предложим лёгкий день (в GVT, «Батя в здании» и других программах с расчётом весов — по плану)":(v==="Заряжен"?"+5 % веса · в силовых циклах — по плану":"всё по программе");
 });
+/* выбор готовности держится до конца дня, на следующий день — снова «Норма» */
+try{const o=JSON.parse(localStorage.getItem("gym45_ready_v1")||"null");if(o&&o.d===localDate()&&o.v!=="Норма"){const b=document.querySelector('.ready .seg-b[data-ready="'+o.v+'"]');if(b)b.click();}}catch(e){}
 el("homeMenu").addEventListener("click",()=>{const r=document.documentElement;
   r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark");});
 const STREET=[
