@@ -4621,7 +4621,7 @@ function g2PlanP4(P,si,key,W0){const st=P.st[si],L=g2Load(P,key,W0),d=st.p4d/100
   return plan;}
 
 /* последняя запись упражнения в этом этапе (для вспомогательных и памяти) */
-function g2PrevEx(P,si,key){for(let i=P.recs.length-1;i>=0;i--){const r=P.recs[i];if(r.stage!==si||r.kind!=="train")continue;
+function g2PrevEx(P,si,key){for(let i=P.recs.length-1;i>=0;i--){const r=P.recs[i];if(r.stage!==si||r.kind!=="train"||r.brk)continue;
     const e=r.ex.find(x=>x.key===key);if(e&&e.sets.some(s=>s.done))return e;}return null;}
 
 /* ---------- сборка тренировки ---------- */
@@ -4657,11 +4657,12 @@ function g2Record(){const p=current.program,g=p.g2,v=g2Store(),P=v.progs.find(x=
   const st0=current.startedAt||now;
   const rec={uid:g2Uid(P.id+"-"+si),ver:G2VER,progId:P.id,stage:si,day:g.day,variant:S.d[g.day].name,kind:"train",pos:g.pos,num:g.num,
     plannedDate:g.planned,date:localDate(),startedAt:st0,finishedAt:now,updatedAt:now,durMin:Math.max(1,Math.round((Date.parse(now)-Date.parse(st0))/60000)),
-    ex:ex,ton:Math.round(ton),reps:reps,setsPlanned:planned,setsDone:doneN,status:doneN===planned?"full":"partial",dec:[]};
+    ex:ex,ton:Math.round(ton),reps:reps,setsPlanned:planned,setsDone:doneN,status:doneN===planned?"full":"partial",dec:[]};if(g.brk)rec.brk=g.brk;
   if(!st.startedAt)st.startedAt=now;
   st.pos=(g.pos||0)+1;
-  ex.filter(e=>e.main).forEach(e=>g2Progress(P,si,e,rec));
-  ex.filter(e=>!e.main).forEach(e=>{if(!st.ws[e.key]){const d=e.sets.filter(s=>s.done);if(d.length)st.ws[e.key]={w:d[d.length-1].w};}});
+  if(g.brk)rec.dec.push({type:"brk",done:true,txt:"После перерыва (−"+g.brk+" %): рабочие веса и волны не меняются — следующая тренировка по плану."});
+  else ex.filter(e=>e.main).forEach(e=>g2Progress(P,si,e,rec));
+  if(!g.brk)ex.filter(e=>!e.main).forEach(e=>{if(!st.ws[e.key]){const d=e.sets.filter(s=>s.done);if(d.length)st.ws[e.key]={w:d[d.length-1].w};}});
   P.recs.push(rec);g2Advance(P);P.updatedAt=now;g2Save(v);return rec;}
 function g2Full(e,target){const T=target||0;return e.sets.length>0&&e.sets.every(s=>s.done&&s.r>=T);}
 function g2Progress(P,si,e,rec){const S=G2S[si],st=P.st[si],key=e.key,X=G2X[key]||{n:key};
@@ -4733,7 +4734,7 @@ function g2Conf6Open(pid,sl){const v=g2Store(),P=v.progs.find(x=>x.id===pid),si=
     keys.forEach(k=>{const ws=stt.ws[k];ws.plan[6]=vals[k];ws.conf6=true;
       PP.recs.forEach(r=>{if(r.stage!==si)return;(r.dec||[]).forEach(d=>{if(!d.done&&d.type==="ag6"&&d.key===k){d.done=true;d.choice=vals[k]===d.sug?"yes":"man:"+vals[k];d.at=g2Now();r.updatedAt=d.at;}});});});
     PP.updatedAt=g2Now();g2Save(v2);el("gvtModal").hidden=true;toast("Вес 6-го появления подтверждён");g2Render();
-    const P3=g2Active(),s3=P3&&g2NextSlot(P3);if(s3&&s3.kind==="train"&&!g2Need6(P3,s3).length)startWorkout(g2Build(P3,s3),true);};}
+    const P3=g2Active(),s3=P3&&g2NextSlot(P3);if(s3&&s3.kind==="train"&&!g2Need6(P3,s3).length)g2StartSlot(P3,s3);};}
 /* п.4: счётчики этапов IV–V считают появления/волны; план занятий — ориентир */
 function g2Wave(S){return S.algo==="agvt"||S.algo==="p4";}
 function g2NumTxt(S,num){return g2Wave(S)?"занятие "+num+" · план "+S.n:"занятие "+Math.min(num,S.n)+" из "+S.n;}
@@ -4748,6 +4749,30 @@ function g2Upcoming(P,si,max){const S=G2S[si],st=P.st[si],out=[];
     if(hit<0)break;out.push(hit);S.d[hit].A.forEach(a=>{const k=g2Key(P,si,a[0]);if(ptr[k]<=6)ptr[k]++;});pos++;}
   return out;}
 function g2Left(P,si){const S=G2S[si],st=P.st[si];if(!g2Wave(S))return Math.max(0,S.n-st.pos);return g2Upcoming(P,si,999).length+(S.tests?Math.max(0,S.tests-st.tpos):0);}
+
+/* ---------- окно этапа: занятия этапа × (дни отдыха + 1); на этапах IV–V учтены повторы волн; «Продолжить этап» продлевает ---------- */
+function g2Days(a,b){return Math.round((Date.parse(b+"T12:00")-Date.parse(a+"T12:00"))/864e5);}
+function g2Done(P,si){return P.recs.filter(r=>r.stage===si&&r.kind==="train").length;}
+function g2Win(P,si,first){const st=P.st[si],iv=(P.rest||0)+1,done=g2Done(P,si),left=g2Left(P,si),plan=Math.max(1,done+left),end=addDays(first,plan*iv-1);
+  const ext=st.ext&&st.ext.until&&st.ext.until>end?st.ext.until:null,e=ext||end,due=addDays(first,done*iv),lag=Math.max(0,g2Days(due,localDate()));
+  return {end:e,days:g2Days(first,e)+1,ext:ext,left:left,iv:iv,lag:lag,lagS:Math.floor(lag/iv)};}
+/* ---------- возвращение после перерыва: 14 дней — первая тренировка легче на 10 %, 15 и больше — на 15 %; прогрессия этапа не меняется ---------- */
+function g2Gap(P){const L=P.recs.filter(r=>r.kind==="train"||r.kind==="test").map(r=>r.date).filter(Boolean).sort().pop();return L?g2Days(L,localDate()):0;}
+function g2BrkPct(gap){return gap>=15?15:gap>=14?10:0;}
+function g2Lighten(P,w,pc){const f=1-pc/100;
+  w.preset.forEach((ss,i)=>{const G=w.gx[i],k=G.key;ss.forEach(s=>{let nw=s.w;
+      if(G.bw){const B=g2Bw(P);if(B>0)nw=Math.max(0,Math.floor(((B+(+s.w||0))*f-B)/G2_BWSTEP+1e-6)*G2_BWSTEP);}
+      else if(s.w>0)nw=g2Rnd(P,k,s.w*f,"down");
+      s.w=nw;s.pw=nw;});
+    if(w.ex[i]&&w.ex[i][3]!=null&&ss[0])w.ex[i][3]=ss[0].w;});
+  w.focus+=" · после перерыва −"+pc+" %";w.g2.brk=pc;return w;}
+function g2StartSlot(P,sl){const gap=g2Gap(P),pc=sl.kind==="train"?g2BrkPct(gap):0;if(!pc)return startWorkout(g2Build(P,sl),true);
+  const box=el("gvtMbox");
+  box.innerHTML=`<h3>Перерыв ${gap} дн.</h3><p>Первая тренировка после перерыва — легче на ${pc} %: веса снижены и округлены по шагам снаряда. Прогрессия этапа не меняется: занятие засчитается, а рабочие веса и волны останутся прежними.</p>
+    <button class="btn" type="button" id="g2BrkY">Легче на ${pc} %</button><button class="btn btn-alt" type="button" id="g2BrkN">Как обычно</button><button class="tm-mini" type="button" id="g2BrkX">Позже</button>`;
+  el("gvtModal").hidden=false;el("g2BrkX").onclick=()=>{el("gvtModal").hidden=true;};
+  el("g2BrkN").onclick=()=>{el("gvtModal").hidden=true;startWorkout(g2Build(P,sl),true);};
+  el("g2BrkY").onclick=()=>{el("gvtModal").hidden=true;startWorkout(g2Lighten(P,g2Build(P,sl),pc),true);};}
 
 /* ---------- тест (этап V) ---------- */
 function g2E1(w,r){return r>1?w*(1+r/30):w;}
@@ -4984,14 +5009,14 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
       v2.progs.push(P2);v2.activeId=P2.id;g2Save(v2);g2NewArm=0;toast("Программа создана");g2Render();};
     return;}
   const si=P.stage,S=G2S[si],st=P.st[si],slot=g2NextSlot(P),next=g2NextDate(P),today=localDate();
-  const first=g2StageFirst(P,si),winEnd=first?addDays(first,S.days-1):null,winOver=winEnd&&today>winEnd&&slot;
+  const first=g2StageFirst(P,si),win=first?g2Win(P,si,first):null,winEnd=win?win.end:null,winOver=winEnd&&today>winEnd&&slot;
   const pends=P.recs.filter(r=>r.dec&&r.dec.some(d=>!d.done)),pend=pends[0];  /* от старых к новым */
   let h=`<div class="card gvt-sum"><h3>Этап ${S.k} · ${S.name}${S.adv?' <span class="tag">Для продвинутых</span>':""}</h3>
     <div class="gvt-bar"><i style="width:${Math.round(g2Frac(P,si)*100)}%"></i></div>
     <div class="gvt-kv"><span>${(t=>t[0].toUpperCase()+t.slice(1))(g2NumTxt(S,st.pos+1))}${S.tests?" + "+S.tests+" теста":""}</span>${g2Wave(S)?(w=>`<span>${S.algo==="agvt"?"Появления":"Волны"}: ${w.d} из ${w.t}</span>`)(g2WaveDone(P,si)):""}<span>Отдых ${P.rest} дн.</span><span>Шаг: штанга по блинам · тренажёр ${fmtW(P.stepM||5)} · гантели ${fmtW(P.stepDb)} кг</span></div>
-    ${winEnd?`<p class="gvt-note">Окно этапа: ${gvtDD(first)} – ${gvtDD(winEnd)} (${S.days} дн.)</p>`:""}</div>`;
+    ${winEnd?`<p class="gvt-note">Окно этапа: ${gvtDD(first)} – ${gvtDD(winEnd)} (${win.days} дн.)${win.ext?" · продлён до "+gvtDD(win.ext):""}</p>`:""}</div>`;
   if(pend)h+=`<div class="gvt-pend"><span>Итог занятия: нужно решение по весу${pends.length>1?" · занятий: "+pends.length:""}</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="g2Pend">Открыть</button></div>`;
-  if(winOver)h+=`<div class="card"><p class="gvt-stop">Плановый срок этапа ${S.k} истёк, осталось занятий: ${g2Left(P,si)}. Невыполненное не удаляется.</p><div class="row2"><button class="btn btn-alt" id="g2Cont" type="button">Продолжить этап</button><button class="btn" id="g2Skip" type="button">К следующему этапу</button></div></div>`;
+  if(winOver)h+=`<div class="card"><p class="gvt-stop">Плановый срок этапа ${S.k} истёк${win.lag?`: отстаёшь на ${win.lag} дн.${win.lagS?" ≈ "+win.lagS+" "+plural(win.lagS,"занятие","занятия","занятий"):""}`:""}. Осталось занятий: ${win.left}. Невыполненное не удаляется.</p><div class="row2"><button class="btn btn-alt" id="g2Cont" type="button">Продолжить этап</button><button class="btn" id="g2Skip" type="button">К следующему этапу</button></div></div>`;
   if(!st.setup)h+=g2SetupHTML(P,si);
   else if(slot){const D=S.d[slot.day];
     h+=`<div class="card"><p class="gvt-note">${slot.kind==="test"?"Контрольное занятие":"Следующая тренировка"} · рекомендовано ${gvtDD(next)}${next>today?" (можно раньше)":""}</p>
@@ -5017,8 +5042,9 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
   if(el("g2Open"))el("g2Open").onclick=()=>{const v2=g2Store(),PP=g2Active(v2),sl=PP&&g2NextSlot(PP);if(!sl)return;if(sl.kind==="test")return g2OpenTest();
     const ms=g2MarkStale(PP),n=g2AutoRepeat(PP,sl);if(ms||n)g2Save(v2);if(n)toast("Срыв волны без решения → повтор волны (по умолчанию)");
     if(g2Need6(PP,sl).length)return g2Conf6Open(PP.id,sl);
-    startWorkout(g2Build(PP,sl),true);};
-  if(el("g2Cont"))el("g2Cont").onclick=()=>{toast("Продолжаем этап "+S.k);};
+    g2StartSlot(PP,sl);};
+  if(el("g2Cont"))el("g2Cont").onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id),w2=g2Win(PP,si,first),until=addDays(today,Math.max(1,w2.left)*w2.iv-1);
+    PP.st[si].ext={at:g2Now(),until:until};PP.updatedAt=g2Now();g2Save(v2);toast("Этап "+S.k+" продлён до "+gvtDD(until));g2Render();};
   const toNext=(status)=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);
     PP.recs.forEach(r=>{if(r.stage!==si)return;(r.dec||[]).forEach(d=>{if(!d.done){d.done=true;d.choice="closed";d.at=g2Now();r.updatedAt=d.at;}});});
     PP.st[si].status=status;PP.st[si].doneAt=g2Now();
