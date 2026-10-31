@@ -4683,9 +4683,9 @@ function g2Progress(P,si,e,rec){const S=G2S[si],st=P.st[si],key=e.key,X=G2X[key]
   const lbl=S.algo==="agvt"?"Появление":"Волна";
   if(g2Full(e,T)){ws.ptr=ptr+1;
     if(ws.ptr===6&&S.algo==="agvt"&&!ws.conf6){ws.sug6=ws.plan[5];rec.dec.push({key:key,type:"ag6",sug:ws.sug6,txt:X.n+": впереди 6-е появление (10×3). Авторской формулы веса нет — подтверди вес. Предложение по прошлым результатам: "+g2Fmt(ws.sug6,key)+"."});}
-    else rec.dec.push({key:key,type:"wave_ok",done:true,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+" выполнена"+(ws.ptr<=6?" → далее 10×"+(S.algo==="agvt"?AG_REPS[ws.ptr-1]:P4_REPS[ws.scheme||"543"][ws.ptr-1])+" · "+g2Fmt(ws.plan[ws.ptr]!=null?ws.plan[ws.ptr]:ws.sug6||ws.plan[5],key):" → все 6 пройдены")+"."});
+    else rec.dec.push({key:key,type:"wave_ok",done:true,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+(S.algo==="agvt"?" выполнено":" выполнена")+(ws.ptr<=6?" → далее 10×"+(S.algo==="agvt"?AG_REPS[ws.ptr-1]:P4_REPS[ws.scheme||"543"][ws.ptr-1])+" · "+g2Fmt(ws.plan[ws.ptr]!=null?ws.plan[ws.ptr]:ws.sug6||ws.plan[5],key):" → все 6 пройдены")+"."});
   }else{const nx=ptr+1;const nw=nx<=6?(ws.plan[nx]!=null?ws.plan[nx]:ws.plan[5]):null;
-    rec.dec.push({key:key,type:"wave_fail",ptr:ptr,cur:aw,next:nx<=6?nx:null,sug:nw,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+" не выполнена ("+e.sets.map(s=>s.done?s.r:"–").join(", ")+"). Вес автоматически не повышается — выбери, как дальше."});}}
+    rec.dec.push({key:key,type:"wave_fail",ptr:ptr,cur:aw,next:nx<=6?nx:null,sug:nw,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+(S.algo==="agvt"?" не выполнено (":" не выполнена (")+e.sets.map(s=>s.done?s.r:"–").join(", ")+"). Вес автоматически не повышается — выбери, как дальше."});}}
 function g2Resolve(uid,i,opt,val){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid);g2BwFixDec(P,rec);const d=rec.dec[i];if(!d||d.done)return;
   const why=g2DecStale(P,rec,d);if(why){d.done=true;d.choice=why;d.at=g2Now();rec.updatedAt=d.at;P.updatedAt=d.at;g2Save(v);toast(why==="closed"?"Этап закрыт — решение не применено":"Решение устарело — прогресс уже ушёл вперёд, ничего не изменено");return;}
   const st=P.st[rec.stage],ws=st.ws[d.key];
