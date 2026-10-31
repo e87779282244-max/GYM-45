@@ -21,6 +21,16 @@ async def m():
     ics=await pg.evaluate("calIcs(calCfg())")
     ok('файл .ics: повтор и напоминание за 30 мин','RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,FR' in ics and 'TRIGGER:-PT30M' in ics and 'DTSTART:' in ics and ics.startswith('BEGIN:VCALENDAR'))
     ok('настройки запомнены',await pg.evaluate("calCfg().time==='07:30'&&calCfg().days.length===4"))
+    # iPhone: кнопка календаря iPhone первая и открывает само событие, а не меню «Поделиться»
+    ci=await b.new_context(timezone_id='Asia/Aqtobe',viewport={'width':390,'height':844},user_agent='Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1')
+    pi=await ci.new_page();pi.on('pageerror',lambda e:errs.append(str(e)))
+    await pi.goto(URL);await pi.wait_for_timeout(300);await pi.evaluate("el('login').style.display='none';show('home');renderToday();el('tdCal').click()")
+    r=await pi.evaluate("""(async()=>{const box=el('coolModal');const first=box.querySelector('.btn').id;let go=null,file=0,type='';const _c=URL.createObjectURL;
+      URL.createObjectURL=b=>{type=b.type;return _c.call(URL,b);};window.calGo=u=>{go=u;};const _f=fileOut;fileOut=()=>{file++;};
+      el('calI').click();const t=await (await fetch(go)).text();const r1={first:first,blob:String(go).startsWith('blob:'),type:type,ics:t.startsWith('BEGIN:VCALENDAR')&&t.includes('TRIGGER:-PT30M'),file:file};
+      el('calF').click();r1.fileAfter=file;fileOut=_f;return r1;})()""")
+    ok('iPhone: «Добавить в календарь iPhone» первая и открывает событие напрямую (без «Поделиться»)',r['first']=='calI' and r['blob'] and r['type'].startswith('text/calendar') and r['ics'] and r['file']==0,r)
+    ok('запасной путь «Не открылось? Сохранить файл»',r['fileAfter']==1,r)
     ok('без ошибок JS',not errs,errs[:3])
     await b.close()
 asyncio.run(m());print(f'{sum(R)}/{len(R)}'+(' PASS' if all(R) else ''))

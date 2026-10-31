@@ -8460,19 +8460,26 @@ function calIcs(c){const s=calFirst(c),e=new Date(s.getTime()+c.dur*60000),now=n
   return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Gym 45//RU","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:gym45-"+now.getTime()+"@gym45","DTSTAMP:"+now.toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",
     "DTSTART:"+calStamp(s),"DTEND:"+calStamp(e),calRule(c),"SUMMARY:"+esc(calTitle()),"DESCRIPTION:"+esc("Открой Gym 45 — тренировка дня уже готова."),
     "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+esc(calTitle()),"TRIGGER:-PT"+(c.rem|0)+"M","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");}
+/* календарь iPhone: открываем само событие (не меню «Поделиться») — iPhone спрашивает «Открыть приглашение?» → «Добавить все» */
+function calIOS(){return /iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function calGo(url){location.href=url;}
+function calApple(v){const url=URL.createObjectURL(new Blob([calIcs(v)],{type:"text/calendar;charset=utf-8"}));calGo(url);setTimeout(()=>{try{URL.revokeObjectURL(url);}catch(e){}},60000);}
 function calOpen(){const c=calCfg(),m=el("coolModal"),inClaude=!!(window.claude&&claude.use);
   m.innerHTML=`<div class="card gvt-mbox"><h3>Напоминания в календарь</h3>
    <p class="gvt-note" style="margin:0">Дни тренировок</p><div class="cal-days">${CAL_D.map(([k,t])=>`<button type="button" class="seg-b${c.days.includes(k)?" on":""}" data-k="${k}">${t}</button>`).join("")}</div>
    <div class="nt-grid"><label>Время<input type="time" class="food-in" id="calT" value="${c.time}"></label><label>Длительность<select class="food-in" id="calDur">${[45,60,75,90,120].map(n=>`<option value="${n}"${c.dur===n?" selected":""}>${n} мин</option>`).join("")}</select></label></div>
-   <a class="btn" id="calG" target="_blank" rel="noopener">Добавить в Google Календарь</a>
-   ${inClaude?"":`<button class="btn btn-alt" type="button" id="calI">Календарь iPhone (.ics) · напоминание за 30 мин</button>`}
-   <p class="gvt-note" style="margin:0">Событие повторяется каждую неделю. Google напомнит по своим настройкам уведомлений (обычно за 30 или 10 минут). Сменились дни — добавь заново, а старую серию удали в календаре.</p>
+   ${(()=>{const ios=calIOS()&&!inClaude;
+     const A=inClaude?"":`<button class="btn${ios?"":" btn-alt"}" type="button" id="calI">Добавить в календарь iPhone</button><p class="gvt-note" style="margin:0">iPhone спросит, открыть ли приглашение, — нажми «Разрешить», затем «Добавить все». Напоминание за 30 мин уже внутри.</p>`;
+     const G=`<a class="btn${ios?" btn-alt":""}" id="calG" target="_blank" rel="noopener">Добавить в Google Календарь</a><p class="gvt-note" style="margin:0">Откроется форма Google, где дни и время уже заполнены, — просто нажми синюю кнопку «Сохранить».</p>`;
+     return ios?A+G:G+A;})()}
+   <p class="gvt-note" style="margin:0">Событие повторяется каждую неделю. Сменились дни — добавь заново, а старую серию удали в календаре.${inClaude?"":` <a href="#" id="calF">Не открылось? Сохранить файл</a>`}</p>
    <button class="tm-mini" type="button" id="calX">Закрыть</button></div>`;m.hidden=false;
   const st=()=>{const v={days:[...m.querySelectorAll(".cal-days .on")].map(b=>b.dataset.k),time:el("calT").value||"18:00",dur:+el("calDur").value||75,rem:30};
     try{localStorage.setItem(CALK,JSON.stringify(v));}catch(e){}el("calG").href=v.days.length?calGoogle(v):"#";el("calG").classList.toggle("is-off",!v.days.length);return v;};
   m.querySelectorAll(".cal-days .seg-b").forEach(b=>b.onclick=()=>{b.classList.toggle("on");st();});el("calT").oninput=st;el("calDur").onchange=st;st();
   el("calG").addEventListener("click",e=>{if(!st().days.length){e.preventDefault();toast("Выбери хотя бы один день");}});
-  if(el("calI"))el("calI").onclick=()=>{const v=st();if(!v.days.length){toast("Выбери хотя бы один день");return;}fileOut(new Blob([calIcs(v)],{type:"text/calendar"}),"gym45-trenirovki.ics","text/calendar");};
+  if(el("calI"))el("calI").onclick=()=>{const v=st();if(!v.days.length){toast("Выбери хотя бы один день");return;}calApple(v);};
+  if(el("calF"))el("calF").onclick=e=>{e.preventDefault();const v=st();if(!v.days.length){toast("Выбери хотя бы один день");return;}fileOut(new Blob([calIcs(v)],{type:"text/calendar"}),"gym45-trenirovki.ics","text/calendar");};
   el("calX").onclick=()=>{m.hidden=true;};}
 {const _rt=renderToday;renderToday=function(){_rt();try{const c=el("dashToday");if(!c||el("tdCal"))return;
   c.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal" id="tdCal">🔔 Напоминания в календарь</button>`);el("tdCal").onclick=calOpen;}catch(e){}};}
