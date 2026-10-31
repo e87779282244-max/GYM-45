@@ -2663,7 +2663,11 @@ function prSug(e,p,pr){if(p.wPlan||Array.isArray(e[4])||!(e[3]!==0))return null;
       return {up:1,w:Array.from({length:ns},(_,j)=>wFit((ps[j]||ps[ps.length-1]).w+inc,e[0],"up")),r:Array(ns).fill(rg.lo),why:"↑ +"+fmtW(inc)+" кг: в прошлый раз все подходы по "+rg.hi+"+ ("+reps+") — теперь снова от "+rg.lo+" повт."};
     return {w:null,r:null,why:"Вес тот же: добери до "+rg.hi+" повт. в каждом подходе (было "+reps+"), потом +"+fmtW(inc)+" кг"};}
   if(e[3]>0){const rm=(rmReg()||{})[e[0]],lo=rg?rg.lo:(parseInt(e[2],10)||8);
-    if(rm>0){const _x=rm/(1+0.0333*lo)*0.9,_k=wKind(e[0]),w=_k?wSnap(_x,_k,"down"):Math.floor(_x/2.5)*2.5;if(w>0)return {w:Array(ns).fill(w),r:null,why:"Первый раз: "+fmtW(w)+" кг ≈ 90% от расчёта по твоему 1ПМ "+fmtW(rm)+" кг — 2–3 повт. в запасе"};}
+    if(rmAddW(e[0])&&rm!=null&&rm!==""){const bw=bodyW();
+      if(!(bw>0))return {first:1,w:Array(ns).fill(0),r:null,why:"Первый раз: укажи массу тела в профиле — тогда рассчитаю доп. вес от твоего 1ПМ +"+fmtW(+rm)+" кг"+rmSrcTxt(e[0])};
+      const x=(bw+(+rm))/(1+0.0333*lo)*0.9-bw,w=x>0?wSnap(x,"bw","down"):0;
+      return {w:Array(ns).fill(w),r:null,why:"Первый раз: доп. вес "+fmtW(w)+" кг ≈ 90% от расчёта по 1ПМ +"+fmtW(+rm)+" кг"+rmSrcTxt(e[0])+" при массе тела "+fmtW(bw)+" кг — 2–3 повт. в запасе"};}
+    if(rm>0){const _x=rm/(1+0.0333*lo)*0.9,_k=wKind(e[0]),w=_k?wSnap(_x,_k,"down"):Math.floor(_x/2.5)*2.5;if(w>0)return {w:Array(ns).fill(w),r:null,why:"Первый раз: "+fmtW(w)+" кг ≈ 90% от расчёта по твоему 1ПМ "+fmtW(rm)+" кг"+rmSrcTxt(e[0])+" — 2–3 повт. в запасе"};}
     return {first:1,w:Array(ns).fill(0),r:null,why:"Первый раз: подбери вес, чтобы осталось 2–3 повт. в запасе (ориентир программы — "+fmtW(e[3])+" кг)"};}
   return null;}
 function planOf(e,p){ // что будет на тренировке (с учётом готовности)
@@ -3043,16 +3047,16 @@ function finishWorkout(){
   const auP=prog.au&&typeof AUTH!=="undefined"?AUTH.find(q=>q.id===prog.au.id):null,auWas=auP?auDone(auP):true;
   const h=safe.get();h.push(Object.assign({date:localDate(),name:prog.name,vol:Math.round(vol),log:log},anSessionMeta(),prog.au?{au:prog.au}:{}));
   safe.set(h);
-  // 2b · проходка обновляет 1ПМ (только вверх)
+  // 2b · проходка обновляет 1ПМ (и при снижении — текущая форма; рекорды остаются в аналитике)
   let rmMsg="";
-  if(/проходк/i.test(prog.focus||"")||/проходка/i.test(prog.name||"")){
+  if(!prog.lz&&(/проходк/i.test(prog.focus||"")||/проходка/i.test(prog.name||""))){ // ЛЗ записывает свой тест сам
     const byLift={};
     prog.ex.forEach((e,i)=>{const lift=e[0];
       const dw=current.sets[i].filter(s=>s.done&&s.r>0).map(s=>s.w);
       if(dw.length){const m=Math.max(...dw);if(byLift[lift]==null||m>byLift[lift])byLift[lift]=m;}});
     const reg=rmReg(),upd=[];
-    Object.keys(byLift).forEach(lift=>{if(byLift[lift]>(reg[lift]||0)){reg[lift]=byLift[lift];upd.push(lift+" "+byLift[lift]+" кг");}});
-    if(upd.length){rmRegSet(reg);rmMsg="Новый 1ПМ записан: "+upd.join(", ")+". ";}
+    Object.keys(byLift).forEach(lift=>{if(byLift[lift]>0){const was=reg[lift];rmPut(lift,byLift[lift],"Проходка");if(byLift[lift]!==was)upd.push(lift+" "+byLift[lift]+" кг");}});
+    if(upd.length){rmMsg="1ПМ обновлён: "+upd.join(", ")+". ";}
   }
   // 2a · совет при недоборе плана по движениям с весом
   const short=[];
@@ -3876,8 +3880,8 @@ function lzRecord(){const p=current.program,g=p.lz,v=lzStore(),P=v.progs.find(x=
     const work=st;lifts[R.lift]={w:work[0]?work[0].w:0,sets:work.length,reps:work.map(s=>s.done?s.r:0)};});
   const now=lzNow(),rec={uid:P.id+"-"+Date.now().toString(36),kind:g.kind,week:g.week,finishedAt:now,updatedAt:now,mu:mu,lifts:lifts};
   P.recs.push(rec);P.updatedAt=now;lzSave(v);
-  /* проходка → 1ПМ в «Рабочих весах» (только вверх) */
-  if(g.kind==="dtest")try{const reg=rmReg();let ch=false;LZ_ORDER.forEach(k=>{const m=lifts[k]&&lifts[k].max;if(m>(reg[LZL[k].n]||0)){reg[LZL[k].n]=m;ch=true;}});if(ch)rmRegSet(reg);}catch(e){}
+  /* проходка → 1ПМ в «Рабочих весах»: и при снижении (текущая форма), с датой и источником */
+  if(g.kind==="dtest")try{LZ_ORDER.forEach(k=>{const m=lifts[k]&&lifts[k].max;if(m>0)rmPut(LZL[k].n,m,"Тест ЛЗ");});}catch(e){}
   return rec;}
 /* ---------- экран ---------- */
 let lzFormOpen=false,lzArm=0,lzLast=null;
@@ -4560,10 +4564,11 @@ function g2BwUp(P,key,aw){const st=g2Step(P,key);return Math.round((Math.round((
 function g2BwFixDec(P,rec){let ch=false;(rec.dec||[]).forEach(d=>{if(d.done||d.type!=="inc_confirm"||!(G2X[d.key]&&G2X[d.key].bw))return;const nw=g2BwUp(P,d.key,d.cur);if(nw===d.sug)return;
   const X=G2X[d.key];d.sug=nw;d.pct=g2Pct(g2Load(P,d.key,nw),g2Load(P,d.key,d.cur));d.txt=X.n+": план выполнен → "+g2Fmt(d.cur,d.key)+" → "+g2Fmt(nw,d.key)+" (шаг "+fmtW(nw-d.cur)+" кг). Подтверди.";ch=true;});return ch;}
 function g2R(x,step){if(!(x>0))return 0;return Math.round(Math.ceil(x/step-1e-9)*step*100)/100;}
-function g2Load(P,key,w){return G2X[key]&&G2X[key].bw&&P.bw>0?P.bw+(w||0):(w||0);}  // полная нагрузка (для % расчётов)
-function g2FromLoad(P,key,L){const st=g2Step(P,key);if(G2X[key]&&G2X[key].bw&&P.bw>0){const x=L-P.bw;return x>0?Math.round(Math.round(x/st)*st*100)/100:0;}return g2Rnd(P,key,L,"up");}
+function g2Bw(P){return P&&P.bw>0?P.bw:bodyW();}
+function g2Load(P,key,w){const B=g2Bw(P);return G2X[key]&&G2X[key].bw&&B>0?B+(w||0):(w||0);}  // полная нагрузка (для % расчётов)
+function g2FromLoad(P,key,L){const st=g2Step(P,key),B=g2Bw(P);if(G2X[key]&&G2X[key].bw&&B>0){const x=L-B;return x>0?Math.round(Math.round(x/st)*st*100)/100:0;}return g2Rnd(P,key,L,"up");}
 function g2Pct(a,b){return b>0?Math.round((a/b-1)*1000)/10:0;}
-function g2Ton(P,key,s){if(!s.done||!(s.r>0))return 0;const X=G2X[key]||{};return X.bw?((P.bw||0)+(s.w||0))*s.r:(s.w||0)*(X.db||1)*s.r;}
+function g2Ton(P,key,s){if(!s.done||!(s.r>0))return 0;const X=G2X[key]||{};return X.bw?(g2Bw(P)+(s.w||0))*s.r:(s.w||0)*(X.db||1)*s.r;}
 function g2Fmt(w,key){const X=G2X[key]||{};return fmtW(w)+" кг"+(X.db===2?" × 2":X.db===1?" (1 гантель)":"")+(X.bw?" доп.":"");}
 
 /* ---------- календарь ---------- */
@@ -4880,7 +4885,7 @@ function g2AskWeight(i){const p=current.program,G=p.gx[i],k=G.key,X=G2X[k]||{n:k
 const G2_RM={squat:"Приседания со штангой",bench:"Жим лёжа",pull:"Подтягивания с весом",dips:"Отжимания на брусьях с весом"};
 function g2RepsOf(S){return S.algo==="rm"?S.rm:S.algo==="range"?(S.top||8):10;}
 function g2Suggest(P,si,key){if(!P||!P.recs)return null;const S=G2S[si],X=G2X[key]||{n:key},R=g2RepsOf(S);
-  if(X.bw&&!(P.bw>0))return {w:null,txt:"Укажи массу тела в настройках программы — тогда предложу вес по прошлым результатам"};
+  if(X.bw&&!(g2Bw(P)>0))return {w:null,txt:"Укажи массу тела в профиле — тогда предложу вес по прошлым результатам"};
   let best=null;const cand=(L,w,r,rec,test)=>{if(!(L>0)||!(r>0))return;const e1=g2E1(L,r);if(!best||e1>best.e1)best={e1:e1,w:w,r:r,date:rec.date,stage:rec.stage,test:test};};
   P.recs.forEach(rec=>{if(rec.kind==="train")(rec.ex||[]).forEach(e=>{if(e.key!==key)return;(e.sets||[]).forEach(s=>{if(s.done&&s.w!=null)cand(g2Load(P,key,+s.w||0),+s.w||0,s.r,rec,0);});});
     else if(rec.kind==="test")(rec.tests||[]).forEach(t=>{if(t.key===key&&!t.skipped&&t.w>0)cand(g2Load(P,key,t.w),t.w,t.r,rec,1);});});
@@ -4888,9 +4893,9 @@ function g2Suggest(P,si,key){if(!P||!P.recs)return null;const S=G2S[si],X=G2X[ke
   if(best){const old=best.date&&(Date.parse(localDate())-Date.parse(best.date))/864e5>56;
     txt="Из "+(best.test?"теста ":"")+"этапа "+G2S[best.stage].k+": "+g2Fmt(best.w,key)+" × "+best.r+(best.date?" · "+gvtDD(best.date):"")+(old?" · давно":"");}
   else{const nm=G2_RM[key]||X.n,rm=+((rmReg()||{})[nm]||0),addW=RM_LIFTS.some(x=>x[1]===nm&&x[3]);if(!(rm>0)&&!(addW&&rm===0&&(rmReg()||{})[nm]!=null))return null;
-    const L=addW?P.bw+rm:rm;if(!(L>0))return null;best={e1:L};txt="Из 1ПМ «"+nm+"»: "+fmtW(rm)+" кг"+(addW?" доп.":"");}
+    const L=addW?g2Bw(P)+rm:rm;if(!(L>0))return null;best={e1:L};txt="Из 1ПМ «"+nm+"»: "+fmtW(rm)+" кг"+(addW?" доп.":"")+rmSrcTxt(nm);}
   const L=best.e1/(1+R/30);let w;
-  if(X.bw){const x=L-P.bw;w=x>0?Math.floor(x/G2_BWSTEP+1e-6)*G2_BWSTEP:0;}else w=g2Rnd(P,key,L,"down");
+  if(X.bw){const x=L-g2Bw(P);w=x>0?Math.floor(x/G2_BWSTEP+1e-6)*G2_BWSTEP:0;}else w=g2Rnd(P,key,L,"down");
   return {w:w,txt:txt+" → ≈1ПМ "+fmtW(Math.round(best.e1*10)/10)+" кг · под "+R+" повт., округлено вниз"};}
 /* ---------- настройка этапа (стартовые веса) ---------- */
 function g2BwPct(S,X){if(!(S.algo==="rm"&&S.rm===20)||!X||!X.bw)return 0;const n=String(X.n||"");return /Подтягив/i.test(n)?50:/брус/i.test(n)?60:0;}
@@ -4971,7 +4976,7 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
       <div class="gvt-rm"><label>Дней отдыха между тренировками</label><input id="g2Rest" inputmode="numeric" value="1">
        <label>Шаг веса тренажёр, кг<small>штанга — по блинам из калькулятора</small></label><input id="g2Step" inputmode="decimal" value="5">
        <label>Шаг веса гантели, кг</label><input id="g2StepDb" inputmode="decimal" value="2">
-       <label>Масса тела, кг<small>для подтягиваний и брусьев</small></label><input id="g2Bw" inputmode="decimal" placeholder="необязательно"></div>
+       <label>Масса тела, кг<small>для подтягиваний и брусьев · пусто — из профиля</small></label><input id="g2Bw" inputmode="decimal" placeholder="из профиля"></div>
       <button class="btn" id="g2Go" type="button">Начать программу</button></div>`+g2ArchiveHTML(v);
     if(el("g2Pick"))el("g2Pick").onclick=()=>show("body");
     el("g2Go").onclick=()=>{const num=(id,d)=>{const x=parseFloat(String(el(id).value).replace(",","."));return isFinite(x)?x:d;};
@@ -5000,7 +5005,7 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
   h+=`<div class="card rm-fold"><button class="rm-fold-h" type="button"><span>Настройки<small class="rm-cur">отдых, шаг веса, таймеры, масса тела</small></span><span class="rm-caret">▾</span></button><div class="rm-fold-b" hidden>
     <div class="gvt-opt"><span>Дней отдыха между тренировками</span><div class="seg">${[0,1,2,3].map(x=>`<button class="seg-b${P.rest===x?" on":""}" data-rest="${x}" type="button">${x}</button>`).join("")}</div></div>
     <div class="gvt-opt"><span>Таймер основных / вспомогательных, с</span><div class="seg"><button class="seg-b" data-rt="-10" type="button">−10</button><b style="align-self:center">${st.rest[0]} / ${st.rest[1]}</b><button class="seg-b" data-rt="10" type="button">+10</button></div></div>
-    <div class="gvt-rm"><label>Шаг тренажёр, кг<small>штанга — по блинам из калькулятора</small></label><input id="g2sStep" inputmode="decimal" value="${P.stepM||5}"><label>Шаг гантели, кг</label><input id="g2sStepDb" inputmode="decimal" value="${P.stepDb}"><label>Масса тела, кг</label><input id="g2sBw" inputmode="decimal" value="${P.bw||""}"></div>
+    <div class="gvt-rm"><label>Шаг тренажёр, кг<small>штанга — по блинам из калькулятора</small></label><input id="g2sStep" inputmode="decimal" value="${P.stepM||5}"><label>Шаг гантели, кг</label><input id="g2sStepDb" inputmode="decimal" value="${P.stepDb}"><label>Масса тела, кг<small>пусто — из профиля</small></label><input id="g2sBw" inputmode="decimal" value="${P.bw||""}" placeholder="${bodyW()?fmtW(bodyW()):"из профиля"}"></div>
     <button class="btn btn-alt" id="g2sSave" type="button">Сохранить настройки</button>
     ${st.setup?`<button class="tm-mini" id="g2ReSetup" type="button" style="margin-top:8px">Изменить стартовые веса этапа</button>`:""}</div></div>`;
   h+=`<div class="card rm-fold"><button class="rm-fold-h" type="button"><span>Аналитика<small class="rm-cur">этапы, веса, тоннаж, тесты</small></span><span class="rm-caret">▾</span></button><div class="rm-fold-b" hidden>${g2StatsHTML(P)}</div></div>`;
@@ -6681,7 +6686,16 @@ const RM_LIFTS=[["Присед","Приседания со штангой",100],
 const RMK="gym45_rm_v1";
 function rmReg(){try{return JSON.parse(localStorage.getItem(RMK))||{}}catch(e){return{}}}
 function rmRegSet(o){try{localStorage.setItem(RMK,JSON.stringify(o))}catch(e){}cloudPush();}
-function rmSaveCur(){const r=rmReg();r[RM_LIFTS[rmLift][1]]=rmMax;rmRegSet(r);}
+/* 1ПМ: дата и источник (тест ЛЗ, проходка, вручную). Тест записывается и при снижении — это текущая форма; рекорды остаются в аналитике. */
+const RMMK="gym45_rmmeta_v1";
+function rmMeta(){try{return JSON.parse(localStorage.getItem(RMMK))||{}}catch(e){return {}}}
+function rmPut(lift,val,src){const r=rmReg(),m=rmMeta();r[lift]=val;m[lift]={at:new Date().toISOString(),src:src};try{localStorage.setItem(RMMK,JSON.stringify(m))}catch(e){}rmRegSet(r);}
+function rmSrcTxt(lift){const m=rmMeta()[lift];return m&&m.at?" ("+(m.src?m.src+" · ":"")+gvtDD(m.at.slice(0,10))+")":"";}
+/* 1ПМ подтягиваний и брусьев — только доп. вес на поясе */
+function rmAddW(lift){return RM_LIFTS.some(x=>x[1]===lift&&x[3]);}
+/* масса тела — из профиля */
+function bodyW(){try{const w=parseFloat(String(pfGet().weight).replace(",","."));return w>0?w:0;}catch(e){return 0;}}
+function rmSaveCur(){rmPut(RM_LIFTS[rmLift][1],rmMax,"вручную");}
 let rmMax=100, rmStep=2.5, rmLift=0;
 function rmLoadLift(i){rmLift=i;rmMax=rmGet(i);renderRM();}
 /* рабочий вес = процент от 1ПМ, округлён ВВЕРХ до целого кг (67,5 → 68) */
@@ -6695,7 +6709,7 @@ function renderRM(){
     row.className="tm-step"+(i===rmLift?" on":"");
     row.innerHTML=`<span class="lbl">${L[0]}</span><button class="tm-sbtn" type="button" data-d="-1">−</button><span class="tm-val">${L[3]?"+":""}${fmtW(rmGet(i))}</span><button class="tm-sbtn" type="button" data-d="1">+</button>`;
     row.onclick=e=>{const b=e.target.closest(".tm-sbtn");rmLift=i;
-      if(b){const r=rmReg();r[L[1]]=Math.min(500,Math.max(L[3]?0:20,rmGet(i)+2.5*(+b.dataset.d)));rmRegSet(r);}
+      if(b){rmPut(L[1],Math.min(500,Math.max(L[3]?0:20,rmGet(i)+2.5*(+b.dataset.d))),"вручную");}
       renderRM();};
     lc.appendChild(row);});
   document.querySelectorAll("#scr-onerm .rm-cur").forEach(x=>x.textContent=`${RM_LIFTS[rmLift][0]} · 1ПМ ${RM_LIFTS[rmLift][3]?"+":""}${fmtW(rmMax)} кг`);
@@ -9542,7 +9556,7 @@ if(natOn())setInterval(()=>wlSync(),3000);
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
 /* CLOUD_EXTRA — поля облачного документа, которых эта версия не знает: сохраняем их, а не стираем */
-function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),w531:w5Store(),lz:lzStore(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()});}
+function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{rmMeta:rmMeta(),history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),w531:w5Store(),lz:lzStore(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()});}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -9590,7 +9604,9 @@ async function cloudInit(){
       try{if(!current&&draftAutoRestore(currentScreen==="home"))cloudRefreshUI();}catch(e){}
       try{localStorage.setItem(FOODK,JSON.stringify(mergeFood(foodGet(),d.food)))}catch(e){}
       try{if(d.nutrition){const n=d.nutrition;if(n.target&&(n.target.updatedAt||0)>((ntT()||{}).updatedAt||0))localStorage.setItem(NTK_T,JSON.stringify(n.target));if(n.options&&(n.options.updatedAt||0)>(ntRead(NTK_O,{}).updatedAt||0))localStorage.setItem(NTK_O,JSON.stringify(n.options));if(n.custom&&Array.isArray(n.custom.items)){const a=ntCustom(),ids=new Set(a.items.map(i=>i.id));n.custom.items.forEach(i=>{if(i&&i.id&&!ids.has(i.id))a.items.push(i);});a.updatedAt=Math.max(a.updatedAt||0,n.custom.updatedAt||0);localStorage.setItem(NTK_C,JSON.stringify(a));}}}catch(e){}
-      try{localStorage.setItem(RMK,JSON.stringify(mergeRm(rmReg(),d.rm)))}catch(e){}
+      try{const a=rmReg(),b=d.rm||{},ma=rmMeta(),mb=d.rmMeta||{},out=mergeRm(a,b),mm=Object.assign({},mb,ma);
+        Object.keys(mb).forEach(k=>{const x=(ma[k]||{}).at||"",y=(mb[k]||{}).at||"";if(y>x&&b[k]!=null){out[k]=b[k];mm[k]=mb[k];}});
+        localStorage.setItem(RMK,JSON.stringify(out));if(Object.keys(mm).length)localStorage.setItem(RMMK,JSON.stringify(mm));}catch(e){}
       try{if(d.gvt)localStorage.setItem(GVTK,JSON.stringify(mergeGvt(gvtStore(),d.gvt)))}catch(e){}
       try{if(d.gvt2)localStorage.setItem(G2K,JSON.stringify(mergeG2(g2Store(),d.gvt2)))}catch(e){}
       try{if(d.w531)localStorage.setItem(W5K,JSON.stringify(mergeW5(w5Store(),d.w531)))}catch(e){}
