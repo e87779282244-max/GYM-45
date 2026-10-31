@@ -26,7 +26,7 @@ async def m():
     await pg.evaluate("el('login').style.display='none';show('progress')");await pg.wait_for_timeout(200)
     ok('«Прогресс»: без демо-данных («пример»)',await pg.evaluate("!el('scr-progress').innerText.includes('пример')"))
     ok('плитки: тренировок и тонн за 7 дней с динамикой',await pg.evaluate("+el('tWeek').textContent>=1&&el('tVol').textContent!==''"))
-    ok('3 вкладки + подвкладки тренировок, по умолчанию «Нагрузка»',await pg.evaluate("el('anTabs').querySelectorAll('button').length===3&&el('anSub').querySelectorAll('button').length===3&&!el('anSub').hidden&&!el('anLoad').hidden&&el('anEx').hidden"))
+    ok('3 вкладки + 5 подвкладок тренировок, по умолчанию «Нагрузка»',await pg.evaluate("el('anTabs').querySelectorAll('button').length===3&&el('anSub').querySelectorAll('button').length===5&&!el('anSub').hidden&&!el('anLoad').hidden&&el('anEx').hidden"))
     ok('нагрузка: 8 недельных столбцов',await pg.evaluate("el('anBars').querySelectorAll('.an-bar').length===8"))
     await pg.evaluate("el('anBars').querySelectorAll('.an-bar')[5].dispatchEvent(new MouseEvent('click',{bubbles:true}))")
     ok('нажатие на столбец — подробности недели',await pg.evaluate("el('anBars').querySelector('.an-cap').innerText.startsWith('Неделя с')"),await pg.evaluate("el('anBars').querySelector('.an-cap').innerText"))
