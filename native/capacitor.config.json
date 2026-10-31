@@ -1,0 +1,9 @@
+{
+  "appId": "com.gym45.app",
+  "appName": "Gym 45",
+  "webDir": "www",
+  "ios": { "contentInset": "never", "backgroundColor": "#191d10" },
+  "plugins": {
+    "LocalNotifications": { "sound": "default" }
+  }
+}

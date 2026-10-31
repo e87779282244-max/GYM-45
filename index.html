@@ -725,6 +725,18 @@
   .day-sum{color:var(--muted);font-size:13.5px;font-weight:600;margin:-6px 0 12px}
   .day-list{display:flex;flex-direction:column;gap:10px}
   .disc.disc-my{border-left:4px solid var(--good)}
+  .onb{position:fixed;inset:0;z-index:90;background:var(--bg);overflow:auto;display:flex;justify-content:center;padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+  .onb[hidden]{display:none}.onb-box{width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px}
+  .onb-box h2{margin:0;font-family:var(--dsp);font-size:28px;line-height:1.15}.onb-box .gvt-note{margin:0}
+  .onb-dots{display:flex;gap:6px;margin-bottom:8px}.onb-dots i{flex:1;height:4px;border-radius:2px;background:var(--line)}.onb-dots i.on{background:var(--good)}
+  .onb-opts{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .onb-o{text-align:left;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-size:17px;font-weight:600}
+  .onb-o.on{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+  .onb-back{align-self:flex-start;border:none;background:none;color:var(--muted);font:inherit;padding:0}
+  .onb-why{margin:0;font-size:15px}.onb-alt{text-align:left;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;display:flex;flex-direction:column;gap:2px}
+  .onb-alt small{color:var(--muted)}.onb-skip{align-self:center;margin-top:6px}
+  .disc.disc-onb{border-left:4px solid var(--good)}
+
   .cal-days{display:flex;flex-wrap:wrap;gap:6px}.cal-days .seg-b{flex:1 0 12%;min-width:40px}
   .td-cal{display:block;width:100%;margin-top:8px;padding:8px 0 0;border:none;border-top:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:14px;text-align:left}
   a.btn{display:flex;align-items:center;justify-content:center;text-decoration:none}a.btn.is-off{opacity:.45}
@@ -2108,6 +2120,7 @@
     </div>
   </nav>
 </div>
+<div class="onb" id="onb" hidden></div>
 <div class="toast" id="toast">Сохранено</div>
 <div class="gvt-modal" id="coolModal" hidden></div>
 <div class="cool-play" id="coolPlay" hidden>
@@ -9295,6 +9308,92 @@ auAll().forEach(p=>{const r=AU_RENAME[p.id];
   p.weeks.forEach(w=>w.days.forEach(d=>{AU_DAYPFX.forEach(([a,b])=>{if(d.name&&d.name.startsWith(a))d.name=b+d.name.slice(a.length);});}));});
 try{renderBody();}catch(e){}
 
+/* ===================== ПЕРВЫЙ ЗАПУСК: цель → опыт → дни → программа ===================== */
+const ONBK="gym45_onb_v1";
+const ONB_Q=[
+ {k:"goal",t:"Какая цель?",s:"Подберём программу под задачу — потом её всегда можно сменить.",o:[["mass","💪 Набрать мышечную массу"],["str","🏋 Стать сильнее"],["cut","🔥 Сбросить жир, сохранить мышцы"],["fit","⚡ Общая форма и здоровье"]]},
+ {k:"exp",t:"Какой у тебя опыт в зале?",s:"Честно — от этого зависят объём и сложность.",o:[["0","Новичок · до 6 месяцев"],["1","Средний · от 6 месяцев до 2 лет"],["2","Опытный · больше 2 лет"]]},
+ {k:"days",t:"Сколько дней в неделю готов тренироваться?",s:"Лучше реально выполнимый план, чем идеальный на бумаге.",o:[["2","2 дня"],["3","3 дня"],["4","4 дня"],["5","5 дней"],["6","6 дней"]]}];
+/* [id, почему] — первая программа главная, остальные — альтернативы */
+function onbPick(a){const g=a.goal,e=+a.exp,d=+a.days;let L;
+  if(g==="str")L=e===0?[["pl5","классика для старта в силовом: присед, жим, становая — вес растёт каждую неделю"],["fbn","если хочешь сначала поставить технику"]]
+    :e===1?(d<=3?[["tx","3 дня: объёмный, лёгкий и тяжёлый день — рекорд каждую неделю"],["w531","волны силы от тренировочного максимума"]]:[["w531","волны силы, 4 дня — стабильный рост без срывов"],["tx","если удобнее 3 дня"]])
+    :(d>=5?[["pbx2","6 дней: сила + масса"],["cj","максимальное и динамическое усилие"]]:[["cj","4 дня: максимальное и динамическое усилие — для опытных"],["w531","волны силы"]]);
+  else if(g==="cut")L=e===0?[["fbn","всё тело 3 раза в неделю — на дефиците калорий удержит мышцы"],["pcfb","фулбади с прогрессией"]]
+    :e===1?(d<=3?[["pcfb","3 дня всё тело — на сушке держим силу"],["hd","коротко и тяжело"]]:[["wl","верх / низ с разгрузкой — силу на дефиците сохраняет лучше всего"],["pcul","верх / низ"]])
+    :[["hiit","6 недель жиросжигания: отдых сокращается с каждой неделей"],["ft","3 режима нагрузки"]];
+  else if(g==="fit")L=e===0?[["fbn","8 недель: техника → рабочие веса → объём → сила"],["pcfb","следующий шаг"]]
+    :e===1?(d<=3?[["pcfb","всё тело 3 раза в неделю"],["hd","минимум времени, максимум отдачи"]]:d===4?[["pcul","верх / низ, 4 дня"],["wl","верх / низ с разгрузкой"]]:[["bts","сила + масса"],["cbum","push / pull / legs"]])
+    :[["bts","сила + масса, 12 недель"],["gvt","10×10 — немецкий объём"]];
+  else L=e===0?[["fbn","8 недель: техника → рабочие веса → объём → сила"],["pcfb","следующий шаг после старта"]]
+    :e===1?(d<=3?[["pcfb","всё тело 3 раза в неделю — каждая мышца трижды"],["hd","один подход до отказа"]]:d===4?[["wl","верх / низ с разгрузкой, 8 недель"],["pcul","верх / низ"]]:d===5?[["jpcm","масса, 4–5 дней"],["y3t","три типа недель"]]:[["cbum","push / pull / legs, 6 дней"],["jc","объём на массу"]])
+    :(d<=3?[["dc","отдых-пауза, 3 дня"],["hd","один подход до отказа"]]:d===4?[["ft","3 режима нагрузки"],["bg","высокая интенсивность"]]:d===5?[["fst7","7 подходов на растяжение"],["y3t","три типа недель"]]:[["jc","объём на массу, 12 недель"],["cbum","push / pull / legs"]]);
+  return L;}
+function onbInfo(id){const M={pl5:"5×5 · Сила",tx:"Техасский рейнджер",w531:"Батя в здании",cj:"Тяжёлая артиллерия",gvt:"German Volume Training"};
+  if(M[id])return {name:M[id],sub:id==="gvt"?"10×10 · бодибилдинг":"пауэрлифтинг"};const p=auAll().find(q=>q.id===id);return p?{name:p.name,sub:p.meta||""}:{name:id,sub:""};}
+function onbGo(id){try{if(id==="w531"){show("pwr");w5Button().click();return;}if(id==="tx"){show("pwr");txButton().click();return;}if(id==="cj"){show("pwr");cjButton().click();return;}
+  if(id==="gvt"){show("gvt");return;}if(id==="pl5"){show("pwr");extButton(P5_PROG).click();return;}
+  const p=auAll().find(q=>q.id===id);if(!p)return;if(p.sec==="pwr"){show("pwr");extButton(p).click();return;}show("body");authOpen(p);}catch(e){console.error(e);show("programs");}}
+function onbSt(){try{return JSON.parse(localStorage.getItem(ONBK))||null;}catch(e){return null;}}
+function onbOpen(){const a={};let step=0;const w=el("onb");w.hidden=false;
+  const draw=()=>{if(step<ONB_Q.length){const Q=ONB_Q[step];
+      w.innerHTML=`<div class="onb-box"><div class="onb-dots">${ONB_Q.map((_,i)=>`<i class="${i<=step?"on":""}"></i>`).join("")}<i></i></div>
+       ${step===0?`<p class="eyebrow">Gym 45 · добро пожаловать</p>`:`<button type="button" class="onb-back">← Назад</button>`}<h2>${Q.t}</h2><p class="gvt-note">${Q.s}</p>
+       <div class="onb-opts">${Q.o.map(([v,t])=>`<button type="button" class="onb-o${a[Q.k]===v?" on":""}" data-v="${v}">${t}</button>`).join("")}</div>
+       <button type="button" class="tm-mini onb-skip">Пропустить — выберу сам</button></div>`;
+      w.querySelectorAll(".onb-o").forEach(b=>b.onclick=()=>{a[Q.k]=b.dataset.v;step++;draw();});
+      const bk=w.querySelector(".onb-back");if(bk)bk.onclick=()=>{step--;draw();};
+      w.querySelector(".onb-skip").onclick=()=>{try{localStorage.setItem(ONBK,JSON.stringify({skip:1,at:new Date().toISOString()}));}catch(e){}w.hidden=true;};return;}
+    const L=onbPick(a);try{localStorage.setItem(ONBK,JSON.stringify(Object.assign({},a,{at:new Date().toISOString()})));}catch(e){}
+    const main=onbInfo(L[0][0]);
+    w.innerHTML=`<div class="onb-box"><div class="onb-dots">${ONB_Q.map(()=>`<i class="on"></i>`).join("")}<i class="on"></i></div><button type="button" class="onb-back">← Назад</button>
+     <p class="eyebrow">Твоя программа</p><h2></h2><p class="gvt-note onb-sub"></p><p class="onb-why"></p>
+     <button class="btn" type="button" id="onbGo">Открыть программу</button>
+     ${L.slice(1).map((x,i)=>`<button type="button" class="onb-alt" data-i="${i+1}"><b></b><small></small></button>`).join("")}
+     ${a.goal==="cut"?`<p class="gvt-note">На сушке главное — питание: в разделе «Питание» поставь цель «сушка», приложение посчитает калории и белок.</p>`:""}
+     <button type="button" class="tm-mini" id="onbAll">Посмотреть все программы</button></div>`;
+    w.querySelector("h2").textContent=main.name;w.querySelector(".onb-sub").textContent=main.sub;w.querySelector(".onb-why").textContent="Почему: "+L[0][1]+".";
+    w.querySelectorAll(".onb-alt").forEach(b=>{const x=L[+b.dataset.i],I=onbInfo(x[0]);b.querySelector("b").textContent="Или: "+I.name;b.querySelector("small").textContent=x[1];b.onclick=()=>{w.hidden=true;onbGo(x[0]);};});
+    w.querySelector(".onb-back").onclick=()=>{step--;draw();};el("onbGo").onclick=()=>{w.hidden=true;onbGo(L[0][0]);};el("onbAll").onclick=()=>{w.hidden=true;show("programs");};};
+  draw();}
+/* показываем один раз: новый человек (нет истории и анкеты), после окна входа */
+(function(){if(onbSt()||(navigator.webdriver&&!window.__onbTest))return; /* автотесты: анкету не показываем */
+  let had=false;try{had=safe.get().length>0||!!localStorage.getItem("gym45_auprog_v1");}catch(e){}
+  if(had){try{localStorage.setItem(ONBK,JSON.stringify({skip:1,old:1}));}catch(e){}return;}
+  let n=0;const t=setInterval(()=>{n++;const lg=el("login"),busy=lg&&lg.style.display!=="none"&&getComputedStyle(lg).display!=="none"&&!lg.hidden;
+    if(onbSt()||safe.get().length){clearInterval(t);return;}if(!busy&&n>=2){clearInterval(t);onbOpen();}if(n>600)clearInterval(t);},500);})();
+/* повторно — из «Программ» */
+(function(){const st=el("scr-programs")&&el("scr-programs").querySelector(".stack");if(!st)return;
+  st.insertAdjacentHTML("afterbegin",`<button class="disc disc-onb" id="onbAgain" type="button"><span style="display:flex;flex-direction:column;gap:2px"><span>Подобрать программу</span><span class="disc-sub">3 вопроса: цель, опыт, дни в неделю</span></span><span class="go">›</span></button>`);
+  el("onbAgain").onclick=onbOpen;})();
+/* ===================== НАТИВНАЯ ВЕРСИЯ (iPhone, Capacitor) ===================== */
+/* в браузере ничего не делает; в приложении из App Store: уведомление о конце отдыха при заблокированном экране,
+   напоминания о тренировках по дням, экран не гаснет */
+function natOn(){try{return !!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());}catch(e){return false;}}
+function natP(n){try{return window.Capacitor&&Capacitor.Plugins?Capacitor.Plugins[n]||null:null;}catch(e){return null;}}
+let NAT_PERM=null;
+async function natPerm(){const LN=natP("LocalNotifications");if(!LN)return false;if(NAT_PERM!=null)return NAT_PERM;
+  try{let s=await LN.checkPermissions();if(s.display!=="granted")s=await LN.requestPermissions();NAT_PERM=s.display==="granted";}catch(e){NAT_PERM=false;}return NAT_PERM;}
+const NAT_REST=9001;
+async function natRestPlan(){const LN=natP("LocalNotifications");if(!natOn()||!LN||!(restEnd>Date.now()+1500))return;if(!(await natPerm()))return;
+  let nx="";try{const p=current&&current.program,i=current.idx;nx=p?(exDone(i)&&nextUndone(i)>=0?"Дальше: "+p.ex[nextUndone(i)][0]:"Следующий подход: "+p.ex[i][0]):"";}catch(e){}
+  try{await LN.cancel({notifications:[{id:NAT_REST}]});await LN.schedule({notifications:[{id:NAT_REST,title:"Отдых окончен — работаем",body:nx||"Gym 45",schedule:{at:new Date(restEnd),allowWhileIdle:true},sound:"default"}]});}catch(e){}}
+async function natRestCancel(){const LN=natP("LocalNotifications");if(!natOn()||!LN)return;try{await LN.cancel({notifications:[{id:NAT_REST}]});}catch(e){}}
+{const _rs=restStart;restStart=function(){const r=_rs.apply(this,arguments);natRestPlan();return r;};}
+{const _rp=restStop;restStop=function(){const r=_rp.apply(this,arguments);natRestCancel();return r;};}
+/* напоминания о тренировках: повтор каждую неделю в выбранные дни, за N минут до начала */
+const NAT_WD={SU:1,MO:2,TU:3,WE:4,TH:5,FR:6,SA:7};
+async function natRemind(c){const LN=natP("LocalNotifications");if(!LN||!(await natPerm()))return false;
+  try{await LN.cancel({notifications:[1,2,3,4,5,6,7].map(d=>({id:9100+d}))});}catch(e){}
+  if(!c||!c.days.length)return true;let [h,m]=c.time.split(":").map(Number);m-=c.rem|0;while(m<0){m+=60;h--;}
+  const list=c.days.map(k=>{let wd=NAT_WD[k];if(h<0)wd=wd===1?7:wd-1;return {id:9100+NAT_WD[k],title:calTitle(),body:"Через "+(c.rem|0)+" мин — тренировка. Программа дня уже готова.",schedule:{on:{weekday:wd,hour:(h+24)%24,minute:m},allowWhileIdle:true},sound:"default"};});
+  try{await LN.schedule({notifications:list});return true;}catch(e){return false;}}
+{const _co=calOpen;calOpen=function(){_co();if(!natOn())return;try{const g=el("calG");g.insertAdjacentHTML("beforebegin",`<button class="btn" type="button" id="calN">Напоминать в приложении · за 30 мин</button><button class="tm-mini" type="button" id="calNoff">Выключить напоминания приложения</button>`);
+  el("calN").onclick=async()=>{const v=calCfg();if(!v.days.length){toast("Выбери хотя бы один день");return;}toast(await natRemind(v)?"Напоминания включены":"Разреши уведомления для Gym 45 в настройках iPhone");};
+  el("calNoff").onclick=async()=>{await natRemind({days:[]});toast("Напоминания выключены");};g.classList.replace("btn","btn-alt");g.classList.add("btn");}catch(e){}};}
+/* экран не гаснет — плагин KeepAwake (в приложении надёжнее, чем Wake Lock браузера) */
+{const _ws=wlSync;let natAwake=false;wlSync=async function(){if(natOn()&&natP("KeepAwake")){const need=wlNeed();if(need!==natAwake){natAwake=need;try{await natP("KeepAwake")[need?"keepAwake":"allowSleep"]();}catch(e){}}return;}return _ws();};}
+if(natOn())setInterval(()=>wlSync(),3000);
 /* ===================== ОБЛАКО (db + user) ===================== */
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
@@ -9397,7 +9496,7 @@ cloudInit();
 const FB_VER="10.14.1",FB_CFG={apiKey:"AIzaSyAnrWTmSnVDY3XCxwWHVKb7bikwJe215kM",authDomain:"gym-45-8aa8e.firebaseapp.com",projectId:"gym-45-8aa8e",
   storageBucket:"gym-45-8aa8e.firebasestorage.app",messagingSenderId:"506281962269",appId:"1:506281962269:web:9d6323fdcbd7ce3f9c4ff4"};
 const FBK="gym45_fb_v1",FB_CH=200000;let FB=null;
-function fbMode(){return !(window.claude&&window.claude.use)&&(!!window.firebase||(location.protocol==="https:"&&/\.github\.io$/.test(location.hostname)));}
+function fbMode(){return !(window.claude&&window.claude.use)&&(!!window.firebase||(location.protocol==="https:"&&/\.github\.io$/.test(location.hostname))||natOn());}
 function fbSt(){try{return JSON.parse(localStorage.getItem(FBK)||"{}")||{};}catch(e){return {};}}
 function fbSave(o){try{localStorage.setItem(FBK,JSON.stringify(Object.assign(fbSt(),o)));}catch(e){}}
 function fbLoad(){if(fbLoad._p)return fbLoad._p;
