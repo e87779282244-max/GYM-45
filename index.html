@@ -7896,9 +7896,9 @@ el("ntCalc").addEventListener("click",()=>setTimeout(()=>{if(!el("ntErr").textCo
 {const _cs=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cs(),{profile:pfRaw()});};}
 pfAvatar();
 /* версия внутри Claude: предупреждение, что данные отдельно от приложения с иконки «Домой» */
-/* основная версия — внутри Claude (облако). Копия с GitHub — только запасная копия кода. */
-{const inC=!!(window.claude&&claude.use),K=inC?"gym45_cnote_v2":"gym45_gnote_v1";try{if(!inC&&typeof fbMode==="function"&&fbMode())throw 0;if(!localStorage.getItem(K)){const n=document.createElement("div");n.className="c-note";
-  n.innerHTML=inC?'<b>Это основная версия Gym 45.</b> Тренировки, питание и профиль сохраняются здесь и в облаке — заноси всё сюда. Если что-то осталось в приложении с иконки «Домой»: там «Прогресс → Сохранить копию в файл», здесь «Прогресс → Восстановить из файла».<button type="button">Понятно</button>'
+/* основная версия — на GitHub (своё облако Firebase, ярлык с логотипом). Версия в Claude — запасная. */
+{const inC=!!(window.claude&&claude.use),K=inC?"gym45_cnote_v3":"gym45_gnote_v1";try{if(!inC&&typeof fbMode==="function"&&fbMode())throw 0;if(!localStorage.getItem(K)){const n=document.createElement("div");n.className="c-note";
+  n.innerHTML=inC?'<b>Основная версия Gym 45 — на GitHub:</b> <a href="https://e87779282244-max.github.io/GYM-45/" target="_blank" rel="noopener">e87779282244-max.github.io/GYM-45</a> (ярлык с логотипом). Тренируйся там — эта копия не основная. Перенести записи отсюда: здесь «Прогресс → Сохранить копию в файл», там «Восстановить из файла» → «Объединить».<button type="button">Понятно</button>'
    :'<b>Основная версия Gym 45 теперь внутри Claude</b> — там данные сохраняются в облако. Эта копия больше не основная: новые тренировки сюда не заноси. Чтобы перенести записи: «Прогресс → Сохранить копию в файл», затем в версии Claude «Восстановить из файла».<button type="button">Понятно</button>';
   n.querySelector("button").onclick=()=>{try{localStorage.setItem(K,"1");}catch(e){}n.remove();};
   document.querySelector("#scr-home .home-top").after(n);}}catch(e){}}
