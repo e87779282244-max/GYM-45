@@ -2627,7 +2627,7 @@ const R_HEAVY=/присед|станов|жим|тяга штанги|тяга �
 function rFixed(p){return !!(p&&(p.fixed||p.preset||p.g2));}
 function rFactor(p){return readiness==="Устал"?0.9:(readiness==="Заряжен"&&!rFixed(p))?1.05:1;}
 function rRound(v){return v>=40?Math.round(v/2.5)*2.5:Math.max(1,Math.round(v));}
-function rScaleW(w,p){if(!w)return 0;const f=rFactor(p);return f===1?w:rRound(w*f);}
+function rScaleW(w,p,n){if(!w)return 0;const f=rFactor(p);if(f===1)return w;const k=wKind(n);return k?wSnap(w*f,k,"near"):rRound(w*f);}
 function rScaleSets(n,e){return readiness==="Устал"&&n>=3&&R_HEAVY.test(e[0])&&!/лёгк/i.test(e[0])?n-1:n;}
 function rNote(r,fixed){r=r||readiness;return r==="Устал"?"вес −10 % · −1 подход в тяжёлой базе · без попыток на максимум":r==="Заряжен"?(fixed?"план без изменений — добей все повторы чисто":"вес +5 % · без отказа"):"всё по программе";}
 function rLightAlt(p){if(readiness!=="Устал"||!p||!currentBody||/лёгк/i.test(p.name+" "+(p.focus||"")))return null;
@@ -2655,15 +2655,15 @@ function plural(n,a,b,c){const m=n%10,h=n%100;return (m===1&&h!==11)?a:(m>=2&&m<
 function prRange(e){const t=String(e[5]||""),m=t.match(/(\d+)\s*[–-]\s*(\d+)\s*повт/);let lo,hi;
   if(m){lo=+m[1];hi=+m[2];}else{const m2=String(e[2]).match(/(\d+)\s*[–-]\s*(\d+)/);if(m2){lo=+m2[1];hi=+m2[2];}else lo=hi=parseInt(e[2],10)||0;}
   return hi>0&&hi<=40&&lo<=hi?{lo:lo,hi:hi}:null;}
-function prInc(w){return w>=20?2.5:1;}
+function prInc(w,n){const k=wKind(n);if(k==="bar")return Math.max(2.5,Math.round((wBar(w+0.01,"up")-w)*100)/100);if(k&&W_STEP[k])return W_STEP[k];return w>=20?2.5:1;}
 function prSug(e,p,pr){if(p.wPlan||Array.isArray(e[4])||!(e[3]!==0))return null;const ns=rScaleSets(e[1],e),rg=prRange(e);
   if(pr&&pr.sets&&pr.sets.length){const ps=pr.sets.slice(0,ns);if(!(ps[0].w>0)||!rg)return null;
-    const reps=ps.map(s=>s.r).join("/"),inc=prInc(Math.max(...ps.map(s=>s.w)));
+    const reps=ps.map(s=>s.r).join("/"),inc=prInc(Math.max(...ps.map(s=>s.w)),e[0]);
     if(!p.planR&&ps.length>=ns&&ps.every(s=>s.r>=rg.hi))
-      return {up:1,w:Array.from({length:ns},(_,j)=>(ps[j]||ps[ps.length-1]).w+inc),r:Array(ns).fill(rg.lo),why:"↑ +"+fmtW(inc)+" кг: в прошлый раз все подходы по "+rg.hi+"+ ("+reps+") — теперь снова от "+rg.lo+" повт."};
+      return {up:1,w:Array.from({length:ns},(_,j)=>wFit((ps[j]||ps[ps.length-1]).w+inc,e[0],"up")),r:Array(ns).fill(rg.lo),why:"↑ +"+fmtW(inc)+" кг: в прошлый раз все подходы по "+rg.hi+"+ ("+reps+") — теперь снова от "+rg.lo+" повт."};
     return {w:null,r:null,why:"Вес тот же: добери до "+rg.hi+" повт. в каждом подходе (было "+reps+"), потом +"+fmtW(inc)+" кг"};}
   if(e[3]>0){const rm=(rmReg()||{})[e[0]],lo=rg?rg.lo:(parseInt(e[2],10)||8);
-    if(rm>0){const w=Math.floor(rm/(1+0.0333*lo)*0.9/2.5)*2.5;if(w>0)return {w:Array(ns).fill(w),r:null,why:"Первый раз: "+fmtW(w)+" кг ≈ 90% от расчёта по твоему 1ПМ "+fmtW(rm)+" кг — 2–3 повт. в запасе"};}
+    if(rm>0){const _x=rm/(1+0.0333*lo)*0.9,_k=wKind(e[0]),w=_k?wSnap(_x,_k,"down"):Math.floor(_x/2.5)*2.5;if(w>0)return {w:Array(ns).fill(w),r:null,why:"Первый раз: "+fmtW(w)+" кг ≈ 90% от расчёта по твоему 1ПМ "+fmtW(rm)+" кг — 2–3 повт. в запасе"};}
     return {first:1,w:Array(ns).fill(0),r:null,why:"Первый раз: подбери вес, чтобы осталось 2–3 повт. в запасе (ориентир программы — "+fmtW(e[3])+" кг)"};}
   return null;}
 function planOf(e,p){ // что будет на тренировке (с учётом готовности)
@@ -2671,10 +2671,10 @@ function planOf(e,p){ // что будет на тренировке (с учё�
   const ns=psw?psw.length:rScaleSets(e[1],e);
   let w="";
   const _pr=(!psw&&!(dayView&&dayView.computed))?lastResult(e[0]):null,_sg=(!psw&&!(dayView&&dayView.computed))?prSug(e,p,_pr):null;
-  if(_sg&&_sg.w)w=_sg.first?"вес подбери сам":fmtW(rScaleW(_sg.w[0],p))+" кг"+(_sg.up?" ↑":"");
-  else if(_pr&&_pr.sets[0]&&_pr.sets[0].w>0)w=fmtW(rScaleW(_pr.sets[0].w,p))+" кг";
-  else if(psw){const ws=psw.map(x=>rScaleW(x,p)),lo=Math.min(...ws),hi=Math.max(...ws);w=lo===hi?lo+" кг":lo+"–"+hi+" кг";}
-  else if(e[3]){const sw=rScaleW(e[3],p);w=sw!==e[3]?fmtW(e[3])+" → "+fmtW(sw)+" кг":fmtW(e[3])+" кг";}
+  if(_sg&&_sg.w)w=_sg.first?"вес подбери сам":fmtW(rScaleW(_sg.w[0],p,e[0]))+" кг"+(_sg.up?" ↑":"");
+  else if(_pr&&_pr.sets[0]&&_pr.sets[0].w>0)w=fmtW(rScaleW(_pr.sets[0].w,p,e[0]))+" кг";
+  else if(psw){const ws=psw.map(x=>rScaleW(x,p,e[0])),lo=Math.min(...ws),hi=Math.max(...ws);w=lo===hi?lo+" кг":lo+"–"+hi+" кг";}
+  else if(e[3]){const sw=rScaleW(e[3],p,e[0]);w=sw!==e[3]?fmtW(e[3])+" → "+fmtW(sw)+" кг":fmtW(e[3])+" кг";}
   if(ns!==e[1]&&!psw)w+=(w?" · ":"")+"подходов "+e[1]+" → "+ns;
   const nt=e[5]?String(e[5]).split(/\. (?=[А-ЯЁA-Z«])/)[0]:"";
   return {sets:ns,reps:_sg&&_sg.r?_sg.r[0]:e[2],w:w,extra:nt?" · "+(nt.length>70?nt.slice(0,68)+"…":nt):""};}
@@ -2731,12 +2731,12 @@ function beginWorkout(p,computed){
     const name=e[0],pr=computed?null:lastResult(name),sg=computed?null:prSug(e,p,pr);if(sg)why[i]=sg.why;
     const psw=Array.isArray(e[4])?e[4]:null;           // индивидуальный вес по подходам (GVT-лесенка)
     const ns=psw?psw.length:rScaleSets(e[1],e);
-    const baseW=rScaleW(e[3],p);
+    const baseW=rScaleW(e[3],p,e[0]);
     if(pr)prevMap[name]=pr;
     return Array.from({length:ns},(_,j)=>{
       const pv=pr?(pr.sets[j]||pr.sets[pr.sets.length-1]):null;
-      let w=pv?rScaleW(pv.w,p):(psw?rScaleW(psw[j],p):baseW),r=pv&&!p.planR?pv.r:e[2];
-      if(sg&&sg.w)w=sg.w[j]>0?rScaleW(sg.w[j],p):0;if(sg&&sg.r)r=sg.r[j];
+      let w=pv?rScaleW(pv.w,p,e[0]):(psw?rScaleW(psw[j],p,e[0]):baseW),r=pv&&!p.planR?pv.r:e[2];
+      if(sg&&sg.w)w=sg.w[j]>0?rScaleW(sg.w[j],p,e[0]):0;if(sg&&sg.r)r=sg.r[j];
       return {w:w,r:r,done:false,prev:pv||null};});});
   current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),startedAt:new Date().toISOString(),sec:anSecOf(p),why:why,orig:_wsOrig};
   dayView={p:p,computed:computed};restStop();
@@ -2934,7 +2934,7 @@ function renderWorkout(){
   if(_g){const tot=Math.max(...current.sets.slice(_g[0],_g[1]+1).map(se=>se.filter(x=>!x.warm).length)),dn=Math.min(...current.sets.slice(_g[0],_g[1]+1).map(se=>se.filter(x=>!x.warm&&x.done).length));
     const _ss=_g[1]-_g[0]===1;_circ=`<div class="wk-circ">${_ss?"Суперсет · подход":"Круг"} ${Math.min(dn+1,tot)} из ${tot} · упражнение ${i-_g[0]+1} из ${_g[1]-_g[0]+1}</div>`;}
   const _rr=current.readiness||"Норма",_rf=_rr==="Устал"?0.9:(_rr==="Заряжен"&&!rFixed(current.program))?1.05:1;
-  const _rdy=(_rr!=="Норма"&&!current.program.preset&&!current.program.g2)?`<div class="prev-line rdy-line">${_rr}: ${ex[3]&&!Array.isArray(ex[4])&&_rf!==1?"план "+fmtW(ex[3])+" кг → сегодня "+fmtW(rScaleW(ex[3],current.program))+" кг · ":""}${rNote(_rr,rFixed(current.program))}</div>`:"";
+  const _rdy=(_rr!=="Норма"&&!current.program.preset&&!current.program.g2)?`<div class="prev-line rdy-line">${_rr}: ${ex[3]&&!Array.isArray(ex[4])&&_rf!==1?"план "+fmtW(ex[3])+" кг → сегодня "+fmtW(rScaleW(ex[3],current.program,ex[0]))+" кг · ":""}${rNote(_rr,rFixed(current.program))}</div>`:"";
   const _why=current.why&&current.why[i]?`<div class="prev-line pr-why${/^↑/.test(current.why[i])?" up":""}">${current.why[i]}</div>`:"";
   const _sw=(!G&&!current.program.preset&&wsubRep((current.orig&&current.orig[i])||ex[0]))?`<button class="g2-swap wk-swap" type="button">⇄ Заменить</button>`:"";
   c.innerHTML=`${_media}<h3>${ex[0]}</h3>${_sw}<div class="target">${tgt}</div>${_circ}${extra}${_prev}${_why}${_rdy}
@@ -3314,7 +3314,37 @@ function gvtActive(v){v=v||gvtStore();return v.cycles.find(c=>c.id===v.activeId&
 function gvtNow(){return new Date().toISOString();}
 function addDays(iso,n){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+n);return localDate(d);}
 function gvtSlot(n){return {n:n,day:n%3,week:Math.floor(n*3/7)};}
+/* ---------- шаг веса по снаряду (решение 31.10) ----------
+   Штанга — ближайший вес, который собирается из грифа и блинов калькулятора (по умолчанию гриф 20, блины 20…1,25 → кратно 2,5).
+   Гантели +2 кг · доп. вес на подтягиваниях и брусьях +2,5 кг · тренажёры +5 кг. В программах с процентами вес считается
+   по процентам и подгоняется под этот шаг. Внутренние расчёты программ (рекорды, прогрессия автора) не меняются. */
+const W_STEP={db:2,bw:2.5,mach:5};let _wLd=null;
+function wCfg(){try{const v=JSON.parse(localStorage.getItem("gym45_plates_v1"));if(v&&v.bar>0&&Array.isArray(v.plates)&&v.plates.length)return v;}catch(e){}return {bar:20,plates:[20,15,10,5,2.5,1.25]};}
+function wLoadable(){const c=wCfg(),key=c.bar+"|"+c.plates.join(",");if(_wLd&&_wLd.k===key)return _wLd;
+  /* на сторону: блинов от 5 кг — сколько нужно, маленьких (меньше 5 кг) — не больше двух одного вида */
+  const U=0.05,N=Math.round(300/U),ok=new Uint8Array(N+1);ok[0]=1;
+  c.plates.forEach(pl=>{const p=Math.round(pl/U);if(!(p>0))return;
+    if(pl>=5){for(let i=p;i<=N;i++)if(ok[i-p])ok[i]=1;}
+    else for(let t=0;t<2;t++)for(let i=N;i>=p;i--)if(ok[i-p])ok[i]=1;});
+  return _wLd={k:key,bar:c.bar,ok:ok,U:U};}
+/* вес штанги, который собирается из блинов: dir — "down" / "up" / "near" (при равенстве — вниз) */
+function wBar(x,dir){if(!(x>0))return 0;const L=wLoadable();if(x<=L.bar+1e-9)return L.bar;
+  const tot=i=>Math.round((L.bar+2*i*L.U)*100)/100,sx=(x-L.bar)/2/L.U,M=L.ok.length-1;
+  let lo=Math.min(M,Math.floor(sx+1e-6));while(lo>0&&!L.ok[lo])lo--;let hi=Math.min(M,Math.ceil(sx-1e-6));while(hi<M&&!L.ok[hi])hi++;
+  if(dir==="down")return tot(lo);if(dir==="up")return tot(hi);return x-tot(lo)<=tot(hi)-x+1e-9?tot(lo):tot(hi);}
+/* тип снаряда по названию упражнения */
+function wKind(n){n=String(n||"").toLowerCase();
+  if(/подтяг|брусь/.test(n))return "bw";
+  if(/гантел/.test(n))return "db";
+  if(/тренаж|блок|кроссовер|рычаж|хаммер|сгибание ног|разгибание ног|жим ногами|гакк|бабочк|пек|подъём на носки сидя/.test(n))return "mach";
+  if(plIsBar(n))return "bar";
+  return "";}
+function wSnap(x,kind,dir){if(!(x>0))return 0;if(kind==="bar")return wBar(x,dir);const st=W_STEP[kind];if(!st)return x;
+  const v=x/st,f=dir==="down"?Math.floor(v+1e-6):dir==="up"?Math.ceil(v-1e-6):Math.ceil(v-0.5-1e-6);return Math.round(f*st*100)/100;}
+function wFit(x,name,dir){const k=wKind(name);return k?wSnap(x,k,dir):x;}
 function gvtRound(x,dir){return dir==="down"?Math.floor(x+1e-8):Math.ceil(x-1e-9);}
+/* GVT: процент от 1ПМ → шаг снаряда (штанга — по блинам, гантели 2, тренажёр 5); остальное — как раньше, целые кг */
+function gvtRoundEx(x,dir,E){const k=E&&E.bw?"bw":wKind(E&&E.name);return k?wSnap(x,k,dir==="down"?"down":"up"):gvtRound(x,dir);}
 function gvtOkW(w){return typeof w==="number"&&isFinite(w)&&w>0;}
 function gvtRecs(c,n){return c.recs.filter(r=>r.n===n);}
 function gvtStatus(c,n){const r=gvtRecs(c,n);if(!r.length)return null;return r.some(x=>x.full)?"full":"partial";}
@@ -3334,8 +3364,8 @@ function gvtBuild(c,n){
     prevShow.push(pw.filter(s=>s.done&&s.r>0).map(s=>({r:s.r,w:s.w})));
     const sets=[];
     if(E.main){const rm=c.rm[id];
-      if(warmOn)[[20,8],[30,5],[40,3]].forEach(([pc,r])=>sets.push({w:gvtRound(rm*pc/100,c.round),r:r,done:false,warm:true,pct:pc,src:"plan"}));
-      pcts.forEach((pc,j)=>{let w=gvtRound(rm*pc/100,c.round),src="plan";const ps=pw[j];
+      if(warmOn)[[20,8],[30,5],[40,3]].forEach(([pc,r])=>sets.push({w:gvtRoundEx(rm*pc/100,c.round,E),r:r,done:false,warm:true,pct:pc,src:"plan"}));
+      pcts.forEach((pc,j)=>{let w=gvtRoundEx(rm*pc/100,c.round,E),src="plan";const ps=pw[j];
         if(ps&&ps.done&&ps.r>0&&gvtOkW(ps.w)){w=ps.w;src="prev";}
         sets.push({w:w,r:10,done:false,pct:pc,src:src,rir:""});});
       const ws=sets.filter(s=>!s.warm).map(s=>s.w);
@@ -3821,13 +3851,13 @@ function lzPlan(P,st,kind){kind=kind||st.next;const ex=[],preset=[],rows=[];
   LZ_ORDER.forEach(k=>{const L=st.lifts[k],D=LZL[k];
     if(kind==="dtest"&&L.mode==="reps"){push([D.b,1,"макс",0,undefined,"Проверка: один подход на максимум повторов без веса.",180,"1 × максимум повторов"],[{w:0,r:L.R,done:false}],{lift:k,mode:"reps"});return;}
     if(kind==="dtest"){push([D.n,3,"1",L.rm||L.W*2.5||0,undefined,"Проходка на 1ПМ: разминка 50%×6, 65%×5, 80%×3, затем одиночные с прибавкой. Отметь подходы — лучший вес станет новым 1ПМ, рабочие веса пересчитаются от него (40%).",240,"проходка на 1ПМ · одиночные"],
-      Array.from({length:3},(_,j)=>({w:lzR((L.rm||L.W*2.5)*[0.9,0.97,1.02][j],1.25),r:1,done:false})),{lift:k,test:1});return;}
+      Array.from({length:3},(_,j)=>({w:wSnap((L.rm||L.W*2.5)*[0.9,0.97,1.02][j],"bw","near"),r:1,done:false})),{lift:k,test:1});return;}
     const heavy=kind==="mon"||kind==="fri",ns=heavy?3:2;
     if(L.mode==="reps"){const r=heavy?L.R:Math.max(3,Math.round(L.R*.6));
       push([D.b,ns,String(r),0,undefined,heavy?"Без веса: прибавляй повторы. Сделаешь "+D.cap+" в каждом подходе — перейдёшь на 8 повторов с весом.":"Лёгкий день — ~60% повторов тяжёлого: отработка техники.",180,ns+" × "+r+(heavy?" · цель "+D.cap+" повт.":" · лёгкий день")],
         Array.from({length:ns},()=>({w:0,r:r,done:false,need:r})),{lift:k,mode:"reps"});return;}
-    let w=heavy?L.W:L.L;if(kind==="dmon"){const lf=st.deload&&st.deload.lastFri&&st.deload.lastFri[k];w=lzR((lf&&lf.w||L.W)*.7,1.25);}
-    const sets=[];if(w>=5)[[50,6],[65,5],[80,3]].forEach(([pc,r])=>sets.push({w:lzR(w*pc/100,1.25),r:r,done:false,warm:true}));
+    let w=heavy?L.W:L.L;if(kind==="dmon"){const lf=st.deload&&st.deload.lastFri&&st.deload.lastFri[k];w=lzR((lf&&lf.w||L.W)*.7,1.25);}w=w>0?wSnap(w,"bw","near"):w;
+    const sets=[];if(w>=5)[[50,6],[65,5],[80,3]].forEach(([pc,r])=>sets.push({w:wSnap(w*pc/100,"bw","near"),r:r,done:false,warm:true}));
     const n=kind==="mon"||kind==="fri"?3:2;for(let j=0;j<n;j++)sets.push({w:w,r:8,done:false,need:8});
     const nt=heavy?"Рабочий вес по худшему подходу прошлой тяжёлой: 8 повт. → +2,5 кг, 7 → +1,25, 6 → +0,5, меньше 6 → тот же вес. Отдых 3 мин (через несколько недель можно 4–5).":kind==="wed"?"Лёгкий день: 60% от Пн на старте, дальше +1,25 кг раз в неделю.":"Разгрузка: меньше объём и вес.";
     push([D.n,n,"8",w,Array(n).fill(w),nt,180,n+" × 8 · +"+fmtW(w)+" кг"+(heavy?"":kind==="wed"?" · лёгкий":" · разгрузка")],sets,{lift:k,mode:"kg"});});
@@ -3955,10 +3985,10 @@ function txState(P){const c=P.cfg,st={t:{},miss:{},resets:[],week:1,day:0,log:[]
   const seq=c.days===4?["d1","d2","d3","d4"]:["vd","ld","id"];st.day=Math.min(st.day,seq.length-1);st.next=seq[st.day];
   st.main=st.week%2===1?"bp":"pr";st.other=st.main==="bp"?"pr":"bp";
   return st;}
-function txWarm(w,st){if(!(w>=40))return [];return [[0,5],[50,5],[70,3],[85,2]].map(([pc,r])=>({w:pc?txR(w*pc/100,st):20,r:r,done:false,warm:true}));}
+function txWarm(w,st){if(!(w>=40))return [];return [[0,5],[50,5],[70,3],[85,2]].map(([pc,r])=>({w:pc?wBar(txR(w*pc/100,st),"near"):wBar(20,"near"),r:r,done:false,warm:true}));}
 function txPlan(P,st,kind){kind=kind||st.next;const c=P.cfg,ex=[],preset=[],rows=[],easy=c.mode==="easy";
   const push=(e,s,m)=>{ex.push(e);preset.push(s);rows.push(m);};
-  const lift=(k,w,n,r,role,note,rest,prog)=>{const S=TXL[k],nm=k==="pc"?TX_PC[c.pc||"pc"]:S.n;
+  const lift=(k,w,n,r,role,note,rest,prog)=>{w=w>0?wBar(w,"near"):w;const S=TXL[k],nm=k==="pc"?TX_PC[c.pc||"pc"]:S.n;
     const sets=txWarm(w,S.st);for(let j=0;j<n;j++)sets.push({w:w,r:r,done:false,need:r});
     push([nm,n,String(r),w,Array(n).fill(w),note,rest||180,n+" × "+r+" · "+fmtW(w)+" кг"],sets,{lift:k,role:role,prog:!!prog});};
   const bw=(nm,n,r,note,rest)=>push([nm,n,String(r),0,undefined,note,rest||90,n+" × "+r],Array.from({length:n},()=>({w:0,r:typeof r==="number"?r:0,done:false})),{});
@@ -4516,7 +4546,14 @@ function mergeG2(a,b){a=a&&a.progs?a:{progs:[],activeId:null};b=b&&b.progs?b:{pr
   return {progs:progs,activeId:cand.length?cand[0].id:(a.activeId||b.activeId||null)};}
 
 /* ---------- вес, округление, тоннаж ---------- */
-function g2Step(P,key){const st=P.st[P.stage],o=st&&st.step&&st.step[key];if(o)return o;return G2X[key]&&G2X[key].bw?G2_BWSTEP:G2X[key]&&G2X[key].db?P.stepDb:P.step;}
+function g2Kind(key){const X=G2X[key]||{};if(X.bw)return "bw";if(X.db)return "db";const e=String(X.e||"").toLowerCase(),n=String(X.n||"").toLowerCase();
+  if(e)return /тренаж|блок/.test(e)?"mach":/штанг/.test(e)?"bar":"";
+  return /сгибание ног|подъём на носки|блок/.test(n)?"mach":"bar";}
+/* шаг по умолчанию: доп. вес 2,5 · гантели — шаг программы (2) · тренажёр — шаг тренажёра (5) · штанга — 0 = по блинам */
+function g2DefStep(P,key){const k=g2Kind(key);return k==="bw"?G2_BWSTEP:k==="db"?P.stepDb:k==="mach"?(P.stepM||5):k==="bar"?0:P.step;}
+function g2Step(P,key){const st=P.st[P.stage],o=st&&st.step&&st.step[key];if(o)return o;return g2DefStep(P,key);}
+function g2Rnd(P,key,x,dir){if(!(x>0))return 0;const st=g2Step(P,key);if(!st)return wBar(x,dir);
+  const v=x/st,f=dir==="down"?Math.floor(v+1e-6):dir==="up"?Math.ceil(v-1e-6):Math.ceil(v-0.5-1e-6);return Math.round(f*st*100)/100;}
 const G2_BWSTEP=2.5; /* доп. вес на поясе (подтягивания, брусья): шаг — один блин 2,5 кг */
 function g2BwUp(P,key,aw){const st=g2Step(P,key);return Math.round((Math.round((aw||0)/st)*st+st)*100)/100;}
 /* старые нерешённые предложения по доп. весу (шаг считался от общей нагрузки) → +1 шаг */
@@ -4524,7 +4561,7 @@ function g2BwFixDec(P,rec){let ch=false;(rec.dec||[]).forEach(d=>{if(d.done||d.t
   const X=G2X[d.key];d.sug=nw;d.pct=g2Pct(g2Load(P,d.key,nw),g2Load(P,d.key,d.cur));d.txt=X.n+": план выполнен → "+g2Fmt(d.cur,d.key)+" → "+g2Fmt(nw,d.key)+" (шаг "+fmtW(nw-d.cur)+" кг). Подтверди.";ch=true;});return ch;}
 function g2R(x,step){if(!(x>0))return 0;return Math.round(Math.ceil(x/step-1e-9)*step*100)/100;}
 function g2Load(P,key,w){return G2X[key]&&G2X[key].bw&&P.bw>0?P.bw+(w||0):(w||0);}  // полная нагрузка (для % расчётов)
-function g2FromLoad(P,key,L){const st=g2Step(P,key);if(G2X[key]&&G2X[key].bw&&P.bw>0){const x=L-P.bw;return x>0?Math.round(Math.round(x/st)*st*100)/100:0;}return g2R(L,st);}
+function g2FromLoad(P,key,L){const st=g2Step(P,key);if(G2X[key]&&G2X[key].bw&&P.bw>0){const x=L-P.bw;return x>0?Math.round(Math.round(x/st)*st*100)/100:0;}return g2Rnd(P,key,L,"up");}
 function g2Pct(a,b){return b>0?Math.round((a/b-1)*1000)/10:0;}
 function g2Ton(P,key,s){if(!s.done||!(s.r>0))return 0;const X=G2X[key]||{};return X.bw?((P.bw||0)+(s.w||0))*s.r:(s.w||0)*(X.db||1)*s.r;}
 function g2Fmt(w,key){const X=G2X[key]||{};return fmtW(w)+" кг"+(X.db===2?" × 2":X.db===1?" (1 гантель)":"")+(X.bw?" доп.":"");}
@@ -4542,7 +4579,7 @@ function g2Mains(si){const out=[];G2S[si].d.forEach(d=>d.A.forEach(a=>{if(!out.i
 /* ---------- новая программа ---------- */
 function g2New(opts){const now=g2Now();
   return {id:g2Uid("gvt2"),ver:G2VER,createdAt:now,updatedAt:now,start:opts.start||localDate(),rest:opts.rest!=null?opts.rest:1,
-    step:opts.step||1.5,stepDb:opts.stepDb||2,bw:opts.bw||0,status:"active",stage:opts.stage||0,
+    step:opts.step||1.5,stepM:opts.stepM||5,stepDb:opts.stepDb||2,bw:opts.bw||0,status:"active",stage:opts.stage||0,
     st:G2S.map((S,i)=>({status:i<(opts.stage||0)?"skip":i===(opts.stage||0)?"active":"plan",setup:false,pos:0,tpos:0,ws:{},step:{},rest:S.rest.slice(),d2:6.5,d3:8.5,p4d:5,doneAt:null,startedAt:null})),
     subs:{},subLog:[],recs:[]};}
 
@@ -4822,13 +4859,14 @@ function g2SwapOpen(i){const p=current.program,G=p.gx[i],alts=g2Alts(G.key);cons
 function g2AskWeight(i){const p=current.program,G=p.gx[i],k=G.key,X=G2X[k]||{n:k},si=p.g2.stage,S=G2S[si],box=el("gvtMbox");
   const lab={rm:S.rm+"ПМ, кг",range:"Вес под 6–8, кг",agvt:"10ПМ, кг",p4:"W₀, кг"}[S.algo];
   const pct=X.bw?g2BwPct(S,X):(S.algo==="rm"&&S.rm===20?60:(S.algo==="agvt"||S.algo==="p4")?75:0);
-  box.innerHTML=`<h3>Стартовый вес: ${X.n}</h3><p>Для этого упражнения ещё нет веса на этапе ${S.k}. Введи ${lab.replace(", кг","")}${pct?" или 1ПМ"+(X.bw?" доп. веса":"")+" — возьмём "+pct+" %":""}.${X.db===2?" Вес одной гантели.":""}</p>
-    <div class="g2-su-r"><label>${lab}<input id="g2aw" inputmode="decimal"></label>${pct?`<label>или 1ПМ → ${pct} %<input id="g2arm" inputmode="decimal"></label>`:""}</div>
+  const sg=g2Suggest(g2Store().progs.find(x=>x.id===p.g2.progId),si,k);
+  box.innerHTML=`<h3>Стартовый вес: ${X.n}</h3>${sg?`<p class="gvt-src">${sg.txt}</p>`:""}<p>Для этого упражнения ещё нет веса на этапе ${S.k}. Введи ${lab.replace(", кг","")}${pct?" или 1ПМ"+(X.bw?" доп. веса":"")+" — возьмём "+pct+" %":""}.${X.db===2?" Вес одной гантели.":""}</p>
+    <div class="g2-su-r"><label>${lab}<input id="g2aw" inputmode="decimal" value="${sg&&sg.w!=null?sg.w:""}"></label>${pct?`<label>или 1ПМ → ${pct} %<input id="g2arm" inputmode="decimal"></label>`:""}</div>
     <button class="btn" type="button" id="g2aGo">Сохранить</button><button class="tm-mini" type="button" id="g2aX">Позже</button>`;
   el("gvtModal").hidden=false;el("g2aX").onclick=()=>{el("gvtModal").hidden=true;};
   el("g2aGo").onclick=()=>{const v=g2Store(),P=v.progs.find(x=>x.id===p.g2.progId);if(!P){el("gvtModal").hidden=true;return;}
     let w=parseFloat(String(el("g2aw").value).replace(",","."));const rm=el("g2arm")?parseFloat(String(el("g2arm").value).replace(",",".")):NaN;
-    if(!(String(el("g2aw").value).trim()!=="")&&rm>0&&pct)w=g2R(rm*pct/100,g2Step(P,k));
+    if(rm>0&&pct)w=g2Rnd(P,k,rm*pct/100,"down");
     if(!(X.bw?w>=0:w>0)||!isFinite(w)){el("g2aw").classList.add("bad");toast("Введи вес");return;}
     const st=P.st[si];let cur=w;
     if(S.algo==="rm"||S.algo==="range")st.ws[k]=Object.assign(st.ws[k]||{},{w:w});
@@ -4837,24 +4875,41 @@ function g2AskWeight(i){const p=current.program,G=p.gx[i],k=G.key,X=G2X[k]||{n:k
     current.sets[i].forEach(se=>{if(!se.done){se.w=cur;se.pw=cur;}});
     el("gvtModal").hidden=true;saveDraft();renderWorkout();toast("Вес сохранён: "+g2Fmt(cur,k));};}
 
+/* ---------- подсказка стартового веса этапа: лучший результат упражнения за всю программу (оценка 1ПМ по формуле теста этапа V),
+   иначе 1ПМ из «Рабочих весов»; вес под повторы этапа, округление вниз. Поле только заполняется — сохраняет пользователь. ---------- */
+const G2_RM={squat:"Приседания со штангой",bench:"Жим лёжа",pull:"Подтягивания с весом",dips:"Отжимания на брусьях с весом"};
+function g2RepsOf(S){return S.algo==="rm"?S.rm:S.algo==="range"?(S.top||8):10;}
+function g2Suggest(P,si,key){if(!P||!P.recs)return null;const S=G2S[si],X=G2X[key]||{n:key},R=g2RepsOf(S);
+  if(X.bw&&!(P.bw>0))return {w:null,txt:"Укажи массу тела в настройках программы — тогда предложу вес по прошлым результатам"};
+  let best=null;const cand=(L,w,r,rec,test)=>{if(!(L>0)||!(r>0))return;const e1=g2E1(L,r);if(!best||e1>best.e1)best={e1:e1,w:w,r:r,date:rec.date,stage:rec.stage,test:test};};
+  P.recs.forEach(rec=>{if(rec.kind==="train")(rec.ex||[]).forEach(e=>{if(e.key!==key)return;(e.sets||[]).forEach(s=>{if(s.done&&s.w!=null)cand(g2Load(P,key,+s.w||0),+s.w||0,s.r,rec,0);});});
+    else if(rec.kind==="test")(rec.tests||[]).forEach(t=>{if(t.key===key&&!t.skipped&&t.w>0)cand(g2Load(P,key,t.w),t.w,t.r,rec,1);});});
+  let txt;
+  if(best){const old=best.date&&(Date.parse(localDate())-Date.parse(best.date))/864e5>56;
+    txt="Из "+(best.test?"теста ":"")+"этапа "+G2S[best.stage].k+": "+g2Fmt(best.w,key)+" × "+best.r+(best.date?" · "+gvtDD(best.date):"")+(old?" · давно":"");}
+  else{const nm=G2_RM[key]||X.n,rm=+((rmReg()||{})[nm]||0),addW=RM_LIFTS.some(x=>x[1]===nm&&x[3]);if(!(rm>0)&&!(addW&&rm===0&&(rmReg()||{})[nm]!=null))return null;
+    const L=addW?P.bw+rm:rm;if(!(L>0))return null;best={e1:L};txt="Из 1ПМ «"+nm+"»: "+fmtW(rm)+" кг"+(addW?" доп.":"");}
+  const L=best.e1/(1+R/30);let w;
+  if(X.bw){const x=L-P.bw;w=x>0?Math.floor(x/G2_BWSTEP+1e-6)*G2_BWSTEP:0;}else w=g2Rnd(P,key,L,"down");
+  return {w:w,txt:txt+" → ≈1ПМ "+fmtW(Math.round(best.e1*10)/10)+" кг · под "+R+" повт., округлено вниз"};}
 /* ---------- настройка этапа (стартовые веса) ---------- */
 function g2BwPct(S,X){if(!(S.algo==="rm"&&S.rm===20)||!X||!X.bw)return 0;const n=String(X.n||"");return /Подтягив/i.test(n)?50:/брус/i.test(n)?60:0;}
 function g2SetupHTML(P,si){const S=G2S[si],st=P.st[si],keys=g2MainKeysOf(P,si);
   const lab={rm:S.rm+"ПМ, кг",range:"Вес под 6–8, кг",agvt:"10ПМ, кг",p4:"W₀, кг"}[S.algo];
   const hint={rm:S.rm===20?"Вес, с которым делаешь 20 повторов. Не знаешь — введи 1ПМ, возьмём 60 %.":"Вес, с которым делаешь 12 повторов (12ПМ).",
-    range:"Подбери вес заново под 6–8 повторов — вес из 10×10 не подходит автоматически.",
+    range:"Вес под 6–8 повторов. Где есть прошлые результаты — предложение уже подставлено, проверь и поправь.",
     agvt:"Вес на 10 правильных повторов (10ПМ). Знаешь только 1ПМ — возьмём ~75 % как предварительную оценку.",
     p4:"Стартовый вес W₀ для каждого упражнения. Для 5/4/3 ориентир — 10ПМ (или ~75 % 1ПМ); для 6/5/4 — индивидуально."}[S.algo];
   const helper=S.algo==="rm"&&S.rm===20?60:(S.algo==="agvt"||S.algo==="p4")?75:0;
   /* подтягивания и брусья на этапе 20ПМ: 20 повторов с собственным весом могут не все — можно ввести 1ПМ (доп. вес на один раз) */
   return `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Этап ${S.k} · стартовые веса</h3><p class="gvt-note" style="margin-bottom:10px">${hint} Расчёт отдельно для каждого упражнения. Для подтягиваний и брусьев — дополнительный вес (0 — без отягощения)${S.algo==="rm"&&S.rm===20?". Не делаешь 20 подтягиваний или отжиманий на брусьях — введи 1ПМ доп. веса: подтягивания 50 %, брусья 60 %":""}.</p>
-   ${keys.map(k=>{const X=G2X[k]||{n:k},ws=st.ws[k]||{};const cur=ws.plan?ws.plan[1]:ws.w;
-     return `<div class="g2-su"><div class="g2-su-n">${X.n}${X.db===2?' <small>· вес одной гантели</small>':""}${X.bw?' <small>· доп. вес</small>':""}</div>
-      <div class="g2-su-r"><label>${lab}<input id="g2w_${k}" inputmode="decimal" value="${cur!=null&&cur!==""?cur:""}"></label>
+   ${keys.map(k=>{const X=G2X[k]||{n:k},ws=st.ws[k]||{};const cur=ws.plan?ws.plan[1]:ws.w;const sg=cur!=null&&cur!==""?null:g2Suggest(P,si,k);
+     return `<div class="g2-su"><div class="g2-su-n">${X.n}${X.db===2?' <small>· вес одной гантели</small>':""}${X.bw?' <small>· доп. вес</small>':""}</div>${sg?`<div class="gvt-src">${sg.txt}</div>`:""}
+      <div class="g2-su-r"><label>${lab}<input id="g2w_${k}" inputmode="decimal" value="${cur!=null&&cur!==""?cur:sg&&sg.w!=null?sg.w:""}"></label>
       ${helper&&!X.bw?`<label>или 1ПМ → ${helper} %<input id="g2rm_${k}" inputmode="decimal"></label>`:g2BwPct(S,X)?`<label>или 1ПМ → ${g2BwPct(S,X)} %<input id="g2rm_${k}" inputmode="decimal"></label>`:""}
       ${S.algo==="p4"?`<label>Схема<select id="g2sch_${k}"><option value="543"${ws.scheme!=="654"?" selected":""}>5/4/3</option><option value="654"${ws.scheme==="654"?" selected":""}>6/5/4</option></select></label>
         <label>До программы: вес × повт<span style="display:flex;gap:4px"><input id="g2bw_${k}" inputmode="decimal" placeholder="кг" value="${ws.base?ws.base.w:""}"><input id="g2br_${k}" inputmode="numeric" placeholder="10" value="${ws.base?ws.base.r:""}"></span></label>`:""}
-      <label>Шаг, кг<select id="g2st_${k}"><option value="">по умолч. (${fmtW(X.bw?G2_BWSTEP:X.db?P.stepDb:P.step)})</option>${[0.5,1,1.25,1.5,2,2.5,5].map(s=>`<option value="${s}"${st.step[k]===s?" selected":""}>${fmtW(s)}</option>`).join("")}</select></label></div></div>`;}).join("")}
+      <label>Шаг, кг<select id="g2st_${k}"><option value="">по умолч. (${(d=>d?fmtW(d):"по блинам")(g2DefStep(P,k))})</option>${[0.5,1,1.25,1.5,2,2.5,5].map(s=>`<option value="${s}"${st.step[k]===s?" selected":""}>${fmtW(s)}</option>`).join("")}</select></label></div></div>`;}).join("")}
    ${S.algo==="agvt"?`<div class="gvt-opt"><span>Прибавка появления 2</span><div class="seg">${[6,6.5,7].map(x=>`<button class="seg-b${st.d2===x?" on":""}" data-d2="${x}" type="button">+${fmtW(x)}%</button>`).join("")}</div></div>
      <div class="gvt-opt"><span>Прибавка появления 3</span><div class="seg">${[8,8.5,9].map(x=>`<button class="seg-b${st.d3===x?" on":""}" data-d3="${x}" type="button">+${fmtW(x)}%</button>`).join("")}</div></div>`:""}
    ${S.algo==="p4"?`<div class="gvt-opt"><span>Шаг волны Δ</span><div class="seg">${[4,4.5,5].map(x=>`<button class="seg-b${st.p4d===x?" on":""}" data-p4="${x}" type="button">${fmtW(x)}%</button>`).join("")}</div></div>`:""}
@@ -4865,8 +4920,8 @@ function g2SetupBind(P,si){const S=G2S[si];
     keys.forEach(k=>{let w=parseFloat(String(el("g2w_"+k).value).replace(",","."));const rmI=el("g2rm_"+k);const rm=rmI?parseFloat(String(rmI.value).replace(",",".")):NaN;
       const sv=el("g2st_"+k).value;if(sv)st.step[k]=parseFloat(sv);else delete st.step[k];
       const X=G2X[k]||{};
-      if(String(el("g2w_"+k).value).trim()===""&&rm>0&&!X.bw){const pct=S.algo==="rm"?60:75;w=g2R(rm*pct/100,g2Step(PP,k));el("g2w_"+k).value=w;}
-      else if(String(el("g2w_"+k).value).trim()===""&&rm>0&&g2BwPct(S,X)){w=g2R(rm*g2BwPct(S,X)/100,g2Step(PP,k));el("g2w_"+k).value=w;}
+      if(rm>0&&!X.bw){const pct=S.algo==="rm"?60:75;w=g2Rnd(PP,k,rm*pct/100,"down");el("g2w_"+k).value=w;}
+      else if(rm>0&&g2BwPct(S,X)){w=g2Rnd(PP,k,rm*g2BwPct(S,X)/100,"down");el("g2w_"+k).value=w;}
       const ok=X.bw?w>=0:w>0;if(!ok||!isFinite(w)){bad=true;el("g2w_"+k).classList.add("bad");}else el("g2w_"+k).classList.remove("bad");
       out.push({k:k,w:w});});
     return {v:v,PP:PP,st:st,out:out,bad:bad};};
@@ -4914,13 +4969,13 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
      `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Начать German Volume Training</h3><p class="gvt-note" style="margin-bottom:10px">Пять этапов подряд: 10×10 → снижение объёма → 10×6 → Advanced GVT → метод 4 %. Стартовые веса вводятся перед каждым этапом.</p>
       <div class="field"><label for="g2Start">Дата начала</label><input id="g2Start" type="date" value="${localDate()}"></div>
       <div class="gvt-rm"><label>Дней отдыха между тренировками</label><input id="g2Rest" inputmode="numeric" value="1">
-       <label>Шаг веса штанга/тренажёр, кг</label><input id="g2Step" inputmode="decimal" value="1.5">
+       <label>Шаг веса тренажёр, кг<small>штанга — по блинам из калькулятора</small></label><input id="g2Step" inputmode="decimal" value="5">
        <label>Шаг веса гантели, кг</label><input id="g2StepDb" inputmode="decimal" value="2">
        <label>Масса тела, кг<small>для подтягиваний и брусьев</small></label><input id="g2Bw" inputmode="decimal" placeholder="необязательно"></div>
       <button class="btn" id="g2Go" type="button">Начать программу</button></div>`+g2ArchiveHTML(v);
     if(el("g2Pick"))el("g2Pick").onclick=()=>show("body");
     el("g2Go").onclick=()=>{const num=(id,d)=>{const x=parseFloat(String(el(id).value).replace(",","."));return isFinite(x)?x:d;};
-      const v2=g2Store();const P2=g2New({start:el("g2Start").value||localDate(),rest:Math.max(0,Math.round(num("g2Rest",1))),step:num("g2Step",1.5)||1.5,stepDb:num("g2StepDb",2)||2,bw:num("g2Bw",0)});
+      const v2=g2Store();const P2=g2New({start:el("g2Start").value||localDate(),rest:Math.max(0,Math.round(num("g2Rest",1))),stepM:num("g2Step",5)||5,stepDb:num("g2StepDb",2)||2,bw:num("g2Bw",0)});
       v2.progs.push(P2);v2.activeId=P2.id;g2Save(v2);g2NewArm=0;toast("Программа создана");g2Render();};
     return;}
   const si=P.stage,S=G2S[si],st=P.st[si],slot=g2NextSlot(P),next=g2NextDate(P),today=localDate();
@@ -4928,7 +4983,7 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
   const pends=P.recs.filter(r=>r.dec&&r.dec.some(d=>!d.done)),pend=pends[0];  /* от старых к новым */
   let h=`<div class="card gvt-sum"><h3>Этап ${S.k} · ${S.name}${S.adv?' <span class="tag">Для продвинутых</span>':""}</h3>
     <div class="gvt-bar"><i style="width:${Math.round(g2Frac(P,si)*100)}%"></i></div>
-    <div class="gvt-kv"><span>${(t=>t[0].toUpperCase()+t.slice(1))(g2NumTxt(S,st.pos+1))}${S.tests?" + "+S.tests+" теста":""}</span>${g2Wave(S)?(w=>`<span>${S.algo==="agvt"?"Появления":"Волны"}: ${w.d} из ${w.t}</span>`)(g2WaveDone(P,si)):""}<span>Отдых ${P.rest} дн.</span><span>Шаг ${fmtW(P.step)} / ${fmtW(P.stepDb)} кг</span></div>
+    <div class="gvt-kv"><span>${(t=>t[0].toUpperCase()+t.slice(1))(g2NumTxt(S,st.pos+1))}${S.tests?" + "+S.tests+" теста":""}</span>${g2Wave(S)?(w=>`<span>${S.algo==="agvt"?"Появления":"Волны"}: ${w.d} из ${w.t}</span>`)(g2WaveDone(P,si)):""}<span>Отдых ${P.rest} дн.</span><span>Шаг: штанга по блинам · тренажёр ${fmtW(P.stepM||5)} · гантели ${fmtW(P.stepDb)} кг</span></div>
     ${winEnd?`<p class="gvt-note">Окно этапа: ${gvtDD(first)} – ${gvtDD(winEnd)} (${S.days} дн.)</p>`:""}</div>`;
   if(pend)h+=`<div class="gvt-pend"><span>Итог занятия: нужно решение по весу${pends.length>1?" · занятий: "+pends.length:""}</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="g2Pend">Открыть</button></div>`;
   if(winOver)h+=`<div class="card"><p class="gvt-stop">Плановый срок этапа ${S.k} истёк, осталось занятий: ${g2Left(P,si)}. Невыполненное не удаляется.</p><div class="row2"><button class="btn btn-alt" id="g2Cont" type="button">Продолжить этап</button><button class="btn" id="g2Skip" type="button">К следующему этапу</button></div></div>`;
@@ -4945,7 +5000,7 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
   h+=`<div class="card rm-fold"><button class="rm-fold-h" type="button"><span>Настройки<small class="rm-cur">отдых, шаг веса, таймеры, масса тела</small></span><span class="rm-caret">▾</span></button><div class="rm-fold-b" hidden>
     <div class="gvt-opt"><span>Дней отдыха между тренировками</span><div class="seg">${[0,1,2,3].map(x=>`<button class="seg-b${P.rest===x?" on":""}" data-rest="${x}" type="button">${x}</button>`).join("")}</div></div>
     <div class="gvt-opt"><span>Таймер основных / вспомогательных, с</span><div class="seg"><button class="seg-b" data-rt="-10" type="button">−10</button><b style="align-self:center">${st.rest[0]} / ${st.rest[1]}</b><button class="seg-b" data-rt="10" type="button">+10</button></div></div>
-    <div class="gvt-rm"><label>Шаг штанга/тренажёр, кг</label><input id="g2sStep" inputmode="decimal" value="${P.step}"><label>Шаг гантели, кг</label><input id="g2sStepDb" inputmode="decimal" value="${P.stepDb}"><label>Масса тела, кг</label><input id="g2sBw" inputmode="decimal" value="${P.bw||""}"></div>
+    <div class="gvt-rm"><label>Шаг тренажёр, кг<small>штанга — по блинам из калькулятора</small></label><input id="g2sStep" inputmode="decimal" value="${P.stepM||5}"><label>Шаг гантели, кг</label><input id="g2sStepDb" inputmode="decimal" value="${P.stepDb}"><label>Масса тела, кг</label><input id="g2sBw" inputmode="decimal" value="${P.bw||""}"></div>
     <button class="btn btn-alt" id="g2sSave" type="button">Сохранить настройки</button>
     ${st.setup?`<button class="tm-mini" id="g2ReSetup" type="button" style="margin-top:8px">Изменить стартовые веса этапа</button>`:""}</div></div>`;
   h+=`<div class="card rm-fold"><button class="rm-fold-h" type="button"><span>Аналитика<small class="rm-cur">этапы, веса, тоннаж, тесты</small></span><span class="rm-caret">▾</span></button><div class="rm-fold-b" hidden>${g2StatsHTML(P)}</div></div>`;
@@ -4970,7 +5025,7 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
   w.querySelectorAll("[data-rest]").forEach(b=>b.onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.rest=+b.dataset.rest;PP.updatedAt=g2Now();g2Save(v2);g2Render();});
   w.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id),r=PP.st[si].rest,d=+b.dataset.rt;r[0]=Math.max(30,Math.min(300,r[0]+d));r[1]=Math.max(30,Math.min(300,r[1]+d));PP.updatedAt=g2Now();g2Save(v2);g2Render();});
   el("g2sSave").onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id),n=id=>parseFloat(String(el(id).value).replace(",","."));
-    if(n("g2sStep")>0)PP.step=n("g2sStep");if(n("g2sStepDb")>0)PP.stepDb=n("g2sStepDb");PP.bw=n("g2sBw")>0?n("g2sBw"):0;PP.updatedAt=g2Now();g2Save(v2);toast("Настройки сохранены");g2Render();};
+    if(n("g2sStep")>0)PP.stepM=n("g2sStep");if(n("g2sStepDb")>0)PP.stepDb=n("g2sStepDb");PP.bw=n("g2sBw")>0?n("g2sBw"):0;PP.updatedAt=g2Now();g2Save(v2);toast("Настройки сохранены");g2Render();};
   if(el("g2ReSetup"))el("g2ReSetup").onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.st[si].setup=false;g2Save(v2);g2Render();};
   el("g2NewP").onclick=()=>{if(Date.now()-g2NewArm>4000){g2NewArm=Date.now();toast("Нажми ещё раз — текущая программа уйдёт в архив со всей историей");return;}
     const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.status="arch";PP.updatedAt=g2Now();v2.activeId=null;g2Save(v2);g2Render();};}

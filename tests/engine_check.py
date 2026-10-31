@@ -71,7 +71,7 @@ async def m():
     s4=await pg.evaluate("prSug("+E+",{},{sets:[{w:80,r:10},{w:80,r:8},{w:80,r:7}]})")
     ok('не все добрали → вес тот же, объяснение',s4['w'] is None and 'добери до 10' in s4['why'],s4['why'])
     s5=await pg.evaluate("prSug(['Подъём гантелей',3,'10–12',12],{},{sets:[{w:12,r:12},{w:12,r:12},{w:12,r:13}]})")
-    ok('лёгкий вес → +1 кг',s5['w']==[13,13,13],s5)
+    ok('гантели → +2 кг',s5['w']==[14,14,14],s5)
     ok('свой вес не трогается',await pg.evaluate("prSug(['Подтягивания',3,10,0],{},{sets:[{w:0,r:10}]})===null"))
     # на экране тренировки — строка «почему такой вес»
     await pg.evaluate("localStorage.setItem(KEY,JSON.stringify([{date:'2026-10-01',name:'t',vol:1,log:{'Жим лёжа':[{w:80,r:10,done:true},{w:80,r:10,done:true},{w:80,r:10,done:true}]}}]))")

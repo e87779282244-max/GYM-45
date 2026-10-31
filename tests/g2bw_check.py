@@ -17,7 +17,7 @@ async def m():
     r=await pg.evaluate(f"({prog})('pull',0)")
     ok('подтягивания без веса → +2,5 кг',r['w']==2.5,r)
     r=await pg.evaluate(f"({prog})('bench',60)")
-    ok('штанга — как раньше: +5 % от веса с шагом программы',r['d'][0].startswith('inc_confirm') and '64 кг' in r['d'][0],r)
+    ok('штанга: +5 % → ближайший собираемый из блинов вес вверх (63 → 65, просит подтвердить)',r['d'][0].startswith('inc_confirm') and '65 кг' in r['d'][0],r)
     ok('волны: доп. вес кратен 2,5',await pg.evaluate("(()=>{const P=g2New({bw:96});const w=g2FromLoad(P,'dips',(96+15)*1.065);return w%2.5===0})()"))
     # старое нерешённое «22 кг» превращается в 17,5
     await pg.evaluate("""(()=>{const v=g2Store();const P=g2New({bw:96,step:2,stepDb:2});P.recs.push({uid:'r1',stage:0,variant:'B',status:'full',setsDone:100,setsPlanned:100,ton:16300,durMin:61,
