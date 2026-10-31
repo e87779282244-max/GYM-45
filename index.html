@@ -231,6 +231,7 @@
   .g2-swap{margin-top:4px;font-size:11px;font-weight:700;color:var(--accent-ink);background:none;border:1px solid var(--line);border-radius:8px;padding:4px 6px}
   .g2-next{font-size:12.5px;color:var(--fg);background:var(--accent-weak);border-radius:9px;padding:6px 9px;margin:8px 0 4px;flex:none}
   .g2-row{display:grid;grid-template-columns:22px 1fr 1fr;gap:6px;align-items:center;padding:4px 0;border-top:1px solid var(--line)}
+  .g2-card.solo .g2-head{grid-template-columns:1fr}.g2-card.solo .g2-row{grid-template-columns:22px 1fr}
   .g2-row.head{border-top:none;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700}
   .g2-cell{display:grid;grid-template-columns:1fr 34px 32px;gap:3px;align-items:center;border-radius:9px;padding:2px}
   .g2-cell.on{background:var(--panel-top);box-shadow:0 0 0 1.5px var(--gold)}
@@ -4557,7 +4558,9 @@ function g2PrevEx(P,si,key){for(let i=P.recs.length-1;i>=0;i--){const r=P.recs[i
 /* ---------- сборка тренировки ---------- */
 function g2Build(P,slot){const si=slot.si,S=G2S[si],st=P.st[si],D=S.d[slot.day];
   const ex=[],preset=[],gx=[],prevShow=[];
-  const rows=[...D.A.map((a,i)=>({a:a,role:"A",code:"A"+(i+1)})),...D.B.map((a,i)=>({a:a,role:"B",code:"B"+(i+1)}))];
+  /* этапы IV–V: упражнение, прошедшее все 6 появлений/волн, в день не ставится — только отстающее + вспомогательные */
+  const wav=S.algo==="agvt"||S.algo==="p4",doneMain=[];
+  const rows=[...D.A.map((a,i)=>({a:a,role:"A",code:"A"+(i+1)})).filter(r=>{if(!wav)return true;const k=g2Key(P,si,r.a[0]),w0=st.ws[k];if(w0&&w0.ptr>6){doneMain.push((G2X[k]||{n:k}).n);return false;}return true;}),...D.B.map((a,i)=>({a:a,role:"B",code:"B"+(i+1)}))];
   rows.forEach(({a,role,code})=>{const key=g2Key(P,si,a[0]),X=G2X[key]||{n:key};const ws=st.ws[key];const main=role==="A";
     let nSets=a[1],reps=a[2],target=typeof reps==="number"?reps:parseInt(reps)||0,w=0,src="manual",ptr=null,note="";
     if(main){
@@ -4570,9 +4573,9 @@ function g2Build(P,slot){const si=slot.si,S=G2S[si],st=P.st[si],D=S.d[slot.day];
     const pe=g2PrevEx(P,si,key);prevShow.push(pe?pe.sets.filter(s=>s.done&&s.r>0).map(s=>({r:s.r,w:s.w})):[]);
     ex.push([X.n,nSets,String(reps)+(a[3]?" · темп "+a[3]:""),main?w:(X.bw?0:null)]);
     preset.push(sets);gx.push({id:key,key:key,base:a[0],main:main,role:role,code:code,db:X.db===2,bw:!!X.bw,ptr:ptr,tempo:a[3]||"",note:note,target:target});});
-  const units=[[0,1],[2,3]];
+  const units=[gx.map((g,i)=>g.main?i:-1).filter(i=>i>=0),gx.map((g,i)=>g.main?-1:i).filter(i=>i>=0)].filter(u=>u.length);
   const sub=S.algo==="agvt"||S.algo==="p4"?(()=>{const p=gx.filter(g=>g.main).map(g=>g.ptr);const lbl=S.algo==="agvt"?"появление":"волна";return " · "+lbl+" "+(p[0]===p[1]?p[0]:p.join("/"))+" из 6";})():"";
-  return {name:"GVT · "+S.k+" · "+D.name,focus:"Этап "+S.k+" · "+S.name+" · занятие "+slot.num+" из "+S.n+sub,ex:ex,sec:"body",preset:preset,gx:gx,prevShow:prevShow,
+  return {name:"GVT · "+S.k+" · "+D.name,focus:"Этап "+S.k+" · "+S.name+" · "+g2NumTxt(S,slot.num)+sub+(doneMain.length?" · "+doneMain.join(", ")+": 6 из 6 пройдено":""),ex:ex,sec:"body",preset:preset,gx:gx,prevShow:prevShow,
     g2:{progId:P.id,stage:si,day:slot.day,pos:slot.skipTo!=null?slot.skipTo:st.pos,num:slot.num,units:units,rest:st.rest.slice(),algo:S.algo,planned:g2NextDate(P),ver:G2VER}};}
 
 /* ---------- запись занятия и прогрессия ---------- */
@@ -4614,6 +4617,7 @@ function g2Progress(P,si,e,rec){const S=G2S[si],st=P.st[si],key=e.key,X=G2X[key]
   }else{const nx=ptr+1;const nw=nx<=6?(ws.plan[nx]!=null?ws.plan[nx]:ws.plan[5]):null;
     rec.dec.push({key:key,type:"wave_fail",ptr:ptr,cur:aw,next:nx<=6?nx:null,sug:nw,txt:X.n+": "+lbl.toLowerCase()+" "+ptr+" не выполнена ("+e.sets.map(s=>s.done?s.r:"–").join(", ")+"). Вес автоматически не повышается — выбери, как дальше."});}}
 function g2Resolve(uid,i,opt,val){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid);g2BwFixDec(P,rec);const d=rec.dec[i];if(!d||d.done)return;
+  const why=g2DecStale(P,rec,d);if(why){d.done=true;d.choice=why;d.at=g2Now();rec.updatedAt=d.at;P.updatedAt=d.at;g2Save(v);toast(why==="closed"?"Этап закрыт — решение не применено":"Решение устарело — прогресс уже ушёл вперёд, ничего не изменено");return;}
   const st=P.st[rec.stage],ws=st.ws[d.key];
   if(d.type==="inc_confirm"){if(opt==="yes")ws.w=d.sug;else if(opt==="keep")ws.w=d.cur;else if(opt==="man"&&val>0)ws.w=val;}
   else if(d.type==="ag6"){ws.plan[6]=opt==="man"&&val>0?val:d.sug;ws.conf6=true;}
@@ -4625,6 +4629,56 @@ function g2Resolve(uid,i,opt,val){const v=g2Store(),P=v.progs.find(p=>p.recs.som
         else ws.plan[nx]=w;
         if(nx===2)ws.plan[4]=ws.plan[2];if(nx===3)ws.plan[5]=ws.plan[3];}}}
   d.done=true;d.choice=opt+(val?":"+val:"");rec.updatedAt=g2Now();g2Advance(P);P.updatedAt=g2Now();g2Save(v);}
+
+/* ---------- устаревшие / отложенные решения ---------- */
+/* «closed» — этап уже не активен; «stale» — упражнение тренировалось после этого занятия или волна ушла вперёд */
+function g2DecStale(P,rec,d){const st=P.st[rec.stage];if(!st||P.status!=="active"||rec.stage!==P.stage||st.status!=="active")return "closed";
+  const ws=st.ws[d.key];
+  if(d.type==="wave_fail"&&ws&&ws.ptr!==d.ptr)return "stale";
+  if(d.type==="ag6"&&ws&&(ws.ptr>6||ws.conf6))return "stale";
+  const ri=P.recs.indexOf(rec);
+  for(let i=ri+1;i<P.recs.length;i++){const r=P.recs[i];if(r.stage!==rec.stage||r.kind!=="train")continue;
+    const e=(r.ex||[]).find(x=>x.key===d.key&&x.main);if(e&&e.sets.some(s=>s.done))return "stale";}
+  return "";}
+function g2MarkStale(P){let ch=false;P.recs.forEach(rec=>(rec.dec||[]).forEach(d=>{if(d.done)return;const why=g2DecStale(P,rec,d);
+    if(why){d.done=true;d.choice=why;d.at=g2Now();rec.updatedAt=d.at;ch=true;}}));if(ch)P.updatedAt=g2Now();return ch;}
+/* п.2: срыв волны без решения → при открытии следующей тренировки с этим упражнением записывается «повтор волны» по умолчанию */
+function g2AutoRepeat(P,slot){const S=G2S[slot.si];if(S.algo!=="agvt"&&S.algo!=="p4")return 0;const keys=S.d[slot.day].A.map(a=>g2Key(P,slot.si,a[0]));let n=0;
+  P.recs.forEach(rec=>{if(rec.stage!==slot.si)return;(rec.dec||[]).forEach(d=>{if(d.done||d.type!=="wave_fail"||!keys.includes(d.key))return;
+    const ws=P.st[slot.si].ws[d.key];if(ws)ws.ptr=d.ptr;d.done=true;d.choice="repeat";d.auto=true;d.at=g2Now();rec.updatedAt=d.at;n++;});});
+  if(n)P.updatedAt=g2Now();return n;}
+function g2PendN(P,si){return P.recs.reduce((a,r)=>a+(si==null||r.stage===si?(r.dec||[]).filter(d=>!d.done).length:0),0);}
+/* п.5: вес 6-го появления подтверждается до старта тренировки */
+function g2Need6(P,sl){const S=G2S[sl.si];if(S.algo!=="agvt"||sl.kind!=="train")return [];const st=P.st[sl.si];
+  return S.d[sl.day].A.map(a=>g2Key(P,sl.si,a[0])).filter(k=>{const ws=st.ws[k];return ws&&ws.plan&&ws.ptr===6&&!ws.conf6;});}
+function g2Conf6Open(pid,sl){const v=g2Store(),P=v.progs.find(x=>x.id===pid),si=sl.si,st=P.st[si],keys=g2Need6(P,sl),box=el("gvtMbox");
+  box.innerHTML=`<h3>Вес 6-го появления · 10×3</h3><p>Авторской формулы веса нет — подтверди вес до начала тренировки. Предложение — по прошлым результатам.</p>`+
+    keys.map(k=>{const X=G2X[k]||{n:k},ws=st.ws[k],w=ws.plan[6]!=null?ws.plan[6]:(ws.sug6!=null?ws.sug6:ws.plan[5]);
+      return `<div class="gvt-rm"><label>${X.n}<small>${X.bw?"доп. вес":X.db===2?"вес одной гантели":"кг"}</small></label><input id="g2c6_${k}" inputmode="decimal" value="${w!=null?w:""}"></div>`;}).join("")+
+    `<button class="btn" type="button" id="g2c6Go">Подтвердить и начать</button><button class="tm-mini" type="button" id="g2c6X">Позже</button>`;
+  el("gvtModal").hidden=false;el("g2c6X").onclick=()=>{el("gvtModal").hidden=true;};
+  el("g2c6Go").onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===pid),stt=PP.st[si],vals={};let bad=false;
+    keys.forEach(k=>{const inp=el("g2c6_"+k),w=parseFloat(String(inp.value).replace(",",".")),X=G2X[k]||{};
+      if(!isFinite(w)||!(X.bw?w>=0:w>0)){bad=true;inp.classList.add("bad");}else vals[k]=w;});
+    if(bad){toast("Введи вес");return;}
+    keys.forEach(k=>{const ws=stt.ws[k];ws.plan[6]=vals[k];ws.conf6=true;
+      PP.recs.forEach(r=>{if(r.stage!==si)return;(r.dec||[]).forEach(d=>{if(!d.done&&d.type==="ag6"&&d.key===k){d.done=true;d.choice=vals[k]===d.sug?"yes":"man:"+vals[k];d.at=g2Now();r.updatedAt=d.at;}});});});
+    PP.updatedAt=g2Now();g2Save(v2);el("gvtModal").hidden=true;toast("Вес 6-го появления подтверждён");g2Render();
+    const P3=g2Active(),s3=P3&&g2NextSlot(P3);if(s3&&s3.kind==="train"&&!g2Need6(P3,s3).length)startWorkout(g2Build(P3,s3),true);};}
+/* п.4: счётчики этапов IV–V считают появления/волны; план занятий — ориентир */
+function g2Wave(S){return S.algo==="agvt"||S.algo==="p4";}
+function g2NumTxt(S,num){return g2Wave(S)?"занятие "+num+" · план "+S.n:"занятие "+Math.min(num,S.n)+" из "+S.n;}
+function g2WaveDone(P,si){const st=P.st[si],keys=g2MainKeysOf(P,si);let d=0;keys.forEach(k=>{const ws=st.ws[k];d+=Math.max(0,Math.min(6,(ws&&ws.ptr?ws.ptr:1)-1));});return {d:d,t:6*keys.length};}
+function g2Frac(P,si){const S=G2S[si],st=P.st[si];if(!g2Wave(S))return Math.min(1,st.pos/S.n);
+  const w=g2WaveDone(P,si),t=w.t+(S.tests||0);return t?Math.min(1,(w.d+(S.tests?Math.min(st.tpos,S.tests):0))/t):0;}
+function g2Upcoming(P,si,max){const S=G2S[si],st=P.st[si],out=[];
+  if(!g2Wave(S)){for(let pos=st.pos;pos<S.n&&out.length<max;pos++)out.push(pos%S.d.length);return out;}
+  const ptr={};g2MainKeysOf(P,si).forEach(k=>{ptr[k]=st.ws[k]&&st.ws[k].ptr?st.ws[k].ptr:1;});const nd=S.d.length;let pos=st.pos;
+  for(let g=0;g<400&&out.length<max;g++){let hit=-1;
+    for(let t=0;t<nd;t++){const day=(pos+t)%nd;if(S.d[day].A.some(a=>ptr[g2Key(P,si,a[0])]<=6)){hit=day;pos+=t;break;}}
+    if(hit<0)break;out.push(hit);S.d[hit].A.forEach(a=>{const k=g2Key(P,si,a[0]);if(ptr[k]<=6)ptr[k]++;});pos++;}
+  return out;}
+function g2Left(P,si){const S=G2S[si],st=P.st[si];if(!g2Wave(S))return Math.max(0,S.n-st.pos);return g2Upcoming(P,si,999).length+(S.tests?Math.max(0,S.tests-st.tpos):0);}
 
 /* ---------- тест (этап V) ---------- */
 function g2E1(w,r){return r>1?w*(1+r/30):w;}
@@ -4652,10 +4706,10 @@ function g2OpenTest(){const P=g2Active(),slot=P&&g2NextSlot(P);if(!slot||slot.ki
 
 /* ---------- итог занятия: решения ---------- */
 function g2Summary(uid){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid),S=G2S[rec.stage];
-  if(g2BwFixDec(P,rec)){rec.updatedAt=g2Now();P.updatedAt=rec.updatedAt;g2Save(v);}
+  const fx=g2BwFixDec(P,rec),ms=g2MarkStale(P);if(fx||ms){rec.updatedAt=g2Now();P.updatedAt=rec.updatedAt;g2Save(v);}
   const box=el("gvtMbox");
   const head=`<h3>Итог · ${rec.variant}</h3><p>Этап ${S.k} · ${rec.status==="full"?"все подходы выполнены":"выполнено "+rec.setsDone+" из "+rec.setsPlanned+" подходов"} · тоннаж ${fmtW(rec.ton/1000)} т · ${rec.durMin} мин</p>`;
-  const rows=rec.dec.map((d,i)=>{if(d.done)return `<p class="gvt-note">✓ ${d.txt}${d.choice?" <b>("+g2ChoiceTxt(d.choice)+")</b>":""}</p>`;
+  const rows=rec.dec.map((d,i)=>{if(d.done)return `<p class="gvt-note">✓ ${d.txt}${d.choice?" <b>("+g2ChoiceTxt(d.choice)+(d.auto?", по умолчанию":"")+")</b>":""}</p>`;
     let opts="";
     if(d.type==="inc_confirm")opts=`<button class="btn" data-o="yes" data-i="${i}" type="button">Подтвердить ${g2Fmt(d.sug,d.key)}</button><button class="btn btn-alt" data-o="keep" data-i="${i}" type="button">Оставить ${g2Fmt(d.cur,d.key)}</button>`;
     else if(d.type==="ag6")opts=`<button class="btn" data-o="yes" data-i="${i}" type="button">Подтвердить ${g2Fmt(d.sug,d.key)}</button>`;
@@ -4669,21 +4723,21 @@ function g2Summary(uid){const v=g2Store(),P=v.progs.find(p=>p.recs.some(r=>r.uid
     if(o==="man"){val=parseFloat(String(el("g2man"+i).value).replace(",","."));if(!(val>0)){toast("Введи вес");return;}}
     g2Resolve(uid,i,o,val);g2Summary(uid);});
   el("g2sClose").onclick=()=>{el("gvtModal").hidden=true;g2Render();};}
-function g2ChoiceTxt(c){const [o,v]=c.split(":");return {yes:"подтверждено",keep:"оставлен прежний",man:"вручную "+(v||"")+" кг",repeat:"повтор волны",keepw:"дальше с прежним весом",plan:"запланированный вес"}[o]||o;}
+function g2ChoiceTxt(c){const [o,v]=c.split(":");return {yes:"подтверждено",keep:"оставлен прежний",man:"вручную "+(v||"")+" кг",repeat:"повтор волны",keepw:"дальше с прежним весом",plan:"запланированный вес",stale:"устарело — прогресс уже ушёл вперёд, не применено",closed:"этап закрыт — без решения"}[o]||o;}
 
 /* ---------- окно суперсета ---------- */
 function g2Unit(){const p=current.program;return p.g2.units[Math.max(0,Math.min(p.g2.units.length-1,current.idx||0))];}
-function g2UnitDone(u){return p2done(u[0])&&p2done(u[1]);}
+function g2UnitDone(u){return u.every(p2done);}
 function p2done(i){const st=current.sets[i];return st.length>0&&st.every(s=>s.done);}
-function g2Active2(u){const a=current.sets[u[0]],b=current.sets[u[1]],n=Math.max(a.length,b.length);
-  for(let j=0;j<n;j++){if(a[j]&&!a[j].done)return {i:u[0],j:j};if(b[j]&&!b[j].done)return {i:u[1],j:j};}return null;}
+function g2Active2(u){const n=Math.max(...u.map(i=>current.sets[i].length));
+  for(let j=0;j<n;j++)for(const i of u){const s=current.sets[i][j];if(s&&!s.done)return {i:i,j:j};}return null;}
 function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math.max(0,Math.min(U.length-1,current.idx||0)),u=U[ui];
   const wrap=el("exList");wrap.querySelectorAll("video").forEach(v=>{try{window.__io&&window.__io.unobserve(v)}catch(e){}});wrap.innerHTML="";
   el("wkTitle").textContent=p.name;el("wkEyebrow").textContent=p.focus;
-  const act=g2Active2(u),lbl=p.gx[u[0]].role==="A"?"Основной суперсет A1 / A2":"Вспомогательный суперсет B1 / B2";
+  const act=g2Active2(u),lbl=u.length<2?(p.gx[u[0]].role==="A"?"Основное упражнение ":"Вспомогательное упражнение ")+p.gx[u[0]].code:p.gx[u[0]].role==="A"?"Основной суперсет A1 / A2":"Вспомогательный суперсет B1 / B2";
   el("wkStep").textContent=lbl;
   const dots=el("wkDots");dots.innerHTML="";U.forEach((uu,k)=>{const d=document.createElement("button");d.type="button";d.className="wk-dot"+(k===ui?" cur":"")+(g2UnitDone(uu)?" done":"");d.onclick=()=>{current.idx=k;saveDraft();renderWorkout();};dots.appendChild(d);});
-  const c=document.createElement("div");c.className="card ex-card wk-card g2-card";
+  const c=document.createElement("div");c.className="card ex-card wk-card g2-card"+(u.length<2?" solo":"");
   const head=u.map(i=>{const G=p.gx[i],X=G2X[G.key]||{},isA=act&&act.i===i,m=X.m;
     const media=m?(isA?`<video src="media/${m}.mp4?v=2" poster="media/${m}.jpg" muted loop autoplay playsinline preload="auto"></video>`:`<img src="media/${m}.jpg" alt="">`):`<span class="g2-nomedia">без анимации</span>`;
     const st=current.sets[i],nd=st.filter(s=>s.done).length;
@@ -4692,12 +4746,12 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
       ${X.an?`<div class="g2-an">${X.an}</div>`:""}<div class="g2-plan">${st.length}×${p.ex[i][2].split(" ·")[0]}${G.main||st[0].pw?" · "+(st[0].pw?g2Fmt(st[0].pw,G.key):"вес ?"):""}</div>${G.main&&!st[0].pw?`<button class="g2-swap g2-setw" type="button" data-setw="${i}">⚖ Задать вес</button>`:""}
       <div class="g2-cnt">${nd}/${st.length}${G.note?' · <span style="color:var(--gold-ink)">'+G.note+"</span>":""}</div>
       <button class="g2-swap" type="button" data-sw="${i}">⇄ Заменить</button></div>`;}).join("");
-  const n=Math.max(current.sets[u[0]].length,current.sets[u[1]].length);
-  let rows=`<div class="g2-row head"><span>#</span><span>${p.gx[u[0]].code}: вес · повт</span><span>${p.gx[u[1]].code}: вес · повт</span></div>`;
+  const n=Math.max(...u.map(i=>current.sets[i].length));
+  let rows=`<div class="g2-row head"><span>#</span>${u.map(i=>`<span>${p.gx[i].code}: вес · повт</span>`).join("")}</div>`;
   for(let j=0;j<n;j++){rows+=`<div class="g2-row">`+`<span class="sn num">${j+1}</span>`+u.map(i=>{const s=current.sets[i][j];if(!s)return "<span></span>";
       const G=p.gx[i],isA=act&&act.i===i&&act.j===j;
       return `<div class="g2-cell${isA?" on":""}${s.done?" ok":""}"><input class="num" inputmode="decimal" data-i="${i}" data-s="${j}" data-f="w" value="${s.w||""}" placeholder="${G.bw?"доп":"кг"}"><input class="num" inputmode="numeric" data-i="${i}" data-s="${j}" data-f="r" value="${s.r||""}"><button class="chk ${s.done?"on":""}" data-i="${i}" data-s="${j}" type="button">${s.done?"✓":""}</button></div>`;}).join("")+`</div>`;}
-  const nxt=act?`Сейчас: <b>${p.gx[act.i].code} · подход ${act.j+1}</b> — ${current.sets[act.i][act.j].pw?g2Fmt(current.sets[act.i][act.j].pw,p.gx[act.i].key)+" × ":""}${current.sets[act.i][act.j].pr}`:(ui<U.length-1?"Суперсет готов — дальше "+p.gx[U[ui+1][0]].code+" / "+p.gx[U[ui+1][1]].code:"Все суперсеты выполнены — заверши занятие");
+  const nxt=act?`Сейчас: <b>${p.gx[act.i].code} · подход ${act.j+1}</b> — ${current.sets[act.i][act.j].pw?g2Fmt(current.sets[act.i][act.j].pw,p.gx[act.i].key)+" × ":""}${current.sets[act.i][act.j].pr}`:(ui<U.length-1?(u.length<2?"Блок готов":"Суперсет готов")+" — дальше "+U[ui+1].map(i=>p.gx[i].code).join(" / "):"Все суперсеты выполнены — заверши занятие");
   c.innerHTML=`<div class="g2-head">${head}</div><div class="g2-next">${nxt}</div><div class="wk-sets g2-sets">${rows}</div>`;
   wrap.appendChild(c);
   u.forEach((i,k)=>{c.querySelectorAll(".g2-name")[k].textContent=p.ex[i][0];});
@@ -4705,7 +4759,7 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
   c.querySelectorAll(".chk").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,j=+b.dataset.s,s=current.sets[i][j];s.done=!s.done;s.at=s.done?g2Now():null;saveDraft();
     if(s.done){const G=p.gx[i];restStart(G.main?p.g2.rest[0]:p.g2.rest[1]);
       if(wkAllSetsDone()){restStop();renderWorkout();wkAllDone();return;}
-      if(g2UnitDone(u)&&ui<U.length-1){renderWorkout();restAfter=()=>{if(current&&current.idx===ui){current.idx=ui+1;saveDraft();renderWorkout();toast("Дальше: блок "+p.gx[U[ui+1][0]].code+" / "+p.gx[U[ui+1][1]].code);}else renderWorkout();};return;}}
+      if(g2UnitDone(u)&&ui<U.length-1){renderWorkout();restAfter=()=>{if(current&&current.idx===ui){current.idx=ui+1;saveDraft();renderWorkout();toast("Дальше: блок "+U[ui+1].map(i=>p.gx[i].code).join(" / "));}else renderWorkout();};return;}}
     renderWorkout();});
   c.querySelectorAll(".g2-media").forEach(b=>b.onclick=()=>{if(G2X[b.dataset.key]&&G2X[b.dataset.key].m)g2OpenMedia(b.dataset.key);});
   c.querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>g2SwapOpen(+b.dataset.sw));
@@ -4821,12 +4875,13 @@ function g2Stats(P){const by=G2S.map(()=>({n:0,ton:0,reps:0,sp:0,sd:0,dur:0}));c
   return {by:by,exw:Object.values(exw),tests:P.recs.filter(r=>r.kind==="test")};}
 function g2StatsHTML(P){const s=g2Stats(P);const tot=s.by.reduce((a,b)=>({n:a.n+b.n,ton:a.ton+b.ton,reps:a.reps+b.reps,sp:a.sp+b.sp,sd:a.sd+b.sd,dur:a.dur+b.dur}),{n:0,ton:0,reps:0,sp:0,sd:0,dur:0});
   const next=g2NextDate(P),today=localDate(),over=next<today?Math.round((new Date(today+"T12:00")-new Date(next+"T12:00"))/864e5):0,missed=over?Math.floor(over/(P.rest+1)):0;
-  return `<div class="rm-list">${G2S.map((S,i)=>{const b=s.by[i];return `<div class="rm-row"><span class="k">${S.k} · ${S.name}</span><span class="v">${b.n}/${S.n}${S.tests?"+"+S.tests:""} <small>· ${b.sp?Math.round(b.sd/b.sp*100):0}% подх. · ${fmtW(Math.round(b.ton/100)/10)} т</small></span></div>`;}).join("")}
+  return `<div class="rm-list">${G2S.map((S,i)=>{const b=s.by[i];return `<div class="rm-row"><span class="k">${S.k} · ${S.name}</span><span class="v">${b.n>S.n?b.n+" (план "+S.n+")":b.n+"/"+S.n}${S.tests?"+"+S.tests:""} <small>· ${b.sp?Math.round(b.sd/b.sp*100):0}% подх. · ${fmtW(Math.round(b.ton/100)/10)} т</small></span></div>`;}).join("")}
    <div class="rm-row"><span class="k">Всего</span><span class="v">${tot.n} зан. <small>· ${tot.reps} повт. · ${fmtW(Math.round(tot.ton/100)/10)} т · ср. ${tot.n?Math.round(tot.dur/tot.n):0} мин</small></span></div>
    <div class="rm-row"><span class="k">Пропущено (по плану)</span><span class="v">${missed} <small>${over?"· просрочка "+over+" дн.":""}</small></span></div></div>
    ${s.exw.length?`<div class="wod-mv-h" style="margin-top:8px">Рабочие веса: первый → последний</div><div class="rm-list">${s.exw.map(x=>`<div class="rm-row"><span class="k">${G2S[x.stage].k} · ${x.name}</span><span class="v">${fmtW(x.first)} → ${fmtW(x.last)} <small>кг</small></span></div>`).join("")}</div>`:""}
    ${s.tests.length?`<div class="wod-mv-h" style="margin-top:8px">Контрольные тесты</div><div class="rm-list">${s.tests.flatMap(t=>t.tests.map(x=>`<div class="rm-row"><span class="k">${x.name}</span><span class="v">${x.skipped?"Пропущен пользователем":`${fmtW(x.base.w)}×${x.base.r} → ${fmtW(x.w)}×${x.r} <small>· 1ПМ≈ ${fmtW(x.e1Before)}→${fmtW(x.e1After)} (${x.chg>0?"+":""}${fmtW(x.chg)} %)</small>`}</span></div>`)).join("")}</div>`:""}`;}
 function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Active(v);
+  if(P&&g2MarkStale(P))g2Save(v);
   if(!P){const done=v.progs.filter(p=>p.status==="done").slice(-1)[0];
     w.innerHTML=(done&&!g2NewArm?`<div class="card gvt-sum"><h3>Программа завершена ✓</h3><p class="gvt-note">Старт ${gvtDD(done.start)} · завершена ${done.doneAt?gvtDD(done.doneAt.slice(0,10)):""}</p>${g2StatsHTML(done)}<button class="btn btn-alt" id="g2Pick" type="button">Выбрать следующую программу</button></div>`:"")+
      `<div class="card"><h3 style="margin:0 0 4px;font-family:var(--dsp)">Начать German Volume Training</h3><p class="gvt-note" style="margin-bottom:10px">Пять этапов подряд: 10×10 → снижение объёма → 10×6 → Advanced GVT → метод 4 %. Стартовые веса вводятся перед каждым этапом.</p>
@@ -4843,20 +4898,20 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
     return;}
   const si=P.stage,S=G2S[si],st=P.st[si],slot=g2NextSlot(P),next=g2NextDate(P),today=localDate();
   const first=g2StageFirst(P,si),winEnd=first?addDays(first,S.days-1):null,winOver=winEnd&&today>winEnd&&slot;
-  const pend=P.recs.filter(r=>r.dec&&r.dec.some(d=>!d.done)).slice(-1)[0];
+  const pends=P.recs.filter(r=>r.dec&&r.dec.some(d=>!d.done)),pend=pends[0];  /* от старых к новым */
   let h=`<div class="card gvt-sum"><h3>Этап ${S.k} · ${S.name}${S.adv?' <span class="tag">Для продвинутых</span>':""}</h3>
-    <div class="gvt-bar"><i style="width:${Math.round(Math.min(1,(st.pos)/S.n)*100)}%"></i></div>
-    <div class="gvt-kv"><span>Занятие ${Math.min(st.pos+1,S.n)} из ${S.n}${S.tests?" + "+S.tests+" теста":""}</span><span>Отдых ${P.rest} дн.</span><span>Шаг ${fmtW(P.step)} / ${fmtW(P.stepDb)} кг</span></div>
+    <div class="gvt-bar"><i style="width:${Math.round(g2Frac(P,si)*100)}%"></i></div>
+    <div class="gvt-kv"><span>${(t=>t[0].toUpperCase()+t.slice(1))(g2NumTxt(S,st.pos+1))}${S.tests?" + "+S.tests+" теста":""}</span>${g2Wave(S)?(w=>`<span>${S.algo==="agvt"?"Появления":"Волны"}: ${w.d} из ${w.t}</span>`)(g2WaveDone(P,si)):""}<span>Отдых ${P.rest} дн.</span><span>Шаг ${fmtW(P.step)} / ${fmtW(P.stepDb)} кг</span></div>
     ${winEnd?`<p class="gvt-note">Окно этапа: ${gvtDD(first)} – ${gvtDD(winEnd)} (${S.days} дн.)</p>`:""}</div>`;
-  if(pend)h+=`<div class="gvt-pend"><span>Итог занятия: нужно решение по весу</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="g2Pend">Открыть</button></div>`;
-  if(winOver)h+=`<div class="card"><p class="gvt-stop">Плановый срок этапа ${S.k} истёк, осталось занятий: ${S.n-st.pos}. Невыполненное не удаляется.</p><div class="row2"><button class="btn btn-alt" id="g2Cont" type="button">Продолжить этап</button><button class="btn" id="g2Skip" type="button">К следующему этапу</button></div></div>`;
+  if(pend)h+=`<div class="gvt-pend"><span>Итог занятия: нужно решение по весу${pends.length>1?" · занятий: "+pends.length:""}</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="g2Pend">Открыть</button></div>`;
+  if(winOver)h+=`<div class="card"><p class="gvt-stop">Плановый срок этапа ${S.k} истёк, осталось занятий: ${g2Left(P,si)}. Невыполненное не удаляется.</p><div class="row2"><button class="btn btn-alt" id="g2Cont" type="button">Продолжить этап</button><button class="btn" id="g2Skip" type="button">К следующему этапу</button></div></div>`;
   if(!st.setup)h+=g2SetupHTML(P,si);
   else if(slot){const D=S.d[slot.day];
     h+=`<div class="card"><p class="gvt-note">${slot.kind==="test"?"Контрольное занятие":"Следующая тренировка"} · рекомендовано ${gvtDD(next)}${next>today?" (можно раньше)":""}</p>
       <h3 style="margin:2px 0 10px;font-family:var(--dsp)">${slot.kind==="test"?"Тест · ":""}${D.name}</h3>
       <button class="btn" id="g2Open" type="button">${slot.kind==="test"?"Открыть тест":"Открыть тренировку"}</button></div>`;
     h+=g2PlanTable(P,si);
-    if(slot.kind==="train"){const up=[];let d=next;let pos=st.pos;for(let k=0;k<5&&pos<S.n;k++,pos++){up.push(`<div class="rm-row"><span class="k">${gvtDD(d)}</span><span class="v">${S.d[pos%S.d.length].name}</span></div>`);d=addDays(d,P.rest+1);}
+    if(slot.kind==="train"){const up=[];let d=next;g2Upcoming(P,si,5).forEach(day=>{up.push(`<div class="rm-row"><span class="k">${gvtDD(d)}</span><span class="v">${S.d[day].name}</span></div>`);d=addDays(d,P.rest+1);});
       if(up.length)h+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Ближайшие занятия</h3><div class="rm-list">${up.join("")}</div></div>`;}}
   h+=`<div class="card"><h3 style="margin:0 0 8px;font-family:var(--dsp)">Этапы</h3><div class="rm-list">${G2S.map((SS,i)=>{const s2=P.st[i];return `<div class="rm-row"><span class="k">${SS.k} · ${SS.name}${SS.adv?" · для продвинутых":""}</span><span class="v"><small>${G2ST[s2.status]}</small></span></div>`;}).join("")}</div>
     <div class="row2" style="margin-top:10px"><button class="btn btn-alt" id="g2NextSt" type="button">${S.adv?"Пропустить этап":"Завершить этап досрочно"}</button></div></div>`;
@@ -4872,12 +4927,19 @@ function g2Render(){const w=el("gvtBody");if(!w)return;const v=g2Store(),P=g2Act
   w.querySelectorAll(".rm-fold-h").forEach(b=>b.onclick=()=>{const x=b.nextElementSibling;x.hidden=!x.hidden;b.querySelector(".rm-caret").textContent=x.hidden?"▾":"▴";});
   if(!st.setup)g2SetupBind(P,si);
   if(el("g2Pend"))el("g2Pend").onclick=()=>g2Summary(pend.uid);
-  if(el("g2Open"))el("g2Open").onclick=()=>{const PP=g2Active(),sl=g2NextSlot(PP);if(!sl)return;if(sl.kind==="test")return g2OpenTest();startWorkout(g2Build(PP,sl),true);};
+  if(el("g2Open"))el("g2Open").onclick=()=>{const v2=g2Store(),PP=g2Active(v2),sl=PP&&g2NextSlot(PP);if(!sl)return;if(sl.kind==="test")return g2OpenTest();
+    const ms=g2MarkStale(PP),n=g2AutoRepeat(PP,sl);if(ms||n)g2Save(v2);if(n)toast("Срыв волны без решения → повтор волны (по умолчанию)");
+    if(g2Need6(PP,sl).length)return g2Conf6Open(PP.id,sl);
+    startWorkout(g2Build(PP,sl),true);};
   if(el("g2Cont"))el("g2Cont").onclick=()=>{toast("Продолжаем этап "+S.k);};
-  const toNext=(status)=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.st[si].status=status;PP.st[si].doneAt=g2Now();
+  const toNext=(status)=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);
+    PP.recs.forEach(r=>{if(r.stage!==si)return;(r.dec||[]).forEach(d=>{if(!d.done){d.done=true;d.choice="closed";d.at=g2Now();r.updatedAt=d.at;}});});
+    PP.st[si].status=status;PP.st[si].doneAt=g2Now();
     if(si+1<G2S.length){PP.stage=si+1;PP.st[si+1].status="active";}else{PP.status="done";PP.doneAt=g2Now();}PP.updatedAt=g2Now();g2Save(v2);g2Render();};
-  if(el("g2Skip"))el("g2Skip").onclick=()=>toNext("stop");
-  el("g2NextSt").onclick=()=>{if(Date.now()-g2NextArm>4000){g2NextArm=Date.now();toast(S.adv?"Нажми ещё раз — этап будет отмечен «Пропущен по решению пользователя»":"Нажми ещё раз — этап будет отмечен «Прерван», история сохранится");return;}g2NextArm=0;toNext(st.pos===0&&S.adv?"skip":"stop");};
+  const pendTxt=()=>{const L=[];P.recs.forEach(r=>{if(r.stage!==si)return;(r.dec||[]).forEach(d=>{if(!d.done){const nm=(G2X[d.key]||{n:d.key}).n;if(!L.includes(nm))L.push(nm);}});});
+    return L.length?" Не решено по весу: "+L.join(", ")+" — закроется без решения.":"";};
+  if(el("g2Skip"))el("g2Skip").onclick=()=>{if(g2PendN(P,si)&&Date.now()-g2NextArm>4000){g2NextArm=Date.now();toast("Нажми ещё раз — перейти к следующему этапу."+pendTxt());return;}g2NextArm=0;toNext("stop");};
+  el("g2NextSt").onclick=()=>{if(Date.now()-g2NextArm>4000){g2NextArm=Date.now();toast((S.adv?"Нажми ещё раз — этап будет отмечен «Пропущен по решению пользователя»":"Нажми ещё раз — этап будет отмечен «Прерван», история сохранится")+pendTxt());return;}g2NextArm=0;toNext(st.pos===0&&S.adv?"skip":"stop");};
   w.querySelectorAll("[data-rest]").forEach(b=>b.onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.rest=+b.dataset.rest;PP.updatedAt=g2Now();g2Save(v2);g2Render();});
   w.querySelectorAll("[data-rt]").forEach(b=>b.onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id),r=PP.st[si].rest,d=+b.dataset.rt;r[0]=Math.max(30,Math.min(300,r[0]+d));r[1]=Math.max(30,Math.min(300,r[1]+d));PP.updatedAt=g2Now();g2Save(v2);g2Render();});
   el("g2sSave").onclick=()=>{const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id),n=id=>parseFloat(String(el(id).value).replace(",","."));
@@ -6641,7 +6703,7 @@ function cfProgUp(){const p=cfProg();if(!p)return;const nx=cfLvlNext(p.lvl);if(!
 /* все активные программы */
 function mpList(){const out=[];
   try{const P=g2Active();if(P){const S=G2S[P.stage],st=P.st[P.stage],nd=g2NextDate(P);const tot=G2S.reduce((s,x)=>s+(x.n||0),0),tr=P.recs.filter(r=>r.kind==="train").length;
-    out.push({k:"gvt2",t:"German Volume Training",s:"Этап "+S.k+" · "+S.name+(st.setup?" · занятие "+Math.min(st.pos+1,S.n)+" из "+S.n:" · введи стартовые веса"),next:nd,start:P.start,
+    out.push({k:"gvt2",t:"German Volume Training",s:"Этап "+S.k+" · "+S.name+(st.setup?" · "+g2NumTxt(S,st.pos+1):" · введи стартовые веса"),next:nd,start:P.start,
       open:()=>show("gvt"),fin:()=>{const v=g2Store(),X=v.progs.find(x=>x.id===P.id);X.status="done";X.early=true;X.doneAt=g2Now();X.updatedAt=g2Now();v.activeId=null;g2Save(v);
         mpArch({kind:"gvt2",prog:"gvt2",title:"German Volume Training",start:(P.start||"").slice(0,10),total:tot,done:tr,unit:"зан.",verdict:"Завершена досрочно на этапе "+S.k+" ("+S.name+")."});}});}}catch(e){}
   try{const s=skGet();if(s.start){const d=skToday(s);out.push({k:"sotka",t:"Выживший · 100 дней",s:"День "+d+" из 100 · выполнено "+Object.keys(s.done||{}).length,next:(s.done||{})[d]?null:localDate(),start:s.start,
