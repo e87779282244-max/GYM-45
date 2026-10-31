@@ -3282,7 +3282,34 @@ const GVT_RM_SAME={B1:"Приседания со штангой",C2:"Подъё�
 const GVT_N=14,GVT_ACC_SETS=3,GVT_ACC_R=12,GVT_START=70,GVT_MIN=50,GVT_MAX=75;
 const GVTK="gym45_gvt_v1";
 function gvtStore(){try{const v=JSON.parse(localStorage.getItem(GVTK));if(v&&Array.isArray(v.cycles))return v;}catch(e){}return {cycles:[],activeId:null};}
-function gvtSave(v){try{localStorage.setItem(GVTK,JSON.stringify(v))}catch(e){}cloudPush();}
+/* ---------- синхронизация циклических программ (GVT, GVT 2.0, 5/3/1, ЛЗ, ТХ, CJ): слияние по частям ----------
+   При сохранении изменённые части программы (этап, упражнение, настройка) получают метку времени в _t.
+   При слиянии двух копий каждая часть берётся из копии, где она менялась позже; счётчики занятий не уменьшаются.
+   Данные без меток (старые) сливаются как раньше — целиком из копии с более новым updatedAt. */
+const CY_SKIP={recs:1,_t:1,updatedAt:1},CY_MAX={pos:1,tpos:1};
+function cyObj(x){return x!==null&&typeof x==="object";}
+function cyDiff(a,b,path,depth,out){
+  if(depth>=4||!cyObj(a)||!cyObj(b)||Array.isArray(a)!==Array.isArray(b)){if(JSON.stringify(a)!==JSON.stringify(b))out.push(path);return;}
+  new Set([...Object.keys(a),...Object.keys(b)]).forEach(k=>{if(depth===0&&CY_SKIP[k])return;cyDiff(a[k],b[k],path?path+"."+k:k,depth+1,out);});}
+function cyStamp(K,v,list){if(!v||!Array.isArray(v[list]))return;let prev=null;try{prev=JSON.parse(localStorage.getItem(K));}catch(e){}
+  const pm={};((prev&&prev[list])||[]).forEach(x=>{if(x&&x.id)pm[x.id]=x;});const now=new Date().toISOString();
+  v[list].forEach(x=>{const o=x&&pm[x.id];if(!o)return;const ch=[];cyDiff(o,x,"",0,ch);if(!ch.length)return;
+    x._t=Object.assign({},o._t||{},x._t||{});ch.forEach(p=>{x._t[p]=now;});});}
+function cyGet(o,p){return p.split(".").reduce((a,k)=>a==null?undefined:a[k],o);}
+function cySet(o,p,val){const ks=p.split(".");let a=o;
+  for(let i=0;i<ks.length-1;i++){if(!cyObj(a[ks[i]]))a[ks[i]]=/^\d+$/.test(ks[i+1])?[]:{};a=a[ks[i]];}
+  const l=ks[ks.length-1];if(val===undefined)delete a[l];else a[l]=JSON.parse(JSON.stringify(val));}
+function cyEff(t,p){let best="",s="";p.split(".").forEach((k,i)=>{s=i?s+"."+k:k;if(t[s]&&t[s]>best)best=t[s];});return best;}
+function cyMax(out,a,b,path,depth){if(!cyObj(out)||depth>4)return;Object.keys(out).forEach(k=>{const p=path?path+"."+k:k,v=out[k];
+  if(CY_MAX[k]&&typeof v==="number"){const x=cyGet(a,p),y=cyGet(b,p);out[k]=Math.max(v,typeof x==="number"?x:v,typeof y==="number"?y:v);}
+  else if(cyObj(v)&&!(depth===0&&CY_SKIP[k]))cyMax(v,a,b,p,depth+1);});}
+function cyMergeItem(base,a,b){const ta=a._t||{},tb=b._t||{},out=JSON.parse(JSON.stringify(base));
+  const paths=[...new Set([...Object.keys(ta),...Object.keys(tb)])].sort((x,y)=>x.split(".").length-y.split(".").length);
+  paths.forEach(p=>{const ea=cyEff(ta,p),eb=cyEff(tb,p);if(ea===eb)return;cySet(out,p,cyGet(ea>eb?a:b,p));});
+  cyMax(out,a,b,"",0);
+  if(paths.length){const t={};paths.forEach(p=>{const x=ta[p]||"",y=tb[p]||"",m=x>y?x:y;if(m)t[p]=m;});out._t=t;}
+  return out;}
+function gvtSave(v){cyStamp(GVTK,v,"cycles");try{localStorage.setItem(GVTK,JSON.stringify(v))}catch(e){}cloudPush();}
 function gvtActive(v){v=v||gvtStore();return v.cycles.find(c=>c.id===v.activeId&&!c.closedAt)||null;}
 function gvtNow(){return new Date().toISOString();}
 function addDays(iso,n){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+n);return localDate(d);}
@@ -3402,7 +3429,7 @@ function mergeGvt(a,b){a=a&&a.cycles?a:{cycles:[],activeId:null};b=b&&b.cycles?b
   [...b.cycles,...a.cycles].forEach(c=>{const o=m[c.id];if(!o){m[c.id]=JSON.parse(JSON.stringify(c));return;}
     const recs={};[...o.recs,...c.recs].forEach(r=>{const x=recs[r.uid];if(!x||(r.updatedAt||"")>(x.updatedAt||""))recs[r.uid]=r;});
     const newer=(c.updatedAt||"")>(o.updatedAt||"")?c:o;
-    m[c.id]=Object.assign({},JSON.parse(JSON.stringify(newer)),{recs:Object.values(recs).sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||"")),
+    m[c.id]=Object.assign({},cyMergeItem(newer,o,c),{recs:Object.values(recs).sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||"")),
       closedAt:o.closedAt||c.closedAt||null,completedAt:o.completedAt||c.completedAt||null});});
   const cycles=Object.values(m).sort((x,y)=>(x.createdAt||"").localeCompare(y.createdAt||""));
   const cand=[a.activeId,b.activeId].map(id=>cycles.find(c=>c.id===id&&!c.closedAt)).filter(Boolean)
@@ -3515,7 +3542,7 @@ const W5_COND={hard:"Тяжело: Prowler 15 × 40 м (отдых 90 с), сп�
 const W5_ATT=[85,92.5,100];
 
 function w5Store(){try{const v=JSON.parse(localStorage.getItem(W5K));if(v&&Array.isArray(v.cycles))return v;}catch(e){}return {cycles:[],activeId:null,meet:null};}
-function w5Save(v){try{localStorage.setItem(W5K,JSON.stringify(v))}catch(e){}cloudPush();}
+function w5Save(v){cyStamp(W5K,v,"cycles");try{localStorage.setItem(W5K,JSON.stringify(v))}catch(e){}cloudPush();}
 function w5Active(v){v=v||w5Store();return v.cycles.find(c=>c.id===v.activeId&&!c.closedAt)||null;}
 function w5Now(){return new Date().toISOString();}
 function w5R(x,step){step=step||2.5;return Math.round(x/step+1e-9)*step;}
@@ -3751,7 +3778,7 @@ const LZ_ORDER=["dip","pull"];
 const LZ_DAY={mon:"Пн · тяжёлая",wed:"Ср · лёгкая",fri:"Пт · тяжёлая",dmon:"Пн · разгрузка",dwed:"Ср · разгрузка",dtest:"Пт · проходка на 1ПМ"};
 const LZ_MU={rings:"на кольцах",bar:"на турнике",band:"на турнике с резиновой петлёй"};
 function lzStore(){try{const v=JSON.parse(localStorage.getItem(LZK));if(v&&Array.isArray(v.progs))return v;}catch(e){}return {progs:[],activeId:null};}
-function lzSave(v){try{localStorage.setItem(LZK,JSON.stringify(v))}catch(e){}cloudPush();}
+function lzSave(v){cyStamp(LZK,v,"progs");try{localStorage.setItem(LZK,JSON.stringify(v))}catch(e){}cloudPush();}
 function lzActive(v){v=v||lzStore();return v.progs.find(p=>p.id===v.activeId&&!p.closedAt)||null;}
 function lzNow(){return new Date().toISOString();}
 function lzR(x,st){st=st||0.25;return Math.round(x/st+1e-9)*st;}
@@ -3908,7 +3935,7 @@ const TX_ORDER=["sq","bp","pr","dl","pc"];
 const TX_DAY3={vd:"Пн · объём",ld:"Ср · лёгкий",id:"Пт · рекорд"};
 const TX_DAY4={d1:"День 1 · жимы, объём",d2:"День 2 · присед, объём",d3:"День 3 · жимы, рекорд",d4:"День 4 · присед и становая, рекорд"};
 function txStore(){try{const v=JSON.parse(localStorage.getItem(TXK));if(v&&Array.isArray(v.progs))return v;}catch(e){}return {progs:[],activeId:null};}
-function txSave(v){try{localStorage.setItem(TXK,JSON.stringify(v))}catch(e){}cloudPush();}
+function txSave(v){cyStamp(TXK,v,"progs");try{localStorage.setItem(TXK,JSON.stringify(v))}catch(e){}cloudPush();}
 function txActive(v){v=v||txStore();return v.progs.find(p=>p.id===v.activeId&&!p.closedAt)||null;}
 function txNow(){return new Date().toISOString();}
 function txR(x,st){st=st||2.5;return Math.max(0,Math.round(x/st+1e-9)*st);}
@@ -4063,7 +4090,7 @@ const CJ_DEU=["Жим лёжа узким хватом — скоростной"
 const CJ_ACC_LOW=[["Ягодично-икроножный подъём","Сгибание ног лёжа",3,"8–12"],["Гиперэкстензия","Гиперэкстензия с весом",3,"10–12"],["Тяга верхнего блока к груди","Тяга штанги в наклоне",4,"8–12"],["Подъём ног в висе","Скручивания на нижнем блоке",3,"10–15"]];
 const CJ_ACC_UP=[["Разгибание рук на блоке с канатом","Французский жим лёжа с EZ-грифом",4,"10–15"],["Тяга гантели одной рукой","Тяга нижнего блока сидя",4,"8–12"],["Махи гантелями в стороны","Жим гантелей сидя",3,"10–12"],["Подтягивания","Тяга верхнего блока к груди",3,"8–12"]];
 function cjStore(){try{const v=JSON.parse(localStorage.getItem(CJK));if(v&&Array.isArray(v.progs))return v;}catch(e){}return {progs:[],activeId:null};}
-function cjSave(v){try{localStorage.setItem(CJK,JSON.stringify(v))}catch(e){}cloudPush();}
+function cjSave(v){cyStamp(CJK,v,"progs");try{localStorage.setItem(CJK,JSON.stringify(v))}catch(e){}cloudPush();}
 function cjActive(v){v=v||cjStore();return v.progs.find(p=>p.id===v.activeId&&!p.closedAt)||null;}
 function cjNow(){return new Date().toISOString();}
 function cjR(x,st){st=st||2.5;return Math.max(0,Math.round(x/st+1e-9)*st);}
@@ -4473,7 +4500,7 @@ const AG_REPS=[5,4,3,5,4,3],P4_REPS={"543":[5,4,3,5,4,3],"654":[6,5,4,6,5,4]},P4
 
 /* ---------- хранилище ---------- */
 function g2Store(){try{const v=JSON.parse(localStorage.getItem(G2K));if(v&&Array.isArray(v.progs))return v;}catch(e){}return {progs:[],activeId:null};}
-function g2Save(v){try{localStorage.setItem(G2K,JSON.stringify(v))}catch(e){}cloudPush();}
+function g2Save(v){cyStamp(G2K,v,"progs");try{localStorage.setItem(G2K,JSON.stringify(v))}catch(e){}cloudPush();}
 function g2Active(v){v=v||g2Store();return v.progs.find(p=>p.id===v.activeId&&p.status!=="done"&&p.status!=="arch")||null;}
 function g2Now(){return new Date().toISOString();}
 function g2Uid(p){return p+"-"+Date.now().toString(36)+Math.floor(Math.random()*1e5).toString(36);}
@@ -4483,7 +4510,7 @@ function mergeG2(a,b){a=a&&a.progs?a:{progs:[],activeId:null};b=b&&b.progs?b:{pr
   [...b.progs,...a.progs].forEach(p=>{const o=m[p.id];if(!o){m[p.id]=JSON.parse(JSON.stringify(p));return;}
     const recs={};[...o.recs,...p.recs].forEach(r=>{const x=recs[r.uid];if(!x||(r.updatedAt||"")>(x.updatedAt||""))recs[r.uid]=r;});
     const newer=(p.updatedAt||"")>(o.updatedAt||"")?p:o;
-    m[p.id]=Object.assign({},JSON.parse(JSON.stringify(newer)),{recs:Object.values(recs).sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||""))});});
+    m[p.id]=Object.assign({},cyMergeItem(newer,o,p),{recs:Object.values(recs).sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||""))});});
   const progs=Object.values(m).sort((x,y)=>(x.createdAt||"").localeCompare(y.createdAt||""));
   const cand=[a.activeId,b.activeId].map(id=>progs.find(p=>p.id===id&&p.status==="active")).filter(Boolean).sort((x,y)=>(y.createdAt||"").localeCompare(x.createdAt||""));
   return {progs:progs,activeId:cand.length?cand[0].id:(a.activeId||b.activeId||null)};}
@@ -9550,6 +9577,10 @@ function cloudPush(){
 
 if(!draftAutoRestore(true))show("home");
 cloudInit();
+/* облако Claude: вернулся в приложение — подтянуть данные с других устройств (не чаще раза в 30 с); ушёл — отправить несохранённое сразу */
+{let last=Date.now();document.addEventListener("visibilitychange",()=>{if(!(CLOUD&&!CLOUD.fb&&cloudReady))return;
+  if(document.visibilityState==="hidden"){if(cloudPush._t){clearTimeout(cloudPush._t);cloudPush._t=null;try{Promise.resolve(cloudDoc().set(cloudSnapshot())).catch(()=>{});}catch(e){}}}
+  else if(Date.now()-last>30000){last=Date.now();cloudInit();}});}
 
 /* ===================== СВОЁ ОБЛАКО: Firebase (версия на GitHub Pages) =====================
    Внутри Claude работает облако Claude (выше). Вне Claude — вход по почте/Google и Firestore.
