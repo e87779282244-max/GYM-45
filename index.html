@@ -7623,31 +7623,119 @@ function dsAll(){const o={};for(let i=0;i<localStorage.length;i++){const k=local
 function dsSnaps(){try{const s=JSON.parse(localStorage.getItem(DS_K)||"null");return s&&Array.isArray(s.snaps)?s.snaps:[];}catch(e){return [];}}
 function dsCount(){let n=0;try{n=JSON.parse(localStorage.getItem("gym45_history_v1")||"[]").length;}catch(e){}return n;}
 function dsDT(iso){const d=new Date(iso);return d.toLocaleDateString("ru-RU",{day:"numeric",month:"short"})+" "+d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});}
-function dsDownload(){const pack={app:"Gym 45",format:1,at:new Date().toISOString(),data:dsAll()};const txt=JSON.stringify(pack);
-  const name="gym45-backup-"+localDate()+".json",blob=new Blob([txt],{type:"application/json"});
+/* ---------- перенос между версиями (Claude ↔ GitHub): сводка и фото в файле, предпросмотр, объединение, автосверка ---------- */
+const DS_XK="gym45_xfer_v1";
+function dsJ(d,k){try{return JSON.parse(d[k]||"null");}catch(e){return null;}}
+const DS_PROGS=[["German Volume Training (GVT 1)","gym45_gvt_v1","cycles"],["German Volume Training",G2K,"progs"],["Батя в здании · 5/3/1","gym45_w531_v1","cycles"],
+  ["Рождённый ползать","gym45_lz_v1","progs"],["Техасский рейнджер","gym45_tx_v1","progs"],["Тяжёлая артиллерия","gym45_cj_v1","progs"]];
+/* сводка по разделам (по карте ключ → строка, как в файле копии) */
+function dsSum(d){const o={},cnt=(k,f)=>{const v=dsJ(d,k);try{return v?f(v):0;}catch(e){return 0;}};
+  o["Тренировки в истории"]=cnt(KEY,v=>Array.isArray(v)?v.length:0);
+  DS_PROGS.forEach(([n,k,l])=>{const c=cnt(k,v=>(v[l]||[]).reduce((a,p)=>a+((p&&p.recs)||[]).length,0));if(c||d[k])o[n+" · записи"]=c;});
+  o["Записи питания"]=cnt(FOODK,v=>Array.isArray(v)?v.length:0);
+  o["1ПМ в «Рабочих весах»"]=cnt(RMK,v=>Object.keys(v).length);
+  o["Профиль"]=d[PFK]?1:0;
+  o["Фото прогресса"]=cnt(PHK,v=>Array.isArray(v)?v.filter(x=>x&&!x.del).length:0);
+  return o;}
+/* фото, которые реально открываются на этом устройстве */
+function dsPhotosHere(){const inC=!!(window.claude&&claude.use);return phMeta().filter(x=>x&&!x.del&&(x.kind==="idb"||inC)).length;}
+function dsB64(blob){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]||"");r.onerror=()=>res("");r.readAsDataURL(blob);});}
+async function dsPhotosPack(){const out=[];for(const x of phList()){let b=null;
+    try{if(x.kind==="idb")b=await phIdbGet(x.id);else{const u=await phSrc(x);if(u){const r=await fetch(u);if(r.ok)b=await r.blob();}}}catch(e){}
+    if(b){const d=await dsB64(b);if(d)out.push({id:x.id,date:x.date,at:x.at,type:b.type||"image/jpeg",b64:d});}}
+  return out;}
+async function dsPack(){const data=dsAll();return {app:"Gym 45",format:2,at:new Date().toISOString(),sum:dsSum(data),photos:await dsPhotosPack(),data:data};}
+function dsDownload(){if(dsDownload._busy)return;dsDownload._busy=1;toast("Готовлю копию…");
+  dsPack().then(pack=>{dsDownload._busy=0;const txt=JSON.stringify(pack),name="gym45-backup-"+localDate()+".json",blob=new Blob([txt],{type:"application/json"});
+  const done=()=>{try{localStorage.setItem("gym45_lastexport_v1",JSON.stringify({at:new Date().toISOString()}));}catch(e){}renderDS();};
   /* внутри Claude файл отдаётся только через «downloads» (с подтверждением) */
-  if(window.claude&&claude.use&&!dsDownload._plain){(async()=>{let d=null;try{d=await claude.use("downloads");}catch(e){}
-    if(!d){dsDownload._plain=1;dsDownload();dsDownload._plain=0;return;}
-    try{await d.save({filename:name,data:txt});try{localStorage.setItem("gym45_lastexport_v1",JSON.stringify({at:new Date().toISOString()}));}catch(e){}renderDS();toast("Копия сохранена: "+name);}
-    catch(e){toast(e&&e.code==="declined"?"Сохранение отменено":"Не удалось сохранить файл здесь");}})();return;}
+  if(window.claude&&claude.use){(async()=>{let d=null;try{d=await claude.use("downloads");}catch(e){}
+    if(d){try{await d.save({filename:name,data:txt});done();toast("Копия сохранена: "+name+(pack.photos.length?" · фото: "+pack.photos.length:""));}
+      catch(e){toast(e&&e.code==="declined"?"Сохранение отменено":"Не удалось сохранить файл здесь");}return;}
+    dsPlainSave(blob,name);done();})();return;}
+  dsPlainSave(blob,name);done();}).catch(()=>{dsDownload._busy=0;toast("Не удалось собрать копию");});}
+function dsPlainSave(blob,name){
   try{const f=new File([blob],name,{type:"application/json"});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:"Gym 45 — резервная копия"}).catch(()=>{});return;}}catch(e){}
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
-  try{localStorage.setItem("gym45_lastexport_v1",JSON.stringify({at:new Date().toISOString()}));}catch(e){}renderDS();}
-/* восстановление: текущее состояние сначала уходит в снимок, затем ключи из копии записываются поверх */
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}
+/* снимок текущих данных перед любым восстановлением */
+function dsSnapNow(why){try{const st={snaps:dsSnaps()};st.snaps.push({at:new Date().toISOString(),build:why,h:Date.now(),n:Object.keys(dsAll()).length,data:dsAll()});while(st.snaps.length>3)st.snaps.shift();localStorage.setItem(DS_K,JSON.stringify(st));}catch(e){}}
+function dsKeys(data){return Object.keys(data).filter(k=>k.startsWith("gym45_")&&k!==DS_K&&k!=="gym45_fb_v1"&&k!==DS_XK&&!k.startsWith("gym45_backup"));}
+/* объединение копии с данными устройства: те же правила, что при синхронизации — ничего не теряется, дублей нет */
+function dsMergeKey(k,cur,inc){const A=JSON.parse(cur),B=JSON.parse(inc),newer=(x,y,f)=>((x&&x[f])||0)>=((y&&y[f])||0)?x:y;
+  const M={[KEY]:mergeHistory,[FOODK]:mergeFood,[GVTK]:mergeGvt,[G2K]:mergeG2,[W5K]:mergeW5,[LZK]:mergeLz,[TXK]:mergeTx,[CJK]:mergeCj,[PHK]:mergePh};
+  [["gym45_mob_v1",typeof mergeMob==="function"?mergeMob:null],["gym45_my_v1",typeof mergeMy==="function"?mergeMy:null],["gym45_sotka_v1",typeof mergeSk==="function"?mergeSk:null],
+   ["gym45_pp_v1",typeof mergePP==="function"?mergePP:null],["gym45_cf_v1",typeof mergeCf==="function"?mergeCf:null],["gym45_parch_v1",typeof mergePar==="function"?mergePar:null],
+   ["gym45_an_v1",typeof anMerge==="function"?anMerge:null],["gym45_water_v1",typeof wtMerge==="function"?wtMerge:null]].forEach(([k2,f])=>{if(f)M[k2]=f;});
+  if(M[k])return JSON.stringify(M[k](A,B));
+  if(k===FOODDELK)return JSON.stringify(Object.assign({},B,A));
+  if(k===PFK)return JSON.stringify(newer(A,B,"updatedAt"));
+  if(k===DRAFTK)return cur;                       // своя незавершённая тренировка важнее
+  return cur;}                                    // прочие настройки устройства не трогаем
+function dsMergeRm(data){const ra=rmReg(),ma=rmMeta(),rb=dsJ(data,RMK)||{},mb=dsJ(data,RMMK)||{},out=mergeRm(ra,rb),mm=Object.assign({},mb,ma);
+  Object.keys(rb).forEach(k=>{if(ra[k]==null){out[k]=rb[k];if(mb[k])mm[k]=mb[k];}});
+  Object.keys(mb).forEach(k=>{const x=(ma[k]||{}).at||"",y=(mb[k]||{}).at||"";if(y>x&&rb[k]!=null){out[k]=rb[k];mm[k]=mb[k];}});
+  localStorage.setItem(RMK,JSON.stringify(out));if(Object.keys(mm).length)localStorage.setItem(RMMK,JSON.stringify(mm));}
+async function dsPhotosIn(photos){if(!Array.isArray(photos)||!photos.length)return 0;const L=phMeta();let n=0;
+  for(const p of photos){if(!p||!p.id||!p.b64)continue;const cur=L.find(x=>x.id===p.id);if(cur&&cur.del)continue;
+    if(cur&&cur.kind==="idb"&&await phIdbGet(p.id))continue;
+    if(cur&&cur.kind==="asset"&&window.claude&&claude.use)continue;
+    try{const bin=atob(p.b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+      await phIdbPut(p.id,new Blob([u],{type:p.type||"image/jpeg"}));const rec={id:p.id,date:p.date,at:p.at,kind:"idb"};
+      const i=L.findIndex(x=>x.id===p.id);if(i>=0)L[i]=Object.assign({},L[i],rec,{ref:undefined,url:undefined});else L.push(rec);n++;}catch(e){}}
+  try{localStorage.setItem(PHK,JSON.stringify(L));}catch(e){}return n;}
+/* mode: "merge" | "replace" */
+async function dsApply(pack,mode,label){const data=pack.data||pack;if(!data||typeof data!=="object"){toast("Файл не похож на копию Gym 45");return;}
+  const keys=dsKeys(data);if(!keys.length){toast("В копии нет данных Gym 45");return;}
+  dsSnapNow(mode==="merge"?"перед объединением":"перед восстановлением");
+  const fileSum=pack.sum||dsSum(data);
+  if(mode==="replace")keys.forEach(k=>{try{localStorage.setItem(k,data[k]);}catch(e){}});
+  else keys.forEach(k=>{try{if(k===RMK||k===RMMK)return;const cur=localStorage.getItem(k);localStorage.setItem(k,cur==null?data[k]:dsMergeKey(k,cur,data[k]));}catch(e){}});
+  if(mode!=="replace")try{dsMergeRm(data);}catch(e){}
+  const ph=await dsPhotosIn(pack.photos);
+  /* старые копии без фото: на GitHub-версии фото из Claude не откроются — их и не ждём */
+  fileSum["Фото прогресса"]=Array.isArray(pack.photos)?pack.photos.length:(window.claude&&claude.use?(fileSum["Фото прогресса"]||0):0);
+  try{localStorage.setItem(DS_XK,JSON.stringify({at:new Date().toISOString(),mode:mode,label:label,file:fileSum,photos:ph,checked:null}));}catch(e){}
+  toast((mode==="merge"?"Объединено":"Восстановлено")+": "+label+". Перезапускаю…");setTimeout(()=>location.reload(),900);}
+/* откат к автоснимку: простая замена, без сверки переноса */
 function dsRestore(data,label){if(!data||typeof data!=="object"){toast("Файл не похож на копию Gym 45");return;}
-  const keys=Object.keys(data).filter(k=>k.startsWith("gym45_")&&k!==DS_K&&k!=="gym45_fb_v1");if(!keys.length){toast("В копии нет данных Gym 45");return;}
-  try{const st={snaps:dsSnaps()};st.snaps.push({at:new Date().toISOString(),build:"перед восстановлением",h:Date.now(),n:Object.keys(dsAll()).length,data:dsAll()});while(st.snaps.length>3)st.snaps.shift();localStorage.setItem(DS_K,JSON.stringify(st));}catch(e){}
-  keys.forEach(k=>{try{localStorage.setItem(k,data[k]);}catch(e){}});
+  const keys=dsKeys(data);if(!keys.length){toast("В копии нет данных Gym 45");return;}
+  dsSnapNow("перед восстановлением");keys.forEach(k=>{try{localStorage.setItem(k,data[k]);}catch(e){}});
   toast("Восстановлено: "+label+". Перезапускаю…");setTimeout(()=>location.reload(),900);}
+/* предпросмотр: что в файле и что на устройстве */
+function dsPreview(pack,label){const data=pack.data||pack,fs=pack.sum||dsSum(data),here=dsSum(dsAll());here["Фото прогресса"]=dsPhotosHere();
+  if(pack.photos)fs["Фото прогресса"]=pack.photos.length;
+  const rows=[...new Set([...Object.keys(fs),...Object.keys(here)])].map(k=>`<div class="rm-row"><span class="k">${k}</span><span class="v">${fs[k]!=null?fs[k]:"—"} <small>/ ${here[k]!=null?here[k]:0}</small></span></div>`).join("");
+  const box=el("gvtMbox");
+  box.innerHTML=`<h3>Перенос: ${label}</h3><p>В файле <small>/ на этом устройстве</small>:</p><div class="rm-list">${rows}</div>
+    <p class="gvt-note">«Объединить» — данные файла добавятся к данным устройства, ничего не потеряется и не задвоится. «Заменить» — устройство получит ровно то, что в файле. Перед любым вариантом делается снимок — можно откатить.</p>
+    <button class="btn" type="button" id="dsMerge">Объединить</button><button class="btn btn-alt" type="button" id="dsReplace">Заменить</button><button class="tm-mini" type="button" id="dsCancel">Отмена</button>`;
+  el("gvtModal").hidden=false;
+  el("dsCancel").onclick=()=>{el("gvtModal").hidden=true;};
+  el("dsMerge").onclick=()=>{el("gvtModal").hidden=true;dsApply(pack,"merge",label);};
+  el("dsReplace").onclick=()=>{const b=el("dsReplace");if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();b.textContent="Точно заменить?";toast("Нажми ещё раз — данные устройства заменятся данными файла (снимок сохранится)");return;}
+    el("gvtModal").hidden=true;dsApply(pack,"replace",label);};}
+/* автосверка после переноса: по каждому разделу «есть не меньше, чем в файле» */
+function dsCheck(){let x=null;try{x=JSON.parse(localStorage.getItem(DS_XK)||"null");}catch(e){}if(!x||!x.file)return null;
+  const here=dsSum(dsAll());here["Фото прогресса"]=dsPhotosHere();
+  const rows=Object.keys(x.file).map(k=>({k:k,want:x.file[k],have:here[k]||0,ok:(here[k]||0)>=x.file[k]}));
+  const ok=rows.every(r=>r.ok);if(x.checked!==ok){x.checked=ok;x.checkedAt=new Date().toISOString();try{localStorage.setItem(DS_XK,JSON.stringify(x));}catch(e){}}
+  return {x:x,rows:rows,ok:ok};}
+function dsCheckHTML(){const c=dsCheck();if(!c)return "";
+  return `<details class="ds-snaps"${c.ok?"":" open"}><summary>${c.ok?"✓ Перенос проверен":"✗ Перенос: есть расхождения"} · ${dsDT(c.x.checkedAt||c.x.at)}</summary>
+    <div class="rm-list">${c.rows.map(r=>`<div class="rm-row"><span class="k">${r.ok?"✓":"✗"} ${r.k}</span><span class="v">${r.have} <small>/ в файле ${r.want}</small></span></div>`).join("")}</div>
+    ${c.ok?"":`<p class="gvt-note">Не хватает данных — открой файл ещё раз и выбери «Объединить» или откати к снимку ниже.</p>`}</details>`;}
+/* после перезапуска — сообщить итог сверки */
+setTimeout(()=>{try{let x=JSON.parse(localStorage.getItem(DS_XK)||"null");if(!x||x.checked!==null)return;const c=dsCheck();if(c)toast(c.ok?"Перенос проверен: всё на месте ✓":"Перенос: есть расхождения — Прогресс → Сохранность данных");}catch(e){}},2500);
 function renderDS(){const box=el("dsBox");if(!box)return;const sn=dsSnaps().slice().reverse();let le=null;try{le=JSON.parse(localStorage.getItem("gym45_lastexport_v1")||"null");}catch(e){}
   box.innerHTML=`<p class="ds-sub">Всё хранится на этом устройстве. Тренировок в истории: <b>${dsCount()}</b>. Приложение само делает снимок данных при каждом запуске — обновление не может их потерять. Копия в файл защищает от очистки данных iPhone.</p>
-   ${window.claude&&claude.use?`<p class="ds-sub">Здесь данные сами сохраняются в облако Claude. Копия в файл — чтобы перенести записи в версию на GitHub (там «Восстановить из файла») или держать запасную.</p>`:""}
+   ${window.claude&&claude.use?`<p class="ds-sub">Здесь данные сами сохраняются в облако Claude. Копия в файл — чтобы перенести записи в версию на GitHub (там «Восстановить из файла» → «Объединить»; фото входят в файл) или держать запасную.</p>`:""}
    <button class="btn" type="button" id="dsExport">Сохранить копию в файл</button>
    <p class="ds-sub">${le?"Последняя копия в файл: "+dsDT(le.at):"Копию в файл ещё не сохраняли — сохрани в «Файлы» или отправь себе в мессенджер."}</p>
    <label class="btn btn-alt ds-file">Восстановить из файла<input type="file" id="dsImport" accept="application/json,.json" hidden></label>
+   ${dsCheckHTML()}
    ${sn.length?`<details class="ds-snaps"><summary>Автоснимки (${sn.length})</summary>${sn.map((s,i)=>`<div class="ds-snap"><span>${dsDT(s.at)}<small>${s.n} разделов · версия ${s.build}</small></span><button type="button" class="tm-reset" data-i="${i}">Откатить</button></div>`).join("")}</details>`:""}`;
   if(el("dsExport"))el("dsExport").onclick=dsDownload;
-  el("dsImport").onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);dsRestore(p.data||p,"копия от "+(p.at?dsDT(p.at):f.name));}catch(err){toast("Не удалось прочитать файл");}};r.readAsText(f);};
+  el("dsImport").onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{let p=null;try{p=JSON.parse(r.result);}catch(err){toast("Не удалось прочитать файл");return;}e.target.value="";dsPreview(p.data?p:{data:p},"копия от "+(p.at?dsDT(p.at):f.name));};r.readAsText(f);};
   box.querySelectorAll(".ds-snap button").forEach(b=>b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();b.textContent="Точно?";toast("Нажми ещё раз — данные вернутся к этому снимку (текущие сохранятся отдельным снимком)");return;}const s=sn[+b.dataset.i];dsRestore(s.data,"снимок от "+dsDT(s.at));});}
 {const _rp=renderProgress;renderProgress=function(){_rp();renderDS();};}
 /* «✕» у незавершённой тренировки — только двойным нажатием */
