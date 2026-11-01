@@ -54,7 +54,7 @@ async def m():
     await pg.evaluate("""(()=>{const v=w5Store(),c=w5Active(v);c.recs.push({uid:'t1',s:9,wave:3,finishedAt:w5Now(),updatedAt:w5Now(),full:false,pr:[],lifts:{dead:{w:137.5,r:0,need:1,amrap:'full',e1:0,ok:false}}});
       c.recs.push({uid:'t0',s:1,wave:1,finishedAt:w5Now(),updatedAt:w5Now(),full:true,pr:[],lifts:{dead:{w:122.5,r:6,need:5,amrap:'full',e1:147,ok:true}}});w5Save(v);})()""")
     S=await pg.evaluate("w5Suggest(w5Active())")
-    ok('следующий цикл: жим +2,5; присед +5; становая откат к 90% расч. 1ПМ',S['press']['tm']==57.5 and S['squat']['tm']==130 and S['dead']['tm']==132.5,{k:v['tm'] for k,v in S.items()})
+    ok('следующий цикл: жим +2,5; присед не тренировался — без изменений; становая откат к 90% расч. 1ПМ',S['press']['tm']==57.5 and S['squat']['tm']==125 and 'не тренировалось' in S['squat']['why'] and S['dead']['tm']==132.5,{k:v['tm'] for k,v in S.items()})
     await pg.evaluate("el('w5NextC').click()");await pg.evaluate("el('w5NextC').click()");await pg.wait_for_timeout(100)
     ok('форма следующего цикла с ТМ',await pg.evaluate("el('w5In_press').value==='57.5'&&el('w5Go').textContent.includes('2')"))
     await pg.click('#w5Go');await pg.wait_for_timeout(100)
