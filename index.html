@@ -2634,6 +2634,33 @@ function parkAsk(next,newName){const box=el("gvtMbox"),n=wkDoneN(current);
 function parkHTML(){const L=parkList();if(!L.length)return "";
   return L.map((w,i)=>`<div class="gvt-pend pk-row" style="margin-top:10px"><span>⏸ Отложена: ${w.program.name}<small style="display:block;font-weight:500;opacity:.8">отмечено подходов: ${wkDoneN(w)} · ${dsDT(w.parkedAt||w.startedAt)}</small></span>
     <button class="btn" style="width:auto;padding:9px 14px" type="button" data-pk="${i}">Продолжить</button><button class="icon-btn" style="background:transparent;width:40px;height:40px" type="button" data-pkx="${i}" title="Удалить">✕</button></div>`).join("");}
+/* ---------- перерыв: дни с последней тренировки этой программы ---------- */
+function brkPct(gap){return gap>=15?15:gap>=14?10:0;}
+function brkFam(p){if(!p)return "";if(p.w5)return "w5";if(p.lz)return "lz";if(p.tx)return "tx";if(p.cj)return "cj";if(p.gvt)return "gvt1";if(p.g2)return "g2";if(p.au)return "au:"+(p.au.id||"");
+  return String(p.focus||"").split(" · ")[0]||p.name||"";}
+function brkLast(p){try{let ds=[];const rd=a=>(a||[]).map(r=>r.finishedAt||r.date);
+    if(p.w5){const c=w5Active();ds=rd(c&&c.recs);}else if(p.lz){const x=lzActive();ds=rd(x&&x.recs);}else if(p.tx){const x=txActive();ds=rd(x&&x.recs);}
+    else if(p.cj){const x=cjActive();ds=rd(x&&x.recs);}else if(p.gvt){const c=gvtActive();ds=rd(c&&c.recs);}
+    else{const f=brkFam(p);ds=(safe.get()||[]).filter(h=>h&&(h.fam===f||(f.startsWith("au:")&&h.au&&"au:"+h.au.id===f))).map(h=>h.date);}
+    ds=ds.filter(Boolean).map(x=>String(x).slice(0,10));
+    /* программу ещё не делал — перерыва нет: стартовые веса и так считаются заново */
+    return ds.sort().pop()||null;}catch(e){return null;}}
+function brkGap(p){const L=brkLast(p);if(!L)return 0;return Math.max(0,Math.round((Date.parse(localDate()+"T12:00")-Date.parse(L+"T12:00"))/864e5));}
+/* «начать заново» — для программ, у которых есть свой старт */
+function brkRestart(p){if(p.w5)return ()=>{w5Form="new";show("w531");};if(p.lz)return ()=>{lzFormOpen=true;show("lz");};if(p.tx)return ()=>{txFormOpen=true;show("tx");};
+  if(p.cj)return ()=>{cjFormOpen=true;show("cj");};return null;}
+function brkLighten(pc){if(!current)return;const f=1-pc/100;
+  current.sets.forEach((ss,i)=>{const nm=(current.program.ex[i]||[])[0];ss.forEach(x=>{if(!(x.w>0))return;const k=wKind(nm);
+    x.w=k?wSnap(x.w*f,k,"down"):Math.floor(x.w*f*2+1e-9)/2;});});
+  current.brk=pc;current.program=Object.assign({},current.program,{focus:(current.program.focus||"")+" · после перерыва −"+pc+" %"});saveDraft();renderWorkout();}
+function brkAsk(p,gap,go){const pc=brkPct(gap),box=el("gvtMbox"),rs=gap>=30?brkRestart(p):null;
+  box.innerHTML=`<h3>Перерыв ${gap} ${plural(gap,"день","дня","дней")}</h3>
+    ${gap>=30?`<p class="gvt-stop">Перерыв больше месяца — программа рекомендует начать сначала${rs?" с новыми максимумами":": с первой недели"}.</p>`:""}
+    <p>Первая тренировка после перерыва — легче на ${pc} %: веса снижены и округлены по шагам снаряда. Занятие засчитается, а прогрессия программы не изменится.</p>
+    ${rs?`<button class="btn" type="button" id="bkRe">Начать программу заново</button>`:""}
+    <button class="btn${rs?" btn-alt":""}" type="button" id="bkY">Легче на ${pc} %</button><button class="btn btn-alt" type="button" id="bkN">Как обычно</button><button class="tm-mini" type="button" id="bkX">Позже</button>`;
+  el("gvtModal").hidden=false;const close=()=>{el("gvtModal").hidden=true;};
+  el("bkX").onclick=close;el("bkN").onclick=()=>{close();go(0);};el("bkY").onclick=()=>{close();go(pc);};if(rs)el("bkRe").onclick=()=>{close();rs();};}
 function getDraft(){try{return JSON.parse(localStorage.getItem(DRAFTK)||"null")}catch(e){return null}}
 function showDraftBanner(){const b=el("draftBanner");if(!b)return;const d=getDraft();
   if(d&&d.program&&d.sets){el("draftName").textContent=(d.program.name||"")+(d.program.focus?" · "+d.program.focus:"");b.hidden=false;}
@@ -2732,8 +2759,10 @@ let startArm=0;
 el("dayStart").addEventListener("click",()=>{
   if(!dayView)return;const p=dayView.p;
   if(isActive(p)){renderWorkout();show("workout");return;}
-  if(current&&wkDoneN(current)>0){const dv=dayView;parkAsk(()=>{dayView=dv;beginWorkout(dv.p,dv.computed);},p.name);return;}
-  startArm=0;beginWorkout(p,dayView.computed);});
+  const dv=dayView,start=()=>{dayView=dv;const gap=(dv.p.g2||dv.p.brkDone)?0:brkGap(dv.p);
+    if(brkPct(gap))return brkAsk(dv.p,gap,pc=>{dayView=dv;beginWorkout(dv.p,dv.computed);if(pc)brkLighten(pc);});beginWorkout(dv.p,dv.computed);};
+  if(current&&wkDoneN(current)>0){parkAsk(start,p.name);return;}
+  startArm=0;start();});
 el("dayFinish").addEventListener("click",()=>{
   if(!dayView||!isActive(dayView.p)){toast("Сначала начни программу");return;}
   finishWorkout();});
@@ -3063,7 +3092,7 @@ function finishWorkout(){
   const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(anSetOut);log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
   anApplyRir(log,prog);
   const auP=prog.au&&typeof AUTH!=="undefined"?AUTH.find(q=>q.id===prog.au.id):null,auWas=auP?auDone(auP):true;
-  const h=safe.get();h.push(Object.assign({date:localDate(),name:prog.name,vol:Math.round(vol),log:log},anSessionMeta(),prog.au?{au:prog.au}:{}));
+  const h=safe.get();h.push(Object.assign({fam:brkFam(prog)},current.brk?{brk:current.brk}:{},{date:localDate(),name:prog.name,vol:Math.round(vol),log:log},anSessionMeta(),prog.au?{au:prog.au}:{}));
   safe.set(h);
   // 2b · проходка обновляет 1ПМ (и при снижении — текущая форма; рекорды остаются в аналитике)
   let rmMsg="";
@@ -3376,7 +3405,7 @@ function gvtMainPct(rec){let d=0,t=0;rec.ex.forEach(x=>{if(!x.main)return;const 
 
 /* память фактических весов: последнее занятие того же дня А/Б/В этого цикла (не из будущего) */
 function gvtPrevRec(c,n){const day=n%3;
-  return c.recs.filter(r=>r.day===day&&r.n<=n).sort((a,b)=>(b.finishedAt||"").localeCompare(a.finishedAt||""))[0]||null;}
+  return c.recs.filter(r=>r.day===day&&r.n<=n&&!r.brk).sort((a,b)=>(b.finishedAt||"").localeCompare(a.finishedAt||""))[0]||null;}
 function gvtBuild(c,n){
   const sl=gvtSlot(n),D=GVT_DAYS[sl.day],target=c.target[D.key],pcts=gvtPcts(sl.week,target);
   const prev=gvtPrevRec(c,n),warmOn=!!c.warmup&&sl.week>=3;
@@ -3445,7 +3474,7 @@ function gvtRecord(){const p=current.program,g=p.gvt,v=gvtStore(),c=v.cycles.fin
     return st.length===10&&st.every(s=>s.done&&s.r>=10&&!s.fail);})&&!stops.length;
   const rir0=ex.some(x=>x.main&&x.sets.some(s=>!s.warm&&s.rir==="0"));
   const now=gvtNow();
-  const rec={uid:c.id+"-"+g.n+"-"+Date.now().toString(36),n:g.n,day:g.day,week:g.week,planned:g.planned,
+  const rec={uid:c.id+"-"+g.n+"-"+Date.now().toString(36),brk:current.brk||undefined,n:g.n,day:g.day,week:g.week,planned:g.planned,
     startedAt:current.startedAt||now,finishedAt:now,updatedAt:now,target:g.target,pcts:g.pcts,rm:g.rm,round:g.round,warm:g.warm,
     ex:ex,full:full,easyOK:full&&!rir0,autoHard:stops.length>0,stops:stops,rating:null,targetAfter:null};
   c.recs.push(rec);
@@ -3685,7 +3714,7 @@ function w5Record(){const p=current.program,g=p.w5,v=w5Store(),c=v.cycles.find(x
     lifts[R.lift]={w:last.w,r:done?last.r:0,need:last.need,amrap:last.amrap||"",e1:done?Math.round(w5E1(last.w,last.r)*10)/10:0,ok:done&&last.r>=last.need,
       singles:st.filter(s=>s.single&&s.done).map(s=>s.w)};
     if(!last.done&&g.wave!==4)lifts[R.lift].unk=true;});
-  const now=w5Now(),rec={uid:c.id+"-"+g.s+"-"+Date.now().toString(36),s:g.s,wave:g.wave,finishedAt:now,updatedAt:now,lifts:lifts,full:full};
+  const now=w5Now(),rec={uid:c.id+"-"+g.s+"-"+Date.now().toString(36),brk:current.brk||undefined,s:g.s,wave:g.wave,finishedAt:now,updatedAt:now,lifts:lifts,full:full};
   rec.pr=Object.keys(lifts).filter(l=>lifts[l].e1>0&&lifts[l].amrap&&lifts[l].e1>w5Best(v,l));
   c.recs.push(rec);if(w5Next(c)<0&&!c.completedAt)c.completedAt=now;c.updatedAt=now;w5Save(v);return rec;}
 /* предложение ТМ на следующий цикл: не закрыл норму в последнем подходе → откат к 90% расчётного 1ПМ, иначе +шаг */
@@ -3706,7 +3735,7 @@ function w5AskUnk(uid){const v=w5Store(),c=v.cycles.find(x=>x.recs.some(r=>r.uid
     if(Object.values(r2.lifts).some(y=>y.unk))w5AskUnk(uid);else{el("gvtModal").hidden=true;renderW5();}});}
 function w5Suggest(c){const out={},inc=c.inc==="small"?{up:1,low:2.5}:{up:2.5,low:5};
   W5_ORDER.forEach(l=>{/* норма проверяется только на неделях 1–3; «не делал» и неотвеченные — не данные */
-    const rs=c.recs.filter(r=>r.wave!==4).map(r=>r.lifts&&r.lifts[l]).filter(x=>x&&!x.skip&&!x.unk);
+    const rs=c.recs.filter(r=>r.wave!==4&&!r.brk).map(r=>r.lifts&&r.lifts[l]).filter(x=>x&&!x.skip&&!x.unk);
     if(!rs.length){const any=c.recs.some(r=>r.lifts&&r.lifts[l]&&(r.lifts[l].skip||r.lifts[l].unk)&&r.wave!==4);
       out[l]={tm:c.tm[l],why:any?"нет данных (последний подход не отмечен) → ТМ без изменений":"не тренировалось в этом цикле → ТМ без изменений"};return;}
     const miss=rs.filter(x=>x.need&&x.w&&!x.ok&&(x.r>0||x.amrap||x.fail));
@@ -3876,10 +3905,10 @@ function lzState(P){const st={lifts:{},day:0,week:1,deload:null,dlNext:false,hea
     const heavy=r.kind==="mon"||r.kind==="fri";
     LZ_ORDER.forEach(k=>{const L=st.lifts[k],x=r.lifts&&r.lifts[k];if(!x)return;
       const done=(x.reps||[]).filter(n=>n>0),mn=done.length?Math.min(...done):0;
-      if(heavy){if(L.mode==="kg"){const inc=done.length===(x.sets||3)?lzInc(mn):0;L.W=lzR(L.W+inc);L.incs.push(inc);}
+      if(heavy&&!r.brk){if(L.mode==="kg"){const inc=done.length===(x.sets||3)?lzInc(mn):0;L.W=lzR(L.W+inc);L.incs.push(inc);}
         else{if(mn>=L.R)L.R++;if(mn>=LZL[k].cap){L.mode="kg";L.W=2.5;L.L=1.25;L.R=8;L.incs=[];L.switched=r.finishedAt;}}}
       if(r.kind==="dtest"&&x.max>0){L.rm=x.max;L.W=lzR(x.max*.4,1.25);L.L=lzR(L.W*.6,1.25);L.incs=[];st.tests.push({k:k,max:x.max,at:r.finishedAt});}});
-    if(r.kind==="wed")LZ_ORDER.forEach(k=>{const L=st.lifts[k];if(L.mode==="kg"&&r.lifts&&r.lifts[k])L.L=lzR(L.L+1.25);});
+    if(r.kind==="wed"&&!r.brk)LZ_ORDER.forEach(k=>{const L=st.lifts[k];if(L.mode==="kg"&&r.lifts&&r.lifts[k])L.L=lzR(L.L+1.25);});
     st.log.push(r);
     /* следующий день */
     if(r.kind==="fri"||r.kind==="dtest"){st.week++;st.day=0;
@@ -3922,7 +3951,7 @@ function lzRecord(){const p=current.program,g=p.lz,v=lzStore(),P=v.progs.find(x=
     if(!R.lift)return;
     if(R.test){const ok=st.filter(s=>s.done&&s.r>=1).map(s=>s.w);lifts[R.lift]={max:ok.length?Math.max(...ok):0};return;}
     const work=st;lifts[R.lift]={w:work[0]?work[0].w:0,sets:work.length,reps:work.map(s=>s.done?s.r:0)};});
-  const now=lzNow(),rec={uid:P.id+"-"+Date.now().toString(36),kind:g.kind,week:g.week,finishedAt:now,updatedAt:now,mu:mu,lifts:lifts};
+  const now=lzNow(),rec={uid:P.id+"-"+Date.now().toString(36),brk:current.brk||undefined,kind:g.kind,week:g.week,finishedAt:now,updatedAt:now,mu:mu,lifts:lifts};
   P.recs.push(rec);P.updatedAt=now;lzSave(v);
   /* проходка → 1ПМ в «Рабочих весах»: и при снижении (текущая форма), с датой и источником */
   if(g.kind==="dtest")try{LZ_ORDER.forEach(k=>{const m=lifts[k]&&lifts[k].max;if(m>0)rmPut(LZL[k].n,m,"Тест ЛЗ");});}catch(e){}
@@ -4027,7 +4056,7 @@ function txState(P){const c=P.cfg,st={t:{},miss:{},resets:[],week:1,day:0,log:[]
   const step=(k,ok)=>{if(!(st.t[k]>0))return;if(ok){st.t[k]=txR(st.t[k]+TXL[k].inc,TXL[k].st);st.miss[k]=0;}
     else{st.miss[k]++;if(st.miss[k]>=2){st.t[k]=txR(st.t[k]*0.9,TXL[k].st);st.miss[k]=0;st.resets.push({k:k,at:recs.length});}}};
   recs.forEach(r=>{const L=r.lifts||{};
-    Object.keys(L).forEach(k=>{const x=L[k];if(!x||!x.prog)return;step(k,(x.reps||[]).length>0&&x.reps.every((n,i)=>n>=(x.need||[])[i]));});
+    if(!r.brk)Object.keys(L).forEach(k=>{const x=L[k];if(!x||!x.prog)return;step(k,(x.reps||[]).length>0&&x.reps.every((n,i)=>n>=(x.need||[])[i]));});
     st.log.push(r);
     const last=c.days===4?"d4":"id";if(r.kind===last){st.week++;st.day=0;}else st.day++;});
   const seq=c.days===4?["d1","d2","d3","d4"]:["vd","ld","id"];st.day=Math.min(st.day,seq.length-1);st.next=seq[st.day];
@@ -4081,7 +4110,7 @@ function txRecord(){const p=current.program,g=p.tx,v=txStore(),P=v.progs.find(x=
   const lifts={};
   g.rows.forEach((R,i)=>{if(!R.lift)return;const st=current.sets[i].filter(s=>!s.warm);
     lifts[R.lift]={w:st[0]?st[0].w:0,role:R.role,prog:R.prog,sets:st.length,reps:st.map(s=>s.done?s.r:0),need:st.map(s=>s.need||s.r)};});
-  const now=txNow(),rec={uid:P.id+"-"+Date.now().toString(36),kind:g.kind,week:g.week,finishedAt:now,updatedAt:now,lifts:lifts};
+  const now=txNow(),rec={uid:P.id+"-"+Date.now().toString(36),brk:current.brk||undefined,kind:g.kind,week:g.week,finishedAt:now,updatedAt:now,lifts:lifts};
   P.recs.push(rec);P.updatedAt=now;txSave(v);return rec;}
 /* ---------- экран ---------- */
 let txFormOpen=false,txArm=0,txLast=null;
@@ -4206,7 +4235,7 @@ function cjPlanOf(p,i){const st=p.preset[i].filter(s=>!s.warm),e=p.ex[i],ws=st.m
 function cjRecord(){const p=current.program,g=p.cj,v=cjStore(),P=v.progs.find(x=>x.id===g.progId);if(!P)return null;let me=null;
   g.rows.forEach((R,i)=>{if(!R.me)return;const ok=current.sets[i].filter(s=>!s.warm&&s.done&&s.r>=R.me.reps).map(s=>s.w);
     const prev=cjPRs()[R.me.n+"|"+R.me.reps];me={n:R.me.n,reps:R.me.reps,best:ok.length?Math.max(...ok):0,prev:prev?prev.w:0};});
-  const now=cjNow(),rec={uid:P.id+"-"+Date.now().toString(36),kind:g.kind,week:g.week,cycle:g.cycle,finishedAt:now,updatedAt:now,me:me};
+  const now=cjNow(),rec={uid:P.id+"-"+Date.now().toString(36),brk:current.brk||undefined,kind:g.kind,week:g.week,cycle:g.cycle,finishedAt:now,updatedAt:now,me:me};
   P.recs.push(rec);P.updatedAt=now;cjSave(v);return rec;}
 /* ---------- экран ---------- */
 let cjFormOpen=false,cjArm=0,cjLast=null;
@@ -4802,7 +4831,7 @@ function g2Win(P,si,first){const st=P.st[si],iv=(P.rest||0)+1,done=g2Done(P,si),
   return {end:e,days:g2Days(first,e)+1,ext:ext,left:left,iv:iv,lag:lag,lagS:Math.floor(lag/iv)};}
 /* ---------- возвращение после перерыва: 14 дней — первая тренировка легче на 10 %, 15 и больше — на 15 %; прогрессия этапа не меняется ---------- */
 function g2Gap(P){const L=P.recs.filter(r=>r.kind==="train"||r.kind==="test").map(r=>r.date).filter(Boolean).sort().pop();return L?g2Days(L,localDate()):0;}
-function g2BrkPct(gap){return gap>=15?15:gap>=14?10:0;}
+function g2BrkPct(gap){return brkPct(gap);}
 function g2Lighten(P,w,pc){const f=1-pc/100;
   w.preset.forEach((ss,i)=>{const G=w.gx[i],k=G.key;ss.forEach(s=>{let nw=s.w;
       if(G.bw){const B=g2Bw(P);if(B>0)nw=Math.max(0,Math.floor(((B+(+s.w||0))*f-B)/G2_BWSTEP+1e-6)*G2_BWSTEP);}
@@ -4812,10 +4841,11 @@ function g2Lighten(P,w,pc){const f=1-pc/100;
   w.focus+=" · после перерыва −"+pc+" %";w.g2.brk=pc;return w;}
 function g2StartSlot(P,sl){const gap=g2Gap(P),pc=sl.kind==="train"?g2BrkPct(gap):0;if(!pc)return startWorkout(g2Build(P,sl),true);
   const box=el("gvtMbox");
-  box.innerHTML=`<h3>Перерыв ${gap} дн.</h3><p>Первая тренировка после перерыва — легче на ${pc} %: веса снижены и округлены по шагам снаряда. Прогрессия этапа не меняется: занятие засчитается, а рабочие веса и волны останутся прежними.</p>
+  box.innerHTML=`<h3>Перерыв ${gap} дн.</h3>${gap>=30?`<p class="gvt-stop">Перерыв больше месяца — программа рекомендует начать сначала: новая программа, стартовые веса по прошлым результатам.</p><button class="btn" type="button" id="g2BrkRe">Начать программу заново</button>`:""}<p>Первая тренировка после перерыва — легче на ${pc} %: веса снижены и округлены по шагам снаряда. Прогрессия этапа не меняется: занятие засчитается, а рабочие веса и волны останутся прежними.</p>
     <button class="btn" type="button" id="g2BrkY">Легче на ${pc} %</button><button class="btn btn-alt" type="button" id="g2BrkN">Как обычно</button><button class="tm-mini" type="button" id="g2BrkX">Позже</button>`;
   el("gvtModal").hidden=false;el("g2BrkX").onclick=()=>{el("gvtModal").hidden=true;};
   el("g2BrkN").onclick=()=>{el("gvtModal").hidden=true;startWorkout(g2Build(P,sl),true);};
+  if(el("g2BrkRe"))el("g2BrkRe").onclick=()=>{el("gvtModal").hidden=true;const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.status="arch";PP.updatedAt=g2Now();v2.activeId=null;g2Save(v2);g2NewArm=0;g2Render();toast("Программа ушла в архив — начни новую");};
   el("g2BrkY").onclick=()=>{el("gvtModal").hidden=true;startWorkout(g2Lighten(P,g2Build(P,sl),pc),true);};}
 
 /* ---------- тест (этап V) ---------- */
@@ -8138,7 +8168,7 @@ el("clSkip").onclick=()=>coolStop();
    1) Старт новой программы: лучший результат упражнения за 6 недель → расчётный максимум → вес под новый диапазон повторов, −10 %
       (после перерыва больше 2 недель — −18 %). Записи GVT и лёгкой недели как образец не берём.
    2) Программа без разгрузки пройдена → предлагаем лёгкую неделю (по желанию): те же упражнения, подходов на треть меньше, вес −15 %, без отказа. */
-function prSkipRec(h){return !h||h.lw||/^GVT · /.test(h.name||"");}
+function prSkipRec(h){return !h||h.lw||h.brk||/^GVT · /.test(h.name||"");}
 function prE1(w,r){return w>0&&r>0?w*(1+Math.min(r,15)/30):0;}
 function prStart(e,p,pr,ns,rg){if(!p.au||(p.sec||"body")!=="body"||!rg)return null;
   let a=null;try{a=auSt().act&&auSt().act[p.au.id];}catch(err){}
