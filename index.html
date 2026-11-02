@@ -8471,14 +8471,21 @@ function claudeStore(db,uid){const base="data/users/"+uid+"/",doc=k=>db.doc(base
 /* повторяющееся событие: Google Календарь — ссылкой (одно нажатие), календарь iPhone — файлом .ics с напоминанием */
 const CALK="gym45_cal_v1",CAL_D=[["MO","Пн"],["TU","Вт"],["WE","Ср"],["TH","Чт"],["FR","Пт"],["SA","Сб"],["SU","Вс"]];
 const CAL_PRESET={1:["WE"],2:["TU","FR"],3:["MO","WE","FR"],4:["MO","TU","TH","FR"],5:["MO","TU","WE","TH","FR"],6:["MO","TU","WE","TH","FR","SA"],7:CAL_D.map(d=>d[0])};
-function calCfg(){let v=null;try{v=JSON.parse(localStorage.getItem(CALK));}catch(e){}if(v&&Array.isArray(v.days)&&v.days.length)return v;
+/* спецрежим: дни отдыха по умолчанию — из программы GVT, если она идёт; дата первой — ближайшая по плану */
+function calRestDef(){try{const P=g2Active();if(P&&P.rest>=1&&P.rest<=3)return P.rest;}catch(e){}return 2;}
+function calNextPlan(){try{const t=localDate(),n=mpList().map(x=>x.next).filter(x=>x&&x>=t).sort()[0];return n||t;}catch(e){return localDate();}}
+function calCfg(){let v=null;try{v=JSON.parse(localStorage.getItem(CALK));}catch(e){}if(v&&Array.isArray(v.days)&&(v.days.length||v.mode==="rest"))return Object.assign({mode:"week",rest:calRestDef()},v);
   let pw=3;try{const L=mpList();if(L.length)pw=Math.max(1,Math.min(7,weekPlanOf(L[0])||3));}catch(e){}return {days:CAL_PRESET[pw]||CAL_PRESET[3],time:"18:00",dur:75,rem:30};}
 function calTitle(){try{const L=mpList();if(L.length)return "Тренировка · "+L[0].t.split(" · ")[0];}catch(e){}return "Тренировка";}
-function calFirst(c){const map={SU:0,MO:1,TU:2,WE:3,TH:4,FR:5,SA:6},now=new Date(),[hh,mm]=c.time.split(":").map(Number);
+function calFirst(c){if(c.mode==="rest"){const [hh,mm]=c.time.split(":").map(Number),iv=(c.rest|0)+1,now=new Date(),d=new Date((c.start||localDate())+"T00:00:00");d.setHours(hh,mm,0,0);
+    while(d<now)d.setDate(d.getDate()+iv);return d;}
+  return calFirstW(c);}
+function calFirstW(c){const map={SU:0,MO:1,TU:2,WE:3,TH:4,FR:5,SA:6},now=new Date(),[hh,mm]=c.time.split(":").map(Number);
   for(let k=0;k<8;k++){const d=new Date(now);d.setDate(now.getDate()+k);d.setHours(hh,mm,0,0);if(c.days.some(x=>map[x]===d.getDay())&&d>now)return d;}return now;}
 const calP=n=>String(n).padStart(2,"0"),calStamp=d=>d.getFullYear()+calP(d.getMonth()+1)+calP(d.getDate())+"T"+calP(d.getHours())+calP(d.getMinutes())+"00";
 function calTz(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||"";}catch(e){return "";}}
-function calRule(c){const order=CAL_D.map(d=>d[0]);return "RRULE:FREQ=WEEKLY;BYDAY="+c.days.slice().sort((a,b)=>order.indexOf(a)-order.indexOf(b)).join(",");}
+function calRule(c){if(c.mode==="rest")return "RRULE:FREQ=DAILY;INTERVAL="+((c.rest|0)+1);return calRuleW(c);}
+function calRuleW(c){const order=CAL_D.map(d=>d[0]);return "RRULE:FREQ=WEEKLY;BYDAY="+c.days.slice().sort((a,b)=>order.indexOf(a)-order.indexOf(b)).join(",");}
 function calGoogle(c){const s=calFirst(c),e=new Date(s.getTime()+c.dur*60000),tz=calTz();
   const q=new URLSearchParams({action:"TEMPLATE",text:calTitle(),dates:calStamp(s)+"/"+calStamp(e),details:"Открой Gym 45 — тренировка дня уже готова: упражнения, веса и отдых.",recur:calRule(c)});if(tz)q.set("ctz",tz);
   return "https://calendar.google.com/calendar/render?"+q.toString();}
@@ -8490,22 +8497,37 @@ function calIcs(c){const s=calFirst(c),e=new Date(s.getTime()+c.dur*60000),now=n
 function calIOS(){return /iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
 function calGo(url){location.href=url;}
 function calApple(v){const url=URL.createObjectURL(new Blob([calIcs(v)],{type:"text/calendar;charset=utf-8"}));calGo(url);setTimeout(()=>{try{URL.revokeObjectURL(url);}catch(e){}},60000);}
-function calOpen(){const c=calCfg(),m=el("coolModal"),inClaude=!!(window.claude&&claude.use);
+function calOk(v){return v.mode==="rest"||v.days.length>0;}
+function calPreview(v){const out=[],d=calFirst(v);for(let i=0;i<6;i++){out.push(d.toLocaleDateString("ru-RU",{weekday:"short",day:"numeric",month:"short"}));d.setDate(d.getDate()+((v.rest|0)+1));}return out.join(" · ");}
+function calOpen(){const c=calCfg(),m=el("coolModal"),inClaude=!!(window.claude&&claude.use),start=c.start&&c.start>=localDate()?c.start:calNextPlan();
   m.innerHTML=`<div class="card gvt-mbox"><h3>Напоминания в календарь</h3>
-   <p class="gvt-note" style="margin:0">Дни тренировок</p><div class="cal-days">${CAL_D.map(([k,t])=>`<button type="button" class="seg-b${c.days.includes(k)?" on":""}" data-k="${k}">${t}</button>`).join("")}</div>
+   <div class="seg" id="calMode"><button type="button" class="seg-b${c.mode!=="rest"?" on":""}" data-m="week">Дни недели</button><button type="button" class="seg-b${c.mode==="rest"?" on":""}" data-m="rest">Спецрежим</button></div>
+   <div id="calWk"><p class="gvt-note" style="margin:0 0 6px">Дни тренировок</p><div class="cal-days">${CAL_D.map(([k,t])=>`<button type="button" class="seg-b${c.days.includes(k)?" on":""}" data-k="${k}">${t}</button>`).join("")}</div></div>
+   <div id="calRs"><p class="gvt-note" style="margin:0 0 6px">Дней отдыха между тренировками — в любой день недели</p>
+     <div class="seg" id="calRest">${[1,2,3].map(n=>`<button type="button" class="seg-b${(c.rest||2)===n?" on":""}" data-r="${n}">${n} ${plural(n,"день","дня","дней")}</button>`).join("")}</div>
+     <label class="nt-lab" style="margin-top:8px">Первая тренировка<input type="date" class="food-in" id="calS" value="${start}"></label>
+     <p class="gvt-note" id="calPv" style="margin:6px 0 0"></p></div>
    <div class="nt-grid"><label>Время<input type="time" class="food-in" id="calT" value="${c.time}"></label><label>Длительность<select class="food-in" id="calDur">${[45,60,75,90,120].map(n=>`<option value="${n}"${c.dur===n?" selected":""}>${n} мин</option>`).join("")}</select></label></div>
    ${(()=>{const ios=calIOS()&&!inClaude;
      const A=inClaude?"":`<button class="btn${ios?"":" btn-alt"}" type="button" id="calI">Добавить в календарь iPhone</button><p class="gvt-note" style="margin:0">iPhone спросит, открыть ли приглашение, — нажми «Разрешить», затем «Добавить все». Напоминание за 30 мин уже внутри.</p>`;
      const G=`<a class="btn${ios?" btn-alt":""}" id="calG" target="_blank" rel="noopener">Добавить в Google Календарь</a><p class="gvt-note" style="margin:0">Откроется форма Google, где дни и время уже заполнены, — просто нажми синюю кнопку «Сохранить».</p>`;
      return ios?A+G:G+A;})()}
-   <p class="gvt-note" style="margin:0">Событие повторяется каждую неделю. Сменились дни — добавь заново, а старую серию удали в календаре.${inClaude?"":` <a href="#" id="calF">Не открылось? Сохранить файл</a>`}</p>
+   <p class="gvt-note" style="margin:0" id="calNote"></p>${inClaude?"":`<p class="gvt-note" style="margin:0"><a href="#" id="calF">Не открылось? Сохранить файл</a></p>`}
    <button class="tm-mini" type="button" id="calX">Закрыть</button></div>`;m.hidden=false;
-  const st=()=>{const v={days:[...m.querySelectorAll(".cal-days .on")].map(b=>b.dataset.k),time:el("calT").value||"18:00",dur:+el("calDur").value||75,rem:30};
-    try{localStorage.setItem(CALK,JSON.stringify(v));}catch(e){}el("calG").href=v.days.length?calGoogle(v):"#";el("calG").classList.toggle("is-off",!v.days.length);return v;};
-  m.querySelectorAll(".cal-days .seg-b").forEach(b=>b.onclick=()=>{b.classList.toggle("on");st();});el("calT").oninput=st;el("calDur").onchange=st;st();
-  el("calG").addEventListener("click",e=>{if(!st().days.length){e.preventDefault();toast("Выбери хотя бы один день");}});
-  if(el("calI"))el("calI").onclick=()=>{const v=st();if(!v.days.length){toast("Выбери хотя бы один день");return;}calApple(v);};
-  if(el("calF"))el("calF").onclick=e=>{e.preventDefault();const v=st();if(!v.days.length){toast("Выбери хотя бы один день");return;}fileOut(new Blob([calIcs(v)],{type:"text/calendar"}),"gym45-trenirovki.ics","text/calendar");};
+  const seg=id=>{const b=el(id).querySelector(".seg-b.on");return b?b.dataset:{}};
+  const st=()=>{const mode=seg("calMode").m||"week",v={mode:mode,days:[...m.querySelectorAll(".cal-days .on")].map(b=>b.dataset.k),rest:+(seg("calRest").r||2),start:el("calS").value||localDate(),
+      time:el("calT").value||"18:00",dur:+el("calDur").value||75,rem:30};
+    try{localStorage.setItem(CALK,JSON.stringify(v));}catch(e){}
+    el("calWk").hidden=mode==="rest";el("calRs").hidden=mode!=="rest";
+    el("calPv").textContent=mode==="rest"?"Тренировки: "+calPreview(v)+" …":"";
+    el("calNote").textContent=mode==="rest"?"Тренировка каждые "+(v.rest+1)+" "+plural(v.rest+1,"день","дня","дней")+" — суббота это или понедельник, неважно. Пропустил или сдвинул тренировку — добавь серию заново с новой датой, а старую удали в календаре.":"Событие повторяется каждую неделю. Сменились дни — добавь заново, а старую серию удали в календаре.";
+    el("calG").href=calOk(v)?calGoogle(v):"#";el("calG").classList.toggle("is-off",!calOk(v));return v;};
+  m.querySelectorAll(".cal-days .seg-b").forEach(b=>b.onclick=()=>{b.classList.toggle("on");st();});
+  ["calMode","calRest"].forEach(id=>el(id).querySelectorAll(".seg-b").forEach(b=>b.onclick=()=>{el(id).querySelectorAll(".seg-b").forEach(x=>x.classList.toggle("on",x===b));st();}));
+  el("calT").oninput=st;el("calDur").onchange=st;el("calS").onchange=st;el("calS").oninput=st;st();
+  el("calG").addEventListener("click",e=>{if(!calOk(st())){e.preventDefault();toast("Выбери хотя бы один день");}});
+  if(el("calI"))el("calI").onclick=()=>{const v=st();if(!calOk(v)){toast("Выбери хотя бы один день");return;}calApple(v);};
+  if(el("calF"))el("calF").onclick=e=>{e.preventDefault();const v=st();if(!calOk(v)){toast("Выбери хотя бы один день");return;}fileOut(new Blob([calIcs(v)],{type:"text/calendar"}),"gym45-trenirovki.ics","text/calendar");};
   el("calX").onclick=()=>{m.hidden=true;};}
 {const _rt=renderToday;renderToday=function(){_rt();try{const c=el("dashToday");if(!c||el("tdCal"))return;
   c.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal" id="tdCal">🔔 Напоминания в календарь</button>`);el("tdCal").onclick=calOpen;}catch(e){}};}
