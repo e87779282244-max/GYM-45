@@ -30,6 +30,18 @@ async def m():
     r=await pg.evaluate("__n.sched.filter(x=>x.id>9100).map(x=>[x.id,x.schedule.on])")
     ok('напоминания: Пн и Чт в 6:45',sorted(r)==sorted([[9102,{'weekday':2,'hour':6,'minute':45}],[9105,{'weekday':5,'hour':6,'minute':45}]]),r)
     await pg.wait_for_timeout(3300)
+    # спецрежим: напоминания по датам через 2 дня отдыха; после перерыва пересчитываются сами
+    import datetime as _dt
+    D=lambda n:(_dt.date.today()+_dt.timedelta(days=n)).isoformat()
+    await pg.evaluate(f"__n.sched.length=0;localStorage.setItem('gym45_cal_v1',JSON.stringify({{mode:'rest',rest:2,start:'{D(1)}',days:[],time:'07:15',dur:60,rem:30}}));el('calN').click()");await pg.wait_for_timeout(300)
+    r=await pg.evaluate("__n.sched.filter(x=>x.id>=9200).map(x=>new Date(x.schedule.at)).slice(0,3).map(d=>[d.getDate(),d.getHours(),d.getMinutes()])")
+    exp=[[(_dt.date.today()+_dt.timedelta(days=1+3*k)).day,6,45] for k in range(3)]
+    ok('спецрежим: уведомления каждые 3 дня в 6:45',r==exp,[r,exp])
+    await pg.evaluate(f"""(()=>{{__n.sched.length=0;const v=JSON.parse(localStorage.getItem('gym45_cal_v1'));v.start='{D(-10)}';v.addedAt='{D(-10)}T00:00:00Z';localStorage.setItem('gym45_cal_v1',JSON.stringify(v));
+      const h=safe.get()||[];h.push({{date:'{D(0)}',name:'ТЕСТ',vol:1,log:{{}}}});safe.set(h);show('home');renderToday();}})()""");await pg.wait_for_timeout(300)
+    r=await pg.evaluate("__n.sched.filter(x=>x.id>=9200).map(x=>new Date(x.schedule.at)).slice(0,1).map(d=>d.getDate())")
+    ok('после перерыва напоминания пересчитаны сами: следующая через 3 дня от тренировки',r==[(_dt.date.today()+_dt.timedelta(days=3)).day] and await pg.evaluate("!el('tdCalShift')"),r)
+    await pg.evaluate("safe.set((safe.get()||[]).filter(x=>x.name!=='ТЕСТ'))")
     ok('после тренировки экран может гаснуть',await pg.evaluate("__n.awake[__n.awake.length-1]===0"))
     ok('без ошибок JS',not errs,errs[:3])
     # браузер: ничего не планируется

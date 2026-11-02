@@ -44,6 +44,24 @@ async def m():
     ok('дата в прошлом → первая будущая тренировка по тому же шагу',first[0]==exp,[first,exp])
     await pg.evaluate("document.querySelector('#calMode [data-m=week]').click()")
     ok('обратно «Дни недели» — прежний недельный повтор',await pg.evaluate("calRule(calCfg()).startsWith('RRULE:FREQ=WEEKLY;BYDAY=')&&!el('calWk').hidden"))
+    # перерыв: после первой тренировки после перерыва календарь предлагает пересчитать серию от неё
+    D=lambda n:(datetime.date.today()+datetime.timedelta(days=n)).isoformat()
+    async def setup(start,last):
+      await pg.evaluate(f"""(()=>{{el('coolModal').hidden=true;localStorage.setItem(CALK,JSON.stringify({{mode:'rest',rest:2,start:'{start}',days:[],time:'18:00',dur:75,rem:30,added:true,addedAt:'{start}T00:00:00Z',seq:1}}));
+        const h=(safe.get()||[]).filter(x=>!String(x.name).startsWith('ТЕСТ'));h.push({{date:'{last}',name:'ТЕСТ',vol:1,log:{{}}}});safe.set(h);show('home');renderToday();}})()""")
+      return await pg.evaluate("!!el('tdCalShift')")
+    ok('по графику (тренировка сегодня, серия ровно через 3 дня) — без подсказки',not await setup(D(-6),D(0)))
+    ok('перерыв ещё идёт (последняя 5 дней назад) — без подсказки',not await setup(D(-9),D(-5)))
+    shift=await setup(D(-10),D(0))
+    ok('после перерыва потренировался сегодня — подсказка «График сдвинулся»',shift and 'сдвинулся' in await pg.evaluate("el('tdCalShift').textContent"))
+    await pg.evaluate("el('tdCalFix').click()")
+    href=await pg.evaluate("el('calG').href");q=urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
+    ok('«Пересчитать»: новая серия с даты «сегодня + 3 дня», каждые 3 дня',q['dates'][0][:8]==D(3).replace('-','') and q['recur'][0]=='RRULE:FREQ=DAILY;INTERVAL=3' and 'Перерыв сдвинул график' in await pg.evaluate("el('coolModal').textContent"),q.get('dates'))
+    ics=await pg.evaluate("calIcs(Object.assign({},calCfg(),{seq:2}))")
+    ok('календарь iPhone: тот же UID серии и новая версия — заменяет, а не дублирует','UID:gym45-rest-series@gym45' in ics and 'SEQUENCE:2' in ics)
+    await pg.evaluate("el('calG').dispatchEvent(new MouseEvent('click',{cancelable:true}))");await pg.wait_for_timeout(100)
+    ok('после добавления новой серии подсказка пропала',await pg.evaluate("el('coolModal').hidden=true;renderToday();!el('tdCalShift')"))
+    await pg.evaluate("safe.set((safe.get()||[]).filter(x=>x.name!=='ТЕСТ'));localStorage.removeItem(CALK)")
     # iPhone: кнопка календаря iPhone первая и открывает само событие, а не меню «Поделиться»
     ci=await b.new_context(timezone_id='Asia/Aqtobe',viewport={'width':390,'height':844},user_agent='Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1')
     pi=await ci.new_page();pi.on('pageerror',lambda e:errs.append(str(e)))
