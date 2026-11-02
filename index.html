@@ -2615,6 +2615,25 @@ let current=null;
 const DRAFTK="gym45_draft_v1";
 function saveDraft(){try{if(current){current.savedAt=Date.now();localStorage.setItem(DRAFTK,JSON.stringify(current));}}catch(e){}try{cloudPush();}catch(e){}}
 function clearDraft(){try{localStorage.removeItem(DRAFTK)}catch(e){}try{cloudPush();}catch(e){}}
+/* ---------- отложенные тренировки: можно начать другую и вернуться ---------- */
+const PARKK="gym45_parked_v1";
+function parkList(){try{const v=JSON.parse(localStorage.getItem(PARKK));return Array.isArray(v)?v:[];}catch(e){return [];}}
+function parkSet(L){try{if(L.length||localStorage.getItem(PARKK)!=null)localStorage.setItem(PARKK,JSON.stringify(L));}catch(e){}try{cloudPush();}catch(e){}}
+function wkDoneN(w){let n=0;((w&&w.sets)||[]).forEach(se=>(se||[]).forEach(x=>{if(x&&x.done&&!x.warm)n++;}));return n;}
+function parkCurrent(){if(!current)return;const w=JSON.parse(JSON.stringify(current));w.parkedAt=new Date().toISOString();
+  const L=parkList().filter(x=>!(x.startedAt===w.startedAt&&x.key===w.key));L.push(w);parkSet(L);current=null;clearDraft();}
+function parkResume(i){const L=parkList(),w=L[i];if(!w)return;
+  const go=()=>{const L2=parkList(),j=L2.findIndex(x=>x.startedAt===w.startedAt&&x.key===w.key);if(j>=0)L2.splice(j,1);parkSet(L2);delete w.parkedAt;
+    current=w;readiness=w.readiness||readiness;dayView={p:w.program,computed:true};saveDraft();el("wkTitle").textContent=w.program.name;renderWorkout();show("workout");toast("Продолжаем «"+w.program.name+"»");};
+  if(current&&wkDoneN(current)>0)return parkAsk(go,w.program.name);if(current){current=null;clearDraft();}go();}
+function parkAsk(next,newName){const box=el("gvtMbox"),n=wkDoneN(current);
+  box.innerHTML=`<h3>Идёт «${current.program.name}»</h3><p>Отмечено подходов: ${n}. Отложить её и начать «${newName}»? Отложенная тренировка сохранится со всеми отметками — продолжишь с главной.</p>
+    <button class="btn" type="button" id="pkGo">Отложить и начать</button><button class="tm-mini" type="button" id="pkX">Отмена</button>`;
+  el("gvtModal").hidden=false;el("pkX").onclick=()=>{el("gvtModal").hidden=true;};
+  el("pkGo").onclick=()=>{el("gvtModal").hidden=true;const nm=current.program.name;parkCurrent();toast("«"+nm+"» отложена");next();};}
+function parkHTML(){const L=parkList();if(!L.length)return "";
+  return L.map((w,i)=>`<div class="gvt-pend pk-row" style="margin-top:10px"><span>⏸ Отложена: ${w.program.name}<small style="display:block;font-weight:500;opacity:.8">отмечено подходов: ${wkDoneN(w)} · ${dsDT(w.parkedAt||w.startedAt)}</small></span>
+    <button class="btn" style="width:auto;padding:9px 14px" type="button" data-pk="${i}">Продолжить</button><button class="icon-btn" style="background:transparent;width:40px;height:40px" type="button" data-pkx="${i}" title="Удалить">✕</button></div>`).join("");}
 function getDraft(){try{return JSON.parse(localStorage.getItem(DRAFTK)||"null")}catch(e){return null}}
 function showDraftBanner(){const b=el("draftBanner");if(!b)return;const d=getDraft();
   if(d&&d.program&&d.sets){el("draftName").textContent=(d.program.name||"")+(d.program.focus?" · "+d.program.focus:"");b.hidden=false;}
@@ -2713,8 +2732,7 @@ let startArm=0;
 el("dayStart").addEventListener("click",()=>{
   if(!dayView)return;const p=dayView.p;
   if(isActive(p)){renderWorkout();show("workout");return;}
-  if(current&&Date.now()-startArm>4000){startArm=Date.now();
-    toast("Идёт «"+current.program.name+"». Нажми ещё раз — начнём новую");return;}
+  if(current&&wkDoneN(current)>0){const dv=dayView;parkAsk(()=>{dayView=dv;beginWorkout(dv.p,dv.computed);},p.name);return;}
   startArm=0;beginWorkout(p,dayView.computed);});
 el("dayFinish").addEventListener("click",()=>{
   if(!dayView||!isActive(dayView.p)){toast("Сначала начни программу");return;}
@@ -8539,7 +8557,11 @@ function calOpen(due){const c=calCfg(),m=el("coolModal"),inClaude=!!(window.clau
   if(el("calI"))el("calI").onclick=()=>{const v=st();if(!calOk(v)){toast("Выбери хотя бы один день");return;}calApple(Object.assign({},v,{seq:calCfg().seq|0}));added();};
   if(el("calF"))el("calF").onclick=e=>{e.preventDefault();const v=st();if(!calOk(v)){toast("Выбери хотя бы один день");return;}fileOut(new Blob([calIcs(Object.assign({},v,{seq:calCfg().seq|0}))],{type:"text/calendar"}),"gym45-trenirovki.ics","text/calendar");added();};
   el("calX").onclick=()=>{m.hidden=true;};}
-{const _rt=renderToday;renderToday=function(){_rt();try{const c=el("dashToday");if(c&&!el("tdCal")){
+{const _rt=renderToday;renderToday=function(){_rt();try{const c=el("dashToday");c.querySelectorAll(".pk-box").forEach(x=>x.remove());const h=parkHTML();
+    if(c&&h){c.insertAdjacentHTML("afterbegin",`<div class="pk-box">${h}</div>`);const bx=c.querySelector(".pk-box");bx.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>parkResume(+b.dataset.pk));
+      bx.querySelectorAll("[data-pkx]").forEach(b=>b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ✕ ещё раз — отложенная тренировка удалится, отметки не сохранятся");return;}
+        const L=parkList();L.splice(+b.dataset.pkx,1);parkSet(L);renderToday();});}}catch(e){}
+  try{const c=el("dashToday");if(c&&!el("tdCal")){
   c.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal" id="tdCal">🔔 Напоминания в календарь</button>`);el("tdCal").onclick=()=>calOpen();}}catch(e){}
   /* перерыв сдвинул график — предложить пересчитать календарь от последней тренировки */
   try{const c=el("dashToday"),d=calDrift(),old=el("tdCalShift");if(old)old.remove();
@@ -9745,7 +9767,7 @@ if(natOn())setInterval(()=>wlSync(),3000);
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
 /* CLOUD_EXTRA — поля облачного документа, которых эта версия не знает: сохраняем их, а не стираем */
-function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{rmMeta:rmMeta(),history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),w531:w5Store(),lz:lzStore(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()});}
+function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{parked:parkList(),rmMeta:rmMeta(),history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),w531:w5Store(),lz:lzStore(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()});}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -9789,6 +9811,8 @@ async function cloudInit(){
       try{const known=Object.keys(cloudSnapshot());CLOUD_EXTRA={};Object.keys(d).forEach(k=>{if(!known.includes(k))CLOUD_EXTRA[k]=d[k];});}catch(e){}
       try{if(d.foodDel&&typeof d.foodDel==="object")localStorage.setItem(FOODDELK,JSON.stringify(Object.assign({},d.foodDel,foodDelGet())))}catch(e){}
       // объединяем, а не затираем: сохранится и локальное, и облачное
+      try{if(Array.isArray(d.parked)&&d.parked.length){const L=parkList(),seen=new Set(L.map(x=>x.key+"|"+x.startedAt)),hs=[...(safe.get()||[]),...(Array.isArray(d.history)?d.history:[])];
+        d.parked.forEach(w=>{if(!w||!w.program||seen.has(w.key+"|"+w.startedAt))return;if(hs.some(h=>h&&h.st&&h.st===w.startedAt))return;if(current&&current.startedAt===w.startedAt)return;L.push(w);});parkSet(L);}}catch(e){}
       try{localStorage.setItem(KEY,JSON.stringify(mergeHistory(safe.get(),d.history)))}catch(e){}
       try{if(!current&&draftAutoRestore(currentScreen==="home"))cloudRefreshUI();}catch(e){}
       try{localStorage.setItem(FOODK,JSON.stringify(mergeFood(foodGet(),d.food)))}catch(e){}
