@@ -3122,7 +3122,7 @@ function finishWorkout(){
     cjLast=cjRec;show("cj");window.scrollTo(0,0);return;}
   if(txRec){const pr=Object.keys(txRec.lifts).filter(k=>{const x=txRec.lifts[k];return x.prog&&x.reps.every((n,i)=>n>=x.need[i]);});
     toast(pr.length&&/id|d3|d4/.test(txRec.kind)?"Рекорд! Тренировка сохранена":"Тренировка сохранена");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
-    txLast=txRec;show("tx");window.scrollTo(0,0);return;}
+    txLast=txRec;show("tx");window.scrollTo(0,0);if(Object.values(txRec.lifts).some(x=>x.unk))setTimeout(()=>txAskUnk(txRec.uid),150);return;}
   if(lzRec){toast("Тренировка сохранена");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     lzLast=lzRec;show("lz");window.scrollTo(0,0);return;}
   if(w5Rec){toast(w5Rec.pr.length?"Рекорд! Занятие сохранено":"Занятие сохранено");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
@@ -4048,15 +4048,18 @@ function txNow(){return new Date().toISOString();}
 function txR(x,st){st=st||2.5;return Math.max(0,Math.round(x/st+1e-9)*st);}
 function mergeTx(a,b){a=a&&a.progs?a:{progs:[],activeId:null};b=b&&b.progs?b:{progs:[],activeId:null};
   const g=mergeGvt({cycles:a.progs,activeId:a.activeId},{cycles:b.progs,activeId:b.activeId});return {progs:g.cycles,activeId:g.activeId};}
+const TX_INC_FROM="2026-11-03";
+function txStep(){try{const c=wCfg();return Math.round((wBar(c.bar+0.01,"up")-c.bar)*100)/100||2.5;}catch(e){return 2.5;}}
+function txInc(k,at){const i=TXL[k].inc;return at&&String(at).slice(0,10)<TX_INC_FROM?i:Math.max(i,txStep());}
 function txDayName(P,k){return (P.cfg.days===4?TX_DAY4:TX_DAY3)[k]||k;}
 /* записи → состояние: рекордные веса, промахи, неделя, следующий день */
 function txState(P){const c=P.cfg,st={t:{},miss:{},resets:[],week:1,day:0,log:[]};
   TX_ORDER.forEach(k=>{st.t[k]=c.t[k]||0;st.miss[k]=0;});
   const recs=(P.recs||[]).slice().sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||""));
-  const step=(k,ok)=>{if(!(st.t[k]>0))return;if(ok){st.t[k]=txR(st.t[k]+TXL[k].inc,TXL[k].st);st.miss[k]=0;}
+  const step=(k,ok,at)=>{if(!(st.t[k]>0))return;if(ok){st.t[k]=txR(st.t[k]+txInc(k,at),TXL[k].st);st.miss[k]=0;}
     else{st.miss[k]++;if(st.miss[k]>=2){st.t[k]=txR(st.t[k]*0.9,TXL[k].st);st.miss[k]=0;st.resets.push({k:k,at:recs.length});}}};
   recs.forEach(r=>{const L=r.lifts||{};
-    if(!r.brk)Object.keys(L).forEach(k=>{const x=L[k];if(!x||!x.prog)return;step(k,(x.reps||[]).length>0&&x.reps.every((n,i)=>n>=(x.need||[])[i]));});
+    if(!r.brk&&!r.skipped)Object.keys(L).forEach(k=>{const x=L[k];if(!x||!x.prog||x.unk||x.skip)return;step(k,(x.reps||[]).length>0&&x.reps.every((n,i)=>n>=(x.need||[])[i]),r.finishedAt);});
     st.log.push(r);
     const last=c.days===4?"d4":"id";if(r.kind===last){st.week++;st.day=0;}else st.day++;});
   const seq=c.days===4?["d1","d2","d3","d4"]:["vd","ld","id"];st.day=Math.min(st.day,seq.length-1);st.next=seq[st.day];
@@ -4065,13 +4068,13 @@ function txState(P){const c=P.cfg,st={t:{},miss:{},resets:[],week:1,day:0,log:[]
 function txWarm(w,st){if(!(w>=40))return [];return [[0,5],[50,5],[70,3],[85,2]].map(([pc,r])=>({w:pc?wBar(txR(w*pc/100,st),"near"):wBar(20,"near"),r:r,done:false,warm:true}));}
 function txPlan(P,st,kind){kind=kind||st.next;const c=P.cfg,ex=[],preset=[],rows=[],easy=c.mode==="easy";
   const push=(e,s,m)=>{ex.push(e);preset.push(s);rows.push(m);};
-  const lift=(k,w,n,r,role,note,rest,prog)=>{w=w>0?wBar(w,"near"):w;const S=TXL[k],nm=k==="pc"?TX_PC[c.pc||"pc"]:S.n;
+  const lift=(k,w,n,r,role,note,rest,prog)=>{w=w>0?w5Bar(w):w;const S=TXL[k],nm=k==="pc"?TX_PC[c.pc||"pc"]:S.n;
     const sets=txWarm(w,S.st);for(let j=0;j<n;j++)sets.push({w:w,r:r,done:false,need:r});
     push([nm,n,String(r),w,Array(n).fill(w),note,rest||180,n+" × "+r+" · "+fmtW(w)+" кг"],sets,{lift:k,role:role,prog:!!prog});};
   const bw=(nm,n,r,note,rest)=>push([nm,n,String(r),0,undefined,note,rest||90,n+" × "+r],Array.from({length:n},()=>({w:0,r:typeof r==="number"?r:0,done:false})),{});
   const t=st.t,v=k=>txR(t[k]*0.9,TXL[k].st);
-  const REC="Рекорд недели: один подход на 5 с новым весом. Сделал все 5 — на следующей неделе +"+"{inc} кг. Не вышло — повтор веса; два раза подряд — вес −10 % и снова вверх.";
-  const rec=(k,r)=>REC.replace("{inc}",fmtW(TXL[k].inc));
+  const REC="Рекорд недели: один подход на 5 с новым весом. Сделал все 5 — в следующий раз +"+"{inc} кг. Не вышло — повтор веса; два раза подряд — вес −10 % и снова вверх.";
+  const rec=(k,r)=>REC.replace("{inc}",fmtW(txInc(k)));
   if(c.days!==4){
     if(kind==="vd"){
       if(easy){lift("sq",txR(t.sq*0.85,2.5),12,2,"vol","Лёгкий объём: по 2 повтора каждую минуту, 12 минут. Вес двигается быстро, но не легко.",60);
@@ -4097,7 +4100,7 @@ function txPlan(P,st,kind){kind=kind||st.next;const c=P.cfg,ex=[],preset=[],rows
       if(t.pc>0)lift("pc",t.pc,5,3,"rec","5 × 3 быстро и чисто. Все сделал — +2,5 кг.",150,true);
       bw("Гиперэкстензия",3,"12–15","Без рывков, спина ровная.",90);}
     if(kind==="d3"){lift("bp",t.bp,1,5,"rec",rec("bp"),240,true);
-      lift("pr",t.pr,3,3,"rec","3 × 3 тяжело. Все сделал — +1,25 кг.",180,true);
+      lift("pr",t.pr,3,3,"rec","3 × 3 тяжело. Все сделал — +"+fmtW(txInc("pr"))+" кг.",180,true);
       bw("Подтягивания",3,"макс","Три подхода на максимум.",120);}
     if(kind==="d4"){lift("sq",t.sq,1,5,"rec",rec("sq"),300,true);
       lift("dl",t.dl,1,5,"rec","Один тяжёлый подход на 5. Все 5 — в следующий раз +5 кг.",240,true);
@@ -4109,11 +4112,24 @@ function txPlanOf(p,i){const st=p.preset[i].filter(s=>!s.warm),e=p.ex[i],ws=st.m
 function txRecord(){const p=current.program,g=p.tx,v=txStore(),P=v.progs.find(x=>x.id===g.progId);if(!P)return null;
   const lifts={};
   g.rows.forEach((R,i)=>{if(!R.lift)return;const st=current.sets[i].filter(s=>!s.warm);
-    lifts[R.lift]={w:st[0]?st[0].w:0,role:R.role,prog:R.prog,sets:st.length,reps:st.map(s=>s.done?s.r:0),need:st.map(s=>s.need||s.r)};});
+    lifts[R.lift]={w:st[0]?st[0].w:0,role:R.role,prog:R.prog,sets:st.length,reps:st.map(s=>s.done?s.r:0),need:st.map(s=>s.need||s.r)};
+    if(R.prog&&st.some(s=>!s.done)&&!current.brk)lifts[R.lift].unk=true;});
   const now=txNow(),rec={uid:P.id+"-"+Date.now().toString(36),brk:current.brk||undefined,kind:g.kind,week:g.week,finishedAt:now,updatedAt:now,lifts:lifts};
   P.recs.push(rec);P.updatedAt=now;txSave(v);return rec;}
 /* ---------- экран ---------- */
 let txFormOpen=false,txArm=0,txLast=null;
+/* неотмеченные подходы: «не смог» — срыв (засчитаются только отмеченные), «не делал» — движение не учитывается */
+function txAskUnk(uid){const v=txStore(),P=v.progs.find(x=>x.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid),L=Object.keys(rec.lifts).filter(k=>rec.lifts[k].unk);
+  if(!L.length)return;const box=el("gvtMbox");
+  box.innerHTML=`<h3>Не все подходы отмечены</h3><p>От них зависит вес на следующей неделе. «Не смог» — срыв (два подряд — вес −10 %), «не делал» — движение в этот раз не учитывается.</p>`+
+    L.map(k=>{const x=rec.lifts[k];return `<div class="card" style="padding:12px"><b>${k==="pc"?TX_PC[P.cfg.pc||"pc"]:TXL[k].s} · ${fmtW(x.w)} кг · ${x.sets} × ${x.need[0]}</b><p class="gvt-note">Отмечено: ${x.reps.map(n=>n||"–").join(" / ")}</p>
+      <div class="row2"><button class="btn btn-alt" type="button" data-k="${k}" data-o="fail">Не смог</button><button class="btn btn-alt" type="button" data-k="${k}" data-o="skip">Не делал</button></div></div>`;}).join("")+
+    `<button class="tm-mini" type="button" id="txuX">Позже</button>`;
+  el("gvtModal").hidden=false;el("txuX").onclick=()=>{el("gvtModal").hidden=true;renderTx();};
+  box.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{const k=b.dataset.k,v2=txStore(),P2=v2.progs.find(x=>x.id===P.id),r2=P2.recs.find(r=>r.uid===uid),x=r2.lifts[k];
+    if(b.dataset.o==="skip")x.skip=true;delete x.unk;r2.updatedAt=txNow();P2.updatedAt=r2.updatedAt;txSave(v2);if(txLast&&txLast.uid===uid)txLast=r2;
+    toast(b.dataset.o==="skip"?TXL[k].s+": в этот раз не учитывается":TXL[k].s+": срыв записан");
+    if(Object.values(r2.lifts).some(y=>y.unk))txAskUnk(uid);else{el("gvtModal").hidden=true;renderTx();}});}
 function txButton(){const b=document.createElement("button");b.className="disc";let sub="средний уровень · рекорд каждую неделю · 3 дня/нед";
   try{const P=txActive();if(P){const st=txState(P);sub="Неделя "+st.week+" · следующая: "+txDayName(P,st.next);}}catch(e){}
   b.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span>Техасский рейнджер</span><span class="disc-sub"></span></span><span class="go">›</span>`;
@@ -4148,15 +4164,17 @@ function renderTx(){const w=el("txBody");if(!w)return;const v=txStore(),P=txActi
   const st=txState(P),plan=txPlan(P,st);let html="";
   if(txLast&&txLast.uid&&P.recs.some(r=>r.uid===txLast.uid)){const r=txLast;
     html+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Итог: ${txDayName(P,r.kind)}</h3><div class="rm-list">${Object.keys(r.lifts).map(k=>{const x=r.lifts[k],ok=x.reps.every((n,i)=>n>=x.need[i]);
-      return `<div class="rm-row"><span class="k">${TXL[k].s} · ${fmtW(x.w)} кг · ${x.reps.join("/")}</span><span class="v">${x.prog?(ok?"✓ <small>+"+fmtW(TXL[k].inc)+" кг дальше</small>":"<small>вес тот же</small>"):"<small>"+(ok?"✓":"не полностью")+"</small>"}</span></div>`;}).join("")}</div></div>`;}
+      return `<div class="rm-row"><span class="k">${TXL[k].s} · ${fmtW(x.w)} кг · ${x.reps.join("/")}</span><span class="v">${x.prog?(ok?"✓ <small>+"+fmtW(txInc(k,r.finishedAt))+" кг дальше</small>":"<small>вес тот же</small>"):"<small>"+(ok?"✓":"не полностью")+"</small>"}</span></div>`;}).join("")}</div></div>`;}
   const lastReset=st.resets.length?st.resets[st.resets.length-1]:null;
   html+=`<div class="card gvt-sum"><h3>Неделя ${st.week} · старт ${gvtDD(P.start)}</h3>
     ${lastReset&&lastReset.at>=(P.recs.length-3)?`<p class="gvt-stop" style="margin:0">${TXL[lastReset.k].s}: два промаха подряд — вес снижен на 10 %, дальше снова вверх.</p>`:""}
     <div class="rm-list">${TX_ORDER.filter(k=>st.t[k]>0).map(k=>`<div class="rm-row"><span class="k">${k==="pc"?TX_PC[P.cfg.pc||"pc"]:TXL[k].s}</span><span class="v">${fmtW(st.t[k])} <small>кг · ${k==="pc"?"5 × 3":k==="pr"&&P.cfg.days===4?"3 × 3":"рекорд × 5"}</small></span></div>`).join("")}</div>
     <div class="gvt-kv"><span>${P.cfg.days===4?"4 дня в неделю":"3 дня: объём · лёгкий · рекорд"}</span><span>${P.cfg.mode==="easy"?"лёгкий объёмный день":"классический 5 × 5"}</span></div></div>
+    ${(u=>u?`<div class="gvt-pend"><span>Не все подходы отмечены — ответь, чтобы посчитать вес</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="txUnk" data-u="${u.uid}">Ответить</button></div>`:"")(P.recs.filter(r=>Object.values(r.lifts||{}).some(x=>x.unk))[0])}
     <p class="bb-lbl">Следующая тренировка</p><div class="stack gvt-sess" id="txNext"></div>
+    ${st.next==="ld"?`<button class="tm-mini" type="button" id="txSkipLd">Пропустить лёгкий день → сразу к рекорду</button>`:""}
     <button class="tm-mini" type="button" id="txNew" style="margin-top:4px">Начать заново с новыми весами</button>`;
-  if(st.log.length)html+=`<details class="card gvt-about"><summary><span class="tag">История · ${st.log.length} трен.</span><span class="gvt-more">Показать</span></summary><div class="rm-list" style="margin-top:8px">${st.log.slice().reverse().slice(0,30).map(r=>`<div class="rm-row"><span class="k">${gvtDD(r.finishedAt.slice(0,10))} · ${txDayName(P,r.kind)}</span><span class="v"><small>${Object.keys(r.lifts).map(k=>TXL[k].s+" "+fmtW(r.lifts[k].w)).join(" · ")}</small></span></div>`).join("")}</div></details>`;
+  if(st.log.length)html+=`<details class="card gvt-about"><summary><span class="tag">История · ${st.log.length} трен.</span><span class="gvt-more">Показать</span></summary><div class="rm-list" style="margin-top:8px">${st.log.slice().reverse().slice(0,30).map(r=>`<div class="rm-row"><span class="k">${gvtDD(r.finishedAt.slice(0,10))} · ${txDayName(P,r.kind)}${r.skipped?" · пропущен":""}</span><span class="v"><small>${Object.keys(r.lifts).map(k=>TXL[k].s+" "+fmtW(r.lifts[k].w)).join(" · ")}</small></span></div>`).join("")}</div></details>`;
   html+=txInfo();w.innerHTML=html;
   const nb=document.createElement("button");nb.type="button";nb.className="disc next";
   nb.innerHTML=`<span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span></span><span class="disc-sub"></span></span><span class="gvt-st">▶</span>`;
@@ -4164,6 +4182,9 @@ function renderTx(){const w=el("txBody");if(!w)return;const v=txStore(),P=txActi
   nb.querySelector(".disc-sub").textContent=plan.ex.map(e=>e[0]+" "+e[7]).join(" · ");
   nb.onclick=()=>{const P2=txActive();if(!P2)return;startWorkout(txPlan(P2,txState(P2)),true);};el("txNext").appendChild(nb);
   el("txNew").onclick=()=>{txFormOpen=true;txArm=0;renderTx();window.scrollTo(0,0);};
+  if(el("txUnk"))el("txUnk").onclick=()=>txAskUnk(el("txUnk").dataset.u);
+  if(el("txSkipLd"))el("txSkipLd").onclick=()=>{const v2=txStore(),P2=txActive(v2),now=txNow();P2.recs.push({uid:P2.id+"-s"+Date.now().toString(36),kind:"ld",skipped:true,week:st.week,finishedAt:now,updatedAt:now,lifts:{}});
+    P2.updatedAt=now;txSave(v2);toast("Лёгкий день пропущен — следующая: рекорд");renderTx();};
   try{const eb=mpEndBtn("tx","Завершить «Техасский рейнджер» · итог в «Прогресс»");eb.addEventListener("click",()=>setTimeout(()=>{if(!txActive())renderTx();},60));w.appendChild(eb);}catch(e){}}
 scr.tx=el("scr-tx");
 {const _as=applyScreen;applyScreen=function(n,y){_as(n,y);if(n==="tx")try{renderTx();}catch(e){console.error(e);}};}
