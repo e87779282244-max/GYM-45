@@ -4229,24 +4229,33 @@ function cjPRs(){const pr={};cjStore().progs.forEach(P=>(P.recs||[]).forEach(r=>
 function cjState(P){const recs=(P.recs||[]).slice().sort((x,y)=>(x.finishedAt||"").localeCompare(y.finishedAt||""));
   const n=recs.length,wk=Math.floor(n/4),st={n:n,day:n%4,weekAbs:wk+1,cycle:Math.floor(wk/6)+1,week:wk%6+1,log:recs};
   st.next=CJ_SEQ[st.day];st.set=(st.cycle-1)%2;st.block=st.week<=3?0:1;st.wib=(st.week-1)%3;st.accAlt=Math.floor(wk/3)%2;return st;}
+/* рекорды вариантов круга → оценка 1ПМ базового движения: вес (×(1+повт/30) для 3 повт.) ÷ коэффициент варианта */
+function cjVarF(n){for(const L of [CJ_MEL,CJ_MEU])for(const set of L)for(const v of set)if(v[0]===n)return {base:v[1],f:v[3]};return null;}
+function cjRmSug(P,cycle){const out={};["sq","bp","dl"].forEach(k=>out[k]={cur:P.cfg.rm[k],est:0,src:null});
+  (P.recs||[]).forEach(r=>{if(r.cycle!==cycle||r.brk||r.skipped||!r.me||!(r.me.best>0))return;const V=cjVarF(r.me.n);if(!V||V.f<0.8)return; /* только варианты, близкие к соревновательному движению */
+    const e1=r.me.reps>1?r.me.best*(1+r.me.reps/30):r.me.best,est=e1/V.f,o=out[V.base];if(est>o.est){o.est=est;o.src=r.me;}});
+  Object.keys(out).forEach(k=>{const o=out[k],nw=Math.floor(Math.min(o.est,o.cur*1.1)/2.5+1e-9)*2.5;o.cap=o.est>o.cur*1.1;o.nw=nw>o.cur?nw:o.cur;o.up=nw>o.cur;});return out;}
 function cjMeVar(st,kind){const L=kind==="mel"?CJ_MEL:CJ_MEU;return L[st.set][st.week-1];}
 function cjPlan(P,st,kind){kind=kind||st.next;const rm=P.cfg.rm,ex=[],preset=[],rows=[];
   const push=(e,s,m)=>{ex.push(e);preset.push(s);rows.push(m||{});};
-  const acc=(L)=>L.forEach(a=>{const nm=a[st.accAlt],n=a[2],bwx=/Подтягивания|Подъём ног|Ягодично-икроножный/.test(nm);
-    push([nm,n,a[3],bwx?0:null,undefined,"Подсобка на слабое место: тяжело, но с чистой техникой. Через 3 недели упражнение сменится.",90,n+" × "+a[3]],
-      Array.from({length:n},()=>({w:0,r:parseInt(a[3],10)||10,done:false})),{});});
-  if(kind==="mel"||kind==="meu"){const [nm,base,reps,f]=cjMeVar(st,kind),pr=cjPRs()[nm+"|"+reps],est=pr?pr.w:cjR(rm[base]*f);
-    const tgt=pr?cjR(pr.w+2.5):est,sets=[];
-    [[40,5],[55,3],[70,2],[80,1],[88,1],[94,1]].forEach(([pc,r])=>sets.push({w:cjR(tgt*pc/100),r:r,done:false,warm:true}));
-    sets.push({w:tgt,r:reps,done:false,need:reps});sets.push({w:cjR(tgt+2.5),r:reps,done:false,need:reps});
-    push([nm,2,String(reps),tgt,[tgt,cjR(tgt+2.5)],(pr?"Рекорд в этом варианте — "+fmtW(pr.w)+" кг × "+reps+". Попробуй побить: ":"Первый раз в этом варианте — ориентир от твоего 1ПМ: ")+"разогрев по ступеням, затем 1–2 попытки. Не идёт — остановись на лучшем чистом подходе. Отдых между попытками 3–5 мин.",300,"рекорд × "+reps+" · ориентир "+fmtW(tgt)+" кг"],sets,{me:{n:nm,reps:reps}});
+  const acc=(L)=>L.forEach(a=>{const nm=a[st.accAlt],n=a[2],bwx=/Подтягивания|Подъём ног|Ягодично-икроножный/.test(nm),pr=lastResult(nm),pw=pr&&pr.sets&&pr.sets.length?pr.sets:null;
+    const ws=Array.from({length:n},(_,j)=>pw?(+((pw[j]||pw[pw.length-1]).w)||0):0),wl=ws.filter(x=>x>0);
+    push([nm,n,a[3],bwx?0:null,undefined,"Подсобка на слабое место: тяжело, но с чистой техникой. Через 3 недели упражнение сменится.",90,n+" × "+a[3]+(wl.length?" · в прошлый раз "+fmtW(Math.max(...wl))+" кг":"")],
+      ws.map(w=>({w:w,pw:w,r:parseInt(a[3],10)||10,done:false})),{});});
+  if(kind==="mel"||kind==="meu"){const [nm,base,reps,f]=cjMeVar(st,kind),pr=cjPRs()[nm+"|"+reps],db=/гантел/i.test(nm);
+    /* гантели — шаг 2 кг (вес одной гантели), штанга — по блинам, не легче грифа */
+    const W=x=>db?wSnap(x,"db","near"):w5Bar(x),inc=db?W_STEP.db:txStep(),est=W(rm[base]*f);
+    const tgt=pr?W(pr.w+inc):est,t2=W(tgt+inc),sets=[];
+    [[40,5],[55,3],[70,2],[80,1],[88,1],[94,1]].forEach(([pc,r])=>sets.push({w:W(tgt*pc/100),r:r,done:false,warm:true}));
+    sets.push({w:tgt,r:reps,done:false,need:reps});sets.push({w:t2,r:reps,done:false,need:reps});
+    push([nm,2,String(reps),tgt,[tgt,t2],(pr?"Рекорд в этом варианте — "+fmtW(pr.w)+" кг × "+reps+". Попробуй побить: ":"Первый раз в этом варианте — ориентир от твоего 1ПМ: ")+"разогрев по ступеням, затем 1–2 попытки. Не идёт — остановись на лучшем чистом подходе. Отдых между попытками 3–5 мин.",300,"рекорд × "+reps+" · ориентир "+fmtW(tgt)+" кг"+(db?" (одна гантель)":"")],sets,{me:{n:nm,reps:reps}});
     acc(kind==="mel"?CJ_ACC_LOW:CJ_ACC_UP);}
-  if(kind==="del"){const pct=[.75,.8,.85][st.wib],ns=[12,12,10][st.wib],[sqn,dln]=CJ_DEL[st.block],w=cjR(rm.sq*pct),dw=cjR(rm.dl*[.6,.65,.7][st.wib]);
+  if(kind==="del"){const pct=[.75,.8,.85][st.wib],ns=[12,12,10][st.wib],[sqn,dln]=CJ_DEL[st.block],w=w5Bar(rm.sq*pct),dw=w5Bar(rm.dl*[.6,.65,.7][st.wib]);
     push([sqn,ns,"2",w,Array(ns).fill(w),"Скоростной день: "+Math.round(pct*100)+" % от 1ПМ, каждое повторение — максимально быстро вверх. Отдых до 60 с. Волна 3 недели: 75 → 80 → 85 %.",60,ns+" × 2 · "+fmtW(w)+" кг"],
       Array.from({length:ns},()=>({w:w,r:2,done:false})),{});
     push([dln,8,"1",dw,Array(8).fill(dw),"Одиночные со скоростью: штанга с пола рывком, без пауз в верхней точке. Отдых 30–60 с.",45,"8 × 1 · "+fmtW(dw)+" кг"],Array.from({length:8},()=>({w:dw,r:1,done:false})),{});
     acc(CJ_ACC_LOW);}
-  if(kind==="deu"){const nm=CJ_DEU[st.block],w=cjR(rm.bp*.5);
+  if(kind==="deu"){const nm=CJ_DEU[st.block],w=w5Bar(rm.bp*.5);
     push([nm,9,"3",w,Array(9).fill(w),"9 × 3 на 50 % от 1ПМ: каждое повторение взрывом, отдых до 60 с. С резиной — та же схема, вес чуть меньше.",60,"9 × 3 · "+fmtW(w)+" кг"],Array.from({length:9},()=>({w:w,r:3,done:false})),{});
     acc(CJ_ACC_UP);}
   return {name:"Тяжёлая артиллерия · "+CJ_DAY[kind],focus:"Круг "+st.cycle+" · неделя "+st.week+" из 6",ex:ex,sec:"pwr",preset:preset,cj:{progId:P.id,kind:kind,rows:rows,week:st.week,cycle:st.cycle}};}
@@ -4292,11 +4301,19 @@ function renderCj(){const w=el("cjBody");if(!w)return;const v=cjStore(),P=cjActi
   if(cjLast&&cjLast.uid&&P.recs.some(r=>r.uid===cjLast.uid)){const r=cjLast;
     html+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Итог: ${CJ_DAY[r.kind]}</h3>${r.me?`<div class="rm-list"><div class="rm-row"><span class="k">${r.me.n} · рекорд × ${r.me.reps}</span><span class="v">${r.me.best?fmtW(r.me.best)+" кг"+(r.me.prev&&r.me.best>r.me.prev?" <small>новый рекорд, было "+fmtW(r.me.prev)+"</small>":r.me.prev?" <small>рекорд "+fmtW(r.me.prev)+"</small>":" <small>первый результат</small>"):"—"}</span></div></div>`:`<p class="gvt-note" style="margin:0">Скоростной день записан.</p>`}</div>`;}
   const nextMe=["mel","meu"].map(k=>{const [nm,,reps]=cjMeVar(st,k),pr=prs[nm+"|"+reps];return `<div class="rm-row"><span class="k">${k==="mel"?"Низ":"Жим"}: ${nm}</span><span class="v">${pr?fmtW(pr.w)+" <small>кг × "+reps+" · рекорд</small>":"<small>новый вариант</small>"}</span></div>`;}).join("");
+  /* круг закончился — предложить обновить 1ПМ (только рост) */
+  const prevC=st.cycle-1,upd=P.cfg.rmUpd||{};
+  if(prevC>=1&&st.week===1&&!upd[prevC]){const S=cjRmSug(P,prevC),L=["sq","bp","dl"],any=L.some(k=>S[k].up),nm={sq:"Присед",bp:"Жим лёжа",dl:"Становая"};
+    html+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Круг ${prevC} завершён · 1ПМ</h3><div class="rm-list">${L.map(k=>{const o=S[k];
+      return `<div class="rm-row"><span class="k">${nm[k]}${o.src?`<br><small>по «${o.src.n}» ${fmtW(o.src.best)} × ${o.src.reps}</small>`:""}</span><span class="v">${o.up?fmtW(o.cur)+" → <b>"+fmtW(o.nw)+"</b>":fmtW(o.cur)+" <small>без изменений</small>"}</span></div>`;}).join("")}</div>
+      <p class="gvt-note">Оценка по рекордам вариантов круга, близких к соревновательному движению: вес рекорда ÷ коэффициент варианта. 1ПМ только растёт (не больше +10 % за круг) — если рекорды ниже, остаётся прежним. От него считаются скоростные дни.</p>
+      ${any?`<button class="btn" type="button" id="cjRmY">Обновить 1ПМ</button><button class="tm-mini" type="button" id="cjRmN">Оставить прежний</button>`:`<button class="btn btn-alt" type="button" id="cjRmN">Понятно</button>`}</div>`;}
   html+=`<div class="card gvt-sum"><h3>Круг ${st.cycle} · неделя ${st.week} из 6 · старт ${gvtDD(P.start)}</h3>
     <div class="rm-list">${nextMe}
     <div class="rm-row"><span class="k">1ПМ: присед / жим / становая</span><span class="v">${fmtW(P.cfg.rm.sq)} / ${fmtW(P.cfg.rm.bp)} / ${fmtW(P.cfg.rm.dl)} <small>кг</small></span></div></div>
     <div class="gvt-kv"><span>скорость: ${[75,80,85][st.wib]} % в приседе</span><span>подсобка сменится через ${3-((st.weekAbs-1)%3)} нед.</span></div></div>
     <p class="bb-lbl">Следующая тренировка</p><div class="stack gvt-sess" id="cjNext"></div>
+    <button class="tm-mini" type="button" id="cjSkip">Пропустить «${CJ_DAY[st.next]}» → следующий день</button>
     <button class="tm-mini" type="button" id="cjNew" style="margin-top:4px">Начать заново с новым 1ПМ</button>`;
   const prl=Object.keys(prs);if(prl.length)html+=`<details class="card gvt-about"><summary><span class="tag">Рекорды вариантов · ${prl.length}</span><span class="gvt-more">Показать</span></summary><div class="rm-list" style="margin-top:8px">${prl.map(k=>{const [n,r]=k.split("|");return `<div class="rm-row"><span class="k">${n} × ${r}</span><span class="v">${fmtW(prs[k].w)} <small>кг · ${gvtDD(prs[k].at.slice(0,10))}</small></span></div>`;}).join("")}</div></details>`;
   html+=cjInfo();w.innerHTML=html;
@@ -4305,6 +4322,12 @@ function renderCj(){const w=el("cjBody");if(!w)return;const v=cjStore(),P=cjActi
   nb.querySelector("span span").textContent=CJ_DAY[st.next];nb.querySelector(".disc-sub").textContent=plan.ex.map(e=>e[0]+" "+e[7]).join(" · ");
   nb.onclick=()=>{const P2=cjActive();if(!P2)return;startWorkout(cjPlan(P2,cjState(P2)),true);};el("cjNext").appendChild(nb);
   el("cjNew").onclick=()=>{cjFormOpen=true;cjArm=0;renderCj();window.scrollTo(0,0);};
+  el("cjSkip").onclick=()=>{const b=el("cjSkip");if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — «"+CJ_DAY[st.next]+"» будет пропущен, неделя не сдвинется");return;}
+    const v2=cjStore(),P2=cjActive(v2),now=cjNow();P2.recs.push({uid:P2.id+"-s"+Date.now().toString(36),kind:st.next,week:st.week,cycle:st.cycle,skipped:true,finishedAt:now,updatedAt:now,me:null});
+    P2.updatedAt=now;cjSave(v2);toast("Пропущено: "+CJ_DAY[st.next]);renderCj();};
+  const rmDone=apply=>{const v2=cjStore(),P2=cjActive(v2),c=cjState(P2).cycle-1,S=cjRmSug(P2,c);P2.cfg.rmUpd=Object.assign({},P2.cfg.rmUpd||{},{[c]:{at:cjNow(),applied:!!apply}});
+    if(apply)["sq","bp","dl"].forEach(k=>{if(S[k].up)P2.cfg.rm[k]=S[k].nw;});P2.updatedAt=cjNow();cjSave(v2);if(apply)toast("1ПМ обновлён");renderCj();};
+  if(el("cjRmY"))el("cjRmY").onclick=()=>rmDone(true);if(el("cjRmN"))el("cjRmN").onclick=()=>rmDone(false);
   try{const eb=mpEndBtn("cj","Завершить «Тяжёлая артиллерия» · итог в «Прогресс»");eb.addEventListener("click",()=>setTimeout(()=>{if(!cjActive())renderCj();},60));w.appendChild(eb);}catch(e){}}
 scr.cj=el("scr-cj");
 {const _as=applyScreen;applyScreen=function(n,y){_as(n,y);if(n==="cj")try{renderCj();}catch(e){console.error(e);}};}
