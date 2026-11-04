@@ -3124,7 +3124,7 @@ function finishWorkout(){
     toast(pr.length&&/id|d3|d4/.test(txRec.kind)?"Рекорд! Тренировка сохранена":"Тренировка сохранена");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     txLast=txRec;show("tx");window.scrollTo(0,0);if(Object.values(txRec.lifts).some(x=>x.unk))setTimeout(()=>txAskUnk(txRec.uid),150);return;}
   if(lzRec){toast("Тренировка сохранена");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
-    lzLast=lzRec;show("lz");window.scrollTo(0,0);return;}
+    lzLast=lzRec;show("lz");window.scrollTo(0,0);if(Object.values(lzRec.lifts||{}).some(x=>x&&x.unk))setTimeout(()=>lzAskUnk(lzRec.uid),150);return;}
   if(w5Rec){toast(w5Rec.pr.length?"Рекорд! Занятие сохранено":"Занятие сохранено");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
     w5LastUid=w5Rec.uid;show("w531");window.scrollTo(0,0);if(Object.values(w5Rec.lifts).some(x=>x.unk))setTimeout(()=>w5AskUnk(w5Rec.uid),150);return;}
   if(gRec){toast(gRec.full?"Занятие выполнено полностью":"Частичный результат сохранён");histStack=histStack.filter(x=>x!=="workout"&&x!=="day");
@@ -3875,7 +3875,7 @@ scr.w531=el("scr-w531");
    Источник — PDF владельца «Level Zero · Streetlifting program». Неделя: Пн тяжёлая, Ср лёгкая, Пт тяжёлая.
    Выход силой 10×1 по таймеру (1 повтор каждые 2 мин, 20 мин). Брусья и турник с весом: старт 40% 1ПМ, 3×8;
    Ср 2×8 с весом 60% от Пн, затем +1,25 кг в неделю. Прогрессия тяжёлых дней — по худшему подходу прошлой
-   тяжёлой: 8 → +2,5 кг, 7 → +1,25, 6 → +0,5, меньше 6 → вес тот же. Новичок (≤10 подтягиваний, ≤20 отжиманий)
+   тяжёлой: 7–8 → +2,5 кг, меньше 7 → вес тот же (до 04.11: 8 → +2,5, 7 → +1,25, 6 → +0,5). Новичок (≤10 подтягиваний, ≤20 отжиманий)
    — без веса, растут повторы: дошёл до 15 на турнике / 25 на брусьях → 8 повт. и прибавка веса по таблице.
    Разгрузка — после 2 недель подряд с прибавкой ≤0,5 кг: Пн 2×8 70% прошлой Пт, Ср 2×8, Пт проходка на 1ПМ.
    Состояние не хранится, а вычисляется из настроек + записей (надёжно при слиянии с облаком). */
@@ -3889,7 +3889,9 @@ function lzSave(v){cyStamp(LZK,v,"progs");try{localStorage.setItem(LZK,JSON.stri
 function lzActive(v){v=v||lzStore();return v.progs.find(p=>p.id===v.activeId&&!p.closedAt)||null;}
 function lzNow(){return new Date().toISOString();}
 function lzR(x,st){st=st||0.25;return Math.round(x/st+1e-9)*st;}
-function lzInc(minR){return minR>=8?2.5:minR===7?1.25:minR===6?0.5:0;}
+/* прибавка тяжёлого дня по худшему подходу: с 04.11 — 7–8 повт. → +2,5 кг (шаг блина), меньше 7 → тот же вес; прежние записи — по правилу автора */
+const LZ_INC_FROM="2026-11-04";
+function lzInc(minR,at){if(at&&String(at).slice(0,10)<LZ_INC_FROM)return minR>=8?2.5:minR===7?1.25:minR===6?0.5:0;return minR>=7?2.5:0;}
 function mergeLz(a,b){a=a&&a.progs?a:{progs:[],activeId:null};b=b&&b.progs?b:{progs:[],activeId:null};
   const g=mergeGvt({cycles:a.progs,activeId:a.activeId},{cycles:b.progs,activeId:b.activeId});return {progs:g.cycles,activeId:g.activeId};}
 /* воспроизведение записей → текущее состояние */
@@ -3905,7 +3907,7 @@ function lzState(P){const st={lifts:{},day:0,week:1,deload:null,dlNext:false,hea
     const heavy=r.kind==="mon"||r.kind==="fri";
     LZ_ORDER.forEach(k=>{const L=st.lifts[k],x=r.lifts&&r.lifts[k];if(!x)return;
       const done=(x.reps||[]).filter(n=>n>0),mn=done.length?Math.min(...done):0;
-      if(heavy&&!r.brk){if(L.mode==="kg"){const inc=done.length===(x.sets||3)?lzInc(mn):0;L.W=lzR(L.W+inc);L.incs.push(inc);}
+      if(heavy&&!r.brk){if(L.mode==="kg"){const inc=done.length===(x.sets||3)?lzInc(mn,r.finishedAt):0;L.W=lzR(L.W+inc);L.incs.push(inc);}
         else{if(mn>=L.R)L.R++;if(mn>=LZL[k].cap){L.mode="kg";L.W=2.5;L.L=1.25;L.R=8;L.incs=[];L.switched=r.finishedAt;}}}
       if(r.kind==="dtest"&&x.max>0){L.rm=x.max;L.W=lzR(x.max*.4,1.25);L.L=lzR(L.W*.6,1.25);L.incs=[];st.tests.push({k:k,max:x.max,at:r.finishedAt});}});
     if(r.kind==="wed"&&!r.brk)LZ_ORDER.forEach(k=>{const L=st.lifts[k];if(L.mode==="kg"&&r.lifts&&r.lifts[k])L.L=lzR(L.L+1.25);});
@@ -3914,7 +3916,7 @@ function lzState(P){const st={lifts:{},day:0,week:1,deload:null,dlNext:false,hea
     if(r.kind==="fri"||r.kind==="dtest"){st.week++;st.day=0;
       if(r.kind==="dtest"){st.deload=null;st.dlNext=false;}
       else{const stall=LZ_ORDER.some(k=>{const L=st.lifts[k];return L.mode==="kg"&&L.incs.length>=4&&L.incs.slice(-4).every(i=>i<=0.5);});
-        if(stall||st.dlNext){st.deload={why:stall?"2 недели подряд прибавка ≤0,5 кг":"по твоему решению"};}}}
+        if(stall||st.dlNext){st.deload={why:stall?"2 недели подряд без прибавки":"по твоему решению"};}}}
     else st.day=Math.min(2,st.day+1);});
   if(!st.deload&&st.dlNext&&st.day===0)st.deload={why:"по твоему решению"};
   if(st.deload&&recs.length&&st.day===0)st.deload.lastFri=(st.log.slice().reverse().find(r=>r.kind==="fri")||{}).lifts||null;
@@ -3933,10 +3935,10 @@ function lzPlan(P,st,kind){kind=kind||st.next;const ex=[],preset=[],rows=[];
     if(L.mode==="reps"){const r=heavy?L.R:Math.max(3,Math.round(L.R*.6));
       push([D.b,ns,String(r),0,undefined,heavy?"Без веса: прибавляй повторы. Сделаешь "+D.cap+" в каждом подходе — перейдёшь на 8 повторов с весом.":"Лёгкий день — ~60% повторов тяжёлого: отработка техники.",180,ns+" × "+r+(heavy?" · цель "+D.cap+" повт.":" · лёгкий день")],
         Array.from({length:ns},()=>({w:0,r:r,done:false,need:r})),{lift:k,mode:"reps"});return;}
-    let w=heavy?L.W:L.L;if(kind==="dmon"){const lf=st.deload&&st.deload.lastFri&&st.deload.lastFri[k];w=lzR((lf&&lf.w||L.W)*.7,1.25);}w=w>0?wSnap(w,"bw","near"):w;
+    let w=heavy?L.W:L.L;if(kind==="dmon"){const lf=st.deload&&st.deload.lastFri&&st.deload.lastFri[k];w=lzR((lf&&lf.w||L.W)*.7,1.25);}w=w>0?Math.round(w/2.5+1e-9)*2.5:w;
     const sets=[];if(w>=5)[[50,6],[65,5],[80,3]].forEach(([pc,r])=>sets.push({w:wSnap(w*pc/100,"bw","near"),r:r,done:false,warm:true}));
     const n=kind==="mon"||kind==="fri"?3:2;for(let j=0;j<n;j++)sets.push({w:w,r:8,done:false,need:8});
-    const nt=heavy?"Рабочий вес по худшему подходу прошлой тяжёлой: 8 повт. → +2,5 кг, 7 → +1,25, 6 → +0,5, меньше 6 → тот же вес. Отдых 3 мин (через несколько недель можно 4–5).":kind==="wed"?"Лёгкий день: 60% от Пн на старте, дальше +1,25 кг раз в неделю.":"Разгрузка: меньше объём и вес.";
+    const nt=heavy?"Рабочий вес по худшему подходу прошлой тяжёлой: 7–8 повт. → +2,5 кг, меньше 7 → тот же вес — добирай повторы. Отдых 3 мин (через несколько недель можно 4–5).":kind==="wed"?"Лёгкий день: 60% от Пн на старте, дальше +1,25 кг раз в неделю.":"Разгрузка: меньше объём и вес.";
     push([D.n,n,"8",w,Array(n).fill(w),nt,180,n+" × 8 · +"+fmtW(w)+" кг"+(heavy?"":kind==="wed"?" · лёгкий":" · разгрузка")],sets,{lift:k,mode:"kg"});});
   if(kind==="dtest")mu();
   if(kind==="dtest")push(["Приседания со штангой",4,"12–15",null,undefined,"По желанию, раз в месяц — после проходки в разгрузочную неделю. Чаще не нужно: сломает структуру программы.",120,"по желанию · 4 × 12–15"],Array.from({length:4},()=>({w:0,r:12,done:false})),{opt:1});
@@ -3950,7 +3952,8 @@ function lzRecord(){const p=current.program,g=p.lz,v=lzStore(),P=v.progs.find(x=
     if(R.mu){mu=st.filter(s=>s.done&&s.r>0).length;return;}
     if(!R.lift)return;
     if(R.test){const ok=st.filter(s=>s.done&&s.r>=1).map(s=>s.w);lifts[R.lift]={max:ok.length?Math.max(...ok):0};return;}
-    const work=st;lifts[R.lift]={w:work[0]?work[0].w:0,sets:work.length,reps:work.map(s=>s.done?s.r:0)};});
+    const work=st;lifts[R.lift]={w:work[0]?work[0].w:0,sets:work.length,reps:work.map(s=>s.done?s.r:0)};
+    if((g.kind==="mon"||g.kind==="fri")&&work.some(s=>!s.done)&&work.some(s=>s.done)&&!current.brk)lifts[R.lift].unk=true;});
   const now=lzNow(),rec={uid:P.id+"-"+Date.now().toString(36),brk:current.brk||undefined,kind:g.kind,week:g.week,finishedAt:now,updatedAt:now,mu:mu,lifts:lifts};
   P.recs.push(rec);P.updatedAt=now;lzSave(v);
   /* проходка → 1ПМ в «Рабочих весах»: и при снижении (текущая форма), с датой и источником */
@@ -3984,7 +3987,7 @@ function renderLz(){const w=el("lzBody");if(!w)return;const v=lzStore(),P=lzActi
   if(lzLast&&lzLast.uid&&P.recs.some(r=>r.uid===lzLast.uid)){const r=lzLast;
     html+=`<div class="card"><h3 style="margin:0 0 6px;font-family:var(--dsp)">Итог: ${LZ_DAY[r.kind]}</h3><div class="rm-list">${r.mu!=null?`<div class="rm-row"><span class="k">Выход силой · ${lzMuVerdict(r.mu)}</span><span class="v">${r.mu}/10</span></div>`:""}${LZ_ORDER.map(k=>{const x=r.lifts[k];if(!x)return "";
       if(x.max!=null)return `<div class="rm-row"><span class="k">${LZL[k].s} · новый 1ПМ</span><span class="v">${x.max?"+"+fmtW(x.max)+" кг":"—"}</span></div>`;
-      const mn=Math.min(...x.reps),L=st.lifts[k];return `<div class="rm-row"><span class="k">${LZL[k].s} · ${x.w?"+"+fmtW(x.w)+" кг · ":""}${x.reps.join("/")}</span><span class="v">${(r.kind==="mon"||r.kind==="fri")&&L.mode==="kg"&&x.w?(lzInc(mn)?"+"+fmtW(lzInc(mn))+" <small>кг дальше</small>":"<small>вес тот же</small>"):""}</span></div>`;}).join("")}</div></div>`;}
+      const mn=Math.min(...x.reps),L=st.lifts[k];return `<div class="rm-row"><span class="k">${LZL[k].s} · ${x.w?"+"+fmtW(x.w)+" кг · ":""}${x.reps.join("/")}</span><span class="v">${(r.kind==="mon"||r.kind==="fri")&&L.mode==="kg"&&x.w?(lzInc(mn,r.finishedAt)&&!x.unk?"+"+fmtW(lzInc(mn,r.finishedAt))+" <small>кг дальше</small>":"<small>вес тот же</small>"):""}</span></div>`;}).join("")}</div></div>`;}
   const muLast=st.mu.slice(-6);
   html+=`<div class="card gvt-sum"><h3>Неделя ${st.week}${st.deload?" · разгрузочная":""} · старт ${gvtDD(P.start)}</h3>
     ${st.deload?`<p class="gvt-stop" style="margin:0">Разгрузочная неделя: ${st.deload.why}. Пн — 2×8 на 70% прошлой пятницы, Ср — 2×8, Пт — проходка на 1ПМ и пересчёт весов.</p>`:""}
@@ -3992,10 +3995,12 @@ function renderLz(){const w=el("lzBody");if(!w)return;const v=lzStore(),P=lzActi
     <div class="rm-row"><span class="k">Выход силой ${LZ_MU[P.cfg.mu||"rings"]}</span><span class="v">${muLast.length?muLast.map(x=>x.n).join(" · ")+" <small>из 10</small>":"—"}</span></div></div>
     <div class="gvt-kv">${LZ_ORDER.map(k=>{const L=st.lifts[k];return `<span>${LZL[k].s}: цель 1ПМ +${LZL[k].goal} кг${L.rm?" · сейчас "+Math.round(L.rm/LZL[k].goal*100)+"%":""}</span>`;}).join("")}<span>Выходы: 10 из 10 без помощи ног</span></div>
   </div>
+    ${(u=>u?`<div class="gvt-pend"><span>Не все подходы отмечены — ответь, чтобы посчитать вес</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="lzUnk" data-u="${u.uid}">Ответить</button></div>`:"")(P.recs.filter(r=>Object.values(r.lifts||{}).some(x=>x&&x.unk))[0])}
     <p class="bb-lbl">Следующая тренировка</p><div class="stack gvt-sess" id="lzNext"></div>
+    <button class="tm-mini" type="button" id="lzSkip">Пропустить «${LZ_DAY[st.next]}» → следующий день</button>
     ${st.deload?"":`<button class="btn btn-alt" type="button" id="lzDl">${st.dlNext?"Отменить разгрузку на следующей неделе":"Запланировать разгрузку + проходку на 1ПМ"}</button>`}
     <button class="tm-mini" type="button" id="lzNew" style="margin-top:4px">Начать заново с новым 1ПМ</button>`;
-  if(st.log.length)html+=`<details class="card gvt-about"><summary><span class="tag">История · ${st.log.length} трен.</span><span class="gvt-more">Показать</span></summary><div class="rm-list" style="margin-top:8px">${st.log.slice().reverse().slice(0,30).map(r=>`<div class="rm-row"><span class="k">${gvtDD(r.finishedAt.slice(0,10))} · ${LZ_DAY[r.kind]}<br><small>${LZ_ORDER.map(k=>{const x=r.lifts[k];return x?LZL[k].s+" "+(x.max!=null?"1ПМ +"+fmtW(x.max):(x.w?"+"+fmtW(x.w)+"×":"")+x.reps.join("/")):""}).filter(Boolean).join(" · ")}</small></span><span class="v">${r.mu!=null?r.mu+"/10":""}</span></div>`).join("")}</div></details>`;
+  if(st.log.length)html+=`<details class="card gvt-about"><summary><span class="tag">История · ${st.log.length} трен.</span><span class="gvt-more">Показать</span></summary><div class="rm-list" style="margin-top:8px">${st.log.slice().reverse().slice(0,30).map(r=>`<div class="rm-row"><span class="k">${gvtDD(r.finishedAt.slice(0,10))} · ${LZ_DAY[r.kind]}${r.skipped?" · пропущен":""}<br><small>${LZ_ORDER.map(k=>{const x=r.lifts[k];return x?LZL[k].s+" "+(x.max!=null?"1ПМ +"+fmtW(x.max):(x.w?"+"+fmtW(x.w)+"×":"")+x.reps.join("/")):""}).filter(Boolean).join(" · ")}</small></span><span class="v">${r.mu!=null?r.mu+"/10":""}</span></div>`).join("")}</div></details>`;
   html+=lzInfo();
   w.innerHTML=html;
   const nb=document.createElement("button");nb.type="button";nb.className="disc next";
@@ -4005,7 +4010,23 @@ function renderLz(){const w=el("lzBody");if(!w)return;const v=lzStore(),P=lzActi
   nb.onclick=()=>{const P2=lzActive();if(!P2)return;const s2=lzState(P2);startWorkout(lzPlan(P2,s2),true);};el("lzNext").appendChild(nb);
   if(el("lzDl"))el("lzDl").onclick=()=>{const v2=lzStore(),P2=lzActive(v2);P2.recs.push({uid:P2.id+"-c"+Date.now().toString(36),kind:"cmd",cmd:st.dlNext?"nodeload":"deload",finishedAt:lzNow(),updatedAt:lzNow()});P2.updatedAt=lzNow();lzSave(v2);toast(st.dlNext?"Разгрузка отменена":"Следующая неделя — разгрузка с проходкой");renderLz();};
   el("lzNew").onclick=()=>{lzFormOpen=true;lzArm=0;renderLz();window.scrollTo(0,0);};
+  if(el("lzUnk"))el("lzUnk").onclick=()=>lzAskUnk(el("lzUnk").dataset.u);
+  el("lzSkip").onclick=()=>{const b=el("lzSkip");if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — «"+LZ_DAY[st.next]+"» будет пропущен, прогрессия не изменится");return;}
+    const v2=lzStore(),P2=lzActive(v2),now=lzNow();P2.recs.push({uid:P2.id+"-s"+Date.now().toString(36),kind:st.next,week:st.week,skipped:true,finishedAt:now,updatedAt:now,lifts:{}});
+    P2.updatedAt=now;lzSave(v2);toast("Пропущено: "+LZ_DAY[st.next]);renderLz();};
   try{const eb=mpEndBtn("lz","Завершить «Рождённый ползать» · итог в «Прогресс»");eb.addEventListener("click",()=>setTimeout(()=>{if(!lzActive())renderLz();},60));w.appendChild(eb);}catch(e){}}
+/* «не смог» — как отмечено (прибавки нет), «не делал» — считаются только отмеченные подходы */
+function lzAskUnk(uid){const v=lzStore(),P=v.progs.find(x=>x.recs.some(r=>r.uid===uid));if(!P)return;const rec=P.recs.find(r=>r.uid===uid),L=Object.keys(rec.lifts||{}).filter(k=>rec.lifts[k]&&rec.lifts[k].unk);
+  if(!L.length)return;const box=el("gvtMbox");
+  box.innerHTML=`<h3>Не все подходы отмечены</h3><p>От них зависит вес на следующей тяжёлой. «Не смог» — прибавки не будет, «не делал» — считаются только отмеченные подходы.</p>`+
+    L.map(k=>{const x=rec.lifts[k];return `<div class="card" style="padding:12px"><b>${LZL[k].s} · ${x.w?"+"+fmtW(x.w)+" кг":"без веса"}</b><p class="gvt-note">Отмечено: ${x.reps.map(n=>n||"–").join(" / ")}</p>
+      <div class="row2"><button class="btn btn-alt" type="button" data-k="${k}" data-o="fail">Не смог</button><button class="btn btn-alt" type="button" data-k="${k}" data-o="skip">Не делал</button></div></div>`;}).join("")+
+    `<button class="tm-mini" type="button" id="lzuX">Позже</button>`;
+  el("gvtModal").hidden=false;el("lzuX").onclick=()=>{el("gvtModal").hidden=true;renderLz();};
+  box.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{const k=b.dataset.k,v2=lzStore(),P2=v2.progs.find(x=>x.id===P.id),r2=P2.recs.find(r=>r.uid===uid),x=r2.lifts[k];
+    if(b.dataset.o==="skip"){x.reps=x.reps.filter(n=>n>0);x.sets=x.reps.length;}delete x.unk;r2.updatedAt=lzNow();P2.updatedAt=r2.updatedAt;lzSave(v2);if(lzLast&&lzLast.uid===uid)lzLast=r2;
+    toast(b.dataset.o==="skip"?LZL[k].s+": считаются отмеченные подходы":LZL[k].s+": вес тот же");
+    if(Object.values(r2.lifts).some(y=>y&&y.unk))lzAskUnk(uid);else{el("gvtModal").hidden=true;renderLz();}});}
 function lzInfo(){return `<details class="card gvt-about"><summary><span class="tag">Как устроена программа</span><span class="gvt-more">Подробнее</span></summary><div class="wod-desc">
   <p><b>Разминка.</b> 5 мин кардио (до 15 мин, пульс до 145), суставная разминка, 5–10 подтягиваний и 5–10 отжиманий на брусьях. Перед рабочими подходами — 50%×6, 65%×5, 80%×3 рабочего веса, отдых 2–3 мин.</p>
   <p><b>Неделя.</b> Пн и Пт — тяжёлые (стимул), Ср — лёгкая (восстановление и отработка навыка: навык теряется уже за 3 дня без тренировок). После Пт — 2 дня отдыха.</p>

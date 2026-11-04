@@ -34,14 +34,14 @@ async def m():
     await pg.evaluate(DO+"({dip:[8,8,8],pull:[8,8,7]},9,{})")
     ok('после тренировки — экран Level Zero с итогом',await pg.evaluate("currentScreen==='lz'&&el('lzBody').textContent.includes('Итог')&&el('lzBody').textContent.includes('9/10')"))
     st=await pg.evaluate("(()=>{const s=lzState(lzActive());return {d:s.lifts.dip.W,p:s.lifts.pull.W,next:s.next,Ld:s.lifts.dip.L}})()")
-    ok('8/8/8 → +2,5; худший 7 → +1,25; дальше Ср',st['d']==15 and st['p']==8.75 and st['next']=='wed',st)
+    ok('8/8/8 → +2,5; худший 7 → тоже +2,5 (с 04.11); дальше Ср',st['d']==15 and st['p']==10 and st['next']=='wed',st)
     wed=await pg.evaluate("(()=>{const P=lzActive(),p=lzPlan(P,lzState(P));return p.preset.slice(1).map(x=>x.filter(s=>!s.warm).map(s=>s.w))})()")
     ok('Ср: 2×8 с весом 60% от Пн (7,5 / 5)',wed==[[7.5,7.5],[5,5]],wed)
     await pg.evaluate(DO+"({dip:[8,8],pull:[8,8]},10,{})")
     ok('после Ср лёгкий вес +1,25',await pg.evaluate("(()=>{const s=lzState(lzActive());return s.lifts.dip.L===8.75&&s.next==='fri'})()"))
     await pg.evaluate(DO+"({dip:[8,8,5],pull:[6,6,6]},10,{})")
     st=await pg.evaluate("(()=>{const s=lzState(lzActive());return {d:s.lifts.dip.W,p:s.lifts.pull.W,w:s.week,next:s.next}})()")
-    ok('Пт: худший 5 → вес тот же; 6 → +0,5; неделя 2',st=={'d':15,'p':9.25,'w':2,'next':'mon'},st)
+    ok('Пт: худший 5 → вес тот же; 6 → тоже тот же (с 04.11); неделя 2',st=={'d':15,'p':10,'w':2,'next':'mon'},st)
     ok('в истории — раздел стритлифтинг',await pg.evaluate("safe.get().slice(-1)[0].sec==='street'&&safe.get().length===3"))
     # 2 недели без прибавки → разгрузка
     for r in ["{dip:[6,6,6],pull:[5,5,5]}","{dip:[8,8],pull:[8,8]}","{dip:[5,5,5],pull:[6,6,5]}","{dip:[6,5,5],pull:[5,5,5]}","{dip:[8,8],pull:[8,8]}","{dip:[6,6,6],pull:[6,6,6]}"]:
