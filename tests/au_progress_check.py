@@ -11,7 +11,7 @@ async def m():
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(f'http://127.0.0.1:{srv.server_address[1]}/index.html');await pg.wait_for_timeout(300)
     await pg.evaluate("el('login').style.display='none';show('body')")
-    ok('изначально «следующая» — первая программа (Фулбади Картера)',await pg.evaluate("auNextHint().id==='pcfb'&&!!el('bodyProgs').querySelector('.au-cur')"))
+    ok('изначально «следующая» — первая программа (Штурм без пощады)',await pg.evaluate("auNextHint().id==='wl'&&!!el('bodyProgs').querySelector('.au-cur')"))
     await pg.evaluate("const p=AUTH.find(x=>x.id==='wl');authSetWeek(p,0);authOpen(p);el('bodyDays').querySelectorAll('.disc')[0].click();el('dayStart').click()")
     await pg.wait_for_timeout(100)
     ok('в тренировке есть метка программы',await pg.evaluate("current.program.au&&current.program.au.id==='wl'"))
@@ -32,7 +32,7 @@ async def m():
     await pg.evaluate("el('bodyDays').querySelector('.au-next').click()");await pg.wait_for_timeout(80)
     ok('кнопка открывает следующую программу',await pg.evaluate("el('bodyName').textContent.includes("+json.dumps(nx)+")"))
     ok('пройденная — «✓ пройдена» в списке',await pg.evaluate("show('body');renderBody();[...el('bodyProgs').querySelectorAll('.disc.au-done')].some(b=>b.textContent.includes('Штурм без пощады'))"))
-    ok('блок пройден → следующая по сложности',await pg.evaluate("(()=>{const v=auSt();v.done.pcfb=1;v.done.pcul=1;auSave(v);return auNext(AUTH.find(x=>x.id==='pcul')).lvl>=1})()"))
+    ok('блок пройден → следующая по сложности',await pg.evaluate("(()=>{const v=auSt();v.done.cbum=1;auSave(v);return auNext(AUTH.find(x=>x.id==='cbum')).lvl>=1})()"))
     ok('отметка в облачном снимке',await pg.evaluate("!!cloudSnapshot().auprog.done.wl"))
     await pg.evaluate("show('body');renderBody()");
     if O:await pg.evaluate("el('bodyProgs').scrollIntoView()");await pg.screenshot(path=O+'/au-list.png') if O else None

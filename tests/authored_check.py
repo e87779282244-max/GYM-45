@@ -14,14 +14,14 @@ async def m():
     b=await p.chromium.launch();pg=await b.new_page(viewport={'width':390,'height':844},device_scale_factor=2);errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none';show('body')");await pg.wait_for_timeout(200)
     order=await pg.evaluate("[...el('bodyProgs').children].map(x=>x.classList.contains('bb-lbl')?'#'+x.firstChild.textContent:x.classList.contains('au-by')?'@'+x.textContent:x.querySelector('span span').textContent)")
-    exp=['German Volume Training','#С чего начать','Фулбади для новичков','#Программы','@Новичок → средний','Последний патрон','@Средний уровень · 3 программы','Адский карнавал','Штурм без пощады','Сдохни, но красиво','@Средний → продвинутый · 5 программ','Пульс на взлёт','Слабакам выход там','Живым не сдамся','Мясорубка 3000','Контрольный в голову','@Опытный · 4 программы','Потный апокалипсис','Душа вышла покурить','Пульс 200','Терминатор на минималках','@Продвинутый','Кара небесная','#Базовая программа']
+    exp=['German Volume Training','#С чего начать','Фулбади для новичков','#Программы','@Средний уровень · 2 программы','Штурм без пощады','Сдохни, но красиво','@Средний → продвинутый · 5 программ','Пульс на взлёт','Слабакам выход там','Живым не сдамся','Мясорубка 3000','Контрольный в голову','@Опытный · 4 программы','Потный апокалипсис','Душа вышла покурить','Пульс 200','Терминатор на минималках','@Продвинутый','Кара небесная','#Базовая программа']
     await pg.evaluate("[...el('bodyProgs').querySelectorAll('.disc')].find(b=>b.textContent.includes('Фулбади для новичков')).click()");await pg.wait_for_timeout(150)
-    ok('новичок → кнопка «Следующий шаг: Картер»',await pg.evaluate("!!el('bodyDays').querySelector('.next-step')&&el('bodyDays').querySelector('.next-step').textContent.includes('Последний патрон')"))
+    ok('новичок → кнопка «Следующий шаг: Штурм без пощады»',await pg.evaluate("!!el('bodyDays').querySelector('.next-step')&&el('bodyDays').querySelector('.next-step').textContent.includes('Штурм без пощады')"))
     if SHOT:await pg.screenshot(path=SHOT+'/next_step.png',full_page=True)
     await pg.evaluate("el('bodyDays').querySelector('.next-step').click()");await pg.wait_for_timeout(150)
-    ok('переход открывает фулбади Картера',await pg.evaluate("el('bodyName').textContent.includes('Последний патрон')&&!!el('auWk')"))
+    ok('переход открывает «Штурм без пощады»',await pg.evaluate("el('bodyName').textContent.includes('Штурм без пощады')&&!!el('auWk')"))
     ok('базовые: осталась только BAZA GYM 45',await pg.evaluate("BODY.length===1&&BODY[0].name==='BAZA GYM 45'"))
-    ok('лестница: Картер фулбади → Картер верх/низ или Warlock; Ятс — вершина',await pg.evaluate("auLadder(AUTH.find(q=>q.id==='pcfb')).map(q=>q.id).join()==='pcul,wl'&&auNext(AUTH.find(q=>q.id==='bg'))===null&&AUTH.every(q=>q.id==='bg'||auLadder(q).length>0)"))
+    ok('лестница: новичок → Warlock; Ятс — вершина; программы Картера удалены',await pg.evaluate("auLadder(FBN_PROG).map(q=>q.id).join()==='wl'&&!auAll().some(q=>q.id==='pcfb'||q.id==='pcul')&&auNext(AUTH.find(q=>q.id==='bg'))===null&&AUTH.every(q=>q.id==='bg'||auLadder(q).length>0)"))
     await pg.evaluate("authOpen(AUTH.find(q=>q.id==='cbum'))");await pg.wait_for_timeout(150)
     ok('в программе блок «Следующий шаг · на выбор»: Y3T и BTS',await pg.evaluate("el('bodyDays').textContent.includes('Следующий шаг · на выбор')&&[...el('bodyDays').querySelectorAll('.next-step')].map(b=>b.textContent).join().includes('Пульс на взлёт')&&el('bodyDays').querySelectorAll('.next-step').length===2"))
     if SHOT:await pg.screenshot(path=SHOT+'/ladder.png',full_page=True)
@@ -31,8 +31,8 @@ async def m():
     ok('внутри блока автора сложность не убывает',await pg.evaluate("AUTH.every((p,i)=>i===0||AUTH[i-1].by!==p.by||AUTH[i-1].lvl<=p.lvl)"))
     if SHOT:await pg.evaluate("el('bodyProgs').scrollIntoView()");await pg.screenshot(path=SHOT+'/au-list.png')
     info=json.loads(await pg.evaluate("JSON.stringify(AUTH.map(p=>({id:p.id,w:p.weeks.length,d:p.weeks.map(w=>w.days.length)})))"))
-    want={'pcfb':(5,[3]*5),'pcul':(4,[6]*4),'wl':(3,[4,4,4]),'cbum':(1,[6]),'y3t':(4,[5,5,5,5]),'bts':(6,[5]*6),'jpcm':(2,[5,4]),'jc':(6,[6]*6),'ft':(8,[8]*6+[2,2]),'hiit':(6,[6]*6),'fst7':(8,[5]*4+[6]*4),'dc':(2,[6,2]),'hd':(2,[3,3]),'bg':(2,[4,4])}
-    ok('недели и дни всех 14 программ',{x['id']:(x['w'],x['d']) for x in info}==want,[x['id'] for x in info])
+    want={'wl':(3,[4,4,4]),'cbum':(1,[6]),'y3t':(4,[5,5,5,5]),'bts':(6,[5]*6),'jpcm':(2,[5,4]),'jc':(6,[6]*6),'ft':(8,[8]*6+[2,2]),'hiit':(6,[6]*6),'fst7':(8,[5]*4+[6]*4),'dc':(2,[6,2]),'hd':(2,[3,3]),'bg':(2,[4,4])}
+    ok('недели и дни всех 12 программ',{x['id']:(x['w'],x['d']) for x in info}==want,[x['id'] for x in info])
     # каждый день каждой программы открывается и стартует
     bad=[]
     for pi,x in enumerate(info):

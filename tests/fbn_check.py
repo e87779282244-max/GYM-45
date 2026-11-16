@@ -1,4 +1,4 @@
-# Фулбади для новичков: 8 недель, активация, следующая тренировка по порядку, переход к Картеру.
+# Фулбади для новичков: 8 недель, активация, следующая тренировка по порядку, переход к «Адскому карнавалу».
 # Запуск: python3 tests/fbn_check.py index.html [папка_скриншотов]
 import asyncio,json,os,sys,shutil,tempfile,http.server,threading,functools
 from playwright.async_api import async_playwright
@@ -40,7 +40,7 @@ async def m():
     # прыжок в конец: симулируем 24 тренировки
     await pg.evaluate("const h=safe.get();FBN_PROG.weeks.forEach((w,wi)=>w.days.forEach(d=>h.push({date:'2026-01-01',name:d.name,vol:1,log:{},au:{id:'fbn',w:wi},sec:'body'})));safe.set?safe.set(h):localStorage.setItem(HK,JSON.stringify(h))")
     await pg.evaluate("authOpen(FBN_PROG)");await pg.wait_for_timeout(150)
-    ok('пройдена: «Дальше: Фулбади Картера» и «Завершить и сохранить итог»',await pg.evaluate("auPlanNext(FBN_PROG)===null&&!!el('bodyDays').querySelector('.au-fin')&&el('bodyDays').querySelector('.au-next').textContent.includes('Последний патрон')"))
+    ok('пройдена: «Дальше: Штурм без пощады» и «Завершить и сохранить итог»',await pg.evaluate("auPlanNext(FBN_PROG)===null&&!!el('bodyDays').querySelector('.au-fin')&&el('bodyDays').querySelector('.au-next').textContent.includes('Штурм без пощады')"))
     await pg.evaluate("el('bodyDays').querySelector('.au-fin').click()");await pg.wait_for_timeout(150)
     ok('итог в архиве, программа больше не активна',await pg.evaluate("parGet().some(r=>r.prog==='au:fbn')&&!auSt().act.fbn&&!mpList().some(x=>x.k==='au:fbn')"))
     ok('ошибок JS нет',not errs,errs[:3])

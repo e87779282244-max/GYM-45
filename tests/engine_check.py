@@ -17,9 +17,9 @@ async def m():
     await pg.goto(URL);await pg.wait_for_timeout(300);await pg.evaluate("el('login').style.display='none'")
     # --- все программы на движке ---
     n=await pg.evaluate("auAll().filter(p=>p.plan).length")
-    ok('на движке все программы с неделями (≥28)',n>=28,n)
-    tot=await pg.evaluate("Object.fromEntries(['y3t','bts','jc','dc','bg','fst7','hiit','wl','jpcm','cbum','bp180b','bp180a','pcfb','ta','pl5','fbn','phil'].map(id=>[id,auTotal(auAll().find(p=>p.id===id))]))")
-    ok('длина программ совпадает с описанием',tot=={'y3t':60,'bts':60,'jc':72,'dc':22,'bg':24,'fst7':44,'hiit':36,'wl':32,'jpcm':54,'cbum':48,'bp180b':108,'bp180a':204,'pcfb':24,'ta':163,'pl5':21,'fbn':24,'phil':24},tot)
+    ok('на движке все программы с неделями (≥27)',n>=27,n)
+    tot=await pg.evaluate("Object.fromEntries(['y3t','bts','jc','dc','bg','fst7','hiit','wl','jpcm','cbum','bp180b','bp180a','hd','ta','pl5','fbn','phil'].map(id=>[id,auTotal(auAll().find(p=>p.id===id))]))")
+    ok('длина программ совпадает с описанием',tot=={'y3t':60,'bts':60,'jc':72,'dc':22,'bg':24,'fst7':44,'hiit':36,'wl':32,'jpcm':54,'cbum':48,'bp180b':108,'bp180a':204,'hd':24,'ta':163,'pl5':21,'fbn':24,'phil':24},tot)
     # --- Y3T: 1A → 1B → 2 → 3 по кругу ---
     await pg.evaluate("authOpen(AUTH.find(p=>p.id==='y3t'))");await pg.wait_for_timeout(100)
     ok('до старта: «Начать программу · 60 тренировок»',await pg.evaluate("document.querySelector('.au-start').textContent.includes('60 тренировок')&&!document.querySelector('.au-cont')"))
@@ -34,9 +34,9 @@ async def m():
     await pg.evaluate(FAKE+"('dc',17)");d1=await pg.evaluate("(()=>{const n=auPlanNext(AUTH.find(p=>p.id==='dc'));return [n.w,n.d]})()")
     await pg.evaluate(FAKE+"('dc',1)");d2=await pg.evaluate("(()=>{const n=auPlanNext(AUTH.find(p=>p.id==='dc'));return [n.w,n.d]})()")
     ok('DC: 18-я — B3 блица, 19-я — разгрузка',d1==[0,5] and d2==[1,0],(d1,d2))
-    # --- вариант на выбор (Картер): следующая — из выбранной вкладки ---
-    await pg.evaluate("const v=auSt();v.act={pcfb:{start:localDate(),base:0}};auSave(v);authSetWeek(AUTH.find(p=>p.id==='pcfb'),2)")
-    ok('Картер: вариант 3 выбран — следующая из него',await pg.evaluate("auPlanNext(AUTH.find(p=>p.id==='pcfb')).w===2"))
+    # --- вариант на выбор (HD): следующая — из выбранной вкладки ---
+    await pg.evaluate("const v=auSt();v.act={hd:{start:localDate(),base:0}};auSave(v);authSetWeek(AUTH.find(p=>p.id==='hd'),1)")
+    ok('вариант на выбор (HD): вариант 2 выбран — следующая из него',await pg.evaluate("auPlanNext(AUTH.find(p=>p.id==='hd')).w===1"))
     # --- продолжение уже начатой программы ---
     await pg.evaluate("localStorage.setItem(KEY,'[]');const v=auSt();v.act={};auSave(v)");await pg.evaluate(FAKE+"('bts',7)")
     await pg.evaluate("authOpen(AUTH.find(p=>p.id==='bts'))");await pg.wait_for_timeout(100)

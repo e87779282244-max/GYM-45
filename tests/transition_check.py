@@ -29,7 +29,7 @@ async def m():
     ok('в программе: верх диапазона → +2,5 кг',r[0]=='72.5,72.5,72.5',r)
     ok('разгрузка распознаётся: «Мясорубка» есть, «Сдохни, но красиво» нет',await pg.evaluate("lwHasDeload(lwFrom('jc'))&&lwHasDeload(lwFrom('wl'))&&lwHasDeload(lwFrom('fbn'))&&!lwHasDeload(lwFrom('cbum'))"))
     # программа без разгрузки пройдена → предложение лёгкой недели после окна заминки
-    await pg.evaluate("""(()=>{current=null;const P=lwFrom('cbum');const h=[];for(let i=0;i<P.total-1;i++)h.push({date:'2026-09-01',name:'x',vol:1,log:{'Жим штанги лёжа':[{w:100,r:10,done:true}]},au:{id:'cbum',w:0}});safe.set(h);
+    await pg.evaluate("""(()=>{current=null;const P=lwFrom('cbum');const h=[];for(let i=0;i<P.total-1;i++)h.push({date:addDays(localDate(),-3),name:'x',vol:1,log:{'Жим штанги лёжа':[{w:100,r:10,done:true}]},au:{id:'cbum',w:0}});safe.set(h);
       const v=auSt();if(v.act)delete v.act.cbum;auSave(v);auPlanStart(P,auPlanNext(P));el('dayStart').click();current.sets.forEach(se=>se.forEach(s=>{s.done=true;if(!s.r)s.r=10;}));finishWorkout();})()""");await pg.wait_for_timeout(700)
     ok('сначала окно заминки',await pg.evaluate("!el('coolModal').hidden&&!!el('coolSkip')"))
     await pg.evaluate("el('coolSkip').click()");await pg.wait_for_timeout(1300)
@@ -48,7 +48,7 @@ async def m():
     ok('записи лёгкой недели помечены и не образец',await pg.evaluate("safe.get().slice(-1)[0].lw===1&&lastResult('Жим штанги лёжа')&&lastResult('Жим штанги лёжа').sets[0].w===100"))
     ok('лёгкая неделя в облачном снимке',await pg.evaluate("!!cloudSnapshot().lw&&cloudSnapshot().lw.hist.length===1"))
     # программа с разгрузкой — без предложения
-    await pg.evaluate("""(()=>{coolOffer=function(){};el('coolModal').hidden=true;const P=lwFrom('dc');const h=[];for(let i=0;i<P.total-1;i++)h.push({date:'2026-09-01',name:'x',vol:1,log:{},au:{id:'dc',w:0}});safe.set(h);
+    await pg.evaluate("""(()=>{coolOffer=function(){};el('coolModal').hidden=true;const P=lwFrom('dc');const h=[];for(let i=0;i<P.total-1;i++)h.push({date:addDays(localDate(),-3),name:'x',vol:1,log:{},au:{id:'dc',w:0}});safe.set(h);
       auPlanStart(P,auPlanNext(P));el('dayStart').click();current.sets.forEach(se=>se.forEach(s=>{s.done=true;if(!s.r)s.r=8;}));finishWorkout();})()""");await pg.wait_for_timeout(1800)
     ok('после программы с разгрузкой — не предлагается',await pg.evaluate("el('coolModal').hidden"))
     ok('без ошибок JS',not errs,errs[:3])
