@@ -629,7 +629,8 @@
   .key-active:active{transform:translateY(3px);box-shadow:0 1px 0 #14160c}
   .dash-logo{width:100%;display:flex;justify-content:center;padding:6px 0 2px}
   /* главная «Сегодня»: логотип компактнее, главное — следующая тренировка */
-  #scr-home .dash-logo-img{max-width:170px}
+  /* логотип — в шапке главной вместо надписи «Рабочий стол» */
+  #scr-home .home-logo{max-width:150px;transform:none;filter:drop-shadow(0 2px 1px rgba(40,34,14,.5)) drop-shadow(0 6px 8px rgba(40,34,14,.3))}
   .td-card{display:flex;flex-direction:column;gap:10px;margin:10px 0 14px;border-left:5px solid var(--good)}
   .td-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.td-h b{font-family:var(--dsp);font-size:20px}.td-h span{color:var(--muted);font-size:13px;font-weight:600}
   .td-main{display:flex;flex-direction:column;gap:2px}.td-main small{color:var(--muted);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
@@ -1205,7 +1206,7 @@
   <section class="screen" id="scr-home">
     <div class="home-top">
       <button type="button" class="avatar" id="homeAvatar" aria-label="Профиль"><svg viewBox="0 0 24 24" fill="var(--muted)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg></button>
-      <div class="home-title"><b>Рабочий стол</b><span id="cloudStatus">Gym 45</span></div>
+      <div class="home-title"><img class="dash-logo-img home-logo" src="media/gymlogo3.png?v=2" alt="GYM 45 · Рабочий стол" width="1283" height="753"><span id="cloudStatus">Gym 45</span></div>
       <button class="icon-btn" id="homeMenu" title="Меню">☰</button>
     </div>
 
@@ -1227,9 +1228,6 @@
     </div>
   
         <div class="dash-panel">
-      <div class="dash-logo">
-        <img class="dash-logo-img" src="media/gymlogo3.png?v=2" alt="GYM 45" width="1283" height="753">
-      </div>
       <div class="dash-left">
         <button class="key" data-go="programs">Выбрать программу</button>
         <button class="key" data-go="progress">Прогресс</button>
