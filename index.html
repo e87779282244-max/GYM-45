@@ -2582,7 +2582,12 @@ function goBack(){
   /* «Назад» возвращает туда же, откуда ушли: восстанавливаем прокрутку экрана */
   applyScreen(prev,SCROLL_MEM[prev]||0);}
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
-  if(t.dataset.scr==="workout"){if(current)show("workout");else if(dayView)show("day");else{show("programs");toast("Выбери программу — тренировка откроется оттуда");}}
+  if(t.dataset.scr==="workout"){if(current){show("workout");return;}
+    /* нет начатой тренировки → сразу ближайшая тренировка активной программы (обзор дня с «Начать»); программ нет → выбор программы */
+    let L=[];try{L=mpList();}catch(e){}
+    if(L.length){const x=L.map(x=>({x,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n))[0].x;dashGo(x);return;}
+    if(dayView){show("day");return;}
+    show("programs");toast("Сначала выбери программу — дальше вкладка «Тренировка» будет открывать следующую тренировку");}
   else show(t.dataset.scr);});
 document.querySelectorAll(".back-btn").forEach(b=>b.addEventListener("click",goBack));
 
