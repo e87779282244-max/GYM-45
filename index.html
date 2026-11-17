@@ -220,6 +220,7 @@
   .g2-ex.on{opacity:1;border-color:var(--gold-ink);box-shadow:0 0 0 2px var(--panel-line)}
   .g2-media{height:clamp(70px,14vh,130px)!important;aspect-ratio:auto!important;margin-bottom:4px!important;padding:2px!important}
   .g2-media img,.g2-media video{width:100%;height:100%;object-fit:contain;background:#fff}
+.g2-card.g2-tight .g2-media,.g2-card.g2-tight .g2-plan,.g2-card.g2-tight .g2-an,.g2-card.g2-tight .g2-cnt{display:none!important}.g2-card.g2-tight .g2-swap{padding:3px 9px!important;font-size:12px!important;margin-top:3px!important}.g2-card.g2-tight .g2-next{margin:5px 0 2px!important;font-size:12px!important}.g2-card.g2-tight .wk-note-btn{padding:5px 12px!important;font-size:11px!important;margin-top:4px!important}
   .g2-nomedia{font-size:11px;color:var(--faint)}
   .g2-code{font-family:var(--dsp);font-weight:800;font-size:12px;color:var(--accent)}
   .g2-name{font-family:var(--dsp);font-weight:700;font-size:13px;line-height:1.2;max-height:2.4em;overflow:hidden}
@@ -5017,7 +5018,16 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
   c.querySelectorAll("video").forEach(v=>{v.muted=true;v.addEventListener("canplay",()=>mediaSync());if(window.__io)window.__io.observe(v);});
   setTimeout(mediaSync,0);
   el("wkPrev").disabled=ui===0;el("wkNext").textContent=ui<U.length-1?"Следующее →":"Завершить ✓";
-  const on=c.querySelector(".g2-cell.on"),box=c.querySelector(".g2-sets");if(on&&box)box.scrollTo({top:Math.max(0,on.offsetTop-box.offsetTop-50),behavior:"smooth"});}
+  g2KeepOn(c);requestAnimationFrame(()=>g2KeepOn(c));setTimeout(()=>g2KeepOn(c),400);
+  c.querySelectorAll("video,img").forEach(m=>m.addEventListener(m.tagName==="VIDEO"?"loadedmetadata":"load",()=>g2KeepOn(c),{once:true}));
+  try{if(window.ResizeObserver){const bx=c.querySelector(".g2-sets");if(bx){let h=0;new ResizeObserver(()=>{const nh=Math.round(bx.getBoundingClientRect().height);if(nh!==h){h=nh;g2KeepOn(c);}}).observe(bx);}}}catch(e){}}
+/* текущий подход — целиком в видимой части таблицы, над ним по возможности прошлый */
+function g2KeepOn(c){try{if(!c||!c.isConnected)return;const on=c.querySelector(".g2-cell.on"),box=c.querySelector(".g2-sets");if(!on||!box)return;
+  const row=on.closest(".g2-row")||on;
+  /* маленький экран: таблице не хватает места — убираем картинки и второстепенные строки */
+  if(!c.classList.contains("g2-tight")&&box.getBoundingClientRect().height<row.getBoundingClientRect().height*1.6)c.classList.add("g2-tight");
+  const a=row.getBoundingClientRect(),bb=box.getBoundingClientRect(),room=bb.height-a.height;
+  const above=room>0?Math.min(room/2,a.height*0.7):0;box.scrollTop=Math.max(0,box.scrollTop+(a.top-bb.top)-above);}catch(e){}}
 function g2OpenMedia(key){const X=G2X[key];if(!X||!X.m)return;const v=el("pvideo");el("pname").textContent=X.n+(X.an?" ("+X.an+")":"");el("pcred").textContent="ID: edb-"+X.m+" · "+MEDIA_CREDIT;
   v.poster="media/"+X.m+".jpg";v.src="media/"+X.m+".mp4?v=2";el("player").hidden=false;mediaSync();try{v.currentTime=0;v.play().catch(()=>{});}catch(e){}}
 /* замена упражнения */
