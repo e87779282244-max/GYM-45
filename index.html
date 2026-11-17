@@ -602,15 +602,15 @@
   .seed{font-size:10px;color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
 
   /* ---- home / рабочий стол (по образцу) ---- */
-  #scr-home{background:var(--bg);padding-top:calc(8px + env(safe-area-inset-top,0px))}
+  #scr-home{background:var(--bg);padding-top:calc(16px + env(safe-area-inset-top,0px))}
   .home-top{display:flex;align-items:center;gap:12px;padding:4px 0 14px}
   .avatar{width:46px;height:46px;border-radius:50%;flex:none;background:var(--surface-2);
     border:2px solid var(--key-edge);display:grid;place-items:center;overflow:hidden}
   .avatar svg{width:30px;height:30px}
   .home-title{flex:1;text-align:center;min-width:0}
   .home-title b{font-family:var(--dsp);font-weight:800;font-size:22px;display:block;line-height:1.05}
-  .home-title span{font-family:var(--dsp);color:var(--gold-ink);font-size:11px;font-weight:700;
-    text-transform:uppercase;letter-spacing:.3em}
+  .home-title span{display:block;margin-top:3px;font-family:var(--dsp);color:var(--muted);font-size:12px;font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dash-panel{display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,var(--panel-top),var(--panel-bot));
     border:1px solid var(--panel-line);border-radius:18px;padding:14px;margin-bottom:14px;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(120,100,40,.12),0 6px 0 var(--key-edge),0 16px 26px rgba(80,70,30,.22)}
@@ -678,7 +678,9 @@
     color:var(--muted);box-shadow:0 3px 0 var(--key-edge)}
   .seg-b:active{transform:translateY(2px);box-shadow:0 1px 0 var(--key-edge)}
   .seg-b.on{background:linear-gradient(180deg,#eacf79,#d8b84f);color:#3a2f12;border-color:#b89a3e;box-shadow:0 3px 0 #a9893a}
-  .ready-note{color:var(--gold-ink);font-size:13px;font-weight:600;margin-top:12px}
+  .ready-note{color:var(--gold-ink);font-size:13px;font-weight:700;margin-top:12px}
+  :root:not([data-theme="dark"]) .ready-note{color:#5c4a14}
+  #readyState{display:none} /* выбранное состояние и так видно по кнопке */
   .au-plan{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .au-plan small{font-size:12.5px;font-weight:600;color:var(--gold-ink)}
   .day-ready{background:var(--card,#f6f1e4);border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px 12px;margin:0 0 10px;font-size:13px;font-weight:600;color:var(--gold-ink)}
@@ -708,7 +710,7 @@
   .nav-inner{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);
     padding:8px max(14px,env(safe-area-inset-left,0px)) 8px max(14px,env(safe-area-inset-right,0px))}
   .tab{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;
-    color:var(--faint);padding:6px 0;font-family:var(--dsp);font-weight:600;font-size:10px;
+    color:var(--muted);padding:6px 0;font-family:var(--dsp);font-weight:700;font-size:10px;
     text-transform:uppercase;letter-spacing:.02em}
   .tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;
     stroke-linecap:round;stroke-linejoin:round}
@@ -740,7 +742,7 @@
   .disc.disc-onb{border-left:4px solid var(--good)}
 
   .cal-days{display:flex;flex-wrap:wrap;gap:6px}.cal-days .seg-b{flex:1 0 12%;min-width:40px}
-  .td-cal{display:block;width:100%;margin-top:8px;padding:8px 0 0;border:none;border-top:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:14px;text-align:left}
+  .td-cal{display:block;width:100%;margin-top:8px;padding:8px 0 0;border:none;border-top:1px solid var(--line);background:none;color:var(--fg);opacity:.85;font:inherit;font-size:14px;font-weight:600;text-align:left}
   a.btn{display:flex;align-items:center;justify-content:center;text-decoration:none}a.btn.is-off{opacity:.45}
   .pl-line{display:block;width:100%;margin-top:10px;text-align:left;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);background:var(--surface-2);color:var(--fg);font:inherit;font-size:14px}
   .pl-line b{font-variant-numeric:tabular-nums}.pl-set{float:right;color:var(--muted)}
@@ -7013,12 +7015,13 @@ function mpList(){const out=[];
 function mpFinish(k){const it=mpList().find(x=>x.k===k);if(!it)return;it.fin();toast("«"+it.t+"» завершена досрочно — итог в «Прогрессе»");renderDashActive();if(typeof renderPar==="function")renderPar();}
 /* главный: блок «Активные программы» */
 function renderDashActive(){const c=el("dashActive");if(!c)return;const L=mpList();
-  if(!L.length){c.hidden=true;return;}
+  /* одна программа — её уже показывает карточка «Сегодня». «Завершить» на главной нет: только внутри экрана программы, с подтверждением */
+  if(L.length<2){c.hidden=true;return;}
   c.hidden=false;const today=localDate();
-  c.innerHTML=`<div class="mp-h"><b>Активные программы</b><span class="num">${L.length}</span></div>`+L.map((x,i)=>`<div class="mp-row" data-i="${i}"><button type="button" class="mp-open"><b></b><small></small><i>${x.next?(x.next<=today?"Сегодня по плану":"Следующая: "+mpDD(x.next)):""}</i></button><button type="button" class="mp-end" data-i="${i}">Завершить</button></div>`).join("")+
+  c.innerHTML=`<div class="mp-h"><b>Активные программы</b><span class="num">${L.length}</span></div>`+L.map((x,i)=>`<div class="mp-row" data-i="${i}"><button type="button" class="mp-open"><b></b><small></small><i>${x.next?(x.next<=today?"Сегодня по плану":"Следующая: "+mpDD(x.next)):""}</i></button></div>`).join("")+
     (L.length>3?`<p class="mp-warn">Больше трёх программ одновременно — следи за восстановлением: тяжёлые дни разных программ не ставь подряд.</p>`:`<p class="mp-note">Программы идут параллельно: например, GVT в зале, а в дни отдыха — кроссфит или стрит-воркаут дома.</p>`);
   c.querySelectorAll(".mp-row").forEach(r=>{const x=L[+r.dataset.i];r.querySelector("b").textContent=x.t;r.querySelector("small").textContent=x.s;r.querySelector(".mp-open").onclick=()=>x.open();});
-  c.querySelectorAll(".mp-end").forEach(b=>b.onclick=()=>{const x=L[+b.dataset.i];if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();b.textContent="Точно?";b.classList.add("arm");toast("Нажми ещё раз — «"+x.t+"» завершится, итог сохранится в «Прогрессе»");setTimeout(()=>{if(b.isConnected){b.textContent="Завершить";b.classList.remove("arm");}},4200);return;}mpFinish(x.k);});}
+}
 /* ===================== ГЛАВНАЯ «СЕГОДНЯ» =====================
    Сверху — одна карточка: что делать сегодня. Тренировка по плану → «Начать» сразу открывает
    обзор дня этой тренировки (без пути через разделы). Нет тренировки → «Сегодня отдых» и ближайшая.
@@ -7049,13 +7052,16 @@ function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),
   let html=`<div class="td-h"><b>Сегодня</b><span>${dd(t)}</span></div>`;
   if(!L.length){html+=`<p class="td-rest">Нет активной программы. Выбери программу — приложение поведёт по тренировкам: что делать, когда и с каким весом.</p><button class="btn" type="button" id="tdPick">Выбрать программу</button>`;}
   else{const S=L.map((x,i)=>({x,i,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),due=S.filter(o=>o.n<=t),first=due[0];
+    let shown=first;
     if(first){const x=first.x;html+=`<div class="td-main"><small>Тренировка по плану</small><b></b><span></span></div><button class="btn" type="button" id="tdGo">Начать ›</button>`;}
-    else{const nx=S.find(o=>o.n!=="9999");html+=`<p class="td-rest">Сегодня отдых.${nx?" Следующая — "+dd(nx.n)+": "+nx.x.t+".":""}</p>`;}
-    S.filter(o=>!first||o!==first).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
+    else{const nx=S.find(o=>o.n!=="9999");shown=nx;html+=`<p class="td-rest">Сегодня отдых.${nx?" Следующая — "+dd(nx.n)+": "+nx.x.t+".":""}</p>`;}
+    S.filter(o=>o!==shown).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
   const pl=weekPlan(),dn=weekDone();
   let food="";try{const m=anFoodDays()[t]||{kcal:0,p:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&(tg.kcal||tg.target);food="Еда: "+ntF(m.kcal)+(kt?" из "+ntF(kt):"")+" ккал · белок "+ntF(m.p)+(tg&&tg.p?" / "+ntF(tg.p):"")+" г";}catch(e){}
   html+=`<div class="td-stats"><button type="button" id="tdWeek">Неделя: ${dn}${pl?" из "+pl:""} ${plural(pl||dn,"тренировка","тренировки","тренировок")} ›</button>${food?`<button type="button" id="tdFood">${food} ›</button>`:""}</div>`;
   c.innerHTML=html;
+  /* «Готовность к тренировке» — только в день тренировки по плану */
+  try{const rb=document.querySelector("#scr-home .ready");if(rb)rb.style.display=(L.length&&L.some(x=>x.next&&x.next<=t))?"":"none";}catch(e){}
   if(el("tdPick"))el("tdPick").onclick=()=>show("programs");
   if(el("tdWeek"))el("tdWeek").onclick=()=>show("progress");if(el("tdFood"))el("tdFood").onclick=()=>{try{el("homeFoodGo")?el("homeFoodGo").click():document.querySelector('#scr-home [data-go="nutrition"]').click();}catch(e){}};
   if(el("tdGo")){const S=L.map((x,i)=>({x,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),x=(S.find(o=>o.n<=t)||S[0]).x;

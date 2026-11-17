@@ -18,6 +18,7 @@ async def m():
     # активируем Y3T
     await pg.evaluate("const v=auSt();v.act={y3t:{start:localDate(),base:0}};auSave(v);show('programs');show('home')");await pg.wait_for_timeout(100)
     ok('по плану сегодня: Y3T, следующая тренировка названа',await pg.evaluate("el('dashToday').textContent.includes('Тренировка по плану')&&el('dashToday').querySelector('.td-main b').textContent.includes('Пульс на взлёт')&&el('dashToday').querySelector('.td-main span').textContent.length>3"))
+    ok('день тренировки: блок «Готовность» виден',await pg.evaluate("getComputedStyle(document.querySelector('#scr-home .ready')).display!=='none'"))
     ok('неделя: 0 из 5 по плану',await pg.evaluate("el('dashToday').textContent.includes('Неделя: 0 из 5')"),await pg.evaluate("el('dashToday').querySelector('.td-stats').textContent"))
     if SHOT:await pg.screenshot(path=SHOT+'/home-today.png',full_page=True)
     await pg.evaluate("el('tdGo').click()");await pg.wait_for_timeout(150)
@@ -26,6 +27,11 @@ async def m():
     await pg.evaluate("current.sets.forEach(se=>se.forEach(s=>{s.done=true;if(!s.w)s.w=50;}));finishWorkout()");await pg.wait_for_timeout(150)
     await pg.evaluate("show('home')");await pg.wait_for_timeout(100)
     ok('после тренировки: «Сегодня отдых», следующая завтра, неделя 1 из 5',await pg.evaluate("el('dashToday').textContent.includes('Сегодня отдых')&&el('dashToday').textContent.includes('Неделя: 1 из 5')"),await pg.evaluate("el('dashToday').textContent"))
+    ok('день отдыха: блок «Готовность» скрыт',await pg.evaluate("getComputedStyle(document.querySelector('#scr-home .ready')).display==='none'"))
+    ok('отдых, одна программа: строка с ней не повторяется, «Активные программы» скрыты',await pg.evaluate("el('dashToday').querySelectorAll('.td-row').length===0&&el('dashActive').hidden"),await pg.evaluate("el('dashToday').querySelectorAll('.td-row').length"))
+    await pg.evaluate("const v=auSt();v.act.y3t2=v.act.y3t;auSave(v);")
+    ok('две программы: блок виден, кнопок «Завершить» на главной нет',await pg.evaluate("!el('dashActive').hidden||mpList().length<2")and await pg.evaluate("!document.querySelector('#scr-home .mp-end')"))
+    await pg.evaluate("const v=auSt();delete v.act.y3t2;auSave(v);show('programs');show('home')")
     # питание за день
     await pg.evaluate("localStorage.setItem(FOODK,JSON.stringify([{id:1,date:localDate(),name:'x',kcal:1450,p:90,f:40,c:150}]));show('programs');show('home')");await pg.wait_for_timeout(100)
     ok('питание за день на главной',await pg.evaluate("el('dashFoodT').textContent.includes('1')&&el('dashFoodT').textContent.includes('белок 90')&&el('dashToday').textContent.includes('белок 90')"),await pg.evaluate("el('dashFoodT').textContent"))
