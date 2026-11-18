@@ -347,6 +347,8 @@
   .an-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
   .an-row:first-of-type{border-top:none}.an-row span{display:flex;flex-direction:column;min-width:0}.an-row small{color:var(--muted);font-size:12px}.an-row small i{font-style:normal;color:var(--accent-ink);font-weight:700}
   .an-row>b{flex:none;white-space:nowrap}
+  .an-tot{border-top:2px solid var(--line)}
+  .an-tot>span{flex:1;min-width:0}.an-tot b.num,.an-gv b.num{text-align:right}.an-tot .an-d,.an-gv .an-d{display:block;text-align:right;white-space:nowrap}
   .an-keyr{width:100%;background:none;border:none;border-top:1px solid var(--line);font:inherit;color:var(--fg);text-align:left;cursor:pointer}
   .an-keyr:first-of-type{border-top:none}.an-keyr>b{display:flex;flex-direction:column;align-items:flex-end;font-family:var(--dsp);font-size:16px}.an-keyr>b small{font-size:11.5px}
   .an-spark{color:var(--accent);flex:none;margin-left:auto}
@@ -2089,7 +2091,7 @@
       <p class="an-tl">Тренировки и тоннаж — 7 дней против предыдущих 7 · план — с понедельника</p>
       <div class="tiles">
         <div class="tile"><div class="v num" id="tWeek">0</div><div class="l">тренировок</div><div class="tile-d" id="tWeekD"></div></div>
-        <div class="tile"><div class="v num" id="tVol">0</div><div class="l">тонн</div><div class="tile-d" id="tVolD"></div></div>
+        <div class="tile"><div class="v num" id="tVol">0</div><div class="l">объём работы, т</div><div class="tile-d" id="tVolD"></div></div>
         <div class="tile"><div class="v num" id="tStreak">0</div><div class="l" id="tStreakL">по плану недели</div><div class="tile-d" id="tStreakD"></div></div>
       </div>
       <div id="anKey"></div>
@@ -8188,7 +8190,7 @@ function anSecOfRec(x){if(x.sec)return x.sec;if(x.cross)return "cross";if(x.sw)r
   if(/^День \d|стрит/i.test(n))return "street";
   return "other";}
 /* ---- данные о подходах при завершении тренировки ---- */
-function anSetOut(x){const o={r:x.r,w:x.w,done:x.done};if(x.rir!=null&&x.rir!=="")o.rir=String(x.rir);if(x.at)o.at=x.at;return o;}
+function anSetOut(x){const o={r:x.r,w:x.w,done:x.done};const pp=parseInt(x.pr);if(pp>0)o.p=pp;if(x.rir!=null&&x.rir!=="")o.rir=String(x.rir);if(x.at)o.at=x.at;return o;}
 function anApplyRir(log,prog){try{prog.ex.forEach((e,i)=>{const v=current.rirEx&&current.rirEx[i];if(v==null||v==="")return;const a=log[e[0]];if(!a)return;
   const last=[...a].reverse().find(s=>s.done);if(last&&last.rir==null)last.rir=String(v);});}catch(e){}}
 function anTs(v){if(!v)return 0;const t=typeof v==="number"?v:new Date(v).getTime();return isFinite(t)?t:0;}
@@ -8810,13 +8812,16 @@ function anExData(R){const E={};R.forEach(r=>{const lg=r.raw.log;if(!lg||Array.i
   Object.entries(lg).forEach(([n,a])=>{if(!Array.isArray(a))return;const d=a.filter(s=>s&&s.done&&s.r>0);if(!d.length)return;
     const e1=Math.max(0,...d.filter(s=>!vr||s.r<=3).map(s=>(+s.w||0)>0?(s.r<=1?+s.w:+s.w*(1+Math.min(s.r,12)/30)):0)),mw=Math.max(...d.map(s=>+s.w||0)),vol=d.reduce((t,s)=>t+(+s.w||0)*s.r,0),reps=d.reduce((t,s)=>t+s.r,0),mr=Math.max(...d.map(s=>s.r));
     const rr=d.map(s=>anRir(s.rir)).filter(v=>v!=null);
-    (E[n]=E[n]||[]).push({date:r.date,sets:d,e1rm:e1,maxw:mw,vol,reps,maxr:mr,rir:rr.length?rr[rr.length-1]:null});});});return E;}
+    /* GVT: сколько повторов из запланированных (10×10 = 100) сделано с рабочим весом */
+    let gv=null;if(vr){const all=a.filter(s=>s&&!s.warm),ws=all.filter(s=>(+s.w||0)>0);if(ws.length>=5){const pm=Math.max(...ws.map(s=>+s.r||0));
+      const w=Math.max(...ws.map(s=>+s.w||0)),plan=ws.reduce((t,s)=>t+(+s.p||pm||0),0),done=ws.filter(s=>s.done).reduce((t,s)=>t+(+s.r||0),0);if(plan>0)gv={w,done:Math.min(done,plan),plan};}}
+    (E[n]=E[n]||[]).push({date:r.date,sets:d,e1rm:e1,maxw:mw,vol,reps,maxr:mr,rir:rr.length?rr[rr.length-1]:null,gv});});});return E;}
 const AN_EXM={e1rm:["1ПМ расчёт",v=>ntF(v,1)+" кг"],maxw:["Макс. вес",v=>ntF(v,1)+" кг"],vol:["Объём",v=>anFmtT(v)],maxr:["Макс. повторы",v=>ntF(v)],reps:["Всего повторов",v=>ntF(v)]};
 function anEx(R){const box=el("anEx"),E=anExData(R),names=Object.keys(E).sort((a,b)=>{const la=E[a][E[a].length-1].date,lb=E[b][E[b].length-1].date;return lb.localeCompare(la)||E[b].length-E[a].length;});
   if(!names.length){box.innerHTML=`<div class="card"><h3>Упражнения</h3><p class="nt-sub">Заверши хотя бы одну силовую тренировку — здесь появятся рабочие веса, расчётный 1ПМ и динамика по каждому упражнению.</p></div>`;return;}
   if(!E[AN_UI.ex])AN_UI.ex=names[0];const S=E[AN_UI.ex],bw=S.every(s=>s.maxw===0);
   const mets=bw?["maxr","reps"]:["e1rm","maxw","vol","reps"];if(!mets.includes(AN_UI.exm))AN_UI.exm=mets[0];let M=AN_EXM[AN_UI.exm];
-  let k=AN_UI.exm,C=k==="e1rm"?S.filter(s=>s.e1rm>0):S,volNote="";
+  const S0=S;let k=AN_UI.exm,C=k==="e1rm"?S.filter(s=>s.e1rm>0):S,volNote="";
   if(k==="e1rm"&&C.length<S.length)volNote=C.length?`<p class="an-tip">Тренировки GVT в расчётный 1ПМ не входят: там вес ≈60 % от максимума и подходы не в отказ — формула покажет «падение», которого нет. Их нагрузку смотри во вкладках «Макс. вес» и «Объём».</p>`:`<p class="an-tip">Пока только тренировки GVT — по ним расчётный 1ПМ не считается (вес ≈60 % от максимума, подходы не в отказ). Ниже — максимальный рабочий вес.</p>`;
   if(!C.length){k="maxw";C=S;M=AN_EXM[k];}
   const best=Math.max(...C.map(s=>s[k])),last=C[C.length-1],d28=new Date();d28.setDate(d28.getDate()-28);const base=C.find(s=>s.date>=localDate(d28))||C[0];
@@ -8829,10 +8834,17 @@ function anEx(R){const box=el("anEx"),E=anExData(R),names=Object.keys(E).sort((a
    <div id="anExChart"></div>
    <div class="an-kpi"><div><b class="num">${M[1](best)}</b><span>лучший</span></div><div><b class="num">${M[1](last[k])}</b><span>последний</span></div><div><b class="num">${anDelta(anPct(last[k],base[k]),false)||"—"}</b><span>за 4 недели</span></div></div>
    ${volNote}${rirNote}<p class="an-tip">${k==="e1rm"?"Расчётный 1ПМ (формула Эпли: вес × (1 + повторы / 30)) позволяет сравнивать разные схемы: 100×5 и 90×8 — на одной шкале. Растёт 1ПМ — растёт сила.":k==="vol"?"Объём упражнения = вес × повторы во всех рабочих подходах.":"Для упражнений с собственным весом прогресс — это больше повторов при той же технике."}</p></div>
-   <div class="card"><h3>Последние подходы</h3>${S.slice(-5).reverse().map(s=>`<div class="an-row"><span><b>${fmtDate(s.date)}</b><small>${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r+(x.rir!=null&&x.rir!==""?` <i>запас ${x.rir}</i>`:"")).join(", ")}</small></span><b class="num">${bw?s.reps+" повт.":s.e1rm>0?ntF(s.e1rm,1)+" кг":"GVT · "+ntF(s.maxw,1)+" кг"}</b></div>`).join("")}</div>`;
+   ${anGvCard(S0)}<div class="card"><h3>Последние подходы</h3>${S.slice(-5).reverse().map(s=>`<div class="an-row"><span><b>${fmtDate(s.date)}</b><small>${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r+(x.rir!=null&&x.rir!==""?` <i>запас ${x.rir}</i>`:"")).join(", ")}</small></span><b class="num">${bw?s.reps+" повт.":s.e1rm>0?ntF(s.e1rm,1)+" кг":"GVT · "+ntF(s.maxw,1)+" кг"}</b></div>`).join("")}</div>`;
   const sel=el("anExSel");sel.value=AN_UI.ex;sel.onchange=()=>{AN_UI.ex=sel.value;anUISave();anEx(R);};
   ntChips("anExM",AN_UI.exm,v=>{AN_UI.exm=v;anUISave();anEx(R);});
   anLine(el("anExChart"),pts,M[1],i=>{const s=C.slice(-16)[i];return `<b>${fmtDate(s.date)}</b>: ${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r).join(", ")} · ${M[0].toLowerCase()} ${M[1](s[k])}${pts[i].pr?" · 🏆 рекорд":""}`;});}
+/* GVT: прогресс = повторы из плана с тем же весом; 100/100 → вес растёт, счёт заново */
+function anGvCard(S){const G=S.filter(s=>s.gv);if(!G.length)return "";
+  const rows=G.slice(-6).map((s,i,A)=>{const g=s.gv,pv=i?A[i-1].gv:null;let d="";
+    if(pv&&Math.abs(pv.w-g.w)<0.01){const x=g.done-pv.done;d=x>0?`<small class="an-d up">+${x} повт. с ${ntF(g.w,1)} кг</small>`:x<0?`<small class="an-d dn">${x} повт.</small>`:`<small class="an-d">как прошлый раз</small>`;}
+    else if(pv&&g.w>pv.w)d=`<small class="an-d up">вес +${ntF(g.w-pv.w,1)} кг</small>`;
+    return {s,h:`<div class="an-row"><span><b>${fmtDate(s.date)}</b><small>${ntF(g.w,1)} кг${g.done>=g.plan?" · план выполнен ✓":""}</small></span><b class="num">${g.done}/${g.plan}${d}</b></div>`};});
+  return `<div class="card an-gv"><h3>GVT · повторы из плана</h3><p class="nt-sub">Прогресс в GVT — сделать все повторы с тем же весом. ${G[G.length-1].gv.plan}/${G[G.length-1].gv.plan} → вес растёт, счёт идёт заново.</p>${rows.reverse().map(x=>x.h).join("")}</div>`;}
 /* ---- вкладка «Тело» ---- */
 /* обхваты: третий элемент — парная мышца (левая — старый ключ, правая — ключ+R; старые записи читаются как левая) */
 const AN_BM=[["neck","Шея"],["shoul","Плечи"],["chest","Грудь"],["waist","Талия"],["arm","Бицепс",1],["fore","Предплечье",1],["hips","Бедро",1],["calf","Голень",1]];
@@ -8954,14 +8966,19 @@ function anKeyLifts(R){const E=anExData(R),d56=new Date();d56.setDate(d56.getDat
   AN_KEY.forEach(([t,names])=>{const S=[].concat(...names.map(n=>(E[n]||[]).map(x=>Object.assign({n:n},x)))).filter(x=>x.e1rm>0).sort((a,b)=>a.date.localeCompare(b.date));if(!S.length)return;
     const recent=S.filter(x=>x.date>=s28),cur=Math.max(...(recent.length?recent:S.slice(-1)).map(x=>x.e1rm)),old=S.filter(x=>x.date<=s56),base=old.length?Math.max(...old.map(x=>x.e1rm)):S[0].e1rm;
     const best=S.reduce((b,x)=>x.e1rm>b.e1rm?x:b,S[0]),last=S[S.length-1];
-    out.push({t:t,n:last.n,cur:cur,delta:cur-base,since:old.length?"за 8 нед.":"с начала",best:best.e1rm,bestDate:best.date,cnt:S.length,pts:S.slice(-12).map(x=>x.e1rm)});});
+    const fact=Math.max(0,...S.map(x=>Math.max(0,...x.sets.filter(q=>+q.r===1).map(q=>+q.w||0))));
+    out.push({t:t,n:last.n,cur:cur,delta:cur-base,since:old.length?"за 8 нед.":"с начала",best:best.e1rm,bestDate:best.date,cnt:S.length,pts:S.slice(-12).map(x=>x.e1rm),fact});});
   return out;}
+/* сумма троеборья: складываем лучшие результаты за разные дни — это «сумма личных рекордов», не соревновательная */
+function anPlTotal(L){const P=["Присед","Жим лёжа","Становая"].map(t=>L.find(x=>x.t===t));if(P.some(x=>!x))return null;
+  const best=P.reduce((t,x)=>t+x.best,0),cur=P.reduce((t,x)=>t+x.cur,0),delta=P.reduce((t,x)=>t+x.delta,0),base=cur-delta,fact=P.every(x=>x.fact>0)?P.reduce((t,x)=>t+x.fact,0):0;
+  return {best,cur,delta,pct:base>0?delta/base*100:0,fact,since:P.every(x=>x.since==="за 8 нед.")?"за 8 нед.":"с начала"};}
 function anSpark(v){if(v.length<2)return "";const W=64,H=20,mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1;
   return `<svg class="an-spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${v.map((y,i)=>(i/(v.length-1)*(W-2)+1).toFixed(1)+","+(H-1-(y-mn)/r*(H-2)).toFixed(1)).join(" ")}"/></svg>`;}
 function anKey(R){const box=el("anKey");if(!box)return;const L=anKeyLifts(R);
   if(!L.length){box.innerHTML=`<div class="card an-key"><div class="an-h"><h3>Главные движения</h3></div><p class="nt-sub">После первой тренировки с приседом, жимом, становой или подтягиваниями с весом здесь будет расчётный 1ПМ и его рост.</p></div>`;return;}
   box.innerHTML=`<div class="card an-key"><div class="an-h"><h3>Главные движения</h3><span class="nt-sub">расчётный 1ПМ · нажми — динамика</span></div>`+
-    L.map((x,i)=>`<button type="button" class="an-row an-keyr" data-i="${i}"><span><b>${x.t}</b><small>рекорд ${ntF(x.best,1)} кг · ${fmtDate(x.bestDate)}</small></span>${anSpark(x.pts)}<b class="num">${ntF(x.cur,1)} кг<small class="an-d ${x.delta>0.05?"up":x.delta<-0.05?"dn":""}">${x.delta>0.05?"+":""}${Math.abs(x.delta)<0.05?"±0":ntF(x.delta,1)} кг ${x.since}</small></b></button>`).join("")+`</div>`;
+        L.map((x,i)=>`<button type="button" class="an-row an-keyr" data-i="${i}"><span><b>${x.t}</b><small>рекорд ${ntF(x.best,1)} кг · ${fmtDate(x.bestDate)}</small></span>${anSpark(x.pts)}<b class="num">${ntF(x.cur,1)} кг<small class="an-d ${x.delta>0.05?"up":x.delta<-0.05?"dn":""}">${x.delta>0.05?"+":""}${Math.abs(x.delta)<0.05?"±0":ntF(x.delta,1)} кг ${x.since}</small></b></button>`).join("")+(()=>{const T=anPlTotal(L);return T?`<div class="an-row an-tot"><span><b>Сумма личных рекордов</b><small>присед + жим + становая${T.fact?" · факт по одиночным "+ntF(T.fact,1)+" кг":""}</small></span><b class="num">${ntF(T.cur,1)} кг<small class="an-d ${T.delta>0.05?"up":T.delta<-0.05?"dn":""}">${T.delta>0.05?"+":""}${Math.abs(T.delta)<0.05?"±0":ntF(T.delta,1)} кг${Math.abs(T.delta)>=0.05?" ("+(T.pct>0?"+":"")+ntF(T.pct,1)+" %)":""} ${T.since}</small></b></div>`:"";})()+`</div>`;
   box.querySelectorAll(".an-keyr").forEach(b=>b.onclick=()=>{const x=L[+b.dataset.i];AN_UI.tab="ex";AN_UI.trainSub="ex";AN_UI.ex=x.n;AN_UI.exm="e1rm";anUISave();anRender();
     try{el("anEx").scrollIntoView({behavior:"smooth",block:"start"});}catch(e){}});}
 function anRender(){const R=anRecs();

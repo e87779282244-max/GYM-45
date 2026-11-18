@@ -44,6 +44,22 @@ async def m():
     ok('«Макс. вес» по-прежнему видит тренировку GVT',(await pg.evaluate("el('anEx').innerText")).count('62,5')>=1)
     await pg.evaluate("""(()=>{const g=[];for(let i=0;i<10;i++)g.push({w:62.5,r:10,done:true});localStorage.setItem(KEY,JSON.stringify([{date:localDate(),name:'GVT · Этап I',vol:1,log:{'Приседания со штангой':g}}]));AN_UI.exm='e1rm';show('home');show('progress');AN_UI.tab='ex';anRender();})()""");await pg.wait_for_timeout(150)
     ok('только GVT: вместо 1ПМ — макс. вес с пояснением, без ошибок',await pg.evaluate("el('anEx').innerText.includes('Пока только тренировки GVT')"))
+    # сумма личных рекордов троеборья
+    await pg.evaluate("""(()=>{const d=n=>{const x=new Date();x.setDate(x.getDate()-n);return localDate(x);};
+      localStorage.setItem(KEY,JSON.stringify([{date:d(70),name:'a',vol:1,log:{'Приседания со штангой':[{w:150,r:1,done:true}],'Жим лёжа':[{w:100,r:1,done:true}],'Становая тяга':[{w:180,r:1,done:true}]}},
+       {date:d(5),name:'b',vol:1,log:{'Приседания со штангой':[{w:155,r:1,done:true}],'Жим лёжа':[{w:105,r:1,done:true}],'Становая тяга':[{w:190,r:1,done:true}]}}]));AN_UI.tab='load';show('home');show('progress');})()""");await pg.wait_for_timeout(150)
+    t=await pg.evaluate("el('anKey').innerText")
+    ok('сумма личных рекордов 450 кг, +20 кг (+4,7 %), факт по одиночным',all(x in t for x in ['Сумма личных рекордов','450 кг','+20 кг (+4,7 %)','факт по одиночным 450 кг']),t[-200:])
+    # GVT: повторы из 100
+    await pg.evaluate("""(()=>{const d=n=>{const x=new Date();x.setDate(x.getDate()-n);return localDate(x);};
+      const g=(w,a)=>a.map(r=>({w:w,r:r,p:10,done:true}));
+      localStorage.setItem(KEY,JSON.stringify([{date:d(10),name:'German Volume Training',fam:'g2',vol:1,log:{'Приседания со штангой':g(60,[10,10,10,10,10,9,8,7,6,6])}},
+       {date:d(6),name:'German Volume Training',fam:'g2',vol:1,log:{'Приседания со штангой':g(60,[10,10,10,10,10,10,10,9,8,7])}},
+       {date:d(2),name:'German Volume Training',fam:'g2',vol:1,log:{'Приседания со штангой':g(62.5,[10,10,10,10,10,10,10,10,10,9])}}]));
+      show('home');show('progress');AN_UI.tab='ex';AN_UI.trainSub='ex';AN_UI.ex='Приседания со штангой';anRender();})()""");await pg.wait_for_timeout(150)
+    t=await pg.evaluate("el('anEx').innerText")
+    ok('GVT: 86/100 → 94/100 (+8 повт. с 60 кг) → 99/100 (вес +2,5 кг)',all(x in t for x in ['GVT · повторы из плана','86/100','94/100','+8 повт. с 60 кг','99/100','вес +2,5 кг']),t[:600])
+    ok('плитка: «объём работы, т»',await pg.evaluate("document.querySelector('#tVol').parentElement.textContent.includes('объём работы, т')"))
     ok('без ошибок JS',not errs,errs[:3])
     await b.close()
 asyncio.run(m());srv.shutdown();print(f'{sum(R)}/{len(R)}');sys.exit(0 if all(R) else 1)
