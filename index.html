@@ -1290,7 +1290,7 @@
   <section class="screen" id="scr-street" hidden>
     <div class="cross-head">
       <button class="icon-btn back-btn cross-back" title="Назад">←</button>
-      <img class="cross-logo" src="media/streetlogo.png?v=1" alt="Streetlifting" width="827" height="656">
+      <img class="cross-logo" src="media/streetlogo.webp?v=1" loading="lazy" decoding="async" alt="Streetlifting" width="827" height="656">
       <h1 class="cross-h1">Программы</h1>
     </div>
     <p class="street-note">Подтягивания и брусья с отягощением. Выбери программу, затем день тренировки.</p>
@@ -1342,7 +1342,7 @@
   <section class="screen" id="scr-body" hidden>
     <div class="cross-head">
       <button class="icon-btn back-btn cross-back" title="Назад">←</button>
-      <img class="cross-logo" src="media/bodylogo2.png?v=1" alt="Bodybuilding" width="1274" height="767">
+      <img class="cross-logo" src="media/bodylogo2.webp?v=1" loading="lazy" decoding="async" alt="Bodybuilding" width="1274" height="767">
       <h1 class="cross-h1">5 программ</h1>
     </div>
     <p class="street-note">Пять проверенных схем — от новичка до сплита на 5 дней. Выбери программу, затем день тренировки. Веса и повторы можно менять под себя.</p>
@@ -1363,7 +1363,7 @@
   <section class="screen" id="scr-pwr" hidden>
     <div class="cross-head">
       <button class="icon-btn back-btn cross-back" title="Назад">←</button>
-      <img class="cross-logo" src="media/powerlogo.png?v=1" alt="Powerlifting" width="1149" height="679">
+      <img class="cross-logo" src="media/powerlogo.webp?v=1" loading="lazy" decoding="async" alt="Powerlifting" width="1149" height="679">
       <h1 class="cross-h1">Программы</h1>
     </div>
     <p class="street-note">Силовые программы. Выбери программу, затем этап и день тренировки.</p>
@@ -1392,7 +1392,7 @@
       <p class="eyebrow">Бодибилдинг</p>
       <button class="icon-btn back-btn" title="Назад">←</button>
       <h1>German Volume Training</h1>
-      <img class="gvt-logo" src="media/gvtlogo.png?v=1" alt="GVT" width="480" height="387">
+      <img class="gvt-logo" src="media/gvtlogo.webp?v=1" loading="lazy" decoding="async" alt="GVT" width="480" height="387">
     </div>
     <div class="stack">
       <details class="card gvt-about">
@@ -1646,7 +1646,7 @@
   <section class="screen" id="scr-cross" hidden>
     <div class="cross-head">
       <button class="icon-btn back-btn cross-back" title="Назад">←</button>
-      <img class="cross-logo" src="media/crossfit4.png?v=1" alt="CrossFit" width="706" height="670">
+      <img class="cross-logo" src="media/crossfit4.webp?v=1" loading="lazy" decoding="async" alt="CrossFit" width="706" height="670">
       <h1 class="cross-h1">Бенчмарки и свои тренировки</h1>
     </div>
     <p class="street-note">Выбери свой уровень — откроются подходящие комплексы. В каждом: версии Rx / Опытный / Новичок, веса для мужчин и женщин, таймер и журнал результатов с личным рекордом. Или составь свою тренировку по шаблону «3 через 1».</p>
@@ -1792,7 +1792,7 @@
   <section class="screen" id="scr-sw" hidden>
     <div class="cross-head">
       <button class="icon-btn back-btn cross-back" title="Назад">←</button>
-      <img class="cross-logo" src="media/swlogo.png?v=1" alt="Street Workout" width="1187" height="661">
+      <img class="cross-logo" src="media/swlogo.webp?v=1" loading="lazy" decoding="async" alt="Street Workout" width="1187" height="661">
       <h1 class="cross-h1">Круговые комплексы</h1>
     </div>
     <p class="street-note">Турник, брусья и собственный вес: программы от первых подтягиваний до сложных связок и отдельные комплексы. Проходи упражнения круга подряд и нажимай «+1» после каждого круга: секундомер считает общее время и время каждого круга.</p>
@@ -8090,7 +8090,7 @@ el("ntCalc").addEventListener("click",()=>setTimeout(()=>{if(!el("ntErr").textCo
 pfAvatar();
 /* версия внутри Claude: предупреждение, что данные отдельно от приложения с иконки «Домой» */
 /* основная версия — на GitHub (своё облако Firebase, ярлык с логотипом). Версия в Claude — запасная. */
-{const inC=!!(window.claude&&claude.use),K=inC?"gym45_cnote_v3":"gym45_gnote_v1";try{if(!inC&&typeof fbMode==="function"&&fbMode())throw 0;if(!localStorage.getItem(K)){const n=document.createElement("div");n.className="c-note";
+{const inC=!!(window.claude&&claude.use),K=inC?"gym45_cnote_v3":"gym45_gnote_v1";try{if(!inC)throw 0;if(!localStorage.getItem(K)){const n=document.createElement("div");n.className="c-note";
   n.innerHTML=inC?'<b>Основная версия Gym 45 — на GitHub:</b> <a href="https://e87779282244-max.github.io/GYM-45/" target="_blank" rel="noopener">e87779282244-max.github.io/GYM-45</a> (ярлык с логотипом). Тренируйся там — эта копия не основная. Перенести записи отсюда: здесь «Прогресс → Сохранить копию в файл», там «Восстановить из файла» → «Объединить».<button type="button">Понятно</button>'
    :'<b>Основная версия Gym 45 теперь внутри Claude</b> — там данные сохраняются в облако. Эта копия больше не основная: новые тренировки сюда не заноси. Чтобы перенести записи: «Прогресс → Сохранить копию в файл», затем в версии Claude «Восстановить из файла».<button type="button">Понятно</button>';
   n.querySelector("button").onclick=()=>{try{localStorage.setItem(K,"1");}catch(e){}n.remove();};
