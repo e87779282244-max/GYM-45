@@ -371,6 +371,10 @@
   .rir-row small{font-weight:500}.rir-row div{display:flex;gap:4px}
   .rir-row button{min-width:38px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font:inherit;font-weight:700;color:var(--fg)}
   .rir-row button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .wst-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted);font-weight:600}
+  .wst-row span{display:flex;flex-direction:column}.wst-row small{font-weight:500}
+  .wst-row select{height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-weight:700;padding:0 8px}
+  .an-asym{color:var(--accent-ink);font-weight:700}
   /* вода */
   .wt-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
   .wt-top h3{margin:0}
@@ -2707,7 +2711,7 @@ function lastResult(name){
   const all=safe.get();
   for(let i=all.length-1;i>=0;i--){const h=all[i];if(prSkipRec(h))continue; // GVT и лёгкая неделя — не образец для обычных программ
     if(h.log&&h.log[name]){const done=h.log[name].filter(s=>s.done&&s.r>0);
-      if(done.length)return {date:h.date,au:h.au&&h.au.id,sets:done.map(s=>({r:s.r,w:s.w})),skip:!!(h.skipEx&&h.skipEx[name]),unk:!!(h.unk&&h.unk.includes(name))};}}
+      if(done.length)return {date:h.date,au:h.au&&h.au.id,sets:done.map(s=>({r:s.r,w:s.w})),rir:(done[done.length-1].rir!=null&&done[done.length-1].rir!=="")?String(done[done.length-1].rir):null,skip:!!(h.skipEx&&h.skipEx[name]),unk:!!(h.unk&&h.unk.includes(name))};}}
   return null;
 }
 /* ---------- обзор дня ---------- */
@@ -2723,10 +2727,16 @@ function plural(n,a,b,c){const m=n%10,h=n%100;return (m===1&&h!==11)?a:(m>=2&&m<
 function prRange(e){const t=String(e[5]||""),m=t.match(/(\d+)\s*[–-]\s*(\d+)\s*повт/);let lo,hi;
   if(m){lo=+m[1];hi=+m[2];}else{const m2=String(e[2]).match(/(\d+)\s*[–-]\s*(\d+)/);if(m2){lo=+m2[1];hi=+m2[2];}else lo=hi=parseInt(e[2],10)||0;}
   return hi>0&&hi<=40&&lo<=hi?{lo:lo,hi:hi}:null;}
-function prInc(w,n){const k=wKind(n);if(k==="bar")return Math.max(2.5,Math.round((wBar(w+0.01,"up")-w)*100)/100);if(k&&W_STEP[k])return W_STEP[k];return w>=20?2.5:1;}
+function prRirN(v){if(v==null||v==="")return null;const n=parseInt(String(v),10);return isFinite(n)?n:null;}
+function prInc(w,n){const ov=wStepOv(n);if(ov)return ov;const k=wKind(n);if(k==="bar")return Math.max(2.5,Math.round((wBar(w+0.01,"up")-w)*100)/100);if(k&&W_STEP[k])return W_STEP[k];return w>=20?2.5:1;}
 function prSug(e,p,pr){if(p.wPlan||Array.isArray(e[4])||!(e[3]!==0))return null;const ns=rScaleSets(e[1],e),rg=prRange(e);
   if(pr&&pr.sets&&pr.sets.length){const ps=pr.sets.slice(0,ns);if(!(ps[0].w>0)||!rg)return null;
     const reps=ps.map(s=>s.r).join("/"),inc=prInc(Math.max(...ps.map(s=>s.w)),e[0]);
+    if(!p.planR&&(ps.length>=ns||pr.skip)&&ps.every(s=>s.r>=rg.hi)){const rr=prRirN(pr.rir);
+      /* запас 0 в последнем подходе — верх диапазона взят на пределе: закрепить вес ещё раз */
+      if(rr===0)return {w:null,r:null,why:"Вес тот же: все подходы по "+rg.hi+"+ ("+reps+"), но запас в последнем был 0 — закрепи вес, потом +"+fmtW(inc)+" кг"};
+      /* запас 3+ — вес явно лёгкий: два шага сразу */
+      if(rr!=null&&rr>=3)return {up:1,w:Array.from({length:ns},(_,j)=>wFit((ps[j]||ps[ps.length-1]).w+inc*2,e[0],"up")),r:Array(ns).fill(rg.lo),why:"↑ +"+fmtW(inc*2)+" кг: все подходы по "+rg.hi+"+ ("+reps+") и запас "+pr.rir+" повт. — вес лёгкий, два шага сразу"};}
     if(!p.planR&&(ps.length>=ns||pr.skip)&&ps.every(s=>s.r>=rg.hi))
       return {up:1,w:Array.from({length:ns},(_,j)=>wFit((ps[j]||ps[ps.length-1]).w+inc,e[0],"up")),r:Array(ns).fill(rg.lo),why:"↑ +"+fmtW(inc)+" кг: в прошлый раз все подходы по "+rg.hi+"+ ("+reps+") — теперь снова от "+rg.lo+" повт."};
     return {w:null,r:null,why:pr.unk?"Вес тот же: в прошлый раз не все подходы отмечены — ответь на главной «Не смог / Не делал»":"Вес тот же: добери до "+rg.hi+" повт. в каждом подходе (было "+reps+"), потом +"+fmtW(inc)+" кг"};}
@@ -3414,10 +3424,16 @@ function wKind(n){n=String(n||"").toLowerCase();
   return "";}
 function wSnap(x,kind,dir){if(!(x>0))return 0;if(kind==="bar")return wBar(x,dir);const st=W_STEP[kind];if(!st)return x;
   const v=x/st,f=dir==="down"?Math.floor(v+1e-6):dir==="up"?Math.ceil(v-1e-6):Math.ceil(v-0.5-1e-6);return Math.round(f*st*100)/100;}
-function wFit(x,name,dir){const k=wKind(name);return k?wSnap(x,k,dir):x;}
+/* свой шаг веса для упражнения (тренажёры, гантельные ряды в зале): gym45_wstep_v1 {название: шаг} — штанга всегда по блинам */
+const WSTK="gym45_wstep_v1";
+function wStepAll(){try{const v=JSON.parse(localStorage.getItem(WSTK));return v&&typeof v==="object"?v:{};}catch(e){return {};}}
+function wStepOv(name){if(wKind(name)==="bar")return 0;const v=+wStepAll()[name];return v>0&&v<=50?v:0;}
+function wStepSet(name,v){const a=wStepAll();if(v>0)a[name]=v;else delete a[name];try{localStorage.setItem(WSTK,JSON.stringify(a));}catch(e){}try{cloudPush();}catch(e){}}
+function wSnapStep(x,st,dir){if(!(x>0))return 0;const v=x/st,f=dir==="down"?Math.floor(v+1e-6):dir==="up"?Math.ceil(v-1e-6):Math.ceil(v-0.5-1e-6);return Math.round(f*st*100)/100;}
+function wFit(x,name,dir){const ov=wStepOv(name);if(ov)return wSnapStep(x,ov,dir);const k=wKind(name);return k?wSnap(x,k,dir):x;}
 function gvtRound(x,dir){return dir==="down"?Math.floor(x+1e-8):Math.ceil(x-1e-9);}
 /* GVT: процент от 1ПМ → шаг снаряда (штанга — по блинам, гантели 2, тренажёр 5); остальное — как раньше, целые кг */
-function gvtRoundEx(x,dir,E){const k=E&&E.bw?"bw":wKind(E&&E.name);return k?wSnap(x,k,dir==="down"?"down":"up"):gvtRound(x,dir);}
+function gvtRoundEx(x,dir,E){const ov=E&&!E.bw?wStepOv(E.name):0;if(ov)return wSnapStep(x,ov,dir==="down"?"down":"up");const k=E&&E.bw?"bw":wKind(E&&E.name);return k?wSnap(x,k,dir==="down"?"down":"up"):gvtRound(x,dir);}
 function gvtOkW(w){return typeof w==="number"&&isFinite(w)&&w>0;}
 function gvtRecs(c,n){return c.recs.filter(r=>r.n===n);}
 function gvtStatus(c,n){const r=gvtRecs(c,n);if(!r.length)return null;return r.some(x=>x.full)?"full":"partial";}
@@ -8705,6 +8721,16 @@ function calOpen(due){const c=calCfg(),m=el("coolModal"),inClaude=!!(window.clau
     else if(c&&d){const x=new Date(d.due+"T12:00").toLocaleDateString("ru-RU",{weekday:"short",day:"numeric",month:"short"});
     c.insertAdjacentHTML("beforeend",`<div class="gvt-pend" id="tdCalShift" style="margin-top:10px"><span>📅 График сдвинулся: следующая тренировка — ${x}. Календарь стоит по старому.</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="tdCalFix">Пересчитать</button></div>`);
     el("tdCalFix").onclick=()=>calOpen(d.due);}}catch(e){}};}
+/* шаг веса в тренажёре: подсказки следующего веса идут этим шагом (штанга — всегда по блинам) */
+const WST_OPT=[1,1.25,2,2.5,3,4,5,7,10];
+{const _rw=renderWorkout;renderWorkout=function(){_rw();try{if(!current)return;const i=current.idx,ex=current.program.ex[i];if(!ex||!(ex[3]!==0))return;
+  const name=ex[0],k=wKind(name);if(k==="bar")return;
+  const card=el("exList").querySelector(".wk-card");if(!card||card.querySelector(".wst-row"))return;
+  const ov=wStepOv(name),auto=k&&W_STEP[k]?W_STEP[k]:0;
+  const r=document.createElement("label");r.className="wst-row";
+  r.innerHTML=`<span>Шаг веса в твоём тренажёре <small>для подсказок следующего веса</small></span><select>${`<option value="">авто${auto?" · "+fmtW(auto)+" кг":""}</option>`+WST_OPT.map(v=>`<option value="${v}"${ov===v?" selected":""}>${fmtW(v)} кг</option>`).join("")}</select>`;
+  const sets=card.querySelector(".wk-sets");if(!sets)return;sets.after(r);
+  r.querySelector("select").onchange=ev=>{const v=parseFloat(ev.target.value)||0;wStepSet(name,v);toast(v?"Шаг "+fmtW(v)+" кг запомнен для «"+name+"»":"Шаг — автоматически");};}catch(e){}};}
 /* «запас повторов» (RIR) последнего подхода — необязательная отметка под упражнением */
 {const _rw=renderWorkout;renderWorkout=function(){_rw();try{if(!current||current.program.g2)return;const i=current.idx,G=current.program.gx?current.program.gx[i]:null;if(G&&G.main)return;
   const card=el("exList").querySelector(".wk-card");if(!card||card.querySelector(".rir-row"))return;const v=current.rirEx&&current.rirEx[i];
@@ -8802,7 +8828,9 @@ function anEx(R){const box=el("anEx"),E=anExData(R),names=Object.keys(E).sort((a
   ntChips("anExM",AN_UI.exm,v=>{AN_UI.exm=v;anUISave();anEx(R);});
   anLine(el("anExChart"),pts,M[1],i=>{const s=S.slice(-16)[i];return `<b>${fmtDate(s.date)}</b>: ${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r).join(", ")} · ${M[0].toLowerCase()} ${M[1](s[k])}${pts[i].pr?" · 🏆 рекорд":""}`;});}
 /* ---- вкладка «Тело» ---- */
-const AN_BM=[["waist","Талия"],["chest","Грудь"],["arm","Бицепс"],["hips","Бёдра"],["calf","Голень"]];
+/* обхваты: третий элемент — парная мышца (левая — старый ключ, правая — ключ+R; старые записи читаются как левая) */
+const AN_BM=[["neck","Шея"],["shoul","Плечи"],["chest","Грудь"],["waist","Талия"],["arm","Бицепс",1],["fore","Предплечье",1],["hips","Бедро",1],["calf","Голень",1]];
+const AN_BMK=AN_BM.flatMap(([k,,pr])=>pr?[k,k+"R"]:[k]);
 function dashWeekUpd(){const t=el("dashWeekT");if(!t)return;try{const d7=new Date();d7.setDate(d7.getDate()-6);const s7=localDate(d7);
   const H=safe.get().filter(h=>h&&h.date>=s7&&!h.archived);const vol=H.reduce((a,h)=>a+(+h.vol||0),0);const m=anFoodDays();const got=Object.keys(m).filter(d=>d>=s7);
   const k=got.length?got.reduce((a,d)=>a+m[d].kcal,0)/got.length:0;
@@ -8845,6 +8873,10 @@ function anFood(){const box=el("anFood"),m=anFoodDays(),per=AN_UI.fp||7;
     cap.innerHTML=`<b>${fmtDate(d)}</b>: `+(v?`${ntF(v.kcal)} ккал · Б ${ntF(v.p)} · Ж ${ntF(v.f)} · У ${ntF(v.c)}${x?` · ${pc(v.kcal,x.kcal)} % нормы`:""}`:"записей нет")+` <button type="button" class="tm-mini" id="anFoodOpen">Открыть день в дневнике</button>`;
     el("anFoodOpen").onclick=()=>{FOOD_DAY=d<localDate()?d:null;renderFood();show("food");try{ntTab("diary");}catch(e){}};};
   ch.querySelectorAll("g[data-i]").forEach(g=>g.onclick=()=>sel(+g.dataset.i));sel(n-1);}
+/* разница левой и правой стороны по последнему замеру, где есть обе */
+function anAsym(L){const r=AN_BM.filter(x=>x[2]).map(([k,n])=>{const m=[...L].reverse().find(x=>x[k]>0&&x[k+"R"]>0);if(!m)return "";const d=Math.round((m[k]-m[k+"R"])*10)/10;
+  return `<div class="an-row"><span><b>${n}: левая − правая</b><small>${fmtDate(m.date)}</small></span><b class="num${Math.abs(d)>1?" an-asym":""}">${d>0?"+":""}${ntF(d,1)} см</b></div>`;}).join("");
+  return r?r+`<p class="an-tip">Разница больше 1 см — начни подход отстающей стороны первым и делай столько же повторов на сильной.</p>`:"";}
 function anBody(){const box=el("anBody"),S=anSt(),L=S.body.slice().sort((a,b)=>a.date.localeCompare(b.date)),today=localDate(),t=L.find(x=>x.date===today)||{};
   let p={};try{p=pfGet();}catch(e){}
   /* вес и % жира подставляются из последнего замера, а если замеров нет — из профиля */
@@ -8854,19 +8886,19 @@ function anBody(){const box=el("anBody"),S=anSt(),L=S.body.slice().sort((a,b)=>a
   const avg=pts.map(q=>{const d0=new Date(q.date+"T00:00");d0.setDate(d0.getDate()-6);const w=W.filter(x=>x.date>=localDate(d0)&&x.date<=q.date);return w.length?w.reduce((a,x)=>a+x.w,0)/w.length:null;});
   const wk=(off)=>{const e=new Date();e.setDate(e.getDate()-off*7);const s=new Date(e);s.setDate(s.getDate()-6);const w=W.filter(x=>x.date>=localDate(s)&&x.date<=localDate(e));return w.length?w.reduce((a,x)=>a+x.w,0)/w.length:null;};
   const a0=wk(0),a1=wk(1),first=W[0];
-  const mrows=AN_BM.map(([k,n])=>{const m=L.filter(x=>x[k]>0);if(!m.length)return "";const f=m[0][k],l=m[m.length-1][k],d=Math.round((l-f)*10)/10;
+  const mrows=AN_BM.flatMap(([k,n,pr])=>pr?[[k,n+(L.some(x=>x[k+"R"]>0)?" · левая":"")],[k+"R",n+" · правая"]]:[[k,n]]).map(([k,n])=>{const m=L.filter(x=>x[k]>0);if(!m.length)return "";const f=m[0][k],l=m[m.length-1][k],d=Math.round((l-f)*10)/10;
     return `<div class="an-row"><span><b>${n}</b><small>${fmtDate(m[0].date)} → ${fmtDate(m[m.length-1].date)}</small></span><b class="num">${ntF(l,1)} см ${m.length>1?`<span class="an-d ${d===0?"":(k==="waist"?d<0:d>0)?"up":"dn"}">${d>0?"+":""}${ntF(d,1)}</span>`:""}</b></div>`;}).join("");
   box.innerHTML=`<div class="card nt-form"><h3>Замер на сегодня</h3><p class="nt-sub">Вес — утром натощак, после туалета. Обхваты — раз в 2–4 недели, в одно и то же время.</p>
    <div class="nt-grid"><label>Вес, кг<input id="anW" class="food-in" inputmode="decimal" placeholder="—" value="${t.w||preW||""}"></label><label>% жира<input id="anBf" class="food-in" inputmode="decimal" placeholder="—" value="${t.bf||preBf||""}"></label></div>${!t.date&&(preW||preBf)?`<p class="nt-sub an-pre">Подставлено ${preSrc} — проверь и поправь, если изменилось.</p>`:""}
-   <details class="nt-info"${AN_BM.some(([k])=>t[k])?" open":""}><summary>Обхваты, см</summary><div class="nt-grid" style="margin-top:8px">${AN_BM.map(([k,n])=>`<label>${n}<input id="anM_${k}" class="food-in" inputmode="decimal" value="${t[k]||""}"></label>`).join("")}</div></details>
+   <details class="nt-info"${AN_BMK.some(k=>t[k])?" open":""}><summary>Обхваты, см</summary><div class="nt-grid" style="margin-top:8px">${AN_BM.map(([k,n,pr])=>pr?`<label>${n} · Л<input id="anM_${k}" class="food-in" inputmode="decimal" value="${t[k]||""}"></label><label>${n} · П<input id="anM_${k}R" class="food-in" inputmode="decimal" value="${t[k+"R"]||""}"></label>`:`<label>${n}<input id="anM_${k}" class="food-in" inputmode="decimal" value="${t[k]||""}"></label>`).join("")}</div><p class="nt-sub" style="margin-top:6px">Парные мышцы — в самом широком месте, рука/нога расслаблена. Разница сторон до 1 см — норма.</p></details>
    <button type="button" class="btn" id="anBSave">Сохранить замер</button><div id="anBMsg"></div></div>
    <div class="card"><div class="an-h"><h3>Вес тела</h3><span class="nt-sub">точки — замеры, линия — среднее за 7 дней</span></div>
    ${W.length?`<div id="anWChart"></div><div class="an-kpi"><div><b class="num">${a0?ntF(a0,1):"—"}</b><span>среднее за неделю</span></div><div><b class="num">${a0&&a1?(a0-a1>0?"+":"")+ntF(a0-a1,1):"—"}</b><span>к прошлой неделе</span></div><div><b class="num">${first&&a0?(a0-first.w>0?"+":"")+ntF(a0-first.w,1):"—"}</b><span>с ${first?fmtDate(first.date):"начала"}</span></div></div>
    <p class="an-tip">Смотри на среднее за неделю, а не на ежедневные скачки — вода и соль дают ±1–2 кг. При наборе нормально +0,25–0,5 % веса в неделю, при сушке −0,5–1 %.</p>`:`<p class="nt-sub">Внеси первый замер — здесь появится график и среднее за неделю.</p>`}</div>
-   ${mrows?`<div class="card"><h3>Обхваты</h3>${mrows}<p class="an-tip">Талия уменьшается, а бицепс и бёдра растут — уходит жир, растут мышцы, даже если вес стоит на месте.</p></div>`:""}`;
+   ${mrows?`<div class="card"><h3>Обхваты</h3>${mrows}${anAsym(L)}<p class="an-tip">Талия уменьшается, а бицепс и бёдра растут — уходит жир, растут мышцы, даже если вес стоит на месте.</p></div>`:""}`;
   if(W.length)anLine(el("anWChart"),pts,(v,s)=>ntF(v,1)+(s?"":" кг"),i=>`<b>${pts[i].x}</b>: ${ntF(pts[i].y,1)} кг${avg[i]?" · среднее за 7 дней "+ntF(avg[i],1)+" кг":""}`,avg);
   el("anBSave").onclick=()=>{const n=id=>{const v=String(el(id).value).replace(",",".").trim();if(!v)return null;const x=Number(v);return isFinite(x)&&x>0?x:NaN;};
-    const rec={date:today,w:n("anW"),bf:n("anBf")};AN_BM.forEach(([k])=>rec[k]=n("anM_"+k));
+    const rec={date:today,w:n("anW"),bf:n("anBf")};AN_BMK.forEach(k=>rec[k]=n("anM_"+k));
     if(Object.values(rec).some(v=>Number.isNaN(v))){toast("Проверь числа");return;}if(rec.w!=null&&(rec.w<30||rec.w>300)){toast("Вес — от 30 до 300 кг");return;}if(rec.bf!=null&&!ntBfOk(rec.bf)){toast("% жира — от 3 до 60");return;}
     Object.keys(rec).forEach(k=>{if(rec[k]==null)delete rec[k];});if(Object.keys(rec).length<2){toast("Введи хотя бы вес или один обхват");return;}
     const s=anSt();s.body=s.body.filter(x=>x.date!==today);s.body.push(Object.assign({},t,rec));anSave(s);toast("Замер сохранён");anBody();
@@ -8945,6 +8977,7 @@ function anRender(){const R=anRecs();
   anHist(R);}
 {const _csa=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csa(),{auprog:auSt()});};}
 {const _csw=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csw(),{wsub:wsubAll()});};}
+{const _cst=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_cst(),{wstep:wStepAll()});};}
 /* облако: незавершённая тренировка тоже в общий документ — переживает перезагрузку и смену устройства */
 {const _csd=cloudSnapshot;cloudSnapshot=function(){return Object.assign(_csd(),{draft:getDraft()});};}
 /* облако: данные аналитики — в общий документ, при загрузке объединяем */
@@ -9963,6 +9996,7 @@ async function cloudInit(){
       try{if(d.cf)localStorage.setItem(CFK,JSON.stringify(mergeCf(cfGet(),d.cf)))}catch(e){}
       try{if(d.parch)localStorage.setItem(PARK,JSON.stringify(mergePar(parGet(),d.parch)))}catch(e){}
       try{if(d.sub){const a=subAll();Object.keys(d.sub).forEach(k=>{a[k]=Object.assign({},d.sub[k],a[k]||{});});localStorage.setItem(SUBK,JSON.stringify(a));}}catch(e){}
+      try{if(d.wstep&&typeof d.wstep==="object"){const a=Object.assign({},d.wstep,wStepAll());localStorage.setItem(WSTK,JSON.stringify(a));}}catch(e){}
       try{if(d.wsub&&typeof d.wsub==="object"){const a=wsubAll();Object.keys(d.wsub).forEach(k=>{a[k]=Object.assign({},d.wsub[k],a[k]||{});});localStorage.setItem(WSUBK,JSON.stringify(a));}}catch(e){}
       cloudRefreshUI();
       cloudReady=true;
