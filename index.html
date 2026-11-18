@@ -8803,18 +8803,24 @@ function anCrossCard(){let s=null;try{s=cfGet();}catch(e){}if(!s||!s.res||!s.res
 function anSwCard(recs){const L=recs.filter(r=>r.raw.sw).slice(-8);if(!L.length)return "";
   return `<div class="card"><h3>Стрит-воркаут · последние круговые</h3>${L.reverse().map(r=>`<div class="an-row"><span><b>${r.name}</b><small>${fmtDate(r.date)}</small></span><b class="num">${r.raw.circles||0}${r.raw.target?"/"+r.raw.target:""} кр.${r.raw.secs?" · "+mmss(r.raw.secs):""}</b></div>`).join("")}</div>`;}
 /* ---- вкладка «Упражнения» ---- */
-function anExData(R){const E={};R.forEach(r=>{const lg=r.raw.log;if(!lg||Array.isArray(lg)||typeof lg!=="object")return;
+/* GVT: подходы по плану от известного 1ПМ (≈60 %, 10×10, не в отказ) — по Эпли они «занижают» максимум.
+   В расчётный 1ПМ из таких тренировок берём только тяжёлые подходы до 3 повторов (тест); объём, вес и повторы считаются как обычно. */
+function anVolRec(x){return !!x&&(x.fam==="gvt1"||x.fam==="g2"||/^GVT · /.test(x.name||"")||/German Volume|GVT/i.test(x.name||""));}
+function anExData(R){const E={};R.forEach(r=>{const lg=r.raw.log;if(!lg||Array.isArray(lg)||typeof lg!=="object")return;const vr=anVolRec(r.raw);
   Object.entries(lg).forEach(([n,a])=>{if(!Array.isArray(a))return;const d=a.filter(s=>s&&s.done&&s.r>0);if(!d.length)return;
-    const e1=Math.max(...d.map(s=>(+s.w||0)>0?(s.r<=1?+s.w:+s.w*(1+Math.min(s.r,12)/30)):0)),mw=Math.max(...d.map(s=>+s.w||0)),vol=d.reduce((t,s)=>t+(+s.w||0)*s.r,0),reps=d.reduce((t,s)=>t+s.r,0),mr=Math.max(...d.map(s=>s.r));
+    const e1=Math.max(0,...d.filter(s=>!vr||s.r<=3).map(s=>(+s.w||0)>0?(s.r<=1?+s.w:+s.w*(1+Math.min(s.r,12)/30)):0)),mw=Math.max(...d.map(s=>+s.w||0)),vol=d.reduce((t,s)=>t+(+s.w||0)*s.r,0),reps=d.reduce((t,s)=>t+s.r,0),mr=Math.max(...d.map(s=>s.r));
     const rr=d.map(s=>anRir(s.rir)).filter(v=>v!=null);
     (E[n]=E[n]||[]).push({date:r.date,sets:d,e1rm:e1,maxw:mw,vol,reps,maxr:mr,rir:rr.length?rr[rr.length-1]:null});});});return E;}
 const AN_EXM={e1rm:["1ПМ расчёт",v=>ntF(v,1)+" кг"],maxw:["Макс. вес",v=>ntF(v,1)+" кг"],vol:["Объём",v=>anFmtT(v)],maxr:["Макс. повторы",v=>ntF(v)],reps:["Всего повторов",v=>ntF(v)]};
 function anEx(R){const box=el("anEx"),E=anExData(R),names=Object.keys(E).sort((a,b)=>{const la=E[a][E[a].length-1].date,lb=E[b][E[b].length-1].date;return lb.localeCompare(la)||E[b].length-E[a].length;});
   if(!names.length){box.innerHTML=`<div class="card"><h3>Упражнения</h3><p class="nt-sub">Заверши хотя бы одну силовую тренировку — здесь появятся рабочие веса, расчётный 1ПМ и динамика по каждому упражнению.</p></div>`;return;}
   if(!E[AN_UI.ex])AN_UI.ex=names[0];const S=E[AN_UI.ex],bw=S.every(s=>s.maxw===0);
-  const mets=bw?["maxr","reps"]:["e1rm","maxw","vol","reps"];if(!mets.includes(AN_UI.exm))AN_UI.exm=mets[0];const M=AN_EXM[AN_UI.exm];
-  const k=AN_UI.exm,best=Math.max(...S.map(s=>s[k])),last=S[S.length-1],d28=new Date();d28.setDate(d28.getDate()-28);const base=S.find(s=>s.date>=localDate(d28))||S[0];
-  let run=0;const pts=S.slice(-16).map(s=>{const pr=s[k]>run+1e-9&&run>0;run=Math.max(run,s[k]);return {x:fmtDate(s.date),y:s[k],pr};});
+  const mets=bw?["maxr","reps"]:["e1rm","maxw","vol","reps"];if(!mets.includes(AN_UI.exm))AN_UI.exm=mets[0];let M=AN_EXM[AN_UI.exm];
+  let k=AN_UI.exm,C=k==="e1rm"?S.filter(s=>s.e1rm>0):S,volNote="";
+  if(k==="e1rm"&&C.length<S.length)volNote=C.length?`<p class="an-tip">Тренировки GVT в расчётный 1ПМ не входят: там вес ≈60 % от максимума и подходы не в отказ — формула покажет «падение», которого нет. Их нагрузку смотри во вкладках «Макс. вес» и «Объём».</p>`:`<p class="an-tip">Пока только тренировки GVT — по ним расчётный 1ПМ не считается (вес ≈60 % от максимума, подходы не в отказ). Ниже — максимальный рабочий вес.</p>`;
+  if(!C.length){k="maxw";C=S;M=AN_EXM[k];}
+  const best=Math.max(...C.map(s=>s[k])),last=C[C.length-1],d28=new Date();d28.setDate(d28.getDate()-28);const base=C.find(s=>s.date>=localDate(d28))||C[0];
+  let run=0;const pts=C.slice(-16).map(s=>{const pr=s[k]>run+1e-9&&run>0;run=Math.max(run,s[k]);return {x:fmtDate(s.date),y:s[k],pr};});
   /* прогресс по RIR: тот же вес и повторы, а запас больше */
   let rirNote="";if(S.length>=2){const a=S[S.length-2],b=last;if(a.rir!=null&&b.rir!=null&&b.maxw>=a.maxw&&b.maxr>=a.maxr&&b.rir>a.rir)rirNote=`<p class="an-good">💪 Тот же вес ${ntF(b.maxw,1)} кг × ${b.maxr}, а запас вырос с ${a.rir} до ${b.rir} повт. — сила растёт, можно прибавлять вес.</p>`;
     else if(a.rir!=null&&b.rir!=null&&b.maxw<=a.maxw&&b.rir<a.rir&&b.rir<=0)rirNote=`<p class="an-warn">Подходы идут в отказ (запас 0) без роста веса — проверь восстановление или сделай лёгкую неделю.</p>`;}
@@ -8822,11 +8828,11 @@ function anEx(R){const box=el("anEx"),E=anExData(R),names=Object.keys(E).sort((a
    <div class="an-met" id="anExM">${mets.map(m=>`<button type="button" data-v="${m}">${AN_EXM[m][0]}</button>`).join("")}</div>
    <div id="anExChart"></div>
    <div class="an-kpi"><div><b class="num">${M[1](best)}</b><span>лучший</span></div><div><b class="num">${M[1](last[k])}</b><span>последний</span></div><div><b class="num">${anDelta(anPct(last[k],base[k]),false)||"—"}</b><span>за 4 недели</span></div></div>
-   ${rirNote}<p class="an-tip">${k==="e1rm"?"Расчётный 1ПМ (формула Эпли: вес × (1 + повторы / 30)) позволяет сравнивать разные схемы: 100×5 и 90×8 — на одной шкале. Растёт 1ПМ — растёт сила.":k==="vol"?"Объём упражнения = вес × повторы во всех рабочих подходах.":"Для упражнений с собственным весом прогресс — это больше повторов при той же технике."}</p></div>
-   <div class="card"><h3>Последние подходы</h3>${S.slice(-5).reverse().map(s=>`<div class="an-row"><span><b>${fmtDate(s.date)}</b><small>${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r+(x.rir!=null&&x.rir!==""?` <i>запас ${x.rir}</i>`:"")).join(", ")}</small></span><b class="num">${bw?s.reps+" повт.":ntF(s.e1rm,1)+" кг"}</b></div>`).join("")}</div>`;
+   ${volNote}${rirNote}<p class="an-tip">${k==="e1rm"?"Расчётный 1ПМ (формула Эпли: вес × (1 + повторы / 30)) позволяет сравнивать разные схемы: 100×5 и 90×8 — на одной шкале. Растёт 1ПМ — растёт сила.":k==="vol"?"Объём упражнения = вес × повторы во всех рабочих подходах.":"Для упражнений с собственным весом прогресс — это больше повторов при той же технике."}</p></div>
+   <div class="card"><h3>Последние подходы</h3>${S.slice(-5).reverse().map(s=>`<div class="an-row"><span><b>${fmtDate(s.date)}</b><small>${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r+(x.rir!=null&&x.rir!==""?` <i>запас ${x.rir}</i>`:"")).join(", ")}</small></span><b class="num">${bw?s.reps+" повт.":s.e1rm>0?ntF(s.e1rm,1)+" кг":"GVT · "+ntF(s.maxw,1)+" кг"}</b></div>`).join("")}</div>`;
   const sel=el("anExSel");sel.value=AN_UI.ex;sel.onchange=()=>{AN_UI.ex=sel.value;anUISave();anEx(R);};
   ntChips("anExM",AN_UI.exm,v=>{AN_UI.exm=v;anUISave();anEx(R);});
-  anLine(el("anExChart"),pts,M[1],i=>{const s=S.slice(-16)[i];return `<b>${fmtDate(s.date)}</b>: ${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r).join(", ")} · ${M[0].toLowerCase()} ${M[1](s[k])}${pts[i].pr?" · 🏆 рекорд":""}`;});}
+  anLine(el("anExChart"),pts,M[1],i=>{const s=C.slice(-16)[i];return `<b>${fmtDate(s.date)}</b>: ${s.sets.map(x=>(+x.w?ntF(+x.w,1)+"×":"")+x.r).join(", ")} · ${M[0].toLowerCase()} ${M[1](s[k])}${pts[i].pr?" · 🏆 рекорд":""}`;});}
 /* ---- вкладка «Тело» ---- */
 /* обхваты: третий элемент — парная мышца (левая — старый ключ, правая — ключ+R; старые записи читаются как левая) */
 const AN_BM=[["neck","Шея"],["shoul","Плечи"],["chest","Грудь"],["waist","Талия"],["arm","Бицепс",1],["fore","Предплечье",1],["hips","Бедро",1],["calf","Голень",1]];

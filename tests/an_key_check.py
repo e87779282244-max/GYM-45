@@ -31,6 +31,19 @@ async def m():
     await pg.evaluate("const v=auSt();v.act={y3t:{start:localDate(),base:0}};auSave(v);show('home');show('progress')");await pg.wait_for_timeout(100)
     ok('с Y3T: плитка «N/5 по плану недели»',await pg.evaluate("el('tStreak').textContent.endsWith('/5')&&el('tStreakL').textContent==='по плану недели'"),await pg.evaluate("el('tStreak').textContent"))
     ok('«дней подряд» больше нет',await pg.evaluate("!el('scr-progress').textContent.includes('дней подряд')"))
+    # GVT: 10×10 на ≈60 % — не «падение» 1ПМ
+    await pg.evaluate("""(()=>{const d=n=>{const x=new Date();x.setDate(x.getDate()-n);return localDate(x);};const g=[];for(let i=0;i<10;i++)g.push({w:62.5,r:10,done:true});
+      localStorage.setItem(KEY,JSON.stringify([{date:d(20),name:'Мясорубка',vol:1,log:{'Приседания со штангой':[{w:70,r:10,done:true}]}},
+       {date:d(1),name:'German Volume Training',fam:'g2',vol:1,log:{'Приседания со штангой':g}}]));AN_UI.tab='load';show('home');show('progress');})()""");await pg.wait_for_timeout(150)
+    L=await pg.evaluate("anKeyLifts(anRecs())");sq=[x for x in L if x['t']=='Присед'][0]
+    ok('GVT 62,5×10 не снижает расчётный 1ПМ (93,3, ±0)',round(sq['cur'],1)==93.3 and round(sq['delta'],1)==0 and sq['cnt']==1,{k:sq[k] for k in ['cur','delta','cnt']})
+    await pg.evaluate("el('anKey').querySelector('.an-keyr').click()");await pg.wait_for_timeout(150)
+    t=await pg.evaluate("el('anEx').innerText")
+    ok('упражнение: последний 1ПМ 93,3, без −11 %, пояснение про GVT','83,3 кг' not in t.split('Последние подходы')[0] and 'GVT в расчётный 1ПМ не входят' in t and '62,5×10' in t,t[:300])
+    await pg.evaluate("[...document.querySelectorAll('#anExM button')].find(b=>b.dataset.v==='maxw').click()");await pg.wait_for_timeout(100)
+    ok('«Макс. вес» по-прежнему видит тренировку GVT',(await pg.evaluate("el('anEx').innerText")).count('62,5')>=1)
+    await pg.evaluate("""(()=>{const g=[];for(let i=0;i<10;i++)g.push({w:62.5,r:10,done:true});localStorage.setItem(KEY,JSON.stringify([{date:localDate(),name:'GVT · Этап I',vol:1,log:{'Приседания со штангой':g}}]));AN_UI.exm='e1rm';show('home');show('progress');AN_UI.tab='ex';anRender();})()""");await pg.wait_for_timeout(150)
+    ok('только GVT: вместо 1ПМ — макс. вес с пояснением, без ошибок',await pg.evaluate("el('anEx').innerText.includes('Пока только тренировки GVT')"))
     ok('без ошибок JS',not errs,errs[:3])
     await b.close()
 asyncio.run(m());srv.shutdown();print(f'{sum(R)}/{len(R)}');sys.exit(0 if all(R) else 1)
