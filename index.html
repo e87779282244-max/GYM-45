@@ -2783,7 +2783,7 @@ function renderDay(){
    const r=act?current.readiness:readiness,alt=act?null:rLightAlt(p);
    n.hidden=r==="Норма"&&!alt;n.innerHTML="";
    if(!n.hidden){const t=document.createElement("div");const auto=!!(p.preset||p.g2);
-    t.textContent="Готовность «"+r+"»: "+(auto?(r==="Устал"?"программа сама рассчитывает веса — план не меняется, иначе собьётся прогрессия. Совсем тяжело — лучше перенеси тренировку на день.":"план без изменений — добей все повторы чисто."):rNote(r,rFixed(p)));n.appendChild(t);
+    t.textContent="Готовность «"+r+"»: "+(auto?(r==="Устал"?(p.g2?"веса −10 % на это занятие, план этапа не меняется. Совсем тяжело — лучше перенеси тренировку на день.":"программа сама рассчитывает веса — план не меняется, иначе собьётся прогрессия. Совсем тяжело — лучше перенеси тренировку на день."):"план без изменений — добей все повторы чисто."):rNote(r,rFixed(p)));n.appendChild(t);
     if(alt){const b=document.createElement("button");b.type="button";b.className="day-alt";b.textContent="Устал — лучше сделать лёгкий день: «"+alt.name+"» ›";
      b.onclick=()=>startWorkout(Object.assign({},p,{name:alt.name,ex:alt.ex,focus:(p.focus||"").split(" · ")[0]+" · "+(alt.focus||"лёгкий день")}),dayView.computed);n.appendChild(b);}}}
   el("dayStart").textContent=act?"Продолжить программу":"Начать программу";
@@ -3258,7 +3258,7 @@ document.querySelectorAll(".seg-b").forEach(b=>b.onclick=()=>{
   b.classList.add("on");
   const v=b.dataset.ready;readiness=v;try{localStorage.setItem("gym45_ready_v1",JSON.stringify({d:localDate(),v:v}));}catch(e){}
   el("readyState").textContent=v;
-  el("readyNote").textContent=v==="Устал"?"−10 % веса · −1 подход в тяжёлой базе · предложим лёгкий день (в GVT, «Батя в здании» и других программах с расчётом весов — по плану)":(v==="Заряжен"?"+5 % веса · в силовых циклах — по плану":"всё по программе");
+  el("readyNote").textContent=v==="Устал"?"−10 % веса · −1 подход в тяжёлой базе · предложим лёгкий день (в GVT — −10 % на занятие; в «Батя в здании» и других программах с расчётом весов — по плану)":(v==="Заряжен"?"+5 % веса · в силовых циклах — по плану":"всё по программе");
 });
 /* выбор готовности держится до конца дня, на следующий день — снова «Норма» */
 try{const o=JSON.parse(localStorage.getItem("gym45_ready_v1")||"null");if(o&&o.d===localDate()&&o.v!=="Норма"){const b=document.querySelector('.ready .seg-b[data-ready="'+o.v+'"]');if(b)b.click();}}catch(e){}
@@ -4940,19 +4940,27 @@ function g2Win(P,si,first){const st=P.st[si],iv=(P.rest||0)+1,done=g2Done(P,si),
 /* ---------- возвращение после перерыва: 14 дней — первая тренировка легче на 10 %, 15 и больше — на 15 %; прогрессия этапа не меняется ---------- */
 function g2Gap(P){const L=P.recs.filter(r=>r.kind==="train"||r.kind==="test").map(r=>r.date).filter(Boolean).sort().pop();return L?g2Days(L,localDate()):0;}
 function g2BrkPct(gap){return brkPct(gap);}
-function g2Lighten(P,w,pc){const f=1-pc/100;
+function g2Lighten(P,w,pc,lbl){const f=1-pc/100;
   w.preset.forEach((ss,i)=>{const G=w.gx[i],k=G.key;ss.forEach(s=>{let nw=s.w;
-      if(G.bw){const B=g2Bw(P);if(B>0)nw=Math.max(0,Math.floor(((B+(+s.w||0))*f-B)/G2_BWSTEP+1e-6)*G2_BWSTEP);}
+      if(G.bw){const B=g2Bw(P);if(B>0)nw=Math.max(0,Math.floor(((B+(+s.w||0))*f-B)/G2_BWSTEP+1e-6)*G2_BWSTEP);
+        else if(+s.w>0)nw=Math.max(0,Math.floor((+s.w*f)/G2_BWSTEP+1e-6)*G2_BWSTEP); /* вес тела не указан — снижаем сам доп. вес */}
       else if(s.w>0)nw=g2Rnd(P,k,s.w*f,"down");
       s.w=nw;s.pw=nw;});
     if(w.ex[i]&&w.ex[i][3]!=null&&ss[0])w.ex[i][3]=ss[0].w;});
-  w.focus+=" · после перерыва −"+pc+" %";w.g2.brk=pc;return w;}
-function g2StartSlot(P,sl){const gap=g2Gap(P),pc=sl.kind==="train"?g2BrkPct(gap):0;if(!pc)return startWorkout(g2Build(P,sl),true);
+  w.focus+=" · "+(lbl||"после перерыва")+" −"+pc+" %";w.g2.brk=pc;return w;}
+/* перерыв для этого дня этапа (А / Б / В): самый длинный пропуск в программе после его последнего занятия.
+   Так первое занятие КАЖДОГО дня после перерыва легче, а обычная ротация дней перерывом не считается */
+function g2DayGap(P,sl){const L=P.recs.filter(r=>r.kind==="train"&&r.stage===sl.si&&r.day===sl.day).map(r=>r.date).filter(Boolean).sort().pop();if(!L)return 0;
+  const ds=P.recs.filter(r=>(r.kind==="train"||r.kind==="test")&&r.date&&r.date>=L).map(r=>r.date).sort();ds.push(localDate());
+  let g=0;for(let i=1;i<ds.length;i++)g=Math.max(g,g2Days(ds[i-1],ds[i]));return g;}
+/* без перерыва: «Устал» — веса −10 % на это занятие, прогрессия этапа как после перерыва не меняется */
+function g2StartPlain(P,sl){const w=g2Build(P,sl);if(sl.kind==="train"&&readiness==="Устал"){g2Lighten(P,w,10,"устал");toast("Устал: веса −10 % на это занятие, план этапа не меняется");}return startWorkout(w,true);}
+function g2StartSlot(P,sl){const gap0=g2Gap(P),dg=sl.kind==="train"?g2DayGap(P,sl):0,gap=Math.max(gap0,dg),pc=sl.kind==="train"?g2BrkPct(gap):0;if(!pc)return g2StartPlain(P,sl);
   const box=el("gvtMbox");
-  box.innerHTML=`<h3>Перерыв ${gap} дн.</h3>${gap>=30?`<p class="gvt-stop">Перерыв больше месяца — программа рекомендует начать сначала: новая программа, стартовые веса по прошлым результатам.</p><button class="btn" type="button" id="g2BrkRe">Начать программу заново</button>`:""}<p>Первая тренировка после перерыва — легче на ${pc} %: веса снижены и округлены по шагам снаряда. Прогрессия этапа не меняется: занятие засчитается, а рабочие веса и волны останутся прежними.</p>
+  box.innerHTML=`<h3>Перерыв ${gap} дн.</h3>${dg>gap0?`<p>Это первое занятие дня «${G2S[sl.si].d[sl.day].name}» после перерыва — его мышцы отдыхали весь перерыв.</p>`:""}${gap0>=30?`<p class="gvt-stop">Перерыв больше месяца — программа рекомендует начать сначала: новая программа, стартовые веса по прошлым результатам.</p><button class="btn" type="button" id="g2BrkRe">Начать программу заново</button>`:""}<p>Первая тренировка после перерыва — легче на ${pc} %: веса снижены и округлены по шагам снаряда. Прогрессия этапа не меняется: занятие засчитается, а рабочие веса и волны останутся прежними.</p>
     <button class="btn" type="button" id="g2BrkY">Легче на ${pc} %</button><button class="btn btn-alt" type="button" id="g2BrkN">Как обычно</button><button class="tm-mini" type="button" id="g2BrkX">Позже</button>`;
   el("gvtModal").hidden=false;el("g2BrkX").onclick=()=>{el("gvtModal").hidden=true;};
-  el("g2BrkN").onclick=()=>{el("gvtModal").hidden=true;startWorkout(g2Build(P,sl),true);};
+  el("g2BrkN").onclick=()=>{el("gvtModal").hidden=true;g2StartPlain(P,sl);};
   if(el("g2BrkRe"))el("g2BrkRe").onclick=()=>{el("gvtModal").hidden=true;const v2=g2Store(),PP=v2.progs.find(x=>x.id===P.id);PP.status="arch";PP.updatedAt=g2Now();v2.activeId=null;g2Save(v2);g2NewArm=0;g2Render();toast("Программа ушла в архив — начни новую");};
   el("g2BrkY").onclick=()=>{el("gvtModal").hidden=true;startWorkout(g2Lighten(P,g2Build(P,sl),pc),true);};}
 

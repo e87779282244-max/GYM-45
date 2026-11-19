@@ -24,7 +24,7 @@ async def m():
     ok('после перезагрузки «Устал» сохранился',await pg.evaluate("readiness==='Устал'&&el('readyState').textContent==='Устал'"))
     await pg.evaluate("el('login').style.display='none';(()=>{const P=g2New({});const v=g2Store();v.progs.push(P);v.activeId=P.id;g2MainKeysOf(P,0).forEach(k=>{P.st[0].ws[k]={w:G2X[k].bw?5:40};});P.st[0].setup=true;g2Save(v);startWorkout(g2Build(g2Active(),g2NextSlot(g2Active())),true);})()");await pg.wait_for_timeout(150)
     t=await pg.evaluate("el('dayReady').textContent")
-    ok('в программе с расчётом весов — честная подсказка',('не меняется' in t) and ('−10 %' not in t),t)
+    ok('GVT + «Устал»: подсказка «−10 % на это занятие, план этапа не меняется»',('−10 % на это занятие' in t) and ('план этапа не меняется' in t),t)
     await pg.evaluate("localStorage.setItem('gym45_ready_v1',JSON.stringify({d:'2020-01-01',v:'Устал'}))");await pg.reload();await pg.wait_for_timeout(400)
     ok('на следующий день — снова «Норма»',await pg.evaluate("readiness==='Норма'"))
     ok('без ошибок JS',not errs,errs[:3])
