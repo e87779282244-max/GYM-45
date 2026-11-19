@@ -2542,7 +2542,7 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().
 const KEY="gym45_history_v1";
 const safe={
   get(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}},
-  set(v){try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}cloudPush();}
+  set(v){let ok=true;try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){ok=false;}cloudPush();return ok;}
 };
 /* локальная календарная дата (не UTC) — чтобы ночные записи в Казахстане не уходили на вчера */
 function localDate(d){d=d||new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
@@ -2581,6 +2581,42 @@ function applyScreen(name,y){
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.scr===name));
   currentScreen=name;setTimeout(()=>{if(typeof mediaSync==="function")mediaSync();},0);document.body.classList.toggle("toast-top",name==="workout"||name==="day"||name==="swc");if(name==="progress")renderProgress();if(name==="home"&&typeof dashWeekUpd==="function")dashWeekUpd();if(name==="day")renderDay();if(name==="gvt"&&typeof g2Render==="function")g2Render();if(name==="home"&&typeof showDraftBanner==="function")showDraftBanner();if(name==="home"&&typeof renderDashActive==="function")renderDashActive();window.scrollTo(0,y||0);if(y){requestAnimationFrame(()=>window.scrollTo(0,y));setTimeout(()=>{if(currentScreen===name)window.scrollTo(0,y);},80);}}
 function show(name){if(currentScreen&&name!==currentScreen){histStack.push(currentScreen);SCROLL_MEM[currentScreen]=window.scrollY||0;}applyScreen(name);}
+/* перерыв в кроссфите и воркауте (14+ дней): сами ничего не меняем — предлагаем снизить уровень или начать сначала.
+   Спрашиваем один раз на перерыв; записи и результаты остаются (при «сначала» прошлый цикл уходит в архив). */
+const SBK="gym45_softbrk_v1";
+function sbInfo(name){try{
+  if(name==="cfcat"){const p=cfProg();if(!p||CF_CUR_CAT!==p.lvl)return null;const dn=cfProgDone(p),ts=dn.length?Math.max(...dn.map(r=>r.ts||0)):p.ts;
+    const o=CF_CATS.map(c=>c.k),i=o.indexOf(p.lvl),pv=i>0?o[i-1]:null;
+    return {key:"cf:"+p.lvl+":"+p.ts,last:localDate(new Date(ts)),title:"Кроссфит · "+CF_CATS[i].t,
+      low:pv?"Снизить уровень: «"+CF_CATS[i-1].t+"»":"",lower:()=>{cfProgArch(p,"Перерыв — уровень снижен.");cfProgStart(pv,p.per,1);CF_CUR_CAT=pv;cfRenderCat();},
+      restart:()=>{cfProgArch(p,"Перерыв — уровень начат сначала.");cfProgStart(p.lvl,p.per,1);cfRenderCat();}};}
+  if(name==="pp"){const id=ppCur,Q=PP[id];if(!Q)return null;const t=ppGet(id);if(!t.start)return null;const ds=Object.keys(t.done||{}).map(Number).filter(x=>x>0);
+    return {key:"pp:"+id+":"+t.start,last:ds.length?addDays(t.start,Math.max(...ds)-1):t.start,title:Q.title,low:"",
+      restart:()=>{toast(ppArchive(id));renderPP();}};}
+  if(name==="sotka"){const t=skGet();if(!t.start)return null;const ds=Object.keys(t.done||{}).map(Number).filter(x=>x>0),L=t.lvl||"b",lo={m:"a",a:"b"}[L];
+    return {key:"sk:"+t.start,last:ds.length?addDays(t.start,Math.max(...ds)-1):t.start,title:"Выживший · 100 дней",
+      low:lo?"Снизить уровень: «"+SK_LV[lo]+"»":"",lower:()=>{const x=skGet();x.lvl=lo;skSave(x);renderSotka();},
+      restart:()=>{toast(skArchive());renderSotka();}};}
+  if(name==="rr"||name==="hc"){const t=name==="rr"?rrGet():hcGet();if(!(t.sessions>0)||!t.upd)return null;
+    const can=name==="rr"?Object.keys(t.sl).some(k=>t.sl[k]&&t.sl[k].i>0):Object.keys(t.sl).some(k=>t.sl[k]>0);
+    return {key:name+":"+(t.start||""),last:localDate(new Date(t.upd)),title:name==="rr"?"Похороны лени":"Здравствуй, пол!",
+      low:can?"Снизить уровень: каждое упражнение на ступень ниже":"",
+      lower:()=>{const x=name==="rr"?rrGet():hcGet();
+        if(name==="rr"){Object.keys(x.sl).forEach(k=>{const D=RR_SL.find(q=>q.k===k),o=x.sl[k];if(!D||!o||!(o.i>0))return;o.i--;const ty=(D.steps[o.i]||[])[1];o.v=ty==="h"?10:ty==="c"?8:5;});rrSave(x);renderRR();}
+        else{Object.keys(x.sl).forEach(k=>{if(x.sl[k]>0)x.sl[k]--;});hcSave(x);renderHC();}},
+      restart:()=>{const m=mpList().find(q=>q.k===name);if(m&&m.fin)m.fin();if(name==="rr")renderRR();else renderHC();}};}
+  }catch(e){}return null;}
+function sbCheck(name){const I=sbInfo(name);if(!I||!I.last)return;const gap=Math.round((Date.parse(localDate()+"T12:00")-Date.parse(I.last+"T12:00"))/864e5);if(gap<14)return;
+  let seen={};try{seen=JSON.parse(localStorage.getItem(SBK)||"{}")||{};}catch(e){}if(seen[I.key]===I.last)return;
+  const mark=()=>{try{seen[I.key]=I.last;localStorage.setItem(SBK,JSON.stringify(seen));}catch(e){}},box=el("gvtMbox");
+  box.innerHTML=`<h3>Перерыв ${gap} дн.</h3><p>«${I.title}». Сами ничего не меняем${gap>=30?" — но после месяца перерыва лучше начать сначала":""}. Можно снизить уровень или начать сначала, если тяжело.</p>
+    ${I.low?`<button class="btn" type="button" id="sbLow">${I.low}</button>`:""}<button class="btn ${I.low?"btn-alt":""}" type="button" id="sbRe">Начать сначала</button>
+    <button class="tm-mini" type="button" id="sbGo">Продолжить как есть</button><p class="gvt-note">«Начать сначала» — пройденное уйдёт в архив, записи и результаты сохранятся.</p>`;
+  el("gvtModal").hidden=false;
+  const done=f=>{mark();el("gvtModal").hidden=true;try{f&&f();}catch(e){console.error(e);}};
+  if(el("sbLow"))el("sbLow").onclick=()=>done(()=>{I.lower();toast("Уровень снижен");});
+  el("sbRe").onclick=()=>done(()=>I.restart());el("sbGo").onclick=()=>done(null);}
+{const _sh=show;show=function(name){const r=_sh.apply(this,arguments);if(["cfcat","pp","sotka","rr","hc"].includes(name))setTimeout(()=>{try{if(currentScreen===name)sbCheck(name);}catch(e){}},50);return r;};}
 function goBack(){
   let prev=histStack.pop()||"home";
   while((prev==="workout"&&!current)||prev===currentScreen)prev=histStack.pop()||"home";
@@ -2656,7 +2692,7 @@ function brkLast(p){try{let ds=[];const rd=a=>(a||[]).map(r=>r.finishedAt||r.dat
     if(p.w5){const c=w5Active();ds=rd(c&&c.recs);}else if(p.lz){const x=lzActive();ds=rd(x&&x.recs);}else if(p.tx){const x=txActive();ds=rd(x&&x.recs);}
     else if(p.cj){const x=cjActive();ds=rd(x&&x.recs);}else if(p.gvt){const c=gvtActive();ds=rd(c&&c.recs);}
     else{const f=brkFam(p);ds=(safe.get()||[]).filter(h=>h&&(h.fam===f||(f.startsWith("au:")&&h.au&&"au:"+h.au.id===f))).map(h=>h.date);}
-    ds=ds.filter(Boolean).map(x=>String(x).slice(0,10));
+    ds=ds.filter(Boolean).map(x=>{const t=String(x);if(t.length>10&&t.includes("T")){const d=new Date(t);if(!isNaN(d))return localDate(d);}return t.slice(0,10);});
     /* программу ещё не делал — перерыва нет: стартовые веса и так считаются заново */
     return ds.sort().pop()||null;}catch(e){return null;}}
 function brkGap(p){const L=brkLast(p);if(!L)return 0;return Math.max(0,Math.round((Date.parse(localDate()+"T12:00")-Date.parse(L+"T12:00"))/864e5));}
@@ -2750,12 +2786,26 @@ function prSug(e,p,pr){if(p.wPlan||Array.isArray(e[4])||!(e[3]!==0))return null;
     if(rm>0){const _x=rm/(1+0.0333*lo)*0.9,_k=wKind(e[0]),w=_k?wSnap(_x,_k,"down"):Math.floor(_x/2.5)*2.5;if(w>0)return {w:Array(ns).fill(w),r:null,why:"Первый раз: "+fmtW(w)+" кг ≈ 90% от расчёта по твоему 1ПМ "+fmtW(rm)+" кг"+rmSrcTxt(e[0])+" — 2–3 повт. в запасе"};}
     return {first:1,w:Array(ns).fill(0),r:null,why:"Первый раз: подбери вес, чтобы осталось 2–3 повт. в запасе (ориентир программы — "+fmtW(e[3])+" кг)"};}
   return null;}
+/* стритлифтинг 5×5 по нарастающей: X — рабочий вес 5-го подхода.
+   X берём из прошлой тренировки этого движения: после сессии A — её 5-й подход; после сессии B — 5-й подход (X + 2,5), если все подходы сделаны, иначе X прежний.
+   Подходы 1–4 — 40 / 55 / 70 / 85 % от X, вниз до 1,25 кг; сессия B — 5-й 3 повт. с X + 2,5 */
+const SL_PYR=[0.40,0.55,0.70,0.85];
+function slPyrOf(e){return typeof e[5]==="string"&&e[5].startsWith("5×5 по нарастающей")?{b:/X \+ 2,5/.test(e[7]||"")}:null;}
+function slPyrX(e){const nm=e[0],all=safe.get()||[];
+  for(let i=all.length-1;i>=0;i--){const h=all[i];if(!h||!h.log||!h.log[nm]||prSkipRec(h))continue;const L=h.log[nm],last=L[L.length-1];if(!last||!(last.w>=0))continue;
+    const wasB=/сессия B/.test(h.name||"");if(!wasB)return last.w;
+    const okAll=L.length>=5&&L.every((x,j)=>x.done&&x.r>=(j===L.length-1?3:5));return okAll?last.w:Math.max(0,Math.round((last.w-2.5)*100)/100);}
+  return e[3]||0;}
+function slPyrPlan(e,p){const k=slPyrOf(e);if(!k)return null;const X=slPyrX(e),f=x=>Math.max(0,Math.floor(x/1.25+1e-6)*1.25);
+  const w=SL_PYR.map(q=>f(X*q)).concat([k.b?Math.round((X+2.5)*100)/100:X]).map(x=>rScaleW(x,p,e[0])),r=[5,5,5,5,k.b?3:5];return {w,r,X};}
 function planOf(e,p){ // что будет на тренировке (с учётом готовности)
   const psw=Array.isArray(e[4])?e[4]:null;
   const ns=psw?psw.length:rScaleSets(e[1],e);
   let w="";
   const _pr=(!psw&&!(dayView&&dayView.computed))?lastResult(e[0]):null,_sg=(!psw&&!(dayView&&dayView.computed))?prSug(e,p,_pr):null;
-  if(_sg&&_sg.w)w=_sg.first?"вес подбери сам":fmtW(rScaleW(_sg.w[0],p,e[0]))+" кг"+(_sg.up?" ↑":"");
+  const _py=!(dayView&&dayView.computed)?slPyrPlan(e,p):null;
+  if(_py)w=_py.w.map(x=>String(x).replace(".",",")).join(" → ")+" кг";
+  else if(_sg&&_sg.w)w=_sg.first?"вес подбери сам":fmtW(rScaleW(_sg.w[0],p,e[0]))+" кг"+(_sg.up?" ↑":"");
   else if(_pr&&_pr.sets[0]&&_pr.sets[0].w>0)w=fmtW(rScaleW(_pr.sets[0].w,p,e[0]))+" кг";
   else if(psw){const ws=psw.map(x=>rScaleW(x,p,e[0])),lo=Math.min(...ws),hi=Math.max(...ws);w=lo===hi?lo+" кг":lo+"–"+hi+" кг";}
   else if(e[3]){const sw=rScaleW(e[3],p,e[0]);w=sw!==e[3]?fmtW(e[3])+" → "+fmtW(sw)+" кг":fmtW(e[3])+" кг";}
@@ -2822,6 +2872,9 @@ function beginWorkout(p,computed){
       const pv=pr?(pr.sets[j]||pr.sets[pr.sets.length-1]):null;
       let w=pv?rScaleW(pv.w,p,e[0]):(psw?rScaleW(psw[j],p,e[0]):baseW),r=pv&&!p.planR?pv.r:e[2];
       if(sg&&sg.w)w=sg.w[j]>0?rScaleW(sg.w[j],p,e[0]):0;if(sg&&sg.r)r=sg.r[j];
+      const py=computed?null:(j===0?(e.__py=slPyrPlan(e,p)):e.__py);
+      if(py&&j<py.w.length){w=py.w[j];r=py.r[j];if(j===0)why[i]="5×5 по нарастающей от X = "+fmtW(py.X)+" кг: "+py.w.map(x=>String(x).replace(".",",")).join(" → ")+" кг (подходы 1–4 — 40/55/70/85 %)";
+        return {w:w,r:r,pr:r,done:false,prev:pv||null};}
       return {w:w,r:r,done:false,prev:pv||null};});});
   current={program:p,readiness:readiness,prev:prevMap,sets:sets,idx:0,key:progKey(p),startedAt:new Date().toISOString(),sec:anSecOf(p),why:why,orig:_wsOrig};
   dayView={p:p,computed:computed};restStop();
@@ -3102,7 +3155,8 @@ function restTick(){const left=Math.ceil((restEnd-Date.now())/1000);
   const passed=Math.floor((restTotal*1000-(restEnd-Date.now()))/1000);
   el("wkRestHand").style.transform="rotate("+(((passed%60)+60)%60)*6+"deg)";
   el("wkRestArc").setAttribute("stroke-dasharray",Math.max(0,Math.min(100,left/restTotal*100)).toFixed(2)+" 100");}
-function restStart(sec){restAfter=null;const d=sec>0?sec:restDefault();restEnd=Date.now()+d*1000;restTotal=d;el("wkRest").hidden=false;scr.workout.classList.add("resting");
+function restStart(sec){restAfter=null;
+  if(sec==null){const p=current&&current.program,e=p&&!p.g2&&p.ex&&p.ex[current.idx];if(e&&e[6]<0){restStop();return;}} /* отдых 0 по программе (HIIT 100) */const d=sec>0?sec:restDefault();restEnd=Date.now()+d*1000;restTotal=d;el("wkRest").hidden=false;scr.workout.classList.add("resting");
   if(restIv)clearInterval(restIv);restIv=setInterval(restTick,250);restTick();}
 function restStop(){if(restIv)clearInterval(restIv);restIv=null;el("wkRest").hidden=true;scr.workout.classList.remove("resting");}
 /* ±1 мин меняет только текущий отдых; следующий снова начнётся с нормы раздела */
@@ -3112,22 +3166,26 @@ el("wkRestMinus").addEventListener("click",()=>restAdj(-60));
 el("wkRestPlus").addEventListener("click",()=>restAdj(60));
 el("wkRestSkip").addEventListener("click",restDone);
 function finishWorkout(){
+  current.sets.forEach(se=>se.forEach(s=>{if(typeof s.r==="string"){const n=parseInt(s.r,10);s.r=n>0?n:0;}}));
   let vol=0,anyDone=false;
   current.sets.forEach(se=>se.forEach(s=>{if(s.done&&!s.warm){anyDone=true;vol+=(s.w||0)*s.r;}}));
   if(!anyDone){toast(current.program.gvt?"Нет выполненных подходов — занятие не сохранено":"Отметьте выполненные подходы ✓");return;} // считаем только отмеченное
-  const gRec=current.program.gvt?gvtRecord():null;
-  const g2Rec=current.program.g2?g2Record():null;if(g2Rec)vol=g2Rec.ton;
-  const w5Rec=current.program.w5?w5Record():null;
-  const lzRec=current.program.lz?lzRecord():null;
-  const txRec=current.program.tx?txRecord():null;
-  const cjRec=current.program.cj?cjRecord():null;
+  /* записи циклов — один раз, даже если «Завершить» нажали повторно после сбоя записи истории */
+  const C=current.__fin||(current.__fin={}),once=(k,f)=>k in C?C[k]:(C[k]=f());
+  const gRec=current.program.gvt?once("gvt",gvtRecord):null;
+  const g2Rec=current.program.g2?once("g2",g2Record):null;if(g2Rec)vol=g2Rec.ton;
+  const w5Rec=current.program.w5?once("w5",w5Record):null;
+  const lzRec=current.program.lz?once("lz",lzRecord):null;
+  const txRec=current.program.tx?once("tx",txRecord):null;
+  const cjRec=current.program.cj?once("cj",cjRecord):null;
   const prog=current.program;
   // лог по упражнениям; одинаковые имена в один день (напр. 1×1 + 2×2) не перезаписываем, а складываем
   const log={};prog.ex.forEach((e,i)=>{const s=current.sets[i].filter(x=>!x.warm).map(anSetOut);log[e[0]]=log[e[0]]?log[e[0]].concat(s):s;});
   anApplyRir(log,prog);
   const auP=prog.au&&typeof AUTH!=="undefined"?AUTH.find(q=>q.id===prog.au.id):null,auWas=auP?auDone(auP):true;
   const h=safe.get();h.push(Object.assign({fam:brkFam(prog)},current.brk?{brk:current.brk}:{},{date:localDate(),name:prog.name,vol:Math.round(vol),log:log},anSessionMeta(),prog.au?{au:prog.au}:{},genUnk(prog)));
-  safe.set(h);if(h[h.length-1].unk)setTimeout(genAsk,400);
+  if(!safe.set(h)){saveDraft();toast("Не удалось сохранить: память телефона заполнена. Тренировка не потеряна — освободи место и нажми «Завершить» ещё раз");return;}
+  if(h[h.length-1].unk)setTimeout(genAsk,400);
   // 2b · проходка обновляет 1ПМ (и при снижении — текущая форма; рекорды остаются в аналитике)
   let rmMsg="";
   if(!prog.lz&&(/проходк/i.test(prog.focus||"")||/проходка/i.test(prog.name||""))){ // ЛЗ записывает свой тест сам
@@ -3142,7 +3200,7 @@ function finishWorkout(){
   // 2a · совет при недоборе плана по движениям с весом
   const short=[];
   prog.ex.forEach((e,i)=>{if(!e[3])return;if(current.stop&&current.stop[i]&&/^пропущено/.test(current.stop[i]))return;const sets=current.sets[i];
-    const full=sets.filter(s=>s.done&&s.r>=e[2]).length;
+    const full=sets.filter(s=>s.done&&s.r>=(parseInt(s.pr)>0?parseInt(s.pr):e[2])).length;
     if(full<sets.length)short.push(e[0]);});
   const uniqShort=[...new Set(short)];
   let note=rmMsg;
@@ -4940,17 +4998,19 @@ function g2Win(P,si,first){const st=P.st[si],iv=(P.rest||0)+1,done=g2Done(P,si),
 /* ---------- возвращение после перерыва: 14 дней — первая тренировка легче на 10 %, 15 и больше — на 15 %; прогрессия этапа не меняется ---------- */
 function g2Gap(P){const L=P.recs.filter(r=>r.kind==="train"||r.kind==="test").map(r=>r.date).filter(Boolean).sort().pop();return L?g2Days(L,localDate()):0;}
 function g2BrkPct(gap){return brkPct(gap);}
+/* один вес × f: свой вес + доп. — от общей нагрузки; без веса тела — сам доп. вес */
+function g2LightW(P,k,bw,w,f){if(bw){const B=g2Bw(P);if(B>0)return Math.max(0,Math.floor(((B+(+w||0))*f-B)/G2_BWSTEP+1e-6)*G2_BWSTEP);
+    return +w>0?Math.max(0,Math.floor((+w*f)/G2_BWSTEP+1e-6)*G2_BWSTEP):w;}
+  return w>0?g2Rnd(P,k,w*f,"down"):w;}
 function g2Lighten(P,w,pc,lbl){const f=1-pc/100;
-  w.preset.forEach((ss,i)=>{const G=w.gx[i],k=G.key;ss.forEach(s=>{let nw=s.w;
-      if(G.bw){const B=g2Bw(P);if(B>0)nw=Math.max(0,Math.floor(((B+(+s.w||0))*f-B)/G2_BWSTEP+1e-6)*G2_BWSTEP);
-        else if(+s.w>0)nw=Math.max(0,Math.floor((+s.w*f)/G2_BWSTEP+1e-6)*G2_BWSTEP); /* вес тела не указан — снижаем сам доп. вес */}
-      else if(s.w>0)nw=g2Rnd(P,k,s.w*f,"down");
-      s.w=nw;s.pw=nw;});
+  w.preset.forEach((ss,i)=>{const G=w.gx[i],k=G.key;ss.forEach(s=>{const nw=g2LightW(P,k,G.bw,s.w,f);s.w=nw;s.pw=nw;});
     if(w.ex[i]&&w.ex[i][3]!=null&&ss[0])w.ex[i][3]=ss[0].w;});
   w.focus+=" · "+(lbl||"после перерыва")+" −"+pc+" %";w.g2.brk=pc;return w;}
 /* перерыв для этого дня этапа (А / Б / В): самый длинный пропуск в программе после его последнего занятия.
    Так первое занятие КАЖДОГО дня после перерыва легче, а обычная ротация дней перерывом не считается */
-function g2DayGap(P,sl){const L=P.recs.filter(r=>r.kind==="train"&&r.stage===sl.si&&r.day===sl.day).map(r=>r.date).filter(Boolean).sort().pop();if(!L)return 0;
+function g2DayGap(P,sl){let L=P.recs.filter(r=>r.kind==="train"&&r.stage===sl.si&&r.day===sl.day).map(r=>r.date).filter(Boolean).sort().pop();
+  /* этот день на этапе ещё не делали — считаем от первого занятия этапа */
+  if(!L)L=P.recs.filter(r=>(r.kind==="train"||r.kind==="test")&&r.stage===sl.si&&r.date).map(r=>r.date).sort()[0];if(!L)return 0;
   const ds=P.recs.filter(r=>(r.kind==="train"||r.kind==="test")&&r.date&&r.date>=L).map(r=>r.date).sort();ds.push(localDate());
   let g=0;for(let i=1;i<ds.length;i++)g=Math.max(g,g2Days(ds[i-1],ds[i]));return g;}
 /* без перерыва: «Устал» — веса −10 % на это занятие, прогрессия этапа как после перерыва не меняется */
@@ -5101,6 +5161,7 @@ function g2AskWeight(i){const p=current.program,G=p.gx[i],k=G.key,X=G2X[k]||{n:k
     if(S.algo==="rm"||S.algo==="range")st.ws[k]=Object.assign(st.ws[k]||{},{w:w});
     else{const plan=S.algo==="agvt"?g2PlanAG(P,si,k,w):g2PlanP4(P,si,k,w);st.ws[k]=Object.assign(st.ws[k]||{},{ptr:1,plan:plan,scheme:"543",base:S.algo==="p4"?{w:w,r:10}:null,W0:w});cur=plan[1]||w;G.ptr=1;}
     P.updatedAt=g2Now();g2Save(v);
+    if(p.g2.brk>0)cur=g2LightW(P,k,X.bw,cur,1-p.g2.brk/100); /* занятие облегчено (перерыв / «Устал») — база этапа полная, сегодня легче */
     current.sets[i].forEach(se=>{if(!se.done){se.w=cur;se.pw=cur;}});
     el("gvtModal").hidden=true;saveDraft();renderWorkout();toast("Вес сохранён: "+g2Fmt(cur,k));};}
 
@@ -5331,7 +5392,7 @@ const PL_LIFTS=["Приседания со штангой","Жим лёжа","С
 const PL_DEF={"Приседания со штангой":100,"Жим лёжа":80,"Становая тяга":120};
 const PL_DAY=["Понедельник · присед","Среда · жим","Пятница · становая"];
 const PL_MAINPCT={1:72.5,2:75,3:77.5,4:80}, PL_OTHERPCT={1:62.5,2:65,3:67.5,4:70}, PL_DEADPCT={1:57.5,2:60,3:62.5,4:65};
-function plW(lift,pct){return rmW((rmReg()[lift]||PL_DEF[lift]),pct,2.5);}
+function plW(lift,pct){const m=+rmReg()[lift];if(!(m>0))return null; /* 1ПМ не заполнен — вес подберёшь сам */return wBar(m*pct/100,"down");}
 function plDay(w,d){
   const main=PL_LIFTS[d], others=PL_LIFTS.filter(l=>l!==main), ex=[];
   if(w<=4){
@@ -5648,7 +5709,7 @@ function finishCross(){const d=currentWod;if(!d)return;const sc=cfScoreType(d),s
    :sc==="reps"?`<label class="cf-lab">Всего повторов (калории гребли — как повторы)<input id="cfRp" class="food-in" inputmode="numeric"></label>`
    :sc==="done"?`<p class="cf-sub">Отметь тренировку выполненной — она попадёт в журнал и «Прогресс».</p>`:`<label class="cf-lab">Лучший вес, кг<input id="cfKg" class="food-in" inputmode="decimal"></label>`;
   const cap=el("cfCap");if(cap)cap.onchange=()=>{el("cfCapW").hidden=!cap.checked;};
-  el("cfResSave").onclick=()=>{const num=id=>{const x=el(id);return x?Number(String(x.value).replace(",",".")):NaN;};const r={id:Date.now()+"-"+Math.floor(Math.random()*1e4),wod:d.id,name:d.name,v:cfVar,sex:cfGet().sex,sc,date:localDate(),ts:Date.now()};
+  el("cfResSave").onclick=()=>{const num=id=>{const x=el(id);const t=x?String(x.value).trim():"";return t===""?NaN:Number(t.replace(",","."));};const r={id:Date.now()+"-"+Math.floor(Math.random()*1e4),wod:d.id,name:d.name,v:cfVar,sex:cfGet().sex,sc,date:localDate(),ts:Date.now()};
     if(sc==="time"){if(el("cfCap").checked){r.capped=true;r.reps=num("cfCapR");r.t=secs;if(!(r.reps>=0)){toast("Введи число повторов");return;}}else{const m=String(el("cfT").value).trim().match(/^(\d{1,3})(?::(\d{1,2}))?$/);if(!m){toast("Время в формате мин:сек, напр. 7:45");return;}r.t=m[2]!=null?(+m[1])*60+(+m[2]):+m[1]*60;if(m[2]!=null&&+m[2]>59){toast("Секунд не больше 59");return;}}}
     else if(sc==="rr"){r.r=num("cfR");r.reps=num("cfRp")||0;if(!(r.r>=0)){toast("Введи число раундов");return;}}
     else if(sc==="rounds"){r.r=num("cfR");if(!(r.r>=0)){toast("Введи число раундов");return;}}
@@ -6924,7 +6985,7 @@ function rmSaveCur(){rmPut(RM_LIFTS[rmLift][1],rmMax,"вручную");}
 let rmMax=100, rmStep=2.5, rmLift=0;
 function rmLoadLift(i){rmLift=i;rmMax=rmGet(i);renderRM();}
 /* рабочий вес = процент от 1ПМ, округлён ВВЕРХ до целого кг (67,5 → 68) */
-function rmW(max,pct,step){return Math.ceil(max*pct/100-1e-9);}
+function rmW(max,pct,step){const st=step>0?step:1;return Math.round(Math.floor(max*pct/100/st+1e-9)*st*100)/100;}
 function fmtW(w){return (Math.round(w*10)%10===0)?String(Math.round(w)):w.toFixed(1).replace(".",",");}
 function rmGet(i){const r=rmReg(),v=r[RM_LIFTS[i][1]];return v!=null&&(v>0||RM_LIFTS[i][3])?v:RM_LIFTS[i][2];}
 function renderRM(){
@@ -9345,7 +9406,7 @@ const FT_WK_NOTE=["Начало блока: большинству стоит н
 const FT_NOTE="Загрузка (дни 1–2) — 6–12 повт., подходы без пауз; до отказа — только последний подход базового упражнения, изоляцию можно. Группы A, B, C чередуются по неделям: 1-я — A, 2-я — B, 3-я — C, потом снова A. Нет прогресса две тренировки подряд — смени упражнения или их порядок. Памп — лёгкий вес, 15–25 повт. в суперсетах, после пары отдых 1 мин. Мышечный раунд (дни 3–4) — вес ≈ 15ПМ, 6×4 с отдыхом 10 с; не сделал и трёх заходов — вес велик. После каждой мышцы — растяжка 60–90 с.";
 /* ---------- HIIT 100's · Джим Стоппани (6 недель) ---------- */
 function hiitDays(wk){const RS=[[60,50],[40,40],[30,30],[20,20],[10,10],[0,0]][wk],RM=[[10,15],[10,15],[12,20],[12,20],[15,30],[15,30]][wk];
- const H=(nm,w,half)=>{const r=RS[half];return X(nm+" · HIIT 100",10,10,w,"10 × 10 с весом 50 % от 10ПМ. Отдых "+(r?r+" с":"0 с — 100 повт. подряд")+". "+(wk<3?"Подходы 1–3 — взрывно, 4–6 — медленно, с паузой 1–2 с в сокращении, 7–10 — просто дожми":"Просто сделай все 100 повт. с лучшей техникой, какая выходит")+". Не выходит 10 повт. до 8-го подхода — сразу сбрось 2–5 кг",Math.max(r,5));},
+ const H=(nm,w,half)=>{const r=RS[half];return X(nm+" · HIIT 100",10,10,w,"10 × 10 с весом 50 % от 10ПМ. Отдых "+(r?r+" с":"0 с — 100 повт. подряд")+". "+(wk<3?"Подходы 1–3 — взрывно, 4–6 — медленно, с паузой 1–2 с в сокращении, 7–10 — просто дожми":"Просто сделай все 100 повт. с лучшей техникой, какая выходит")+". Не выходит 10 повт. до 8-го подхода — сразу сбрось 2–5 кг",r>0?r:-1);},
   T=(nm,w)=>X(nm,3,7,w,"Вес 10ПМ (из теста) — после «сотни» выйдет ~5–7 повт. до отказа. 3-й подход — дроп-сет: до отказа, сбрось до веса «сотни» и снова до отказа. Отдых 60 с",60),
   A=(nm,w,big,one)=>{const rm=RM[big?0:1];return X(nm,3,rm,w,"До отказа с весом на "+rm+" повт. ("+rm+"ПМ)"+(one?"; одной рукой, затем сразу другой — отдых 60 с после обеих":"; отдых 60 с"),60);},
   B=(nm,w,half,extra)=>{const r=RS[half];return X(nm,10,10,w,"10 × 10, отдых "+r+" с"+(extra?". "+extra:""),Math.max(r,5));};
