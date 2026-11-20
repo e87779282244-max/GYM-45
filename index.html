@@ -644,7 +644,16 @@
   .td-row{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;border:none;border-top:1px solid var(--line);background:none;padding:9px 0 2px;color:var(--fg);font:inherit}
   .td-row span{display:flex;flex-direction:column;min-width:0}.td-row span b{font-weight:700;font-size:14px}.td-row span small{color:var(--muted);font-size:12.5px}
   .td-row i{font-style:normal;flex:none;font-size:12.5px;font-weight:700;color:var(--accent-ink)}
-  .td-stats{display:flex;gap:8px;flex-wrap:wrap}.td-stats button{border:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;text-align:left}
+  .td-stats{display:flex;gap:8px;flex-wrap:wrap}
+.td-dash{display:grid;grid-template-columns:1fr 1.2fr;gap:8px;margin:12px 0 10px}
+.td-dash>button{border:none;font:inherit;color:inherit;background:var(--accent-weak);border-radius:16px;padding:9px;display:flex;gap:8px;align-items:center;text-align:left;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;min-width:0}
+.td-dash .tr{position:relative;width:50px;height:50px;flex:none}.td-dash .tr svg{width:50px;height:50px;transform:rotate(-90deg)}
+.td-dash .tr circle{fill:none;stroke-width:5}.td-dash .tr .rb{stroke:rgba(0,0,0,.08)}.td-dash .tr .rf{stroke-linecap:round;transition:stroke-dashoffset .4s}
+.td-dash .tr b{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--accent-ink)}
+.td-dash .nw{white-space:nowrap}.td-dash .tx{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}.td-dash .tx b{font-size:13px;color:var(--accent-ink)}.td-dash .tx span{font-size:12px;color:var(--muted);line-height:1.25}
+.td-dash .mb{display:grid;grid-template-columns:14px 1fr auto;gap:4px;align-items:center;font-size:11px;color:var(--muted)}.td-dash .mb i{display:block;height:5px;border-radius:3px;background:rgba(0,0,0,.08);overflow:hidden}.td-dash .mb i em{display:block;height:100%;border-radius:3px}
+.td-dash .wt-pop{animation:tdPop .35s}@keyframes tdPop{50%{transform:scale(1.06)}}
+@media (max-width:360px){.td-dash{grid-template-columns:1fr}}.td-stats button{border:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;text-align:left}
   #scr-home .dash-two{display:none}
   .dash-logo svg{width:100%;max-width:150px}
   .dash-logo-img{display:block;width:100%;max-width:300px;height:auto;margin:0 auto;
@@ -7139,6 +7148,30 @@ function dashNextName(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"
   if(x.k==="tx"){const P=txActive();if(P)return "Техасский рейнджер · "+txDayName(P,txState(P).next);}
   if(x.k==="cj"){const P=cjActive();if(P)return "Тяжёлая артиллерия · "+CJ_DAY[cjState(P).next];}
   if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx)return nx.name;}}catch(e){}return "";}
+/* рабочий стол: вода и питание за сегодня */
+function tdRing(pc,col,txt){const r=23,L=2*Math.PI*r,v=Math.max(0,Math.min(1,pc));return `<span class="tr"><svg viewBox="0 0 58 58" aria-hidden="true"><circle class="rb" cx="29" cy="29" r="${r}"/><circle class="rf" cx="29" cy="29" r="${r}" stroke="${col}" stroke-dasharray="${L.toFixed(1)}" stroke-dashoffset="${(L*(1-v)).toFixed(1)}"/></svg><b>${txt}</b></span>`;}
+function tdDashHTML(t){let h='<div class="td-dash">';
+  try{const n=wtNorm(),dr=wtDrunk(),pc=n?dr/n.ml:0,por=tdPor();
+    h+=`<button type="button" id="tdWater" aria-label="Вода: добавить ${por} мл. Долгое нажатие — раздел «Вода»">${tdRing(pc,pc>=1?"var(--good,#4a7a2c)":"#5b9bd5",n?Math.round(pc*100)+"%":"💧")}
+      <span class="tx"><b>Вода</b><span class="nw">${n?ntF(dr/1000,2)+" / "+ntF(n.ml/1000,1)+" л":wtL(dr)}</span><span class="nw">${n?"":"укажи вес · "}+ ${wtSt().mode==="glass"?"стакан":por+" мл"}</span></span></button>`;}catch(e){}
+  try{const m=anFoodDays()[t]||{kcal:0,p:0,f:0,c:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&tg.kcal;
+    if(kt){const pc=m.kcal/kt,col=pc>1.1?"#d9822b":pc>=0.9?"var(--good,#4a7a2c)":"var(--accent,#5b6b2f)";
+      const bar=(l,v,g,c)=>`<span class="mb"><span>${l}</span><i><em style="width:${Math.min(100,g>0?v/g*100:0)}%;background:${c}"></em></i><span>${ntF(v)}/${ntF(g)}</span></span>`;
+      h+=`<button type="button" id="tdFood" aria-label="Питание: открыть дневник">${tdRing(pc,col,Math.round(pc*100)+"%")}
+        <span class="tx"><b class="nw">${ntF(m.kcal)} / ${ntF(kt)}</b><span>ккал</span>${bar("Б",m.p,tg.p,"#b5543b")}${bar("Ж",m.f,tg.f,"#c99a2e")}${bar("У",m.c,tg.c,"#5b8f3a")}</span></button>`;}
+    else h+=`<button type="button" id="tdFood" data-norm="1">${tdRing(0,"var(--accent)","🍽")}<span class="tx"><b>Питание</b><span>${ntF(m.kcal)} ккал сегодня</span><span>Рассчитать норму ›</span></span></button>`;}catch(e){}
+  return h+'</div>';}
+function tdPor(){const s=wtSt();return s.mode==="glass"?WT_GLASS:(+s.portion||WT_GLASS);}
+function tdFoodOpen(norm){try{FOOD_DAY=null;renderFood();show("food");if(norm||NT_TAB!=="diary")ntTab(norm?"norm":"diary");}catch(e){}}
+function tdDashBind(){const w=el("tdWater"),f=el("tdFood");
+  if(f)f.onclick=()=>tdFoodOpen(!!f.dataset.norm);
+  if(!w)return;let tm=null,long=false;
+  const openWater=()=>{tdFoodOpen(false);setTimeout(()=>{const c=el("wtCard");if(c)c.scrollIntoView({block:"start",behavior:"smooth"});},120);};
+  const down=e=>{long=false;clearTimeout(tm);tm=setTimeout(()=>{long=true;if(navigator.vibrate)navigator.vibrate(20);openWater();},550);};
+  const cancel=()=>{clearTimeout(tm);tm=null;};
+  w.addEventListener("pointerdown",down);w.addEventListener("pointerup",cancel);w.addEventListener("pointerleave",cancel);w.addEventListener("pointercancel",cancel);
+  w.addEventListener("contextmenu",e=>e.preventDefault());
+  w.onclick=()=>{if(long){long=false;return;}const por=tdPor();wtAdd(por,"water");toast("+"+por+" мл воды");try{renderToday();const n=el("tdWater");if(n)n.classList.add("wt-pop");}catch(e){}};}
 function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),L=mpList();
   const dd=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);};
   let html=`<div class="td-h"><b>Сегодня</b><span>${dd(t)}</span></div>`;
@@ -7149,13 +7182,13 @@ function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),
     else{const nx=S.find(o=>o.n!=="9999");shown=nx;html+=`<p class="td-rest">Сегодня отдых.${nx?" Следующая — "+dd(nx.n)+": "+nx.x.t+".":""}</p>`;}
     S.filter(o=>o!==shown).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
   const pl=weekPlan(),dn=weekDone();
-  let food="";try{const m=anFoodDays()[t]||{kcal:0,p:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&(tg.kcal||tg.target);food="Еда: "+ntF(m.kcal)+(kt?" из "+ntF(kt):"")+" ккал · белок "+ntF(m.p)+(tg&&tg.p?" / "+ntF(tg.p):"")+" г";}catch(e){}
-  html+=`<div class="td-stats"><button type="button" id="tdWeek">Неделя: ${dn}${pl?" из "+pl:""} ${plural(pl||dn,"тренировка","тренировки","тренировок")} ›</button>${food?`<button type="button" id="tdFood">${food} ›</button>`:""}</div>`;
+  html+=tdDashHTML(t);
+  html+=`<div class="td-stats"><button type="button" id="tdWeek">Неделя: ${dn}${pl?" из "+pl:""} ${plural(pl||dn,"тренировка","тренировки","тренировок")} ›</button></div>`;
   c.innerHTML=html;
   /* «Готовность к тренировке» — только в день тренировки по плану */
   try{const rb=document.querySelector("#scr-home .ready");if(rb)rb.style.display=(L.length&&L.some(x=>x.next&&x.next<=t))?"":"none";}catch(e){}
   if(el("tdPick"))el("tdPick").onclick=()=>show("programs");
-  if(el("tdWeek"))el("tdWeek").onclick=()=>show("progress");if(el("tdFood"))el("tdFood").onclick=()=>{try{el("homeFoodGo")?el("homeFoodGo").click():document.querySelector('#scr-home [data-go="nutrition"]').click();}catch(e){}};
+  if(el("tdWeek"))el("tdWeek").onclick=()=>show("progress");tdDashBind();
   if(el("tdGo")){const S=L.map((x,i)=>({x,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),x=(S.find(o=>o.n<=t)||S[0]).x;
     const m=c.querySelector(".td-main");m.querySelector("b").textContent=x.t;m.querySelector("span").textContent=dashNextName(x)||x.s;el("tdGo").onclick=()=>dashGo(x);}
   c.querySelectorAll(".td-row").forEach(b=>{const x=L[+b.dataset.i];b.querySelector("b").textContent=x.t;b.querySelector("small").textContent=dashNextName(x)||x.s;b.onclick=()=>x.open();});

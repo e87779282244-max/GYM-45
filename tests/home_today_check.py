@@ -40,7 +40,7 @@ async def m():
     await pg.evaluate("const v=auSt();delete v.act.y3t2;auSave(v);show('programs');show('home')")
     # питание за день
     await pg.evaluate("localStorage.setItem(FOODK,JSON.stringify([{id:1,date:localDate(),name:'x',kcal:1450,p:90,f:40,c:150}]));show('programs');show('home')");await pg.wait_for_timeout(100)
-    ok('питание за день на главной',await pg.evaluate("el('dashFoodT').textContent.includes('1')&&el('dashFoodT').textContent.includes('белок 90')&&el('dashToday').textContent.includes('белок 90')"),await pg.evaluate("el('dashFoodT').textContent"))
+    ok('питание за день на главной',await pg.evaluate("el('dashFoodT').textContent.includes('1')&&el('dashFoodT').textContent.includes('белок 90')&&!!el('tdFood')&&/1\\s?450/.test(el('tdFood').textContent)"),await pg.evaluate("el('tdFood').textContent"))
     ok('без горизонтальной прокрутки',await pg.evaluate("document.documentElement.scrollWidth<=innerWidth+1"))
     ok('без ошибок JS',not errs,errs[:3])
     await b.close()
