@@ -27,6 +27,6 @@ async def one(p,dev,mode):
 R=[]
 async def m():
   async with async_playwright() as p:
-    for dev in [(390,844),(430,932),(375,667)]:
+    for dev in [(390,844),(430,932),(393,734),(375,667)]:
       for mode in ['rest','train']: await one(p,dev,mode)
 asyncio.run(m());print(f'{sum(R)}/{len(R)}'+(' PASS' if all(R) else ''))

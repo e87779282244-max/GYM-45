@@ -668,7 +668,7 @@
   display:flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:11px;font-weight:700;position:relative}
 .hm-btn svg{width:15px;height:15px;flex:none}.hm-btn .sun{color:var(--lime-ink)}
 .hm-btn.bell::after{content:"";position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:#F59E0B}
-@media (max-width:380px){#homeThemeL{display:none}}
+@media (max-width:410px){#homeThemeL{display:none}}#scr-home .home-title{min-width:0}#scr-home .home-title b{overflow:hidden;text-overflow:ellipsis}
 /* карточка дня */
 #scr-home .td-card{position:relative;overflow:hidden;display:block;border:1px solid var(--hb-line);border-left:1px solid var(--hb-line);border-radius:26px;padding:16px;margin:0 0 14px;
   box-shadow:var(--hb-shadow);background-color:var(--surface);
@@ -703,6 +703,8 @@
 #scr-home .ready .seg-b:active{transform:scale(.965);box-shadow:none}#scr-home .ready .seg-b.on{background:var(--lime);color:var(--lime-fg);border-color:transparent;box-shadow:none}
 #scr-home .ready-head{margin:0;flex:0 1 92px;min-width:0}#scr-home .ready-head b{font-size:13px;line-height:1.15}#scr-home .ready-head span,#scr-home .ready-note{display:none}
 #scr-home .ready .seg{flex:1;min-width:0}#scr-home .ready .seg-b{padding:7px 2px;min-width:0;font-size:12px}
+#scr-home .td-card .ready{margin:12px 0 0;padding:10px 0 0;border:none;border-top:1px solid var(--hb-line);border-radius:0;background:none;box-shadow:none}
+#scr-home .td-card .ready-head{flex:0 0 auto}#scr-home .td-card .ready-head b{white-space:nowrap}
 /* вода + питание */
 .bento{display:grid;grid-template-columns:5fr 7fr;gap:12px;margin:0 0 14px}
 .bt{background:var(--surface);border:1px solid var(--hb-line);border-radius:24px;box-shadow:0 6px 20px -6px rgba(68,74,45,.12);min-width:0}
@@ -754,13 +756,72 @@
 .tool span{display:block;margin-top:2px;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ic.g{background:var(--lime-weak);color:var(--lime-ink)}.ic.a{background:var(--amb-weak);color:var(--amb)}.ic.w{background:var(--wat-weak);color:var(--wat)}.ic.v{background:rgba(168,85,247,.15);color:#9333ea}
 :root[data-theme="dark"] .ic.v{color:#c084fc}
-/* мягкое уплотнение под невысокий экран (без скрытия блоков) */
-#scr-home.fit1 .home-top{padding-bottom:10px;margin-bottom:10px}#scr-home.fit1 .td-card{padding:14px;margin-bottom:12px}#scr-home.fit1 .td-txt{margin-top:10px}
-#scr-home.fit1 .bento{gap:10px;margin-bottom:12px}#scr-home.fit1 .cmd{padding:12px;gap:10px}#scr-home.fit1 .tools{gap:8px}#scr-home.fit1 .tool{min-height:70px;padding:10px}#scr-home.fit1 .ready{margin-bottom:12px}
-#scr-home.fit2 .bt>button{padding:12px}#scr-home.fit2 .bt .tr{width:72px;height:72px}#scr-home.fit2 .bt-ring{margin:6px 0}#scr-home.fit2 .macs{margin-top:8px;padding:8px;gap:6px}
-#scr-home.fit2 .bt .add{min-height:38px}#scr-home.fit2 .cmd-brand{padding:6px 10px}#scr-home.fit2 .cmd-brand img{width:72px}#scr-home.fit2 .tool b{margin-top:6px}
-#scr-home.fit3 .tool{min-height:0;padding:9px 10px}#scr-home.fit3 .tool b{margin-top:5px}#scr-home.fit3 .tool .ic{width:28px;height:28px}#scr-home.fit3 .home-top{padding-bottom:8px;margin-bottom:8px}#scr-home.fit3 .td-card{padding:12px 14px}#scr-home.fit3 .td-txt{margin-top:8px}#scr-home.fit3 .bento,#scr-home.fit3 .ready,#scr-home.fit3 .td-card{margin-bottom:10px}#scr-home.fit3 .cmd{gap:8px;padding:10px}#scr-home.fit3 .tools{gap:7px}#scr-home.fit3 .bt>button{padding:11px}#scr-home.fit3 .macs{margin-top:6px}
-#scr-home.fit4 .tool{min-height:0;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:9px 10px}#scr-home.fit4 .tool .ti{display:contents}#scr-home.fit4 .tool .ic{grid-row:span 2;width:32px;height:32px}#scr-home.fit4 .tool .ch{display:none}#scr-home.fit4 .tool .ic{grid-row:auto}#scr-home.fit4 .tool b{margin-top:0;font-size:13px;line-height:1.2}#scr-home.fit4 .tool>span:last-child{display:none}#scr-home.fit4 .tool{min-height:54px}#scr-home.fit4 .bt .tr{width:64px;height:64px}#scr-home.fit4 .bt .tr b{font-size:13px}#scr-home.fit4 .td-nx .t{font-size:17px}
+/* ---- v3.1: крупнее, выпуклые кнопки, без пустот ---- */
+#scr-home{min-height:100vh;min-height:100dvh}
+#scr-home .home-title small{font-size:12px}#scr-home .home-title b{font-size:22px;white-space:nowrap}
+.hm-btn{height:44px;min-width:44px;padding:0 11px;font-size:13px}.hm-btn svg{width:17px;height:17px}
+.td-badge{font-size:11.5px;letter-spacing:.03em}.td-wk{font-size:12.5px;padding:5px 11px}
+.td-txt{font-size:13.5px;margin-top:12px}.td-nx .t{font-size:20px}.td-meta{font-size:13.5px}
+.td-go{width:50px;height:50px;border-radius:17px}.td-go svg{width:22px;height:22px}.td-go.wide{width:auto;font-size:16px;padding:0 16px 0 18px}
+.bt-h b{font-size:16px}.bt-h em{font-size:13px;padding:2px 7px}
+.bt .tr{width:90px;height:90px}.bt .tr b{font-size:17px}.bt .tr b svg{width:18px;height:18px}.bt-of{font-size:13px}
+.bt .add{min-height:46px;font-size:15px;border-radius:14px}
+.bt-food .kc b{font-size:27px}.bt-food .kc span{font-size:13.5px}.kbar{height:9px}
+.macs{gap:7px;padding:10px}.mc .l{font-size:13px}.mc i{height:7px}
+.bt-note{font-size:13.5px}
+.cmd-brand{padding:8px 12px}.cmd-brand .lg{gap:12px}
+.cmd-brand img{width:118px}
+.cmd-brand .nm{font-size:19px}.cmd-brand .nm i{font-size:11px}
+.cmd-brand small{font-size:11px;letter-spacing:.1em}
+.cmd-brand>span{display:none}
+/* плитки: значок слева, название и подпись справа */
+.tool{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:11px;align-content:center;align-items:center;padding:11px 12px;min-height:58px}
+.tool .ti{display:contents}.tool .ch{display:none}
+.tool .ic{grid-row:span 2;width:40px;height:40px;border-radius:13px}.tool .ic svg{width:20px;height:20px}
+.tool b{margin-top:0;font-size:15.5px;line-height:1.15;align-self:end}.tool span{margin-top:2px;font-size:12.5px;align-self:start}
+#scr-home .ready-head b{font-size:14px}#scr-home .ready .seg-b{font-size:13.5px;padding:9px 2px}
+.tab{font-size:11px;min-height:50px}.tab svg{width:22px;height:22px}
+/* экран заполняется: плитки инструментов растягиваются до нижнего меню */
+#scr-home .cmd{flex:1 0 auto}#scr-home .tools{flex:1;grid-auto-rows:1fr}
+/* выпуклые кнопки */
+#scr-home .tool,#scr-home .hm-btn,#scr-home .td-wk,#scr-home .ready .seg-b{
+  border:1px solid var(--key-edge);
+  background:radial-gradient(120% 90% at 50% 0%,rgba(255,255,255,.75) 0%,rgba(255,255,255,0) 55%),linear-gradient(180deg,var(--key-top),var(--key-bot));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),inset 0 -3px 6px rgba(140,115,50,.18),0 4px 0 var(--key-edge),0 8px 14px rgba(80,70,30,.16);
+  transition:transform .08s,box-shadow .08s}
+#scr-home .tool{margin-bottom:4px}
+#scr-home .tool:active,#scr-home .hm-btn:active,#scr-home .td-wk:active,#scr-home .ready .seg-b:active{transform:translateY(3px);
+  box-shadow:inset 0 2px 4px rgba(120,100,40,.22),0 1px 0 var(--key-edge),0 2px 4px rgba(80,70,30,.15)}
+:root[data-theme="dark"] #scr-home .tool,:root[data-theme="dark"] #scr-home .hm-btn,:root[data-theme="dark"] #scr-home .td-wk,:root[data-theme="dark"] #scr-home .ready .seg-b{
+  background:radial-gradient(120% 90% at 50% 0%,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 55%),linear-gradient(180deg,var(--key-top),var(--key-bot));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 4px 0 var(--key-edge),0 8px 14px rgba(0,0,0,.4)}
+#scr-home .ready .seg-b.on,.td-go,.tab.on{background:linear-gradient(180deg,#6fa62a,#4D7C0F);color:#fff;border:1px solid #3c620b;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.3),inset 0 -3px 6px rgba(0,0,0,.15),0 4px 0 #2f4f08,0 9px 16px rgba(47,79,8,.35);transition:transform .08s,box-shadow .08s}
+:root[data-theme="dark"] #scr-home .ready .seg-b.on,:root[data-theme="dark"] .td-go,:root[data-theme="dark"] .tab.on{background:linear-gradient(180deg,#d9f26e,#b3d138);color:#161912;border-color:#93ad2a;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 4px 0 #6d8219,0 9px 16px rgba(0,0,0,.45)}
+.td-go:active,#scr-home .ready .seg-b.on:active{transform:translateY(3px);box-shadow:inset 0 2px 4px rgba(0,0,0,.2),0 1px 0 #2f4f08}
+.tab.on{box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 3px 0 #2f4f08,0 6px 12px rgba(47,79,8,.3)}
+.bt-water .add{background:linear-gradient(180deg,#e6f5fd,#bfe3f5);border:1px solid #8cc6e3;color:#035e8f;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 4px 0 #7cb3d0,0 8px 14px rgba(3,94,143,.15)}
+.bt-food .add{background:linear-gradient(180deg,#fdf1d8,#f6d699);border:1px solid #e0b25e;color:#9a4a07;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 4px 0 #cf9d47,0 8px 14px rgba(154,74,7,.15)}
+:root[data-theme="dark"] .bt-water .add{background:linear-gradient(180deg,#1f4255,#163444);border-color:#0e2733;color:#7dd3fc;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 4px 0 #0a1c25,0 8px 14px rgba(0,0,0,.4)}
+:root[data-theme="dark"] .bt-food .add{background:linear-gradient(180deg,#4d3a16,#3d2d10);border-color:#2a1f0b;color:#fbbf24;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 4px 0 #1f1708,0 8px 14px rgba(0,0,0,.4)}
+.bt>button:active{transform:none}.bt>button:active .add{transform:translateY(3px);box-shadow:inset 0 2px 4px rgba(0,0,0,.15),0 1px 0 rgba(0,0,0,.15)}
+.bt .add{margin-bottom:4px;transition:transform .08s,box-shadow .08s}
+/* уплотнение, если не помещается (шрифты не меньше 13 px) */
+#scr-home.fit1 .home-top{padding-bottom:8px;margin-bottom:10px}#scr-home.fit1 .td-card{padding:13px 14px;margin-bottom:10px}#scr-home.fit1 .td-txt{margin-top:9px}
+#scr-home.fit1 .bento{gap:10px;margin-bottom:10px}#scr-home.fit1 .cmd{padding:11px;gap:10px}#scr-home.fit1 .tools{gap:9px}#scr-home.fit1 .ready{margin-bottom:10px}#scr-home.fit1 .bt>button{padding:12px}
+#scr-home.fit2 .mc .l{margin-bottom:2px}#scr-home.fit2 .mc i{height:6px}
+#scr-home.fit2 .macs{gap:7px;padding:0;margin-top:10px;background:none;border:none}#scr-home.fit2 .td-nx .t{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#scr-home.fit2 .bt .tr{width:84px;height:84px}#scr-home.fit2 .bt-ring{margin:4px 0}#scr-home.fit2 .bt .add{min-height:43px}#scr-home.fit2 .cmd-brand{padding:6px 12px}#scr-home.fit2 .cmd-brand img{width:108px}
+#scr-home.fit3 .tool>span:last-child{display:none}#scr-home.fit3 .tool b{align-self:center;grid-row:span 2}#scr-home.fit3 .tool{min-height:48px;padding:8px 11px}#scr-home.fit3 .tool .ic{width:36px;height:36px}#scr-home.fit3 .td-txt{display:none}#scr-home.fit3 .td-nx{margin-top:10px}
+#scr-home.fit3 .home-top{margin-bottom:8px}#scr-home.fit3 .bento,#scr-home.fit3 .ready,#scr-home.fit3 .td-card{margin-bottom:9px}
+#scr-home.fit4 .kbar{display:none}#scr-home.fit4 .bt .tr{width:74px;height:74px}#scr-home.fit4 .bt .tr b{font-size:15.5px}#scr-home.fit4 .bt-food .kc b{font-size:24px}#scr-home.fit4 .bt .add{min-height:40px;font-size:14.5px}
+#scr-home.fit4 .hm-btn{height:40px;min-width:40px}#scr-home.fit4 .td-go:not(.wide){width:46px;height:46px}#scr-home.fit4 .td-nx .t{display:block;white-space:nowrap;text-overflow:ellipsis}#scr-home.fit4 .td-go.wide{width:50px;height:50px;padding:0;justify-content:center;font-size:0;gap:0}#scr-home.fit4 .td-go.wide svg{width:24px;height:24px}#scr-home.fit4 .cmd-brand img{width:100px}#scr-home.fit4 .td-card{padding:11px 14px}
+#scr-home.fit4.fit5 .mc i{display:none}#scr-home.fit4.fit5 .mc .l{margin:0}#scr-home.fit4.fit5 .macs{gap:4px;margin-top:8px}#scr-home.fit4.fit5 .td-main .td-meta{display:none}#scr-home.fit4.fit5 .cmd-brand{padding:4px 12px}#scr-home.fit4.fit5 .cmd-brand img{width:92px}#scr-home.fit4.fit5 .ready .seg-b{padding:7px 2px}#scr-home.fit4.fit5 .td-card .ready{margin-top:9px;padding-top:8px}#scr-home.fit4.fit5 .tool{min-height:44px;padding:6px 10px}#scr-home.fit4.fit5 .td-card{padding:10px 14px}#scr-home.fit4.fit5 .bt .add{min-height:38px}#scr-home.fit4.fit5 .home-top{padding-bottom:4px;margin-bottom:6px}#scr-home.fit4.fit5 .bt-ring{margin:2px 0}#scr-home.fit4.fit5 .bt>button{padding:10px}#scr-home.fit4.fit5 .td-go.wide{width:46px;height:46px}#scr-home.fit4.fit5 .cmd{padding:8px;gap:7px}#scr-home.fit4.fit5 .tools{gap:7px}#scr-home.fit4.fit5 .td-top{margin-bottom:-2px}#scr-home.fit4.fit5 .bt-food .kc{margin-top:3px}#scr-home.fit4 .home-top{padding-bottom:6px;margin-bottom:7px}#scr-home.fit4 .avatar{width:44px;height:44px}#scr-home.fit4 .bento,#scr-home.fit4 .ready,#scr-home.fit4 .td-card{margin-bottom:8px}#scr-home.fit4 .bento{gap:8px}#scr-home.fit4 .cmd{gap:8px;padding:9px}#scr-home.fit4 .tools{gap:8px}#scr-home.fit4 .tool{min-height:46px}#scr-home.fit4 .bt>button{padding:11px}
+#scr-home.fit4 .bt .add{min-height:40px;font-size:14px}#scr-home.fit4 .hm-btn{height:40px;min-width:40px}#scr-home.fit4 .td-txt{font-size:13px}#scr-home.fit4 .cmd-brand img{width:96px}
+#scr-home.fit4 .bt .add{min-height:42px;font-size:15px}#scr-home.fit4 .cmd-brand img{width:100px}#scr-home.fit4 .cmd-brand .nm{font-size:19px}#scr-home.fit4 .hm-btn{height:42px;min-width:42px}
 
 
 
@@ -1357,7 +1418,7 @@
 
     <div class="card td-card" id="dashToday"></div>
     <div class="ready">
-      <div class="ready-head"><b>Готовность к тренировке</b><span id="readyState">Норма</span></div>
+      <div class="ready-head"><b>Готовность</b><span id="readyState">Норма</span></div>
       <div class="seg">
         <button class="seg-b" data-ready="Устал">Устал</button>
         <button class="seg-b on" data-ready="Норма">Норма</button>
@@ -7318,13 +7379,14 @@ function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),
       if(nx)html+=`<div class="td-nx" id="tdNext"><div><b class="t"></b><div class="td-meta"><em></em><span></span></div></div><button class="td-go" type="button" id="tdNextGo" aria-label="Открыть план тренировки">${ARW}</button></div>`;}
     S.filter(o=>o!==shown).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
   html+=`<div class="td-stats"></div>`;
+  {const rb=document.querySelector("#scr-home .ready");if(rb&&c.contains(rb))c.after(rb);}
   c.innerHTML=html;
   try{const nx=c.querySelector("#tdNext");if(nx){const S2=L.map(x=>({x,n:x.next||"9999"})).filter(o=>o.n!=="9999").sort((a,b)=>a.n.localeCompare(b.n))[0];
     if(S2){nx.querySelector(".t").textContent=S2.x.t;nx.querySelector(".td-meta em").textContent=Dc(S2.n);nx.querySelector(".td-meta span").textContent=dashNextName(S2.x)||S2.x.s||"";
       nx.querySelector(".t").onclick=()=>S2.x.open();nx.querySelector(".t").style.cursor="pointer";el("tdNextGo").onclick=()=>S2.x.open();}}}catch(e){}
   try{el("bentoWater").innerHTML=btWaterHTML();el("bentoFood").innerHTML=btFoodHTML(t);}catch(e){console.error(e);}
   /* «Готовность к тренировке» — только в день тренировки по плану */
-  try{const rb=document.querySelector("#scr-home .ready");if(rb)rb.style.display=(L.length&&L.some(x=>x.next&&x.next<=t))?"":"none";}catch(e){}
+  try{const rb=document.querySelector("#scr-home .ready");if(rb){const on=!!(L.length&&L.some(x=>x.next&&x.next<=t));rb.style.display=on?"":"none";const st=c.querySelector(".td-stats");if(on&&st)st.before(rb);}}catch(e){}
   if(el("tdPick"))el("tdPick").onclick=()=>show("programs");
   if(el("tdWeek"))el("tdWeek").onclick=()=>show("progress");tdDashBind();
   if(el("tdGo")){const S=L.map((x,i)=>({x,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),x=(S.find(o=>o.n<=t)||S[0]).x;
@@ -7334,16 +7396,19 @@ function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),
   try{const w=el("dashWeekT");if(w&&pl)w.textContent=dn+" из "+pl+" по плану";}catch(e){}}
 {const _rd=renderDashActive;renderDashActive=function(){_rd();try{renderToday();}catch(e){console.error(e);}};}
 /* рабочий стол — в один экран: включаем ступени сжатия, пока содержимое не поместится над нижним меню */
-function homeFit(){const h=el("scr-home");if(!h||h.hidden||currentScreen!=="home")return;const C=["fit1","fit2","fit3","fit4"];
+function homeFit(){const h=el("scr-home");if(!h||h.hidden||currentScreen!=="home")return;const C=["fit1","fit2","fit3","fit4","fit5"];
   const y=window.scrollY;C.forEach(c=>h.classList.remove(c));
   const nav=(document.querySelector(".nav-inner")||{}).parentElement,navH=nav?nav.getBoundingClientRect().height:0;
-  const fits=()=>{let bot=0;[...h.children].forEach(x=>{if(x.offsetParent!==null){const r=x.getBoundingClientRect();if(r.height)bot=Math.max(bot,r.bottom+window.scrollY);}});return bot<=window.innerHeight-navH-6;};
+  const fits=()=>{let bot=0;[...h.children].forEach(x=>{if(x.offsetParent!==null){const r=x.getBoundingClientRect();if(r.height)bot=Math.max(bot,r.bottom+window.scrollY);}});return bot<=window.innerHeight-navH-2;};
   for(let i=0;i<C.length&&!fits();i++)h.classList.add(C[i]);
   window.scrollTo(0,y);}
 {const _rt=renderToday;renderToday=function(){const r=_rt.apply(this,arguments);try{requestAnimationFrame(homeFit);}catch(e){}return r;};}
 {const _sh=show;show=function(n){const r=_sh.apply(this,arguments);if(n==="home")try{requestAnimationFrame(homeFit);}catch(e){}return r;};}
 addEventListener("resize",()=>{clearTimeout(window._hfT);window._hfT=setTimeout(homeFit,150);});
 addEventListener("orientationchange",()=>setTimeout(homeFit,300));
+addEventListener("load",()=>setTimeout(homeFit,60));try{document.fonts&&document.fonts.ready.then(()=>setTimeout(homeFit,30));}catch(e){}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(homeFit,120);});
+try{document.querySelectorAll("#scr-home img").forEach(i=>{if(!i.complete)i.addEventListener("load",()=>homeFit());});}catch(e){}
 /* кнопка досрочного завершения внутри экрана программы */
 function mpEndBtn(k,label){const b=document.createElement("button");b.type="button";b.className="tm-reset sk-reset mp-endin";b.textContent=label||"Завершить программу досрочно · итог в «Прогресс»";
   b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — программа завершится, итог сохранится в «Прогрессе»");return;}mpFinish(k);

@@ -22,7 +22,7 @@ async def m():
     await E("el('tdPick').click()");ok('стрелка → «Программы»',await E("currentScreen==='programs'"))
     await E("show('home')");await pg.wait_for_timeout(200)
     r=await E("(()=>{const i=document.querySelector('#scr-home .cmd-brand img');return [!!i,i&&i.naturalWidth,i&&Math.round(i.getBoundingClientRect().height),document.querySelector('#scr-home .cmd-brand').textContent]})()")
-    ok('командный центр: наш логотип загружен и виден, «GYM 45 PRO · Challenge accepted · Инструменты»',r[0] and r[1]>0 and r[2]>=20 and 'GYM 45' in r[3] and 'PRO' in r[3] and 'Инструменты' in r[3],r)
+    ok('командный центр: наш логотип загружен и виден, «GYM 45 PRO · Challenge accepted»',r[0] and r[1]>0 and r[2]>=20 and 'GYM 45' in r[3] and 'PRO' in r[3],r)
     tools=await E("[...document.querySelectorAll('#scr-home .tool')].map(b=>[b.dataset.go,b.querySelector('b').textContent])")
     ok('4 плитки инструментов',[t[0] for t in tools]==['programs','nutrition','progress','onerm'],tools)
     for go,scr in [('programs','programs'),('progress','progress')]:
