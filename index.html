@@ -67,7 +67,7 @@
   .screen{flex:1;display:flex;flex-direction:column;
     padding-left:max(18px,env(safe-area-inset-left,0px));
     padding-right:max(18px,env(safe-area-inset-right,0px));
-    padding-bottom:104px}
+    padding-bottom:calc(86px + max(10px,env(safe-area-inset-bottom,0px)))}
   .hd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
     padding-top:calc(22px + env(safe-area-inset-top,0px));padding-bottom:16px}
   .hd .eyebrow{font-family:var(--dsp);text-transform:uppercase;letter-spacing:.12em;
@@ -645,60 +645,122 @@
   .td-row span{display:flex;flex-direction:column;min-width:0}.td-row span b{font-weight:700;font-size:14px}.td-row span small{color:var(--muted);font-size:12.5px}
   .td-row i{font-style:normal;flex:none;font-size:12.5px;font-weight:700;color:var(--accent-ink)}
   .td-stats{display:flex;gap:8px;flex-wrap:wrap}
-/* ---- Рабочий стол · Bento ---- */
-.home-title small{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);opacity:.85;margin-bottom:1px}
-.td-card{border-left:none;border-radius:22px;gap:8px;margin:8px 0 10px;padding:14px 16px}
+/* ---- Рабочий стол · Bento v3 ---- */
+:root{--lime:#4D7C0F;--lime-fg:#fff;--lime-ink:#3F6212;--lime-weak:rgba(101,163,13,.15);--lime-line:rgba(101,163,13,.28);
+  --wat:#0369a1;--wat-ring:#38BDF8;--wat-weak:rgba(14,165,233,.15);--wat-line:rgba(14,165,233,.32);
+  --amb:#b45309;--amb-weak:rgba(245,158,11,.15);--amb-line:rgba(245,158,11,.34);
+  --hb-line:rgba(85,107,47,.14);--hb-shadow:0 8px 24px -6px rgba(68,74,45,.14);--hb-grid:rgba(85,107,47,.06);--hb-track:rgba(0,0,0,.1);--hb-el:#eae6d3}
+:root[data-theme="dark"]{--lime:#C8E64C;--lime-fg:#161912;--lime-ink:#C8E64C;--lime-weak:rgba(200,230,76,.15);--lime-line:rgba(200,230,76,.3);
+  --wat:#38BDF8;--wat-weak:rgba(56,189,248,.15);--wat-line:rgba(56,189,248,.3);--amb:#F59E0B;--amb-weak:rgba(245,158,11,.15);--amb-line:rgba(245,158,11,.3);
+  --hb-line:rgba(255,255,255,.08);--hb-shadow:0 8px 24px -8px rgba(0,0,0,.55);--hb-grid:rgba(200,230,76,.05);--hb-track:rgba(255,255,255,.1);--hb-el:#2f3620}
+#scr-home{padding-top:calc(10px + env(safe-area-inset-top,0px))}
+#scr-home .home-top{gap:12px;padding:4px 0 12px;margin-bottom:12px;border-bottom:1px solid var(--hb-line)}
+#scr-home .avatar{width:44px;height:44px;padding:2px;border:none;background:linear-gradient(45deg,#65A30D,#C8E64C);position:relative;overflow:visible}
+#scr-home .avatar svg{width:100%;height:100%;border-radius:50%;background:var(--surface-2);padding:6px 5px 0}
+#scr-home .avatar::after{content:"";position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#a7ab8a;box-shadow:0 0 0 2px var(--bg)}
+#scr-home .avatar.sync::after{background:#84cc16}
+#scr-home .home-title{text-align:left}
+#scr-home .home-title small{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 1px;white-space:nowrap}
+#scr-home .home-title b{font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.15}
+#scr-home .home-title span{display:none}
+.hm-acts{display:flex;align-items:center;gap:6px;flex:none}
+.hm-btn{height:40px;min-width:40px;padding:0 10px;border-radius:12px;border:1px solid var(--hb-line);background:var(--hb-el);color:var(--fg);
+  display:flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:11px;font-weight:700;position:relative}
+.hm-btn svg{width:15px;height:15px;flex:none}.hm-btn .sun{color:var(--lime-ink)}
+.hm-btn.bell::after{content:"";position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:#F59E0B}
+@media (max-width:380px){#homeThemeL{display:none}}
+/* карточка дня */
+#scr-home .td-card{position:relative;overflow:hidden;display:block;border:1px solid var(--hb-line);border-left:1px solid var(--hb-line);border-radius:26px;padding:16px;margin:0 0 14px;
+  box-shadow:var(--hb-shadow);background-color:var(--surface);
+  background-image:linear-gradient(to right,var(--hb-grid) 1px,transparent 1px),linear-gradient(to bottom,var(--hb-grid) 1px,transparent 1px);background-size:20px 20px}
+#scr-home .td-card::before{content:"";position:absolute;top:-48px;right:-48px;width:144px;height:144px;border-radius:50%;background:rgba(200,230,76,.18);filter:blur(24px);pointer-events:none}
+#scr-home .td-card>*{position:relative}
 .td-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.td-eb{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--good,#4a7a2c)}
-.td-eb.rest{color:var(--muted)}
-.td-top .td-eb{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.td-top .td-cal.td-bell{flex:none;display:grid;place-items:center;width:32px;height:32px;margin:0;padding:0;border:none;border-top:none;border-radius:50%;background:var(--accent-weak);font-size:15px;opacity:1;text-align:center}
-.td-wk{border:none;font:inherit;font-size:12.5px;font-weight:700;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;white-space:nowrap}
-.td-txt{margin:0;color:var(--muted);font-size:13.5px;line-height:1.35}
-.td-next{display:flex;flex-direction:column;gap:2px}
-.td-next b{font-family:var(--dsp);font-size:19px;line-height:1.15;color:var(--ink,inherit)}
-.td-next span{color:var(--muted);font-size:13px}
-.td-card .td-stats{display:flex;gap:8px;flex-wrap:wrap}
-.td-card .td-stats:empty{display:none}
-.td-stats .td-cal-chip{width:auto;margin:0;padding:4px 10px;border:none;border-radius:999px;background:transparent;color:var(--muted);opacity:1;font-size:12px;font-weight:600}
-.bento{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin:0 0 12px}
-.bt{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);min-width:0;overflow:hidden}
-.bt-food{grid-row:span 2}
-.bt>button{all:unset;box-sizing:border-box;display:flex;flex-direction:column;width:100%;height:100%;padding:12px 12px 12px;gap:6px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
-.bt-h{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
-.bt-h b{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.bt-h em{font-style:normal;font-family:var(--dsp);font-size:20px;font-weight:800;color:var(--accent-ink)}
-.bt-water .wv{display:flex;align-items:center;gap:10px}
-.bt .tr{position:relative;width:76px;height:76px;flex:none}.bt .tr svg{width:100%;height:100%;transform:rotate(-90deg)}
-.bt .tr circle{fill:none;stroke-width:5}.bt .tr .rb{stroke:rgba(0,0,0,.08)}.bt .tr .rf{stroke-linecap:round;transition:stroke-dashoffset .4s}
-.bt .tr b{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted);text-align:center;line-height:1.1}
-.bt-water .wl{display:flex;flex-direction:column;gap:1px;min-width:0}.bt-water .wl b{font-family:var(--dsp);font-size:20px;color:var(--accent-ink);white-space:nowrap}.bt-water .wl span{font-size:12px;color:var(--muted);white-space:nowrap}
-.bt .add{align-self:stretch;text-align:center;border-radius:12px;padding:7px 8px;font-size:13px;font-weight:700;background:var(--accent-weak);color:var(--accent-ink);margin-top:auto}
-.bt-food .kc{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.bt-food .kc b{font-family:var(--dsp);font-size:30px;line-height:1;color:var(--accent-ink)}.bt-food .kc span{font-size:12.5px;color:var(--muted)}
-.bt-food .mc{display:flex;flex-direction:column;gap:4px}.bt-food .mc span{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}.bt-food .mc span b{font-weight:700;color:var(--accent-ink)}
-.bt-food .mc i{display:block;height:7px;border-radius:4px;background:rgba(0,0,0,.08);overflow:hidden}.bt-food .mc i em{display:block;height:100%;border-radius:4px}
-.bt-food .macs{display:flex;flex-direction:column;gap:9px;margin:4px 0 6px}
-.bt-brand{display:flex;align-items:center;justify-content:center;padding:8px;background:linear-gradient(160deg,var(--accent-weak),var(--surface))}
-.bt-brand .dash-logo-img{width:100%;max-width:150px;height:auto;max-height:100%;object-fit:contain}
-.tools-h{font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:2px 2px 8px}
-.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.tool{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:12px;min-width:0}
-.tool i{grid-row:span 2;font-style:normal;font-size:20px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--accent-weak)}
-.tool b{font-family:var(--dsp);font-size:15px;line-height:1.15;color:var(--accent-ink);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.tool span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bt .wt-pop{animation:btPop .35s}@keyframes btPop{50%{transform:scale(1.04)}}
+.td-badge{display:inline-flex;align-items:center;gap:6px;min-width:0;padding:4px 9px;border-radius:999px;background:var(--lime-weak);border:1px solid var(--lime-line);
+  color:var(--lime-ink);font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.td-badge i{flex:none;width:6px;height:6px;border-radius:50%;background:var(--lime);animation:tdPulse 2s ease-in-out infinite}
+.td-badge.none{background:var(--hb-el);border-color:var(--hb-line);color:var(--muted)}.td-badge.none i{background:var(--muted);animation:none}
+@keyframes tdPulse{50%{opacity:.3}}
+.td-wk{flex:none;display:inline-flex;align-items:center;gap:4px;border:1px solid var(--hb-line);background:var(--hb-el);color:var(--fg);border-radius:999px;padding:4px 10px;
+  font:inherit;font-size:11.5px;font-weight:700;white-space:nowrap}.td-wk i{font-style:normal;color:var(--lime-ink)}
+.td-txt{margin:14px 0 0;font-size:12px;font-weight:500;color:var(--muted);line-height:1.35}
+.td-nx{margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.td-nx>div{min-width:0}.td-nx.td-main{flex-direction:row;gap:12px}
+.td-nx .t{display:block;font-size:18px;font-weight:900;letter-spacing:-.015em;line-height:1.25;color:var(--fg)}
+.td-meta{margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:var(--muted)}
+.td-meta em{font-style:normal;padding:2px 8px;border-radius:6px;background:var(--hb-el);color:var(--fg);font-weight:700;white-space:nowrap}
+.td-meta em:empty{display:none}.td-meta span:empty{display:none}.td-meta em:not(:empty)+span:not(:empty)::before{content:"•";margin-right:8px}
+.td-go{flex:none;width:44px;height:44px;border-radius:16px;border:none;background:var(--lime);color:var(--lime-fg);display:grid;place-items:center;
+  box-shadow:0 6px 14px -4px rgba(77,124,15,.45);font:inherit;font-weight:800;font-size:14px;cursor:pointer}
+.td-go svg{width:20px;height:20px}
+.td-go.wide{width:auto;padding:0 14px 0 16px;display:flex;gap:6px;align-items:center}.td-go.wide svg{width:18px;height:18px}
+#scr-home .td-card .td-row{margin-top:10px}
+#scr-home .td-card .td-stats{margin-top:10px}#scr-home .td-card .td-stats:empty{display:none}
+#scr-home .td-card .gu-row{margin-bottom:12px}
 /* «Готовность» — одной строкой */
-#scr-home .ready{padding:8px 10px;margin:0 0 10px;display:flex;align-items:center;gap:10px;border-radius:18px}
+#scr-home .ready{padding:6px 6px 6px 12px;margin:0 0 14px;display:flex;align-items:center;gap:10px;border-radius:18px;background:var(--surface);border:1px solid var(--hb-line);box-shadow:0 6px 20px -8px rgba(68,74,45,.12)}
+#scr-home .ready .seg{gap:4px}#scr-home .ready .seg-b{border-radius:12px;border:1px solid var(--hb-line);background:var(--hb-el);color:var(--fg);box-shadow:none;font-weight:700}
+#scr-home .ready .seg-b:active{transform:scale(.965);box-shadow:none}#scr-home .ready .seg-b.on{background:var(--lime);color:var(--lime-fg);border-color:transparent;box-shadow:none}
 #scr-home .ready-head{margin:0;flex:0 1 92px;min-width:0}#scr-home .ready-head b{font-size:13px;line-height:1.15}#scr-home .ready-head span,#scr-home .ready-note{display:none}
 #scr-home .ready .seg{flex:1;min-width:0}#scr-home .ready .seg-b{padding:7px 2px;min-width:0;font-size:12px}
-/* ступени сжатия под высоту экрана */
-#scr-home.fit1 .td-card{padding:12px 14px;gap:6px}#scr-home.fit1 .tool{padding:10px}#scr-home.fit1 .bento{gap:8px;margin-bottom:10px}#scr-home.fit1 .tools{gap:8px}
-#scr-home.fit2 #tdGo{padding-top:11px;padding-bottom:11px}#scr-home.fit2 .td-eb{font-size:10.5px;letter-spacing:.06em}#scr-home.fit2 .bt .tr{width:64px;height:64px}#scr-home.fit2 .bt-food .kc b{font-size:26px}#scr-home.fit2 .bt-food .macs{gap:7px}#scr-home.fit2 .bt>button{padding:10px}
-#scr-home.fit3 .tool span{display:none}#scr-home.fit3 .tool i{grid-row:auto;width:30px;height:30px;font-size:16px}#scr-home.fit3 .td-txt{display:none}
-#scr-home.fit4 .home-title span{display:none}#scr-home.fit4 .tools-h{display:none}#scr-home.fit4 .bt-brand .dash-logo-img{max-width:110px}
-#scr-home.fit5 .tools{grid-template-columns:repeat(4,1fr);gap:6px}#scr-home.fit5 .tool{grid-template-columns:1fr;justify-items:center;text-align:center;padding:8px 4px;row-gap:4px}#scr-home.fit5 .tool span{display:none}#scr-home.fit5 .tool b{font-size:11.5px!important;white-space:normal}#scr-home.fit5 .tool i{grid-row:auto}
-#scr-home.fit5 .bt .tr{width:54px;height:54px}#scr-home.fit5 .bt .tr b{font-size:11px}#scr-home.fit5 .bt-water .wl b{font-size:17px}#scr-home.fit5 .tool{padding:8px}#scr-home.fit5 .tool b{font-size:13.5px}
-#scr-home.fit6 .td-next b{font-size:16px}#scr-home.fit6 #tdMealAdd{display:none}#scr-home.fit6 .bt-food .macs{margin-bottom:0}#scr-home.fit6 .bt-food .kc b{font-size:22px}#scr-home.fit6 .bt-food .mc span{font-size:11.5px}#scr-home.fit6 .bt .add{padding:5px 6px;font-size:12px}
+/* вода + питание */
+.bento{display:grid;grid-template-columns:5fr 7fr;gap:12px;margin:0 0 14px}
+.bt{background:var(--surface);border:1px solid var(--hb-line);border-radius:24px;box-shadow:0 6px 20px -6px rgba(68,74,45,.12);min-width:0}
+.bt>button{all:unset;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;width:100%;height:100%;padding:14px;cursor:pointer;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.bt span{display:block}
+.bt-h{display:flex!important;justify-content:space-between;align-items:center;gap:6px}
+.bt-h b{font-size:13px;font-weight:800;letter-spacing:-.01em;color:var(--fg)}
+.bt-h em{font-style:normal;font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px}
+.bt-water .bt-h em{color:var(--wat);background:var(--wat-weak)}.bt-food .bt-h em{color:var(--amb);background:var(--amb-weak)}
+.bt-ring{margin:10px 0;flex:1;display:flex!important;flex-direction:column;align-items:center;justify-content:center}
+.bt .tr{position:relative;width:84px;height:84px}
+.bt .tr>svg{width:100%;height:100%;transform:rotate(-90deg)}
+.bt .tr circle{fill:none;stroke-width:8}.bt .tr .rb{stroke:var(--hb-track)}.bt .tr .rf{stroke-linecap:round;transition:stroke-dashoffset .55s cubic-bezier(.34,1.56,.64,1)}
+.bt .tr b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--fg);white-space:nowrap}
+.bt .tr b svg{width:16px;height:16px;margin-bottom:2px;color:var(--wat-ring)}
+.bt-of{margin-top:6px;font-size:11px;font-weight:500;color:var(--muted)}
+.bt .add{display:flex!important;align-items:center;justify-content:center;width:100%;box-sizing:border-box;min-height:42px;border-radius:12px;font-size:12.5px;font-weight:800;text-align:center}
+.bt-water .add{background:var(--wat-weak);border:1px solid var(--wat-line);color:var(--wat)}
+.bt-food .add{margin-top:10px;background:var(--amb-weak);border:1px solid var(--amb-line);color:var(--amb)}
+.bt-food .kc{margin-top:6px;display:flex!important;align-items:baseline;gap:6px;flex-wrap:wrap}.bt-food .kc b{font-size:22px;font-weight:900;line-height:1;color:var(--fg)}.bt-food .kc span{font-size:12px;font-weight:600;color:var(--muted)}
+.kbar{margin-top:8px;height:8px;border-radius:99px;background:var(--hb-track);overflow:hidden}.kbar em{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#facc15);transition:width .5s}
+.kbar.over em{background:linear-gradient(90deg,#f97316,#ef4444)}
+.macs{margin-top:12px;display:flex!important;flex-direction:column;gap:8px;padding:10px;border-radius:12px;background:var(--hb-el);border:1px solid var(--hb-line)}
+.mc .l{display:flex!important;justify-content:space-between;gap:6px;font-size:11px;margin-bottom:3px}.mc .l b{font-weight:700}.mc .l span{font-weight:600;color:var(--muted);white-space:nowrap}
+.mc i{display:block;height:6px;border-radius:99px;background:var(--hb-track);overflow:hidden}.mc i em{display:block;height:100%;border-radius:99px;transition:width .5s}
+.mc.p b{color:#059669}.mc.p em{background:#10b981}.mc.f b{color:#d97706}.mc.f em{background:#f59e0b}.mc.c b{color:#0284c7}.mc.c em{background:#38bdf8}
+:root[data-theme="dark"] .mc.p b{color:#34d399}:root[data-theme="dark"] .mc.f b{color:#fbbf24}:root[data-theme="dark"] .mc.c b{color:#38bdf8}
+.bt-note{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.35}
+.bt .wt-pop{animation:btPop .35s}@keyframes btPop{50%{transform:scale(1.04)}}
+/* командный центр */
+.cmd{background:var(--surface);border:1px solid var(--hb-line);border-radius:26px;padding:14px;box-shadow:0 6px 20px -6px rgba(68,74,45,.12);display:flex;flex-direction:column;gap:12px;margin:0 0 14px}
+.cmd-brand{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:16px;
+  background:linear-gradient(90deg,#23271E,#2C3125,#1D2019);border:1px solid rgba(200,230,76,.25);color:#fff}
+.cmd-brand .lg{display:flex;align-items:center;gap:10px;min-width:0}
+.cmd-brand img{display:block;width:84px;height:auto;flex:none;filter:brightness(2.1) contrast(1.15) drop-shadow(0 0 1px rgba(255,255,255,.5))}
+.cmd-brand .nm{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:900;letter-spacing:.04em;white-space:nowrap}
+.cmd-brand .nm i{font-style:normal;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:#C8E64C;color:#161912}
+.cmd-brand small{display:block;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(200,230,76,.9);white-space:nowrap}
+.cmd-brand>span{font-size:11px;font-weight:600;color:rgba(255,255,255,.6);white-space:nowrap}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tool{display:flex;flex-direction:column;justify-content:space-between;min-height:78px;padding:12px;border-radius:16px;background:var(--hb-el);border:1px solid var(--hb-line);
+  text-align:left;font:inherit;color:var(--fg);min-width:0;cursor:pointer;transition:transform .14s}
+.tool:active,.td-go:active,.bt>button:active{transform:scale(.965)}
+.tool .ti{display:flex;justify-content:space-between;align-items:center;width:100%}
+.tool .ic{width:32px;height:32px;border-radius:12px;display:grid;place-items:center}.tool .ic svg{width:16px;height:16px}
+.tool .ch{width:16px;height:16px;color:var(--muted)}
+.tool b{display:block;margin-top:8px;font-size:13px;font-weight:800;line-height:1.2}
+.tool span{display:block;margin-top:2px;font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ic.g{background:var(--lime-weak);color:var(--lime-ink)}.ic.a{background:var(--amb-weak);color:var(--amb)}.ic.w{background:var(--wat-weak);color:var(--wat)}.ic.v{background:rgba(168,85,247,.15);color:#9333ea}
+:root[data-theme="dark"] .ic.v{color:#c084fc}
+/* мягкое уплотнение под невысокий экран (без скрытия блоков) */
+#scr-home.fit1 .home-top{padding-bottom:10px;margin-bottom:10px}#scr-home.fit1 .td-card{padding:14px;margin-bottom:12px}#scr-home.fit1 .td-txt{margin-top:10px}
+#scr-home.fit1 .bento{gap:10px;margin-bottom:12px}#scr-home.fit1 .cmd{padding:12px;gap:10px}#scr-home.fit1 .tools{gap:8px}#scr-home.fit1 .tool{min-height:70px;padding:10px}#scr-home.fit1 .ready{margin-bottom:12px}
+#scr-home.fit2 .bt>button{padding:12px}#scr-home.fit2 .bt .tr{width:72px;height:72px}#scr-home.fit2 .bt-ring{margin:6px 0}#scr-home.fit2 .macs{margin-top:8px;padding:8px;gap:6px}
+#scr-home.fit2 .bt .add{min-height:38px}#scr-home.fit2 .cmd-brand{padding:6px 10px}#scr-home.fit2 .cmd-brand img{width:72px}#scr-home.fit2 .tool b{margin-top:6px}
+#scr-home.fit3 .tool{min-height:0;padding:9px 10px}#scr-home.fit3 .tool b{margin-top:5px}#scr-home.fit3 .tool .ic{width:28px;height:28px}#scr-home.fit3 .home-top{padding-bottom:8px;margin-bottom:8px}#scr-home.fit3 .td-card{padding:12px 14px}#scr-home.fit3 .td-txt{margin-top:8px}#scr-home.fit3 .bento,#scr-home.fit3 .ready,#scr-home.fit3 .td-card{margin-bottom:10px}#scr-home.fit3 .cmd{gap:8px;padding:10px}#scr-home.fit3 .tools{gap:7px}#scr-home.fit3 .bt>button{padding:11px}#scr-home.fit3 .macs{margin-top:6px}
+#scr-home.fit4 .tool{min-height:0;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:9px 10px}#scr-home.fit4 .tool .ti{display:contents}#scr-home.fit4 .tool .ic{grid-row:span 2;width:32px;height:32px}#scr-home.fit4 .tool .ch{display:none}#scr-home.fit4 .tool .ic{grid-row:auto}#scr-home.fit4 .tool b{margin-top:0;font-size:13px;line-height:1.2}#scr-home.fit4 .tool>span:last-child{display:none}#scr-home.fit4 .tool{min-height:54px}#scr-home.fit4 .bt .tr{width:64px;height:64px}#scr-home.fit4 .bt .tr b{font-size:13px}#scr-home.fit4 .td-nx .t{font-size:17px}
 
 
 
@@ -782,17 +844,17 @@
     box-shadow:0 3px 0 var(--edge);margin-top:4px}
 
   /* ---- bottom nav ---- */
-  nav{position:fixed;left:0;right:0;bottom:0;z-index:30;
-    background:var(--surface);border-top:1px solid var(--line);
-    padding-bottom:env(safe-area-inset-bottom,0px)}
-  .nav-inner{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);
-    padding:8px max(14px,env(safe-area-inset-left,0px)) 8px max(14px,env(safe-area-inset-right,0px))}
-  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;
-    color:var(--muted);padding:6px 0;font-family:var(--dsp);font-weight:700;font-size:10px;
-    text-transform:uppercase;letter-spacing:.02em}
-  .tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:30;pointer-events:none;
+    padding:0 0 max(10px,env(safe-area-inset-bottom,0px))}
+  .nav-inner{pointer-events:auto;width:calc(100% - 28px);max-width:400px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
+    padding:6px;border-radius:26px;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--hb-line);
+    -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 14px 34px -8px rgba(40,38,20,.35)}
+  .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;
+    color:var(--muted);min-height:48px;padding:4px 0;border-radius:20px;font-family:var(--dsp);font-weight:700;font-size:10.5px;
+    letter-spacing:.01em;transition:background .18s,color .18s;min-width:0}
+  .tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;
     stroke-linecap:round;stroke-linejoin:round}
-  .tab.on{color:var(--accent)}
+  .tab.on{color:var(--lime-fg);background:var(--lime);font-weight:800}
   .sticky-foot{position:fixed;left:0;right:0;bottom:0;z-index:35;
     padding:12px max(18px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px));
     background:linear-gradient(to top,var(--app) 70%,transparent);max-width:440px;margin:0 auto}
@@ -869,8 +931,8 @@
   .day-row.done .day-st{color:var(--good)}
   /* режим тренировки: всё упражнение в одном окне */
   #scr-workout{flex:none;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;min-height:0;overflow:hidden;
-    padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
-  #scr-workout.resting{padding-bottom:calc(148px + env(safe-area-inset-bottom,0px))}
+    padding-bottom:calc(74px + max(10px,env(safe-area-inset-bottom,0px)))}
+  #scr-workout.resting{padding-bottom:calc(134px + max(10px,env(safe-area-inset-bottom,0px)))}
   .wk-hd{padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:8px}
   .wk-hd h1{font-size:23px}
   .wk-hd .icon-btn{width:46px;height:46px;font-size:22px}
@@ -898,7 +960,7 @@
   #wkFoot .btn{font-size:14px;letter-spacing:.03em;padding:15px 8px;white-space:nowrap}
   body.toast-top .toast{bottom:auto;top:calc(84px + env(safe-area-inset-top,0px))}
   .wk-rest{position:fixed;left:50%;transform:translateX(-50%);width:min(404px,calc(100% - 36px));
-    bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:36;display:flex;align-items:center;gap:8px;
+    bottom:calc(72px + max(10px,env(safe-area-inset-bottom,0px)));z-index:36;display:flex;align-items:center;gap:8px;
     background:linear-gradient(180deg,#6d7f38,#47561d);color:#f6f3e6;border:1px solid #39431a;border-radius:14px;
     padding:8px 10px 8px 14px;box-shadow:var(--shadow)}
   .wk-rest-l{font-family:var(--dsp);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:12px;opacity:.85}
@@ -1284,7 +1346,7 @@
     <div class="home-top">
       <button type="button" class="avatar" id="homeAvatar" aria-label="Профиль"><svg viewBox="0 0 24 24" fill="var(--muted)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg></button>
       <div class="home-title"><small id="homeEyebrow">GYM 45</small><b>Рабочий стол</b><span id="cloudStatus">Gym 45</span></div>
-      <button class="icon-btn" id="homeMenu" title="Меню">☰</button>
+      <div class="hm-acts" id="homeActs"><button type="button" class="hm-btn" id="homeMenu" title="Тема оформления"><svg class="sun" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg><span id="homeThemeL">Песочная</span></button></div>
     </div>
 
     <div id="draftBanner" hidden style="margin:10px 0;padding:12px 14px;border-radius:14px;background:var(--accent-weak);color:var(--accent-ink);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -1307,14 +1369,15 @@
     <div class="bento" id="homeBento">
       <div class="bt bt-water" id="bentoWater"></div>
       <div class="bt bt-food" id="bentoFood"></div>
-      <div class="bt bt-brand"><img class="dash-logo-img" src="media/gymlogo3.webp?v=3" fetchpriority="high" decoding="async" alt="GYM 45" width="1283" height="753"></div>
     </div>
-    <div class="tools-h">Инструменты</div>
-    <div class="tools">
-      <button class="tool" data-go="programs" type="button"><i>🏋️</i><b>Выбрать программу</b><span>Сила, масса, GVT</span></button>
-      <button class="tool" data-go="nutrition" type="button"><i>🍽</i><b>Питание</b><span>Дневник и рацион</span></button>
-      <button class="tool" data-go="progress" type="button"><i>📈</i><b>Прогресс</b><span>Замеры и графики</span></button>
-      <button class="tool" data-go="onerm" type="button"><i>🧮</i><b>Расчёт весов</b><span>Калькулятор 1ПМ</span></button>
+    <div class="cmd" id="homeCmd">
+      <div class="cmd-brand"><div class="lg"><img src="media/gymemblem.webp?v=1" alt="GYM 45" width="640" height="276" decoding="async" fetchpriority="high"><div><div class="nm">GYM 45<i>PRO</i></div><small>Challenge accepted</small></div></div><span>Инструменты</span></div>
+      <div class="tools">
+      <button class="tool" data-go="programs" type="button"><span class="ti"><span class="ic g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span><b>Выбрать программу</b><span>Сила, масса, GVT</span></button>
+      <button class="tool" data-go="nutrition" type="button"><span class="ti"><span class="ic a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span><b>Питание</b><span>Дневник и рацион</span></button>
+      <button class="tool" data-go="progress" type="button"><span class="ti"><span class="ic w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span><b>Прогресс</b><span>Замеры и графики</span></button>
+      <button class="tool" data-go="onerm" type="button"><span class="ti"><span class="ic v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span><b>Расчёт весов</b><span>Калькулятор 1ПМ</span></button>
+      </div>
     </div>
 
     <div class="card mp-card" id="dashActive" hidden></div>
@@ -3394,7 +3457,9 @@ document.querySelectorAll(".seg-b").forEach(b=>b.onclick=()=>{
 /* выбор готовности держится до конца дня, на следующий день — снова «Норма» */
 try{const o=JSON.parse(localStorage.getItem("gym45_ready_v1")||"null");if(o&&o.d===localDate()&&o.v!=="Норма"){const b=document.querySelector('.ready .seg-b[data-ready="'+o.v+'"]');if(b)b.click();}}catch(e){}
 el("homeMenu").addEventListener("click",()=>{const r=document.documentElement;
-  r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark");});
+  r.setAttribute("data-theme",r.getAttribute("data-theme")==="dark"?"light":"dark");hmThemeL();});
+function hmThemeL(){const l=el("homeThemeL");if(l)l.textContent=document.documentElement.getAttribute("data-theme")==="dark"?"Тёмная":"Песочная";}
+hmThemeL();try{new MutationObserver(hmThemeL).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});}catch(e){}
 const STREET=[
  {name:"День 1 · Подтягивания",sub:"Спина · бицепс · кор",focus:"Тяга",ex:[
    ["Подтягивания с весом",4,5,10],["Тяга штанги в наклоне",3,10,50],
@@ -7214,16 +7279,18 @@ function dashNextName(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"
   if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx)return nx.name;}}catch(e){}return "";}
 /* рабочий стол: вода и питание за сегодня */
 function tdRing(pc,col,txt){const r=25,L=2*Math.PI*r,v=Math.max(0,Math.min(1,pc));return `<span class="tr"><svg viewBox="0 0 58 58" aria-hidden="true"><circle class="rb" cx="29" cy="29" r="${r}"/><circle class="rf" cx="29" cy="29" r="${r}" stroke="${col}" stroke-dasharray="${L.toFixed(1)}" stroke-dashoffset="${(L*(1-v)).toFixed(1)}"/></svg><b>${txt}</b></span>`;}
-function btWaterHTML(){const n=wtNorm(),dr=wtDrunk(),pc=n?dr/n.ml:0,por=tdPor(),g=wtSt().mode==="glass";
+const TD_DROP='<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 2a1 1 0 01.707.293l5 5a7 7 0 11-11.414 0l5-5A1 1 0 0110 2z" clip-rule="evenodd"/></svg>';
+function btWaterHTML(){const n=wtNorm(),dr=wtDrunk(),pc=n?dr/n.ml:0,por=tdPor(),g=wtSt().mode==="glass",r=40,L=2*Math.PI*r,v=Math.max(0,Math.min(1,pc));
   return `<button type="button" id="tdWater" aria-label="Вода: добавить ${por} мл. Долгое нажатие — раздел «Вода»"><span class="bt-h"><b>Вода</b><em>${n?Math.round(pc*100)+"%":"—"}</em></span>
-    <span class="wv">${tdRing(pc,pc>=1?"var(--good,#4a7a2c)":"#5b9bd5","💧")}<span class="wl"><b>${ntF(dr/1000,2)} л</b><span>${n?"из "+ntF(n.ml/1000,1)+" л":"укажи вес"}</span></span></span>
+    <span class="bt-ring"><span class="tr"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="rb" cx="50" cy="50" r="${r}"/><circle class="rf" cx="50" cy="50" r="${r}" stroke="${pc>=1?"#22c55e":"var(--wat-ring)"}" stroke-dasharray="${L.toFixed(2)}" stroke-dashoffset="${(L*(1-v)).toFixed(2)}"/></svg><b>${TD_DROP}${ntF(dr/1000,2)} л</b></span>
+    <span class="bt-of">${n?"из "+ntF(n.ml/1000,1)+" л":"укажи вес в профиле"}</span></span>
     <span class="add">+ ${g?"стакан":por+" мл"}</span></button>`;}
 function btFoodHTML(t){const m=anFoodDays()[t]||{kcal:0,p:0,f:0,c:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&tg.kcal;
-  if(!kt)return `<button type="button" id="tdFood" data-norm="1"><span class="bt-h"><b>Питание</b><em>—</em></span><span class="kc"><b>${ntF(m.kcal)}</b><span>ккал сегодня</span></span><span class="td-txt">Норма не рассчитана — посчитаем по росту, весу и цели.</span><span class="add">Рассчитать норму</span></button>`;
-  const pc=m.kcal/kt,bar=(l,v,g,c)=>`<span class="mc"><span>${l}<b>${ntF(v)} / ${ntF(g)} г</b></span><i><em style="width:${Math.min(100,g>0?v/g*100:0)}%;background:${c}"></em></i></span>`;
-  return `<button type="button" id="tdFood" aria-label="Питание: открыть дневник"><span class="bt-h"><b>Питание</b><em style="color:${pc>1.1?"#d9822b":pc>=0.9?"var(--good,#4a7a2c)":"var(--accent-ink)"}">${Math.round(pc*100)}%</em></span>
-    <span class="kc"><b>${ntF(m.kcal)}</b><span>/ ${ntF(kt)} ккал</span></span>
-    <span class="macs">${bar("Белки",m.p,tg.p,"#b5543b")}${bar("Жиры",m.f,tg.f,"#c99a2e")}${bar("Углеводы",m.c,tg.c,"#5b8f3a")}</span>
+  if(!kt)return `<button type="button" id="tdFood" data-norm="1"><span><span class="bt-h"><b>Питание</b><em>—</em></span><span class="kc"><b>${ntF(m.kcal)}</b><span>ккал сегодня</span></span><span class="bt-note">Норма не рассчитана — посчитаем по росту, весу и цели.</span></span><span class="add">Рассчитать норму</span></button>`;
+  const pc=m.kcal/kt,bar=(l,k,v,g)=>`<span class="mc ${k}"><span class="l"><b>${l}</b><span>${ntF(v)} / ${ntF(g)} г</span></span><i><em style="width:${Math.min(100,g>0?v/g*100:0)}%"></em></i></span>`;
+  return `<button type="button" id="tdFood" aria-label="Питание: открыть дневник"><span><span class="bt-h"><b>Питание</b><em>${Math.round(pc*100)}%</em></span>
+    <span class="kc"><b>${ntF(m.kcal)}</b><span>/ ${ntF(kt)} ккал</span></span><span class="kbar${pc>1.1?" over":""}"><em style="width:${Math.min(100,pc*100)}%"></em></span>
+    <span class="macs">${bar("Белки","p",m.p,tg.p)}${bar("Жиры","f",m.f,tg.f)}${bar("Углеводы","c",m.c,tg.c)}</span></span>
     <span class="add" id="tdMealAdd">+ Добавить приём</span></button>`;}
 function tdPor(){const s=wtSt();return s.mode==="glass"?WT_GLASS:(+s.portion||WT_GLASS);}
 function tdFoodOpen(norm){try{FOOD_DAY=null;renderFood();show("food");if(norm||NT_TAB!=="diary")ntTab(norm?"norm":"diary");}catch(e){}}
@@ -7237,35 +7304,37 @@ function tdDashBind(){const w=el("tdWater"),f=el("tdFood");
   w.addEventListener("contextmenu",e=>e.preventDefault());
   w.onclick=()=>{if(long){long=false;return;}const por=tdPor();wtAdd(por,"water");toast("+"+por+" мл воды");try{renderToday();const n=el("tdWater");if(n)n.classList.add("wt-pop");}catch(e){}};}
 function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),L=mpList();
-  const dd=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);};
-  const DU=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);},Dc=d=>{const s=DU(d);return s[0].toUpperCase()+s.slice(1);};
-  const pl=weekPlan(),dn=weekDone(),wk=`<button type="button" class="td-wk" id="tdWeek">Неделя: ${dn}${pl?" из "+pl:""} трен. →</button>`;
+  const dd=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);},Dc=d=>{const s=dd(d);return s[0].toUpperCase()+s.slice(1);};
+  const pl=weekPlan(),dn=weekDone(),wk=`<button type="button" class="td-wk" id="tdWeek">Неделя: ${dn}${pl?"/"+pl:""} трен. <i>→</i></button>`;
   try{const e=el("homeEyebrow");if(e)e.textContent="GYM 45 • "+["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"][new Date().getDay()];}catch(e){}
+  const ARW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 5l7 7-7 7M21 12H3"/></svg>';
+  const top=(k,l)=>`<div class="td-top"><span class="td-badge ${k}"><i></i>${l} • ${l.length>6?fmtDate(t):dd(t)}</span>${wk}</div>`;
   let html="";
-  if(!L.length){html+=`<div class="td-top"><span class="td-eb rest">Нет программы • ${fmtDate(t)}</span>${wk}</div><p class="td-txt">Выбери программу — приложение поведёт по тренировкам: что делать, когда и с каким весом.</p><button class="btn" type="button" id="tdPick">Выбрать программу</button>`;}
+  if(!L.length){html+=top("none","Нет программы")+`<p class="td-txt">Нет активной программы. Выбери — приложение поведёт по тренировкам: что делать, когда и с каким весом.</p><div class="td-nx"><div><b class="t">Выбрать программу</b><div class="td-meta"><span>Сила, масса, GVT</span></div></div><button class="td-go" type="button" id="tdPick" aria-label="Выбрать программу">${ARW}</button></div>`;}
   else{const S=L.map((x,i)=>({x,i,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),due=S.filter(o=>o.n<=t),first=due[0];
     let shown=first;
-    if(first){html+=`<div class="td-top"><span class="td-eb">Тренировка • ${fmtDate(t)}</span>${wk}</div><div class="td-next td-main"><b></b><span></span></div><button class="btn" type="button" id="tdGo">Начать ›</button>`;}
-    else{const nx=S.find(o=>o.n!=="9999");shown=nx;html+=`<div class="td-top"><span class="td-eb rest">Отдых • ${fmtDate(t)}</span>${wk}</div><p class="td-txt">Восстановление мышц и ЦНС.${nx?" Следующая сессия:":""}</p>`;
-      if(nx)html+=`<div class="td-next" id="tdNext"><b></b><span></span></div>`;}
+    if(first){html+=top("","Тренировка")+`<p class="td-txt">Тренировка по плану:</p><div class="td-nx td-main"><div><b class="t"></b><div class="td-meta"><span></span></div></div><button class="td-go wide" type="button" id="tdGo">Начать ${ARW}</button></div>`;}
+    else{const nx=S.find(o=>o.n!=="9999");shown=nx;html+=top("","Отдых")+`<p class="td-txt">Восстановление мышц и ЦНС.${nx?" Следующая сессия:":""}</p>`;
+      if(nx)html+=`<div class="td-nx" id="tdNext"><div><b class="t"></b><div class="td-meta"><em></em><span></span></div></div><button class="td-go" type="button" id="tdNextGo" aria-label="Открыть план тренировки">${ARW}</button></div>`;}
     S.filter(o=>o!==shown).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
   html+=`<div class="td-stats"></div>`;
   c.innerHTML=html;
   try{const nx=c.querySelector("#tdNext");if(nx){const S2=L.map(x=>({x,n:x.next||"9999"})).filter(o=>o.n!=="9999").sort((a,b)=>a.n.localeCompare(b.n))[0];
-    if(S2){nx.querySelector("b").textContent=S2.x.t;nx.querySelector("span").textContent=Dc(S2.n)+((dashNextName(S2.x)||S2.x.s)?" • "+(dashNextName(S2.x)||S2.x.s):"");nx.onclick=()=>S2.x.open();nx.style.cursor="pointer";}}}catch(e){}
+    if(S2){nx.querySelector(".t").textContent=S2.x.t;nx.querySelector(".td-meta em").textContent=Dc(S2.n);nx.querySelector(".td-meta span").textContent=dashNextName(S2.x)||S2.x.s||"";
+      nx.querySelector(".t").onclick=()=>S2.x.open();nx.querySelector(".t").style.cursor="pointer";el("tdNextGo").onclick=()=>S2.x.open();}}}catch(e){}
   try{el("bentoWater").innerHTML=btWaterHTML();el("bentoFood").innerHTML=btFoodHTML(t);}catch(e){console.error(e);}
   /* «Готовность к тренировке» — только в день тренировки по плану */
   try{const rb=document.querySelector("#scr-home .ready");if(rb)rb.style.display=(L.length&&L.some(x=>x.next&&x.next<=t))?"":"none";}catch(e){}
   if(el("tdPick"))el("tdPick").onclick=()=>show("programs");
   if(el("tdWeek"))el("tdWeek").onclick=()=>show("progress");tdDashBind();
   if(el("tdGo")){const S=L.map((x,i)=>({x,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),x=(S.find(o=>o.n<=t)||S[0]).x;
-    const m=c.querySelector(".td-main");m.querySelector("b").textContent=x.t;m.querySelector("span").textContent=dashNextName(x)||x.s;el("tdGo").onclick=()=>dashGo(x);}
+    const m=c.querySelector(".td-main");m.querySelector(".t").textContent=x.t;m.querySelector(".td-meta span").textContent=dashNextName(x)||x.s;el("tdGo").onclick=()=>dashGo(x);}
   c.querySelectorAll(".td-row").forEach(b=>{const x=L[+b.dataset.i];b.querySelector("b").textContent=x.t;b.querySelector("small").textContent=dashNextName(x)||x.s;b.onclick=()=>x.open();});
   try{const m=anFoodDays()[t]||{kcal:0,p:0};el("dashFoodT").textContent=ntF(m.kcal)+" ккал · белок "+ntF(m.p)+" г";}catch(e){}
   try{const w=el("dashWeekT");if(w&&pl)w.textContent=dn+" из "+pl+" по плану";}catch(e){}}
 {const _rd=renderDashActive;renderDashActive=function(){_rd();try{renderToday();}catch(e){console.error(e);}};}
 /* рабочий стол — в один экран: включаем ступени сжатия, пока содержимое не поместится над нижним меню */
-function homeFit(){const h=el("scr-home");if(!h||h.hidden||currentScreen!=="home")return;const C=["fit1","fit2","fit3","fit4","fit5","fit6"];
+function homeFit(){const h=el("scr-home");if(!h||h.hidden||currentScreen!=="home")return;const C=["fit1","fit2","fit3","fit4"];
   const y=window.scrollY;C.forEach(c=>h.classList.remove(c));
   const nav=(document.querySelector(".nav-inner")||{}).parentElement,navH=nav?nav.getBoundingClientRect().height:0;
   const fits=()=>{let bot=0;[...h.children].forEach(x=>{if(x.offsetParent!==null){const r=x.getBoundingClientRect();if(r.height)bot=Math.max(bot,r.bottom+window.scrollY);}});return bot<=window.innerHeight-navH-6;};
@@ -8897,7 +8966,7 @@ function calOpen(due){const c=calCfg(),m=el("coolModal"),inClaude=!!(window.clau
   try{const c=el("dashToday"),A=safe.get()||[],u=[...A].reverse().find(x=>x&&x.unk&&x.unk.length);if(c&&u&&!c.querySelector(".gu-row"))
       {c.insertAdjacentHTML("afterbegin",`<div class="gvt-pend gu-row" style="margin-bottom:10px"><span>Не все подходы отмечены: «${u.name}»</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="guGo">Ответить</button></div>`);el("guGo").onclick=genAsk;}}catch(e){}
   try{const c=el("dashToday");if(c&&!el("tdCal")){
-  {const tp=c.querySelector(".td-top");if(tp)tp.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal td-bell" id="tdCal" aria-label="Напоминания в календарь" title="Напоминания в календарь">🔔</button>`);else c.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal" id="tdCal">🔔 Напоминания в календарь</button>`);}el("tdCal").onclick=()=>calOpen();}}catch(e){}
+  {const ha=el("homeActs");if(ha)ha.insertAdjacentHTML("beforeend",`<button type="button" class="hm-btn bell" id="tdCal" aria-label="Напоминания в календарь" title="Напоминания в календарь"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg></button>`);else c.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal" id="tdCal">🔔 Напоминания в календарь</button>`);}el("tdCal").onclick=()=>calOpen();}}catch(e){}
   /* перерыв сдвинул график — предложить пересчитать календарь от последней тренировки */
   try{const c=el("dashToday"),d=calDrift(),old=el("tdCalShift");if(old)old.remove();
     if(d&&typeof natOn==="function"&&natOn()&&calCfg().nat){const v=Object.assign(calCfg(),{start:d.due});try{const o=JSON.parse(localStorage.getItem(CALK))||{};o.start=d.due;o.addedAt=new Date().toISOString();localStorage.setItem(CALK,JSON.stringify(o));}catch(e){}
@@ -10152,7 +10221,7 @@ function cloudRefreshUI(){
       if(currentScreen==="cfcat")cfRenderCat();
       if(currentScreen==="sotka")renderSotka();if(currentScreen==="sw")renderSw();}catch(e){}
 }
-function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;}
+function cloudStatus(t){const el2=document.getElementById("cloudStatus");if(el2)el2.textContent=t;const av=document.getElementById("homeAvatar");if(av){av.classList.toggle("sync",/включена/.test(t));av.title=t;}}
 async function cloudInit(){
   if(cloudInit._busy)return;cloudInit._busy=true;
   try{
