@@ -652,7 +652,15 @@
 .td-dash .tr b{position:absolute;inset:0;display:grid;place-items:center;font-size:24px;font-weight:800;color:var(--accent-ink)}
 .td-dash .nw{white-space:nowrap}.td-dash .tx{min-width:0;width:100%;display:flex;flex-direction:column;gap:3px;align-items:center}.td-dash .tx b{font-size:15px;color:var(--accent-ink)}.td-dash .tx span{font-size:12.5px;color:var(--muted);line-height:1.25}
 .td-dash .mb{display:grid;grid-template-columns:14px 1fr auto;gap:5px;align-items:center;font-size:11.5px;color:var(--muted);width:100%;text-align:left}.td-dash .mb i{display:block;height:6px;border-radius:3px;background:rgba(0,0,0,.08);overflow:hidden}.td-dash .mb i em{display:block;height:100%;border-radius:3px}
-.td-dash .wt-pop{animation:tdPop .35s}@keyframes tdPop{50%{transform:scale(1.06)}}
+.td-dash .wt-pop{animation:tdPop .35s}
+.td-stats .td-cal-chip{width:auto;margin:0;padding:5px 11px;border:none;border-radius:999px;background:var(--accent-weak);color:var(--accent-ink);opacity:1;font-size:12.5px;font-weight:600}
+.td-mac{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;border:none;font:inherit;color:inherit;background:var(--accent-weak);border-radius:14px;padding:9px 12px;margin:0 0 2px;text-align:left}
+.td-mac .mc{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);min-width:0;white-space:nowrap}.td-mac .mc b{color:var(--accent-ink)}
+.td-mac i{display:block;height:6px;border-radius:3px;background:rgba(0,0,0,.08);overflow:hidden}.td-mac i em{display:block;height:100%;border-radius:3px}
+#scr-home.fit1 .dash-logo{display:none}#scr-home.fit1 .dash-panel{gap:10px;padding:10px;margin-bottom:8px}#scr-home.fit1 .dash-left{gap:8px}#scr-home.fit1 .dash-left .key{padding:11px 6px;font-size:15px}
+#scr-home.fit2{padding-top:calc(8px + env(safe-area-inset-top,0px))}#scr-home.fit2 .home-top{padding:0 0 6px}#scr-home.fit2 .td-card{gap:8px;margin:4px 0 10px;padding-top:12px;padding-bottom:12px}#scr-home.fit2 .td-dash{margin:4px 0 2px;gap:8px}#scr-home.fit2 .td-dash>button{padding:10px 8px 9px;gap:6px}#scr-home.fit2 .td-dash .tr,#scr-home.fit2 .td-dash .tr svg{width:84px;height:84px}#scr-home.fit2 .td-dash .tr b{font-size:20px}#scr-home.fit2 .ready{padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:10px}#scr-home.fit2 .ready-head{margin:0;flex:0 1 92px;min-width:0}#scr-home.fit2 .ready-head b{font-size:13px;line-height:1.15}#scr-home.fit2 .ready-head span{display:none}#scr-home.fit2 .ready .seg{flex:1;min-width:0}#scr-home.fit2 .ready .seg-b{padding:7px 2px;min-width:0;font-size:12px}#scr-home.fit2 .ready-note{display:none}#scr-home.fit2 .td-main b{font-size:16px}#scr-home.fit2 .td-cal{margin-top:2px;padding-top:6px}
+#scr-home.fit3 .td-dash .tx span:last-child:not(:first-child){}#scr-home.fit3 .td-mac{padding:7px 10px}#scr-home.fit3 .td-cal{font-size:13px}#scr-home.fit3 .td-main span{display:none}#scr-home.fit3 .dash-left .key{padding:9px 6px;font-size:14px}#scr-home.fit3 .home-title span{display:none}#scr-home.fit3 .td-h b{font-size:18px}
+#scr-home.fit4 .td-dash .tr,#scr-home.fit4 .td-dash .tr svg{width:72px;height:72px}#scr-home.fit4 .td-dash .tr b{font-size:17px}#scr-home.fit4 .td-mac .mc{font-size:11px}#scr-home.fit5 .td-dash .tr,#scr-home.fit5 .td-dash .tr svg{width:60px;height:60px}#scr-home.fit5 .td-dash .tr b{font-size:15px}#scr-home.fit5 .td-dash>button{flex-direction:row;text-align:left;padding:8px}#scr-home.fit5 .td-dash .tx{align-items:flex-start}#scr-home.fit5 .td-dash .nw{white-space:normal}#scr-home.fit5 .td-dash .tx b{font-size:14px}#scr-home.fit6 .td-main small{display:none}#scr-home.fit6 .td-rest{font-size:13px;padding:8px 10px}#scr-home.fit6 #tdGo{padding-top:10px;padding-bottom:10px}#scr-home.fit6 .dash-left .key{padding:7px 4px;font-size:13px;line-height:1.15}#scr-home.fit6 .dash-panel{padding:8px}#scr-home.fit6 .td-card{gap:6px}#scr-home.fit6 .td-stats button{font-size:12px;padding:4px 9px}#scr-home.fit6 .td-mac{padding:6px 10px}#scr-home.fit6 .home-top{padding-bottom:2px}#scr-home.fit6 .avatar{transform:scale(.8)}#scr-home.fit4 .td-stats button{padding:4px 10px}#scr-home.fit4 .dash-left .key{padding:8px 4px;font-size:13.5px}#scr-home.fit4 .avatar{transform:scale(.85)}@keyframes tdPop{50%{transform:scale(1.06)}}
 @media (max-width:360px){.td-dash{grid-template-columns:1fr}}.td-stats button{border:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;text-align:left}
   #scr-home .dash-two{display:none}
   .dash-logo svg{width:100%;max-width:150px}
@@ -7150,21 +7158,22 @@ function dashNextName(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"
   if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx)return nx.name;}}catch(e){}return "";}
 /* рабочий стол: вода и питание за сегодня */
 function tdRing(pc,col,txt){const r=23,L=2*Math.PI*r,v=Math.max(0,Math.min(1,pc));return `<span class="tr"><svg viewBox="0 0 58 58" aria-hidden="true"><circle class="rb" cx="29" cy="29" r="${r}"/><circle class="rf" cx="29" cy="29" r="${r}" stroke="${col}" stroke-dasharray="${L.toFixed(1)}" stroke-dashoffset="${(L*(1-v)).toFixed(1)}"/></svg><b>${txt}</b></span>`;}
-function tdDashHTML(t){let h='<div class="td-dash">';
+function tdDashHTML(t){let h='<div class="td-dash">',mac="";
   try{const n=wtNorm(),dr=wtDrunk(),pc=n?dr/n.ml:0,por=tdPor();
     h+=`<button type="button" id="tdWater" aria-label="Вода: добавить ${por} мл. Долгое нажатие — раздел «Вода»">${tdRing(pc,pc>=1?"var(--good,#4a7a2c)":"#5b9bd5",n?Math.round(pc*100)+"%":"💧")}
       <span class="tx"><b>Вода</b><span class="nw">${n?ntF(dr/1000,2)+" / "+ntF(n.ml/1000,1)+" л":wtL(dr)}</span><span class="nw">${n?"":"укажи вес · "}+ ${wtSt().mode==="glass"?"стакан":por+" мл"}</span></span></button>`;}catch(e){}
   try{const m=anFoodDays()[t]||{kcal:0,p:0,f:0,c:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&tg.kcal;
     if(kt){const pc=m.kcal/kt,col=pc>1.1?"#d9822b":pc>=0.9?"var(--good,#4a7a2c)":"var(--accent,#5b6b2f)";
-      const bar=(l,v,g,c)=>`<span class="mb"><span>${l}</span><i><em style="width:${Math.min(100,g>0?v/g*100:0)}%;background:${c}"></em></i><span>${ntF(v)}/${ntF(g)}</span></span>`;
+      const bar=(l,v,g,c)=>`<span class="mc"><span><b>${l}</b> ${ntF(v)} / ${ntF(g)} г</span><i><em style="width:${Math.min(100,g>0?v/g*100:0)}%;background:${c}"></em></i></span>`;
       h+=`<button type="button" id="tdFood" aria-label="Питание: открыть дневник">${tdRing(pc,col,Math.round(pc*100)+"%")}
-        <span class="tx"><b class="nw">${ntF(m.kcal)} / ${ntF(kt)}</b><span>ккал</span>${bar("Б",m.p,tg.p,"#b5543b")}${bar("Ж",m.f,tg.f,"#c99a2e")}${bar("У",m.c,tg.c,"#5b8f3a")}</span></button>`;}
+        <span class="tx"><b>Питание</b><span class="nw">${ntF(m.kcal)} / ${ntF(kt)} ккал</span></span></button>`;
+      mac=`<button type="button" class="td-mac" id="tdMac" aria-label="Белки, жиры, углеводы — открыть дневник">${bar("Б",m.p,tg.p,"#b5543b")}${bar("Ж",m.f,tg.f,"#c99a2e")}${bar("У",m.c,tg.c,"#5b8f3a")}</button>`;}
     else h+=`<button type="button" id="tdFood" data-norm="1">${tdRing(0,"var(--accent)","🍽")}<span class="tx"><b>Питание</b><span>${ntF(m.kcal)} ккал сегодня</span><span>Рассчитать норму ›</span></span></button>`;}catch(e){}
-  return h+'</div>';}
+  return h+'</div>'+mac;}
 function tdPor(){const s=wtSt();return s.mode==="glass"?WT_GLASS:(+s.portion||WT_GLASS);}
 function tdFoodOpen(norm){try{FOOD_DAY=null;renderFood();show("food");if(norm||NT_TAB!=="diary")ntTab(norm?"norm":"diary");}catch(e){}}
 function tdDashBind(){const w=el("tdWater"),f=el("tdFood");
-  if(f)f.onclick=()=>tdFoodOpen(!!f.dataset.norm);
+  if(f)f.onclick=()=>tdFoodOpen(!!f.dataset.norm);const mc=el("tdMac");if(mc)mc.onclick=()=>tdFoodOpen(false);
   if(!w)return;let tm=null,long=false;
   const openWater=()=>{tdFoodOpen(false);setTimeout(()=>{const c=el("wtCard");if(c)c.scrollIntoView({block:"start",behavior:"smooth"});},120);};
   const down=e=>{long=false;clearTimeout(tm);tm=setTimeout(()=>{long=true;if(navigator.vibrate)navigator.vibrate(20);openWater();},550);};
@@ -7195,6 +7204,17 @@ function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),
   try{const m=anFoodDays()[t]||{kcal:0,p:0};el("dashFoodT").textContent=ntF(m.kcal)+" ккал · белок "+ntF(m.p)+" г";}catch(e){}
   try{const w=el("dashWeekT");if(w&&pl)w.textContent=dn+" из "+pl+" по плану";}catch(e){}}
 {const _rd=renderDashActive;renderDashActive=function(){_rd();try{renderToday();}catch(e){console.error(e);}};}
+/* рабочий стол — в один экран: включаем ступени сжатия, пока содержимое не поместится над нижним меню */
+function homeFit(){const h=el("scr-home");if(!h||h.hidden||currentScreen!=="home")return;const C=["fit1","fit2","fit3","fit4","fit5","fit6"];
+  const y=window.scrollY;C.forEach(c=>h.classList.remove(c));
+  const nav=(document.querySelector(".nav-inner")||{}).parentElement,navH=nav?nav.getBoundingClientRect().height:0;
+  const fits=()=>{let bot=0;[...h.children].forEach(x=>{if(x.offsetParent!==null){const r=x.getBoundingClientRect();if(r.height)bot=Math.max(bot,r.bottom+window.scrollY);}});return bot<=window.innerHeight-navH-6;};
+  for(let i=0;i<C.length&&!fits();i++)h.classList.add(C[i]);
+  window.scrollTo(0,y);}
+{const _rt=renderToday;renderToday=function(){const r=_rt.apply(this,arguments);try{requestAnimationFrame(homeFit);}catch(e){}return r;};}
+{const _sh=show;show=function(n){const r=_sh.apply(this,arguments);if(n==="home")try{requestAnimationFrame(homeFit);}catch(e){}return r;};}
+addEventListener("resize",()=>{clearTimeout(window._hfT);window._hfT=setTimeout(homeFit,150);});
+addEventListener("orientationchange",()=>setTimeout(homeFit,300));
 /* кнопка досрочного завершения внутри экрана программы */
 function mpEndBtn(k,label){const b=document.createElement("button");b.type="button";b.className="tm-reset sk-reset mp-endin";b.textContent=label||"Завершить программу досрочно · итог в «Прогресс»";
   b.onclick=()=>{if(Date.now()-(b._arm||0)>4000){b._arm=Date.now();toast("Нажми ещё раз — программа завершится, итог сохранится в «Прогрессе»");return;}mpFinish(k);
@@ -8817,7 +8837,7 @@ function calOpen(due){const c=calCfg(),m=el("coolModal"),inClaude=!!(window.clau
   try{const c=el("dashToday"),A=safe.get()||[],u=[...A].reverse().find(x=>x&&x.unk&&x.unk.length);if(c&&u&&!c.querySelector(".gu-row"))
       {c.insertAdjacentHTML("afterbegin",`<div class="gvt-pend gu-row" style="margin-bottom:10px"><span>Не все подходы отмечены: «${u.name}»</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="guGo">Ответить</button></div>`);el("guGo").onclick=genAsk;}}catch(e){}
   try{const c=el("dashToday");if(c&&!el("tdCal")){
-  c.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal" id="tdCal">🔔 Напоминания в календарь</button>`);el("tdCal").onclick=()=>calOpen();}}catch(e){}
+  {const st=c.querySelector(".td-stats");(st||c).insertAdjacentHTML("beforeend",`<button type="button" class="td-cal${st?" td-cal-chip":""}" id="tdCal">🔔 Напоминания${st?"":" в календарь"}</button>`);}el("tdCal").onclick=()=>calOpen();}}catch(e){}
   /* перерыв сдвинул график — предложить пересчитать календарь от последней тренировки */
   try{const c=el("dashToday"),d=calDrift(),old=el("tdCalShift");if(old)old.remove();
     if(d&&typeof natOn==="function"&&natOn()&&calCfg().nat){const v=Object.assign(calCfg(),{start:d.due});try{const o=JSON.parse(localStorage.getItem(CALK))||{};o.start=d.due;o.addedAt=new Date().toISOString();localStorage.setItem(CALK,JSON.stringify(o));}catch(e){}

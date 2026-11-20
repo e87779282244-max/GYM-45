@@ -14,7 +14,7 @@ async def m():
     await E("""(()=>{localStorage.setItem(NTK_T,JSON.stringify({sex:'male',age:45,weight:95,height:180,activity:'moderate',goal:'lose',updatedAt:1}));
       const t=localDate();foodSet([{date:t,kcal:1450,p:95,f:40,c:150,name:'x'}]);const s=wtSt();s.days={};s.mode='glass';wtSave(s);show('home');renderToday();})()""")
     await pg.wait_for_timeout(300)
-    r=await E("(()=>{const w=el('tdWater'),f=el('tdFood');return [!!w,!!f,w&&w.textContent,f&&f.textContent]})()")
+    r=await E("(()=>{const w=el('tdWater'),f=el('tdFood'),m=el('tdMac');return [!!w,!!f,w&&w.textContent,f&&f.textContent+(m?m.textContent:'')]})()")
     ok('на рабочем столе — вода и питание',r[0] and r[1],r)
     ok('питание: ккал из нормы и Б/Ж/У к норме','1\xa0450' in r[3] and 'Б' in r[3] and 'У' in r[3],r[3])
     await pg.tap('#tdWater');await pg.wait_for_timeout(300)
