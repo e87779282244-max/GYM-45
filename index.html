@@ -645,23 +645,78 @@
   .td-row span{display:flex;flex-direction:column;min-width:0}.td-row span b{font-weight:700;font-size:14px}.td-row span small{color:var(--muted);font-size:12.5px}
   .td-row i{font-style:normal;flex:none;font-size:12.5px;font-weight:700;color:var(--accent-ink)}
   .td-stats{display:flex;gap:8px;flex-wrap:wrap}
-.td-dash{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 10px}
-.td-dash>button{border:none;font:inherit;color:inherit;background:var(--accent-weak);border-radius:18px;padding:14px 10px 12px;display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;min-width:0}
-.td-dash .tr{position:relative;width:104px;height:104px;flex:none}.td-dash .tr svg{width:104px;height:104px;transform:rotate(-90deg)}
-.td-dash .tr circle{fill:none;stroke-width:4.5}.td-dash .tr .rb{stroke:rgba(0,0,0,.08)}.td-dash .tr .rf{stroke-linecap:round;transition:stroke-dashoffset .4s}
-.td-dash .tr b{position:absolute;inset:0;display:grid;place-items:center;font-size:24px;font-weight:800;color:var(--accent-ink)}
-.td-dash .nw{white-space:nowrap}.td-dash .tx{min-width:0;width:100%;display:flex;flex-direction:column;gap:3px;align-items:center}.td-dash .tx b{font-size:15px;color:var(--accent-ink)}.td-dash .tx span{font-size:12.5px;color:var(--muted);line-height:1.25}
-.td-dash .mb{display:grid;grid-template-columns:14px 1fr auto;gap:5px;align-items:center;font-size:11.5px;color:var(--muted);width:100%;text-align:left}.td-dash .mb i{display:block;height:6px;border-radius:3px;background:rgba(0,0,0,.08);overflow:hidden}.td-dash .mb i em{display:block;height:100%;border-radius:3px}
-.td-dash .wt-pop{animation:tdPop .35s}
+/* ---- Рабочий стол · Bento ---- */
+.home-title small{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);opacity:.85;margin-bottom:1px}
+.td-card{border-left:none;border-radius:22px;gap:8px;margin:8px 0 10px;padding:14px 16px}
+.td-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.td-eb{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--good,#4a7a2c)}
+.td-eb.rest{color:var(--muted)}
+.td-top .td-eb{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.td-top .td-cal.td-bell{flex:none;display:grid;place-items:center;width:32px;height:32px;margin:0;padding:0;border:none;border-top:none;border-radius:50%;background:var(--accent-weak);font-size:15px;opacity:1;text-align:center}
+.td-wk{border:none;font:inherit;font-size:12.5px;font-weight:700;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;white-space:nowrap}
+.td-txt{margin:0;color:var(--muted);font-size:13.5px;line-height:1.35}
+.td-next{display:flex;flex-direction:column;gap:2px}
+.td-next b{font-family:var(--dsp);font-size:19px;line-height:1.15;color:var(--ink,inherit)}
+.td-next span{color:var(--muted);font-size:13px}
+.td-card .td-stats{display:flex;gap:8px;flex-wrap:wrap}
+.td-card .td-stats:empty{display:none}
+.td-stats .td-cal-chip{width:auto;margin:0;padding:4px 10px;border:none;border-radius:999px;background:transparent;color:var(--muted);opacity:1;font-size:12px;font-weight:600}
+.bento{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:10px;margin:0 0 12px}
+.bt{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);min-width:0;overflow:hidden}
+.bt-food{grid-row:span 2}
+.bt>button{all:unset;box-sizing:border-box;display:flex;flex-direction:column;width:100%;height:100%;padding:12px 12px 12px;gap:6px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.bt-h{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.bt-h b{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.bt-h em{font-style:normal;font-family:var(--dsp);font-size:20px;font-weight:800;color:var(--accent-ink)}
+.bt-water .wv{display:flex;align-items:center;gap:10px}
+.bt .tr{position:relative;width:76px;height:76px;flex:none}.bt .tr svg{width:100%;height:100%;transform:rotate(-90deg)}
+.bt .tr circle{fill:none;stroke-width:5}.bt .tr .rb{stroke:rgba(0,0,0,.08)}.bt .tr .rf{stroke-linecap:round;transition:stroke-dashoffset .4s}
+.bt .tr b{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted);text-align:center;line-height:1.1}
+.bt-water .wl{display:flex;flex-direction:column;gap:1px;min-width:0}.bt-water .wl b{font-family:var(--dsp);font-size:20px;color:var(--accent-ink);white-space:nowrap}.bt-water .wl span{font-size:12px;color:var(--muted);white-space:nowrap}
+.bt .add{align-self:stretch;text-align:center;border-radius:12px;padding:7px 8px;font-size:13px;font-weight:700;background:var(--accent-weak);color:var(--accent-ink);margin-top:auto}
+.bt-food .kc{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.bt-food .kc b{font-family:var(--dsp);font-size:30px;line-height:1;color:var(--accent-ink)}.bt-food .kc span{font-size:12.5px;color:var(--muted)}
+.bt-food .mc{display:flex;flex-direction:column;gap:4px}.bt-food .mc span{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}.bt-food .mc span b{font-weight:700;color:var(--accent-ink)}
+.bt-food .mc i{display:block;height:7px;border-radius:4px;background:rgba(0,0,0,.08);overflow:hidden}.bt-food .mc i em{display:block;height:100%;border-radius:4px}
+.bt-food .macs{display:flex;flex-direction:column;gap:9px;margin:4px 0 6px}
+.bt-brand{display:flex;align-items:center;justify-content:center;padding:8px;background:linear-gradient(160deg,var(--accent-weak),var(--surface))}
+.bt-brand .dash-logo-img{width:100%;max-width:150px;height:auto;max-height:100%;object-fit:contain}
+.tools-h{font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:2px 2px 8px}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.tool{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:12px;min-width:0}
+.tool i{grid-row:span 2;font-style:normal;font-size:20px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--accent-weak)}
+.tool b{font-family:var(--dsp);font-size:15px;line-height:1.15;color:var(--accent-ink);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tool span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bt .wt-pop{animation:btPop .35s}@keyframes btPop{50%{transform:scale(1.04)}}
+/* «Готовность» — одной строкой */
+#scr-home .ready{padding:8px 10px;margin:0 0 10px;display:flex;align-items:center;gap:10px;border-radius:18px}
+#scr-home .ready-head{margin:0;flex:0 1 92px;min-width:0}#scr-home .ready-head b{font-size:13px;line-height:1.15}#scr-home .ready-head span,#scr-home .ready-note{display:none}
+#scr-home .ready .seg{flex:1;min-width:0}#scr-home .ready .seg-b{padding:7px 2px;min-width:0;font-size:12px}
+/* ступени сжатия под высоту экрана */
+#scr-home.fit1 .td-card{padding:12px 14px;gap:6px}#scr-home.fit1 .tool{padding:10px}#scr-home.fit1 .bento{gap:8px;margin-bottom:10px}#scr-home.fit1 .tools{gap:8px}
+#scr-home.fit2 #tdGo{padding-top:11px;padding-bottom:11px}#scr-home.fit2 .td-eb{font-size:10.5px;letter-spacing:.06em}#scr-home.fit2 .bt .tr{width:64px;height:64px}#scr-home.fit2 .bt-food .kc b{font-size:26px}#scr-home.fit2 .bt-food .macs{gap:7px}#scr-home.fit2 .bt>button{padding:10px}
+#scr-home.fit3 .tool span{display:none}#scr-home.fit3 .tool i{grid-row:auto;width:30px;height:30px;font-size:16px}#scr-home.fit3 .td-txt{display:none}
+#scr-home.fit4 .home-title span{display:none}#scr-home.fit4 .tools-h{display:none}#scr-home.fit4 .bt-brand .dash-logo-img{max-width:110px}
+#scr-home.fit5 .tools{grid-template-columns:repeat(4,1fr);gap:6px}#scr-home.fit5 .tool{grid-template-columns:1fr;justify-items:center;text-align:center;padding:8px 4px;row-gap:4px}#scr-home.fit5 .tool span{display:none}#scr-home.fit5 .tool b{font-size:11.5px!important;white-space:normal}#scr-home.fit5 .tool i{grid-row:auto}
+#scr-home.fit5 .bt .tr{width:54px;height:54px}#scr-home.fit5 .bt .tr b{font-size:11px}#scr-home.fit5 .bt-water .wl b{font-size:17px}#scr-home.fit5 .tool{padding:8px}#scr-home.fit5 .tool b{font-size:13.5px}
+#scr-home.fit6 .td-next b{font-size:16px}#scr-home.fit6 #tdMealAdd{display:none}#scr-home.fit6 .bt-food .macs{margin-bottom:0}#scr-home.fit6 .bt-food .kc b{font-size:22px}#scr-home.fit6 .bt-food .mc span{font-size:11.5px}#scr-home.fit6 .bt .add{padding:5px 6px;font-size:12px}
+
+
+
+
+
+
+
+
+
 .td-stats .td-cal-chip{width:auto;margin:0;padding:5px 11px;border:none;border-radius:999px;background:var(--accent-weak);color:var(--accent-ink);opacity:1;font-size:12.5px;font-weight:600}
-.td-mac{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;border:none;font:inherit;color:inherit;background:var(--accent-weak);border-radius:14px;padding:9px 12px;margin:0 0 2px;text-align:left}
-.td-mac .mc{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);min-width:0;white-space:nowrap}.td-mac .mc b{color:var(--accent-ink)}
-.td-mac i{display:block;height:6px;border-radius:3px;background:rgba(0,0,0,.08);overflow:hidden}.td-mac i em{display:block;height:100%;border-radius:3px}
-#scr-home.fit1 .dash-logo{padding:0}#scr-home.fit1 .dash-logo-img{max-width:140px}#scr-home.fit3 .dash-logo-img{max-width:115px}#scr-home.fit5 .dash-logo-img{max-width:95px}#scr-home.fit6 .dash-logo-img{max-width:80px}#scr-home.fit1 .dash-panel{gap:10px;padding:10px;margin-bottom:8px}#scr-home.fit1 .dash-left{gap:8px}#scr-home.fit1 .dash-left .key{padding:11px 6px;font-size:15px}
-#scr-home.fit2{padding-top:calc(8px + env(safe-area-inset-top,0px))}#scr-home.fit2 .home-top{padding:0 0 6px}#scr-home.fit2 .td-card{gap:8px;margin:4px 0 10px;padding-top:12px;padding-bottom:12px}#scr-home.fit2 .td-dash{margin:4px 0 2px;gap:8px}#scr-home.fit2 .td-dash>button{padding:10px 8px 9px;gap:6px}#scr-home.fit2 .td-dash .tr,#scr-home.fit2 .td-dash .tr svg{width:84px;height:84px}#scr-home.fit2 .td-dash .tr b{font-size:20px}#scr-home.fit2 .ready{padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:10px}#scr-home.fit2 .ready-head{margin:0;flex:0 1 92px;min-width:0}#scr-home.fit2 .ready-head b{font-size:13px;line-height:1.15}#scr-home.fit2 .ready-head span{display:none}#scr-home.fit2 .ready .seg{flex:1;min-width:0}#scr-home.fit2 .ready .seg-b{padding:7px 2px;min-width:0;font-size:12px}#scr-home.fit2 .ready-note{display:none}#scr-home.fit2 .td-main b{font-size:16px}#scr-home.fit2 .td-cal{margin-top:2px;padding-top:6px}
-#scr-home.fit3 .td-dash .tx span:last-child:not(:first-child){}#scr-home.fit3 .td-mac{padding:7px 10px}#scr-home.fit3 .td-cal{font-size:13px}#scr-home.fit3 .td-main span{display:none}#scr-home.fit3 .dash-left .key{padding:9px 6px;font-size:14px}#scr-home.fit3 .home-title span{display:none}#scr-home.fit3 .td-h b{font-size:18px}
-#scr-home.fit4 .td-dash .tr,#scr-home.fit4 .td-dash .tr svg{width:72px;height:72px}#scr-home.fit4 .td-dash .tr b{font-size:17px}#scr-home.fit4 .td-mac .mc{font-size:11px}#scr-home.fit5 .td-dash .tr,#scr-home.fit5 .td-dash .tr svg{width:60px;height:60px}#scr-home.fit5 .td-dash .tr b{font-size:15px}#scr-home.fit5 .td-dash>button{flex-direction:row;text-align:left;padding:8px}#scr-home.fit5 .td-dash .tx{align-items:flex-start}#scr-home.fit5 .td-dash .nw{white-space:normal}#scr-home.fit5 .td-dash .tx b{font-size:14px}#scr-home.fit6 .td-main small{display:none}#scr-home.fit6 .td-rest{font-size:13px;padding:8px 10px}#scr-home.fit6 #tdGo{padding-top:10px;padding-bottom:10px}#scr-home.fit6 .dash-left .key{padding:7px 4px;font-size:12.5px;line-height:1.15;white-space:nowrap}#scr-home.fit6 .dash-left{gap:6px}#scr-home.fit6 .dash-panel{gap:6px}#scr-home.fit6 .dash-panel{padding:8px}#scr-home.fit6 .td-card{gap:6px}#scr-home.fit6 .td-stats button{font-size:12px;padding:4px 9px}#scr-home.fit6 .td-mac{padding:6px 10px}#scr-home.fit6 .home-top{padding-bottom:2px}#scr-home.fit6 .avatar{transform:scale(.8)}#scr-home.fit4 .td-stats button{padding:4px 10px}#scr-home.fit4 .dash-left .key{padding:8px 4px;font-size:13.5px}#scr-home.fit4 .avatar{transform:scale(.85)}@keyframes tdPop{50%{transform:scale(1.06)}}
-@media (max-width:360px){.td-dash{grid-template-columns:1fr}}.td-stats button{border:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;text-align:left}
+
+
+
+
+
+
+
+.td-stats button{border:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-weak);border-radius:999px;padding:5px 11px;text-align:left}
   #scr-home .dash-two{display:none}
   .dash-logo svg{width:100%;max-width:150px}
   .dash-logo-img{display:block;width:100%;max-width:300px;height:auto;margin:0 auto;
@@ -1228,7 +1283,7 @@
   <section class="screen" id="scr-home">
     <div class="home-top">
       <button type="button" class="avatar" id="homeAvatar" aria-label="Профиль"><svg viewBox="0 0 24 24" fill="var(--muted)"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg></button>
-      <div class="home-title"><b>Рабочий стол</b><span id="cloudStatus">Gym 45</span></div>
+      <div class="home-title"><small id="homeEyebrow">GYM 45</small><b>Рабочий стол</b><span id="cloudStatus">Gym 45</span></div>
       <button class="icon-btn" id="homeMenu" title="Меню">☰</button>
     </div>
 
@@ -1249,16 +1304,17 @@
       <div class="ready-note" id="readyNote">всё по программе</div>
     </div>
   
-        <div class="dash-panel">
-      <div class="dash-logo">
-        <img class="dash-logo-img" src="media/gymlogo3.webp?v=3" fetchpriority="high" decoding="async" alt="GYM 45" width="1283" height="753">
-      </div>
-      <div class="dash-left">
-        <button class="key" data-go="programs">Выбрать программу</button>
-        <button class="key" data-go="progress">Прогресс</button>
-        <button class="key" data-go="nutrition">Питание</button>
-        <button class="key" data-go="onerm">Расчёт рабочих весов</button>
-      </div>
+    <div class="bento" id="homeBento">
+      <div class="bt bt-water" id="bentoWater"></div>
+      <div class="bt bt-food" id="bentoFood"></div>
+      <div class="bt bt-brand"><img class="dash-logo-img" src="media/gymlogo3.webp?v=3" fetchpriority="high" decoding="async" alt="GYM 45" width="1283" height="753"></div>
+    </div>
+    <div class="tools-h">Инструменты</div>
+    <div class="tools">
+      <button class="tool" data-go="programs" type="button"><i>🏋️</i><b>Выбрать программу</b><span>Сила, масса, GVT</span></button>
+      <button class="tool" data-go="nutrition" type="button"><i>🍽</i><b>Питание</b><span>Дневник и рацион</span></button>
+      <button class="tool" data-go="progress" type="button"><i>📈</i><b>Прогресс</b><span>Замеры и графики</span></button>
+      <button class="tool" data-go="onerm" type="button"><i>🧮</i><b>Расчёт весов</b><span>Калькулятор 1ПМ</span></button>
     </div>
 
     <div class="card mp-card" id="dashActive" hidden></div>
@@ -7157,23 +7213,22 @@ function dashNextName(x){try{if(x.k.startsWith("au:")){const p=auAll().find(q=>"
   if(x.k==="cj"){const P=cjActive();if(P)return "Тяжёлая артиллерия · "+CJ_DAY[cjState(P).next];}
   if(x.k==="cf"){const p=cfProg(),nx=p&&cfProgNext(p);if(nx)return nx.name;}}catch(e){}return "";}
 /* рабочий стол: вода и питание за сегодня */
-function tdRing(pc,col,txt){const r=23,L=2*Math.PI*r,v=Math.max(0,Math.min(1,pc));return `<span class="tr"><svg viewBox="0 0 58 58" aria-hidden="true"><circle class="rb" cx="29" cy="29" r="${r}"/><circle class="rf" cx="29" cy="29" r="${r}" stroke="${col}" stroke-dasharray="${L.toFixed(1)}" stroke-dashoffset="${(L*(1-v)).toFixed(1)}"/></svg><b>${txt}</b></span>`;}
-function tdDashHTML(t){let h='<div class="td-dash">',mac="";
-  try{const n=wtNorm(),dr=wtDrunk(),pc=n?dr/n.ml:0,por=tdPor();
-    h+=`<button type="button" id="tdWater" aria-label="Вода: добавить ${por} мл. Долгое нажатие — раздел «Вода»">${tdRing(pc,pc>=1?"var(--good,#4a7a2c)":"#5b9bd5",n?Math.round(pc*100)+"%":"💧")}
-      <span class="tx"><b>Вода</b><span class="nw">${n?ntF(dr/1000,2)+" / "+ntF(n.ml/1000,1)+" л":wtL(dr)}</span><span class="nw">${n?"":"укажи вес · "}+ ${wtSt().mode==="glass"?"стакан":por+" мл"}</span></span></button>`;}catch(e){}
-  try{const m=anFoodDays()[t]||{kcal:0,p:0,f:0,c:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&tg.kcal;
-    if(kt){const pc=m.kcal/kt,col=pc>1.1?"#d9822b":pc>=0.9?"var(--good,#4a7a2c)":"var(--accent,#5b6b2f)";
-      const bar=(l,v,g,c)=>`<span class="mc"><span><b>${l}</b> ${ntF(v)} / ${ntF(g)} г</span><i><em style="width:${Math.min(100,g>0?v/g*100:0)}%;background:${c}"></em></i></span>`;
-      h+=`<button type="button" id="tdFood" aria-label="Питание: открыть дневник">${tdRing(pc,col,Math.round(pc*100)+"%")}
-        <span class="tx"><b>Питание</b><span class="nw">${ntF(m.kcal)} / ${ntF(kt)} ккал</span></span></button>`;
-      mac=`<button type="button" class="td-mac" id="tdMac" aria-label="Белки, жиры, углеводы — открыть дневник">${bar("Б",m.p,tg.p,"#b5543b")}${bar("Ж",m.f,tg.f,"#c99a2e")}${bar("У",m.c,tg.c,"#5b8f3a")}</button>`;}
-    else h+=`<button type="button" id="tdFood" data-norm="1">${tdRing(0,"var(--accent)","🍽")}<span class="tx"><b>Питание</b><span>${ntF(m.kcal)} ккал сегодня</span><span>Рассчитать норму ›</span></span></button>`;}catch(e){}
-  return h+'</div>'+mac;}
+function tdRing(pc,col,txt){const r=25,L=2*Math.PI*r,v=Math.max(0,Math.min(1,pc));return `<span class="tr"><svg viewBox="0 0 58 58" aria-hidden="true"><circle class="rb" cx="29" cy="29" r="${r}"/><circle class="rf" cx="29" cy="29" r="${r}" stroke="${col}" stroke-dasharray="${L.toFixed(1)}" stroke-dashoffset="${(L*(1-v)).toFixed(1)}"/></svg><b>${txt}</b></span>`;}
+function btWaterHTML(){const n=wtNorm(),dr=wtDrunk(),pc=n?dr/n.ml:0,por=tdPor(),g=wtSt().mode==="glass";
+  return `<button type="button" id="tdWater" aria-label="Вода: добавить ${por} мл. Долгое нажатие — раздел «Вода»"><span class="bt-h"><b>Вода</b><em>${n?Math.round(pc*100)+"%":"—"}</em></span>
+    <span class="wv">${tdRing(pc,pc>=1?"var(--good,#4a7a2c)":"#5b9bd5","💧")}<span class="wl"><b>${ntF(dr/1000,2)} л</b><span>${n?"из "+ntF(n.ml/1000,1)+" л":"укажи вес"}</span></span></span>
+    <span class="add">+ ${g?"стакан":por+" мл"}</span></button>`;}
+function btFoodHTML(t){const m=anFoodDays()[t]||{kcal:0,p:0,f:0,c:0},tg=NTN()&&ntT()?ntTarget(ntT()):null,kt=tg&&tg.kcal;
+  if(!kt)return `<button type="button" id="tdFood" data-norm="1"><span class="bt-h"><b>Питание</b><em>—</em></span><span class="kc"><b>${ntF(m.kcal)}</b><span>ккал сегодня</span></span><span class="td-txt">Норма не рассчитана — посчитаем по росту, весу и цели.</span><span class="add">Рассчитать норму</span></button>`;
+  const pc=m.kcal/kt,bar=(l,v,g,c)=>`<span class="mc"><span>${l}<b>${ntF(v)} / ${ntF(g)} г</b></span><i><em style="width:${Math.min(100,g>0?v/g*100:0)}%;background:${c}"></em></i></span>`;
+  return `<button type="button" id="tdFood" aria-label="Питание: открыть дневник"><span class="bt-h"><b>Питание</b><em style="color:${pc>1.1?"#d9822b":pc>=0.9?"var(--good,#4a7a2c)":"var(--accent-ink)"}">${Math.round(pc*100)}%</em></span>
+    <span class="kc"><b>${ntF(m.kcal)}</b><span>/ ${ntF(kt)} ккал</span></span>
+    <span class="macs">${bar("Белки",m.p,tg.p,"#b5543b")}${bar("Жиры",m.f,tg.f,"#c99a2e")}${bar("Углеводы",m.c,tg.c,"#5b8f3a")}</span>
+    <span class="add" id="tdMealAdd">+ Добавить приём</span></button>`;}
 function tdPor(){const s=wtSt();return s.mode==="glass"?WT_GLASS:(+s.portion||WT_GLASS);}
 function tdFoodOpen(norm){try{FOOD_DAY=null;renderFood();show("food");if(norm||NT_TAB!=="diary")ntTab(norm?"norm":"diary");}catch(e){}}
 function tdDashBind(){const w=el("tdWater"),f=el("tdFood");
-  if(f)f.onclick=()=>tdFoodOpen(!!f.dataset.norm);const mc=el("tdMac");if(mc)mc.onclick=()=>tdFoodOpen(false);
+  if(f)f.onclick=e=>{const add=e.target.closest("#tdMealAdd");tdFoodOpen(!!f.dataset.norm);if(add)setTimeout(()=>{const b=el("ntBuilder"),q=el("ntQ");if(b)b.scrollIntoView({block:"start",behavior:"smooth"});if(q)setTimeout(()=>q.focus(),350);},150);};
   if(!w)return;let tm=null,long=false;
   const openWater=()=>{tdFoodOpen(false);setTimeout(()=>{const c=el("wtCard");if(c)c.scrollIntoView({block:"start",behavior:"smooth"});},120);};
   const down=e=>{long=false;clearTimeout(tm);tm=setTimeout(()=>{long=true;if(navigator.vibrate)navigator.vibrate(20);openWater();},550);};
@@ -7183,17 +7238,22 @@ function tdDashBind(){const w=el("tdWater"),f=el("tdFood");
   w.onclick=()=>{if(long){long=false;return;}const por=tdPor();wtAdd(por,"water");toast("+"+por+" мл воды");try{renderToday();const n=el("tdWater");if(n)n.classList.add("wt-pop");}catch(e){}};}
 function renderToday(){const c=el("dashToday");if(!c)return;const t=localDate(),L=mpList();
   const dd=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);};
-  let html=`<div class="td-h"><b>Сегодня</b><span>${dd(t)}</span></div>`;
-  if(!L.length){html+=`<p class="td-rest">Нет активной программы. Выбери программу — приложение поведёт по тренировкам: что делать, когда и с каким весом.</p><button class="btn" type="button" id="tdPick">Выбрать программу</button>`;}
+  const DU=d=>{const x=new Date(d+"T12:00");return ["вс","пн","вт","ср","чт","пт","сб"][x.getDay()]+", "+fmtDate(d);},Dc=d=>{const s=DU(d);return s[0].toUpperCase()+s.slice(1);};
+  const pl=weekPlan(),dn=weekDone(),wk=`<button type="button" class="td-wk" id="tdWeek">Неделя: ${dn}${pl?" из "+pl:""} трен. →</button>`;
+  try{const e=el("homeEyebrow");if(e)e.textContent="GYM 45 • "+["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"][new Date().getDay()];}catch(e){}
+  let html="";
+  if(!L.length){html+=`<div class="td-top"><span class="td-eb rest">Нет программы • ${fmtDate(t)}</span>${wk}</div><p class="td-txt">Выбери программу — приложение поведёт по тренировкам: что делать, когда и с каким весом.</p><button class="btn" type="button" id="tdPick">Выбрать программу</button>`;}
   else{const S=L.map((x,i)=>({x,i,n:x.next||"9999"})).sort((a,b)=>a.n.localeCompare(b.n)),due=S.filter(o=>o.n<=t),first=due[0];
     let shown=first;
-    if(first){const x=first.x;html+=`<div class="td-main"><small>Тренировка по плану</small><b></b><span></span></div><button class="btn" type="button" id="tdGo">Начать ›</button>`;}
-    else{const nx=S.find(o=>o.n!=="9999");shown=nx;html+=`<p class="td-rest">Сегодня отдых.${nx?" Следующая — "+dd(nx.n)+": "+nx.x.t+".":""}</p>`;}
+    if(first){html+=`<div class="td-top"><span class="td-eb">Тренировка • ${fmtDate(t)}</span>${wk}</div><div class="td-next td-main"><b></b><span></span></div><button class="btn" type="button" id="tdGo">Начать ›</button>`;}
+    else{const nx=S.find(o=>o.n!=="9999");shown=nx;html+=`<div class="td-top"><span class="td-eb rest">Отдых • ${fmtDate(t)}</span>${wk}</div><p class="td-txt">Восстановление мышц и ЦНС.${nx?" Следующая сессия:":""}</p>`;
+      if(nx)html+=`<div class="td-next" id="tdNext"><b></b><span></span></div>`;}
     S.filter(o=>o!==shown).forEach(o=>{html+=`<button type="button" class="td-row" data-i="${o.i}"><span><b></b><small></small></span><i>${o.n<=t?"сегодня":o.n==="9999"?"›":dd(o.n)}</i></button>`;});}
-  const pl=weekPlan(),dn=weekDone();
-  html+=tdDashHTML(t);
-  html+=`<div class="td-stats"><button type="button" id="tdWeek">Неделя: ${dn}${pl?" из "+pl:""} ${plural(pl||dn,"тренировка","тренировки","тренировок")} ›</button></div>`;
+  html+=`<div class="td-stats"></div>`;
   c.innerHTML=html;
+  try{const nx=c.querySelector("#tdNext");if(nx){const S2=L.map(x=>({x,n:x.next||"9999"})).filter(o=>o.n!=="9999").sort((a,b)=>a.n.localeCompare(b.n))[0];
+    if(S2){nx.querySelector("b").textContent=S2.x.t;nx.querySelector("span").textContent=Dc(S2.n)+((dashNextName(S2.x)||S2.x.s)?" • "+(dashNextName(S2.x)||S2.x.s):"");nx.onclick=()=>S2.x.open();nx.style.cursor="pointer";}}}catch(e){}
+  try{el("bentoWater").innerHTML=btWaterHTML();el("bentoFood").innerHTML=btFoodHTML(t);}catch(e){console.error(e);}
   /* «Готовность к тренировке» — только в день тренировки по плану */
   try{const rb=document.querySelector("#scr-home .ready");if(rb)rb.style.display=(L.length&&L.some(x=>x.next&&x.next<=t))?"":"none";}catch(e){}
   if(el("tdPick"))el("tdPick").onclick=()=>show("programs");
@@ -8837,7 +8897,7 @@ function calOpen(due){const c=calCfg(),m=el("coolModal"),inClaude=!!(window.clau
   try{const c=el("dashToday"),A=safe.get()||[],u=[...A].reverse().find(x=>x&&x.unk&&x.unk.length);if(c&&u&&!c.querySelector(".gu-row"))
       {c.insertAdjacentHTML("afterbegin",`<div class="gvt-pend gu-row" style="margin-bottom:10px"><span>Не все подходы отмечены: «${u.name}»</span><button class="btn" style="width:auto;padding:9px 14px" type="button" id="guGo">Ответить</button></div>`);el("guGo").onclick=genAsk;}}catch(e){}
   try{const c=el("dashToday");if(c&&!el("tdCal")){
-  {const st=c.querySelector(".td-stats");(st||c).insertAdjacentHTML("beforeend",`<button type="button" class="td-cal${st?" td-cal-chip":""}" id="tdCal">🔔 Напоминания${st?"":" в календарь"}</button>`);}el("tdCal").onclick=()=>calOpen();}}catch(e){}
+  {const tp=c.querySelector(".td-top");if(tp)tp.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal td-bell" id="tdCal" aria-label="Напоминания в календарь" title="Напоминания в календарь">🔔</button>`);else c.insertAdjacentHTML("beforeend",`<button type="button" class="td-cal" id="tdCal">🔔 Напоминания в календарь</button>`);}el("tdCal").onclick=()=>calOpen();}}catch(e){}
   /* перерыв сдвинул график — предложить пересчитать календарь от последней тренировки */
   try{const c=el("dashToday"),d=calDrift(),old=el("tdCalShift");if(old)old.remove();
     if(d&&typeof natOn==="function"&&natOn()&&calCfg().nat){const v=Object.assign(calCfg(),{start:d.due});try{const o=JSON.parse(localStorage.getItem(CALK))||{};o.start=d.due;o.addedAt=new Date().toISOString();localStorage.setItem(CALK,JSON.stringify(o));}catch(e){}
