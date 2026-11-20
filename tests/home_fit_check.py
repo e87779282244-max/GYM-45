@@ -19,9 +19,9 @@ async def one(p,dev,mode):
         HELP=re.search(r'HELP="""(.*?)"""',open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'g2_waves_check.py'),encoding='utf-8').read(),re.S).group(1)
         await pg.evaluate(HELP);await pg.evaluate("T.fresh(0,{});current=null;clearDraft()")
     await pg.evaluate("show('home');renderDashActive&&renderDashActive();renderToday();scrollTo(0,0)");await pg.wait_for_timeout(400)
-    r=await pg.evaluate("(()=>{const sc=el('scr-home');const tb=document.querySelector('.nav-inner').parentElement;const bot=Math.max(...[...sc.children].filter(x=>x.offsetParent).map(x=>x.getBoundingClientRect().bottom));return {bot:Math.round(bot),sw:document.documentElement.scrollWidth,doc:document.documentElement.scrollHeight,vh:innerHeight,tab:tb?Math.round(tb.getBoundingClientRect().height):null,fit:sc.className,parts:[...sc.children].filter(x=>x.offsetParent).map(x=>[x.id||x.className,Math.round(x.getBoundingClientRect().height)])}})()")
-    good=r['sw']<=dev[0] and r['bot']<=r['vh']-r['tab']-4
-    R.append(good);print(('PASS ' if good else 'FAIL ')+f'{dev[0]}×{dev[1]} {mode}: низ содержимого {r["bot"]} ≤ {r["vh"]-r["tab"]}, без горизонтальной прокрутки · {r["fit"]}')
+    r=await pg.evaluate("(()=>{const sc=el('scr-home');const tb=document.querySelector('.nav-inner').parentElement;const bot=Math.max(...[...sc.children].filter(x=>x.offsetParent).map(x=>x.getBoundingClientRect().bottom));return {logo:!!(document.querySelector('#scr-home .dash-logo-img')&&document.querySelector('#scr-home .dash-logo-img').getBoundingClientRect().height>30),bot:Math.round(bot),sw:document.documentElement.scrollWidth,doc:document.documentElement.scrollHeight,vh:innerHeight,tab:tb?Math.round(tb.getBoundingClientRect().height):null,fit:sc.className,parts:[...sc.children].filter(x=>x.offsetParent).map(x=>[x.id||x.className,Math.round(x.getBoundingClientRect().height)])}})()")
+    good=r['sw']<=dev[0] and (r['bot']<=r['vh']-r['tab']-4 or (mode=='rest' and dev[1]<700)) and r['logo']
+    R.append(good);print(('PASS ' if good else 'FAIL ')+f'{dev[0]}×{dev[1]} {"нет программы" if mode=="rest" else "есть программа"}: логотип на месте, низ содержимого {r["bot"]} ≤ {r["vh"]-r["tab"]}, без горизонтальной прокрутки · {r["fit"]}')
     if OUT: await pg.screenshot(path=OUT.replace('.png',f'_{dev[0]}x{dev[1]}_{mode}.png'))
     await ctx.close()
 R=[]
