@@ -556,6 +556,9 @@
   .nt-hit{display:flex;justify-content:space-between;gap:10px;align-items:baseline;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 12px;font-size:14.5px;font-weight:600}
   .nt-hit small{flex:none;color:var(--muted);font-size:12px}
   .nt-pick{font-size:14px;margin:8px 0;line-height:1.45}
+.nt-smart[hidden]{display:none}.nt-smart .nt-sq{margin-top:10px}.nt-smart .nt-sq span{font-size:12.5px}
+.nt-smart .nt-sq button{padding:8px 13px;font-size:14px}
+.nt-hit .nt-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--accent-weak);color:var(--accent-ink);font-size:11.5px;font-weight:700;vertical-align:1px}
   .nt-pick small{color:var(--muted)}
   .nt-x{border:none;background:none;color:var(--faint);font-size:14px;padding:0 4px}
   .fitems{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.35}
@@ -1724,6 +1727,11 @@
           <div class="nt-grid"><label>Количество<input id="ntQAmt" class="food-in" type="text" inputmode="decimal" value="1"></label><label>Мера<select id="ntQUnit" class="food-in"></select></label></div>
           <p id="ntPickRes" class="nt-pick"></p>
           <button type="button" class="btn btn-alt" id="ntQAdd">＋ В приём</button>
+        </div>
+        <div id="ntSmartBox" class="nt-smart" hidden>
+          <div id="ntSmartQ"></div>
+          <p id="ntSmartRes" class="nt-pick"></p>
+          <button type="button" class="btn btn-alt" id="ntSmartAdd">＋ В приём</button>
         </div>
         <div id="ntDraft"></div>
         <button type="button" class="btn" id="ntDraftSave" hidden>Записать</button>
@@ -7754,6 +7762,33 @@ const NT_EXTRA=[ // id, название, Б, Ж, У на 100 г, {piece: г з�
    id, категория, название, ккал, Б, Ж, У на 100 г. Ккал — как в источнике (не пересчитываются по 4/9/4).
    Мера по умолчанию — порция 250 г; усреднённо: масло, соусы и рецептура меняют КБЖУ. */
 const NT_DISH_PORTION=250;
+/* меры для блюд: [подпись, граммы, сколько ставить по умолчанию] — у каждой видно, сколько это грамм */
+const NT_PLATES=[["Небольшая тарелка",200],["Обычная тарелка",300],["Большая тарелка",400]];
+const NT_DISH_MS={"Блины с мясом":[["Блин с мясом",80,2]],"Куриный пирог":[["Кусок",120]],"Мясной пирог":[["Кусок",120]],"Пицца Маргарита":[["Кусок (⅛ пиццы 30 см)",100,2],["Вся пицца 30 см",800]],
+  "Пельмени азиатские":[["Штука",15,15]],"Кукурузный пудинг":[["Порция",150]],"Творожная запеканка":[["Кусок",150]],"Вегетарианская котлета":[["Котлета",80,2]],
+  "Голубцы":[["Голубец",150,2]],"Лазанья":[["Кусок",250]],"Лазанья мясная":[["Кусок",250]],"Лазанья с сыром":[["Кусок",250]],"Мясной спред":[["Столовая ложка",20],["На бутерброд",30]],
+  "Мясные ломтики растительные":[["Ломтик",20,3]],"Растительное филе":[["Кусок",100]],"Курица растительная":[["Кусок",100]],"Шаурма":[["Шаурма",300],["Большая шаурма",450]],"Шашлык свиной":[["Шампур",150]]};
+function ntDishMs(id,cat,name){if(NT_DISH_MS[name])return NT_DISH_MS[name];if(cat==="Салаты")return [["Небольшая порция",100],["Обычная порция",150],["Большая порция",250]];return NT_PLATES;}
+/* бытовые меры там, где раньше были только граммы: ложки, ломтики, горсти, тарелки — у каждой видны граммы */
+const NT_MS_ID={x_ricec:[["Обычная тарелка",200],["Небольшая тарелка",150],["Большая тарелка",300],["Столовая ложка",25]],x_buckc:[["Обычная тарелка",200],["Небольшая тарелка",150],["Большая тарелка",300],["Столовая ложка",25]],
+  x_pastac:[["Обычная тарелка",200],["Небольшая тарелка",150],["Большая тарелка",300]],x_oatc:[["Обычная тарелка",250],["Небольшая тарелка",200],["Большая тарелка",350]],
+  x_fries:[["Малая порция",80],["Средняя порция",115],["Большая порция",155]],x_plov:NT_PLATES,x_borsch:[["Небольшая тарелка",250],["Обычная тарелка",350],["Большая тарелка",500]],
+  x_butter:[["На бутерброд",5],["Столовая ложка",15]],x_mayo:[["Чайная ложка",5],["Столовая ложка",15]],x_choc:[["Долька",5],["Ряд (4 дольки)",20],["Плитка",90]],x_cookies:[["Печенье",10,3]],
+  x_tuna:[["Банка без жидкости",140]],x_curd9:[["Пачка",180],["Столовая ложка",20]],x_avocado:[["Половина",70],["Целиком без косточки",140]],x_yogurt:[["Стаканчик",140],["Столовая ложка",20]],x_lavash:[["Лист",80]],
+  x_pork:[["Кусок (стейк)",150]],x_lamb:[["Кусок",150]],o_06:[["Ломтик",15,3]],o_14:[["Кусочек",30]],o_20:[["Крылышко",30,5]],o_24:[["Маленькая пачка",40],["Большая пачка",140]],o_32:[["Мерная ложка",50]],
+  o_46:[["Миска",30]],o_47:[["Миска",30]],o_49:[["Горсть",30]],o_50:[["Горсть",30]],o_53:[["Порция 40 мл",40],["Порция 50 мл",50]]};
+function ntAutoMs(f){if(!f||f.ms||f.piece||f.custom)return;let m=NT_MS_ID[f.id]||null;const n=String(f.name||"").toLocaleLowerCase("ru"),c=f.cat||"";
+  if(!m&&/^x_shash/.test(f.id))m=[["Шампур",150]];
+  if(!m&&f.volume){if(/пиво/.test(n))m=[["Бутылка / кружка 0,5 л",500],["Банка 0,33 л",330]];else if(/вино|шампанск/.test(n))m=[["Бокал",150]];else if(/водк|коньяк|виски|ром|текил|джин|настойк/.test(n))m=[["Рюмка 50 мл",50]];}
+  if(!m)m=c==="Масла и жиры"?[["Чайная ложка",5],["Столовая ложка",10]]:c==="Соусы и специи"||/соус|кетчуп|хумус|дзадзики|сальса/.test(n)?[["Чайная ложка",5],["Столовая ложка",15]]
+    :c==="Сыры"?[["Ломтик",20]]:c==="Колбасы"?[["Ломтик",15,2]]:c==="Орехи и семена"?[["Горсть",30],["Столовая ложка",15]]:c==="Сухофрукты"?[["Горсть",30],["Штука",8,5]]
+    :/сметана|йогурт|сгущ/.test(n)?[["Столовая ложка",20],["Чайная ложка",7]]:/творог/.test(n)?[["Столовая ложка",20],["Пачка",180]]:/мёд|мед\b|варенье|джем|сироп/.test(n)?[["Чайная ложка",8],["Столовая ложка",20]]
+    :/мороженое|эскимо/.test(n)?[["Стаканчик / эскимо",80]]:/вафл|печень|сушк|баранк|галет|крекер|хлебц|сухар/.test(n)?[["Штука",10,3]]:/ирис|леденц|конфет|пастил|мармелад/.test(n)?[["Штука",10,2]]
+    :/^(вишня|черешня|клубника|малина|черника|смородина|клюква|голубика|крыжовник|облепиха|брусника|виноград)/.test(n)?[["Горсть",50],["Стакан",150]]
+    :c==="Бобовые и крупы"&&/сух|круп|мука|хлопья/.test(n)?[["Столовая ложка",15]]:null;
+  if(m)f.ms=m;}
+function ntPlateMs(g,name){g=+g||300;if(/шаурма|донер/i.test(name))return [["Шаурма",g],["Половина",Math.round(g/2)]];
+  return [["Небольшая тарелка",Math.round(g*.7/10)*10],["Обычная тарелка",g],["Большая тарелка",Math.round(g*1.3/10)*10]];}
 const NT_DISHES=[
  ["d_01","Выпечка и тесто","Блины с мясом",232,11.5,11,22.5],
  ["d_02","Выпечка и тесто","Вареники",146,3.8,3.1,25.2],
@@ -8106,40 +8141,243 @@ const NT_OWN=[["o_00","Казахская и восточная кухня","Б�
  ["o_51","Фастфуд","Тако с говядиной",228,10,12,20,{"piece":100,"pl":"тако ≈100 г"}],
  ["o_52","Хлеб и выпечка","Бейгл",257,10,1.5,51,{"piece":90,"pl":"бейгл ≈90 г"}],
  ["o_53","Алкоголь","Виски",250,0,0,0,{"volume":true}]];
+/* ===================== УМНЫЕ БЛЮДА: состав спрашивается кнопками, КБЖУ — из ингредиентов =====================
+   Ингредиенты — на 100 г (ккал, Б, Ж, У): USDA FoodData Central / таблицы химического состава, усреднённо.
+   Масло для жарки считается целиком (часть остаётся на сковороде — это верхняя оценка). */
+const NT_ING={
+ egg:["Яйцо",143,12.6,9.5,0.7],white:["Яичный белок",52,10.9,0.2,0.7],
+ oil:["Растительное масло",899,0,99.9,0],butter:["Сливочное масло",717,0.9,81,0.1],
+ milk:["Молоко 2,5%",52,2.8,2.5,4.7],kefir:["Кефир 1%",40,3,1,4],yog:["Йогурт натуральный 2,5%",60,4,2.5,5],cream:["Сливки 10%",118,3,10,4],
+ cheese:["Сыр твёрдый",356,24,28,0.5],feta:["Фета",264,14,21,4],crcheese:["Творожный сыр",270,6,26,4],
+ sausage:["Колбаса варёная",263,12,23,2],ham:["Ветчина",180,17,12,1],bacon:["Бекон",416,13,40,1],frank:["Сосиска",266,11,24,1.6],
+ tomato:["Помидор",18,0.9,0.2,3.9],cucumber:["Огурец",15,0.7,0.1,3],pepper:["Перец болгарский",27,1,0.3,6],onion:["Лук",40,1.1,0.1,9],
+ vegmix:["Овощи (огурец, помидор, перец, лук)",20,0.9,0.2,3.8],greens:["Зелень / шпинат",23,2.9,0.4,3.6],mush:["Шампиньоны",27,4.3,1,0.1],
+ avocado:["Авокадо",160,2,15,9],croutons:["Сухарики",407,11.9,6.6,73.5],tuna:["Тунец консервированный",116,26,1,0],
+ oats:["Овсяные хлопья",352,12.3,6.2,61.8],buck:["Гречка (сухая)",313,12.6,3.3,62.1],rice:["Рис белый (сухой)",344,6.7,0.7,78.9],
+ pasta:["Макароны (сухие)",337,10.4,1.1,71.5],muesli:["Мюсли без сахара",367,10,7,62],granola:["Гранола",471,10,20,64],flakes:["Кукурузные хлопья",357,7.5,0.4,84],
+ sugar:["Сахар",399,0,0,99.8],honey:["Мёд",329,0.8,0,81.5],jam:["Варенье",271,0.3,0.2,70.9],condmilk:["Сгущёнка",320,7.2,8.5,56],
+ banana:["Банан",89,1.1,0.3,22.8],berries:["Ягоды",45,0.8,0.4,10],nuts:["Грецкие орехи",654,15.2,65.2,7],raisins:["Изюм",264,2.9,0.6,66],pbutter:["Арахисовая паста",588,25,50,20],
+ whey:["Протеин (сывороточный)",393,80,5,7],
+ sour20:["Сметана 20%",204,2.8,20,3.2],sour15:["Сметана 15%",158,2.6,15,3],mayo:["Майонез 67%",624,0.3,67,2.6],
+ ketchup:["Кетчуп",100,1.8,1,22],tomsauce:["Томатный соус",49,1.5,1.5,7.5],soy:["Соевый соус",53,8,0.6,4.9],
+ bwhite:["Хлеб белый",262,7.5,2.9,51.4],brye:["Хлеб чёрный",210,6.6,1.2,42],bgrain:["Хлеб цельнозерновой",247,13,3.4,41],
+ tv2:["Творог 0–2%",103,18,2,3.3],tv5:["Творог 5%",121,17.2,5,1.8],tv9:["Творог 9%",159,16.7,9,2],tv18:["Творог 18%",232,15,18,2.8],
+ potb:["Картофель отварной",82,2,0.4,16.7],potf:["Картофель жареный (без учёта масла)",118,3.1,0.6,25],
+ mince:["Фарш говяжий жареный",250,24,17,0],salmon:["Красная рыба слабосолёная",200,22,12,0],
+ chbreast:["Куриная грудка готовая",165,31,3.6,0],chthigh:["Куриное бедро без кожи, готовое",179,24.8,8.2,0],chthighs:["Куриное бедро с кожей, готовое",229,23,14.7,0],chwing:["Куриные крылья, готовые",254,23.8,16.9,0],
+ syrnik:["Сырники (тесто)",186,15.4,5.2,18.8],blin:["Блины на молоке",225,6,9.5,29],olad:["Оладьи на кефире",230,6.5,8,33],
+ pelm:["Пельмени",250,11,12,24],varp:["Вареники с картошкой",148,3.8,3.1,25],vart:["Вареники с творогом",203,10.9,5.4,27.9],varc:["Вареники с вишней",190,4.5,1,41],
+ cutd:["Котлета домашняя (свинина+говядина)",218,14,14.8,8.5],cutb:["Котлета говяжья",220,15,13,9],cutc:["Котлета куриная",190,17,10,7],
+ semp:["Манная каша на молоке",82,3.6,2.3,11.8],ricep:["Рисовая каша на молоке",74,2.6,1.6,12.6],milp:["Пшённая каша на молоке",89,3.9,2.5,12.8],
+ borsch:["Борщ",49,2.6,2.1,4.8],shchi:["Щи",38,3.4,1.6,2.5],chsoup:["Куриный суп",38,3.5,1.2,3.8],peas:["Гороховый суп",71,3.9,0.9,11.8],
+ solyanka:["Солянка",80,5.2,4.5,4],rassol:["Рассольник",49,3.7,1.7,4.8],ukha:["Уха",55,5.5,2.2,3.8],mushsoup:["Грибной суп",34,1.1,1.8,3.6],
+ meatball:["Суп с фрикадельками",45,2.4,2.3,3.4],okrosh:["Окрошка",58,3.2,2.5,5.5],
+ tea:["Чай / кофе без сахара",1,0.1,0,0.2],carrot:["Морковь",35,1.3,0.1,6.9],flour:["Мука",364,10.3,1,76]
+};
+/* «как отмерял» крупу: готовая (г) или сухая (г); выход готовой из 1 г сухой */
+const NT_SM_COOK={buck:2.5,rice:3,pasta:2.3};
+const ntOpt=(arr)=>arr.map(x=>Array.isArray(x)?x:[x]);
+const NT_SMART=[
+ {id:"s_fried",name:"Яичница (глазунья)",keys:"яичница глазунья яйца жареные яичко",hide:["d_18"],
+  q:[{k:"n",t:"Сколько яиц",o:ntOpt(["1","2","3","4","5","6"]),d:1},
+     {k:"fat",t:"На чём жарил",o:[["Без масла"],["Растит. масло · 1 ч. л. (5 г)"],["Растит. масло · 1 ст. л. (10 г)"],["Сливочное · 5 г"],["Сливочное · 10 г"]],d:2},
+     {k:"add",t:"Добавки",m:1,o:[["Колбаса · 2 ломтика (40 г)"],["Ветчина · 40 г"],["Бекон · 2 полоски (30 г)"],["Сыр · 20 г"],["Помидор · 1 шт. (100 г)"],["Лук · 30 г"]]}],
+  calc:s=>{const r=[["egg",(s.n+1)*50]];r.push([[null],["oil",5],["oil",10],["butter",5],["butter",10]][s.fat]);
+    const A=[["sausage",40],["ham",40],["bacon",30],["cheese",20],["tomato",100],["onion",30]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Яичница из ${s.n+1} ${ntPl(s.n+1,"яйца","яиц","яиц")}`},
+ {id:"s_omelet",name:"Омлет",keys:"омлет яйца",hide:["d_15"],
+  q:[{k:"n",t:"Сколько яиц",o:ntOpt(["1","2","3","4","5","6"]),d:2},
+     {k:"milk",t:"Молоко",o:[["Без молока"],["30 мл"],["50 мл"],["100 мл"]],d:2},
+     {k:"fat",t:"На чём жарил",o:[["Без масла"],["Растит. масло · 1 ч. л. (5 г)"],["Растит. масло · 1 ст. л. (10 г)"],["Сливочное · 10 г"]],d:1},
+     {k:"add",t:"Добавки",m:1,o:[["Сыр · 20 г"],["Ветчина · 40 г"],["Помидор · 100 г"],["Перец · 80 г"],["Шампиньоны · 50 г"],["Зелень / шпинат · 20 г"]]}],
+  calc:s=>{const r=[["egg",(s.n+1)*50],["milk",[0,30,50,100][s.milk]],[[null],["oil",5],["oil",10],["butter",10]][s.fat]];
+    const A=[["cheese",20],["ham",40],["tomato",100],["pepper",80],["mush",50],["greens",20]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Омлет из ${s.n+1} ${ntPl(s.n+1,"яйца","яиц","яиц")}`},
+ {id:"s_boiled",name:"Яйца варёные",keys:"яйца варёные вареные яйцо всмятку вкрутую белки",
+  q:[{k:"n",t:"Сколько яиц",o:ntOpt(["1","2","3","4","5","6","8","10"]),d:1},{k:"w",t:"Что съел",o:[["Целые яйца"],["Только белки"]],d:0}],
+  calc:s=>{const n=[1,2,3,4,5,6,8,10][s.n];return [s.w?["white",n*33]:["egg",n*50]];},
+  title:s=>{const n=[1,2,3,4,5,6,8,10][s.n];return s.w?`Белки ${n} ${ntPl(n,"яйца","яиц","яиц")}`:`Яйца варёные · ${n} шт.`;}},
+ {id:"s_oat",name:"Овсяная каша",keys:"овсянка овсяная каша геркулес хлопья",
+  q:[{k:"g",t:"Сухих хлопьев",o:[["30 г · 3 ст. л."],["40 г"],["50 г · ½ стакана"],["60 г"],["80 г"],["100 г"]],d:2},
+     {k:"liq",t:"На чём варил",o:[["На воде"],["На молоке 2,5%"],["Пополам"]],d:0},
+     {k:"add",t:"Добавки",m:1,o:[["Сливочное масло · 5 г"],["Сахар · 1 ч. л. (5 г)"],["Сахар · 2 ч. л. (10 г)"],["Мёд · 1 ч. л. (8 г)"],["Банан · ½ (60 г)"],["Ягоды · 50 г"],["Орехи · 15 г"],["Изюм · 15 г"],["Протеин · 1 скуп"]]}],
+  calc:s=>{const g=[30,40,50,60,80,100][s.g],r=[["oats",g]];if(s.liq===1)r.push(["milk",g*3]);if(s.liq===2)r.push(["milk",g*1.5]);r.push(["water",s.liq===1?0:s.liq===2?g*1.5:g*3]);
+    const A=[["butter",5],["sugar",5],["sugar",10],["honey",8],["banana",60],["berries",50],["nuts",15],["raisins",15],["whey",ntScoopG()]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Овсянка ${[30,40,50,60,80,100][s.g]} г ${["на воде","на молоке","на молоке с водой"][s.liq]}`},
+ ...[["buck","Гречка","гречка гречневая каша",["Гречка","гречки"]],["rice","Рис","рис отварной рис варёный",["Рис","риса"]],["pasta","Макароны","макароны паста спагетти рожки",["Макароны","макарон"]]].map(([k,nm,keys,w])=>({
+  id:"s_"+k,name:nm+" (отварные / сухие — на выбор)",keys,
+  q:[{k:"a",t:"Сколько",o:[["Готовой · 150 г"],["Готовой · 200 г"],["Готовой · 250 г"],["Готовой · 300 г"],["Сухой · 50 г"],["Сухой · 70 г"],["Сухой · 100 г"]],d:1},
+     {k:"add",t:"Добавки",m:1,o:k==="pasta"?[["Сливочное масло · 10 г"],["Сыр · 20 г"],["Сыр · 40 г"],["Кетчуп · 2 ст. л. (30 г)"],["Томатный соус · 100 г"],["Фарш жареный · 100 г (по-флотски)"],["Сосиска · 1 шт. (50 г)"]]
+        :k==="rice"?[["Сливочное масло · 5 г"],["Сливочное масло · 10 г"],["Соевый соус · 1 ст. л. (15 г)"],["Овощи · 100 г"]]
+        :[["Сливочное масло · 5 г"],["Сливочное масло · 10 г"],["Молоко · 150 мл"],["Жареные лук и морковь · 50 г"]]}],
+  calc:s=>{const dry=s.a<4?[150,200,250,300][s.a]/NT_SM_COOK[k]:[50,70,100][s.a-4],r=[[k,dry],["water",dry*(NT_SM_COOK[k]-1)]];
+    const A=k==="pasta"?[["butter",10],["cheese",20],["cheese",40],["ketchup",30],["tomsauce",100],["mince",100],["frank",50]]
+      :k==="rice"?[["butter",5],["butter",10],["soy",15],["vegmix",100]]:[["butter",5],["butter",10],["milk",150],["onion",25],["carrot",20],["oil",5]];
+    s.add.forEach(i=>{if(k==="buck"&&i===3){r.push(A[3],A[4],A[5]);}else r.push(A[i]);});return r;},
+  title:s=>`${w[0]} · ${s.a<4?"готовой "+[150,200,250,300][s.a]+" г":"сухой "+[50,70,100][s.a-4]+" г"}`})),
+ {id:"s_mporr",name:"Каша молочная (манная, рисовая, пшённая)",keys:"каша манная манка рисовая пшённая пшенная молочная",
+  q:[{k:"t",t:"Какая",o:[["Манная"],["Рисовая"],["Пшённая"]],d:0},{k:"g",t:"Тарелка",o:[["Небольшая · 200 г"],["Обычная · 250 г"],["Большая · 350 г"]],d:1},
+     {k:"add",t:"Добавки",m:1,o:[["Сахар · 1 ч. л. (5 г)"],["Сахар · 2 ч. л. (10 г)"],["Сливочное масло · 5 г"],["Варенье · 1 ст. л. (20 г)"]]}],
+  calc:s=>{const r=[[["semp","ricep","milp"][s.t],[200,250,350][s.g]]],A=[["sugar",5],["sugar",10],["butter",5],["jam",20]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`${["Манная","Рисовая","Пшённая"][s.t]} каша · ${[200,250,350][s.g]} г`},
+ {id:"s_pure",name:"Картофельное пюре",keys:"пюре картофельное картошка толчёная",hide:["d_09"],
+  q:[{k:"g",t:"Сколько",o:[["150 г"],["200 г"],["250 г"],["300 г"]],d:1},{k:"how",t:"Как делал",o:[["Только картошка"],["С молоком"],["С молоком и сливочным маслом"]],d:2}],
+  calc:s=>{const T=[150,200,250,300][s.g];return s.how===0?[["potb",T]]:s.how===1?[["potb",T*.85],["milk",T*.15]]:[["potb",T*.8],["milk",T*.15],["butter",T*.05]];},
+  title:s=>`Пюре ${[150,200,250,300][s.g]} г${["",", на молоке",", на молоке с маслом"][s.how]}`},
+ {id:"s_potfry",name:"Картошка жареная / фри",keys:"картошка жареная картофель фри жарёная",
+  q:[{k:"g",t:"Готовой",o:[["150 г"],["200 г"],["250 г"],["300 г"]],d:1},{k:"oil",t:"Масло",o:[["1 ст. л. (10 г)"],["2 ст. л. (20 г)"],["3 ст. л. (30 г)"],["Фри / во фритюре"]],d:1}],
+  calc:s=>{const T=[150,200,250,300][s.g];return [["potf",T],["oil",s.oil===3?T*.13:[10,20,30][s.oil]]];},
+  title:s=>`Картошка ${s.oil===3?"фри":"жареная"} · ${[150,200,250,300][s.g]} г`},
+ {id:"s_salad",name:"Салат овощной",keys:"салат овощной огурцы помидоры свежий",
+  q:[{k:"g",t:"Сколько",o:[["Небольшая миска · 150 г"],["Обычная · 250 г"],["Большая · 350 г"]],d:1},
+     {k:"dr",t:"Заправка",o:[["Без заправки"],["Масло · 1 ч. л. (5 г)"],["Масло · 1 ст. л. (10 г)"],["Масло · 2 ст. л. (20 г)"],["Сметана 15% · 1 ст. л. (20 г)"],["Сметана 15% · 2 ст. л. (40 г)"],["Майонез · 1 ст. л. (15 г)"],["Майонез · 2 ст. л. (30 г)"]],d:2},
+     {k:"add",t:"Добавки",m:1,o:[["Фета · 30 г"],["Яйцо варёное · 1 шт."],["Курица · 100 г"],["Тунец · 80 г"],["Сухарики · 15 г"],["Авокадо · ½ (70 г)"]]}],
+  calc:s=>{const r=[["vegmix",[150,250,350][s.g]],[[null],["oil",5],["oil",10],["oil",20],["sour15",20],["sour15",40],["mayo",15],["mayo",30]][s.dr]];
+    const A=[["feta",30],["egg",50],["chbreast",100],["tuna",80],["croutons",15],["avocado",70]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Салат овощной · ${[150,250,350][s.g]} г${["",", масло 5 г",", масло 10 г",", масло 20 г",", сметана 20 г",", сметана 40 г",", майонез 15 г",", майонез 30 г"][s.dr]}`},
+ {id:"s_sand",name:"Бутерброд",keys:"бутерброд хлеб тост сэндвич",
+  q:[{k:"b",t:"Хлеб",o:[["Белый"],["Чёрный"],["Цельнозерновой"]],d:0},{k:"n",t:"Ломтиков (по 30 г)",o:ntOpt(["1","2","3","4"]),d:1},
+     {k:"sp",t:"Намазка на ломтик",o:[["Нет"],["Сливочное масло · 5 г"],["Творожный сыр · 15 г"],["Майонез · 5 г"]],d:1},
+     {k:"top",t:"Сверху (на каждый ломтик)",m:1,o:[["Сыр · 20 г"],["Колбаса · 20 г"],["Ветчина · 20 г"],["Красная рыба · 20 г"],["Огурец / помидор · 20 г"]]}],
+  calc:s=>{const n=s.n+1,r=[[["bwhite","brye","bgrain"][s.b],30*n],[[null],["butter",5*n],["crcheese",15*n],["mayo",5*n]][s.sp]];
+    const A=[["cheese",20],["sausage",20],["ham",20],["salmon",20],["vegmix",20]];s.top.forEach(i=>r.push([A[i][0],A[i][1]*n]));return r;},
+  title:s=>`Бутерброд · ${s.n+1} ${ntPl(s.n+1,"ломтик","ломтика","ломтиков")}`},
+ {id:"s_syr",name:"Сырники",keys:"сырники творожники",hide:["d_16"],
+  q:[{k:"n",t:"Сколько штук (≈50 г)",o:ntOpt(["1","2","3","4","5","6","8"]),d:2},{k:"fat",t:"Жарил",o:[["Без масла / в духовке"],["На масле · 1 ст. л. (10 г) на порцию"]],d:1},
+     {k:"add",t:"Сверху",m:1,o:[["Сметана 20% · 1 ст. л. (20 г)"],["Сметана 20% · 2 ст. л. (40 г)"],["Варенье · 1 ст. л. (20 г)"],["Мёд · 1 ч. л. (8 г)"],["Сгущёнка · 1 ст. л. (20 г)"]]}],
+  calc:s=>{const n=[1,2,3,4,5,6,8][s.n],r=[["syrnik",n*50]];if(s.fat)r.push(["oil",10]);const A=[["sour20",20],["sour20",40],["jam",20],["honey",8],["condmilk",20]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Сырники · ${[1,2,3,4,5,6,8][s.n]} шт.`},
+ {id:"s_blin",name:"Блины",keys:"блины блинчики",
+  q:[{k:"n",t:"Сколько штук (≈40 г)",o:ntOpt(["1","2","3","4","5","6","8"]),d:2},
+     {k:"add",t:"С чем",m:1,o:[["Сметана · 1 ст. л. (20 г)"],["Варенье · 1 ст. л. (20 г)"],["Мёд · 1 ч. л. (8 г)"],["Сгущёнка · 1 ст. л. (20 г)"],["Сливочное масло · 5 г"],["Творог 5% · 50 г"],["Мясо (фарш) · 40 г на блин"]]}],
+  calc:s=>{const n=[1,2,3,4,5,6,8][s.n],r=[["blin",n*40]];const A=[["sour20",20],["jam",20],["honey",8],["condmilk",20],["butter",5],["tv5",50],["mince",40*n]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Блины · ${[1,2,3,4,5,6,8][s.n]} шт.`},
+ {id:"s_olad",name:"Оладьи",keys:"оладьи оладушки панкейки",
+  q:[{k:"n",t:"Сколько штук (≈35 г)",o:ntOpt(["2","3","4","5","6","8","10"]),d:2},{k:"fat",t:"Жарил",o:[["На антипригарной без масла"],["На масле · 1 ст. л. (10 г)"],["На масле · 2 ст. л. (20 г)"]],d:1},
+     {k:"add",t:"Сверху",m:1,o:[["Сметана · 1 ст. л. (20 г)"],["Варенье · 1 ст. л. (20 г)"],["Мёд · 1 ч. л. (8 г)"],["Сгущёнка · 1 ст. л. (20 г)"]]}],
+  calc:s=>{const n=[2,3,4,5,6,8,10][s.n],r=[["olad",n*35],[[null],["oil",10],["oil",20]][s.fat]];const A=[["sour20",20],["jam",20],["honey",8],["condmilk",20]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Оладьи · ${[2,3,4,5,6,8,10][s.n]} шт.`},
+ {id:"s_tvor",name:"Творог с добавками",keys:"творог творожок",
+  q:[{k:"fat",t:"Жирность",o:[["0–2%"],["5%"],["9%"],["18%"]],d:1},{k:"g",t:"Сколько",o:[["100 г"],["150 г"],["180 г · пачка"],["200 г"],["250 г"]],d:2},
+     {k:"add",t:"Добавки",m:1,o:[["Сметана · 1 ст. л. (20 г)"],["Мёд · 1 ч. л. (8 г)"],["Сахар · 1 ч. л. (5 г)"],["Ягоды · 50 г"],["Банан · ½ (60 г)"],["Орехи · 15 г"],["Изюм · 15 г"],["Варенье · 1 ст. л. (20 г)"]]}],
+  calc:s=>{const r=[[["tv2","tv5","tv9","tv18"][s.fat],[100,150,180,200,250][s.g]]],A=[["sour20",20],["honey",8],["sugar",5],["berries",50],["banana",60],["nuts",15],["raisins",15],["jam",20]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Творог ${["0–2%","5%","9%","18%"][s.fat]} · ${[100,150,180,200,250][s.g]} г`},
+ {id:"s_shake",name:"Протеиновый коктейль",keys:"протеин протеиновый коктейль шейк сывороточный",
+  q:[{k:"n",t:"Скупов",o:[["1 скуп"],["2 скупа"]],d:0},{k:"liq",t:"На чём",o:[["Вода"],["Молоко 2,5% · 250 мл"],["Молоко 2,5% · 300 мл"],["Кефир 1% · 250 мл"]],d:0},
+     {k:"add",t:"Добавки",m:1,o:[["Банан · 1 шт. (120 г)"],["Овсяные хлопья · 30 г"],["Арахисовая паста · 15 г"],["Мёд · 1 ч. л. (8 г)"]]}],
+  calc:s=>{const r=[["whey",ntScoopG()*(s.n+1)],[[null],["milk",250],["milk",300],["kefir",250]][s.liq]];const A=[["banana",120],["oats",30],["pbutter",15],["honey",8]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Протеин ${s.n+1} ${s.n?"скупа":"скуп"}${[""," на молоке 250 мл"," на молоке 300 мл"," на кефире"][s.liq]}`},
+ {id:"s_tea",name:"Чай / кофе",keys:"чай кофе американо эспрессо",
+  q:[{k:"t",t:"Напиток",o:[["Чай"],["Кофе (чёрный, американо)"]],d:0},{k:"sug",t:"Сахар",o:[["Без сахара"],["1 ч. л. (5 г)"],["2 ч. л. (10 г)"],["3 ч. л. (15 г)"]],d:0},
+     {k:"milk",t:"Молоко / сливки",o:[["Нет"],["Молоко · 30 мл"],["Молоко · 50 мл"],["Молоко · 100 мл"],["Сливки 10% · 10 мл"],["Сливки 10% · 20 мл"]],d:0}],
+  calc:s=>[["tea",250],["sugar",[0,5,10,15][s.sug]],[[null],["milk",30],["milk",50],["milk",100],["cream",10],["cream",20]][s.milk]],
+  title:s=>`${["Чай","Кофе"][s.t]}${s.sug?", сахар "+[0,5,10,15][s.sug]+" г":""}${s.milk?", "+["","молоко 30 мл","молоко 50 мл","молоко 100 мл","сливки 10 мл","сливки 20 мл"][s.milk]:""}`},
+ {id:"s_pelm",name:"Пельмени",keys:"пельмени",hide:["d_05"],
+  q:[{k:"n",t:"Сколько штук (≈12 г)",o:ntOpt(["10","15","20","25","30","40"]),d:2},
+     {k:"add",t:"С чем",m:1,o:[["Сметана · 1 ст. л. (20 г)"],["Сметана · 2 ст. л. (40 г)"],["Сливочное масло · 10 г"],["Кетчуп · 2 ст. л. (30 г)"],["Майонез · 1 ст. л. (15 г)"]]}],
+  calc:s=>{const r=[["pelm",[10,15,20,25,30,40][s.n]*12]],A=[["sour20",20],["sour20",40],["butter",10],["ketchup",30],["mayo",15]];s.add.forEach(i=>r.push(A[i]));return r;},
+  title:s=>`Пельмени · ${[10,15,20,25,30,40][s.n]} шт.`},
+ {id:"s_var",name:"Вареники",keys:"вареники",hide:["d_02"],
+  q:[{k:"t",t:"Начинка",o:[["Картошка"],["Творог"],["Вишня"]],d:0},{k:"n",t:"Сколько штук (≈20 г)",o:ntOpt(["5","8","10","12","15","20"]),d:2},
+     {k:"add",t:"С чем",m:1,o:[["Сметана · 1 ст. л. (20 г)"],["Сметана · 2 ст. л. (40 г)"],["Сливочное масло · 10 г"],["Жареный лук · 40 г"]]}],
+  calc:s=>{const r=[[["varp","vart","varc"][s.t],[5,8,10,12,15,20][s.n]*20]],A=[["sour20",20],["sour20",40],["butter",10],["onion",35],["oil",5]];s.add.forEach(i=>{if(i===3)r.push(A[3],A[4]);else r.push(A[i]);});return r;},
+  title:s=>`Вареники с ${["картошкой","творогом","вишней"][s.t]} · ${[5,8,10,12,15,20][s.n]} шт.`},
+ {id:"s_cut",name:"Котлеты",keys:"котлеты котлета",hide:["d_22"],
+  q:[{k:"t",t:"Какие",o:[["Домашние (свинина + говядина)"],["Говяжьи"],["Куриные"]],d:0},{k:"n",t:"Сколько штук (≈80 г)",o:ntOpt(["1","2","3","4"]),d:1},
+     {k:"how",t:"Как готовил",o:[["Жарил на масле"],["В духовке / на пару"]],d:0}],
+  calc:s=>{const n=s.n+1,r=[[["cutd","cutb","cutc"][s.t],n*80]];if(s.how===1)r.push(["oil",-2.5*n*.8]);return r;},
+  title:s=>`Котлеты ${["домашние","говяжьи","куриные"][s.t]} · ${s.n+1} шт.`},
+ {id:"s_chick",name:"Курица (грудка, бедро, крылья)",keys:"курица куриная грудка филе бедро крылья окорочок",
+  q:[{k:"t",t:"Что",o:[["Грудка / филе"],["Бедро без кожи"],["Бедро с кожей"],["Крылья"]],d:0},{k:"g",t:"Готовой",o:[["100 г"],["150 г"],["200 г"],["250 г"],["300 г"]],d:1},
+     {k:"how",t:"Как готовил",o:[["Варёная / гриль / духовка"],["Жарил на масле · 10 г"]],d:0}],
+  calc:s=>{const r=[[["chbreast","chthigh","chthighs","chwing"][s.t],[100,150,200,250,300][s.g]]];if(s.how)r.push(["oil",10]);return r;},
+  title:s=>`${["Куриная грудка","Куриное бедро","Куриное бедро с кожей","Куриные крылья"][s.t]} · ${[100,150,200,250,300][s.g]} г`},
+ {id:"s_muesli",name:"Мюсли / хлопья с молоком",keys:"мюсли хлопья гранола кукурузные завтрак",
+  q:[{k:"t",t:"Что",o:[["Мюсли без сахара"],["Гранола (запечённые, сладкие)"],["Кукурузные хлопья"]],d:0},{k:"g",t:"Сухих",o:[["30 г"],["40 г"],["50 г"],["60 г"],["80 г"]],d:2},
+     {k:"liq",t:"С чем",o:[["Без молока"],["Молоко 2,5% · 150 мл"],["Молоко 2,5% · 200 мл"],["Молоко 2,5% · 250 мл"],["Кефир 1% · 200 мл"],["Йогурт · 150 г"]],d:2}],
+  calc:s=>[[["muesli","granola","flakes"][s.t],[30,40,50,60,80][s.g]],[[null],["milk",150],["milk",200],["milk",250],["kefir",200],["yog",150]][s.liq]],
+  title:s=>`${["Мюсли","Гранола","Кукурузные хлопья"][s.t]} ${[30,40,50,60,80][s.g]} г${["",", молоко 150 мл",", молоко 200 мл",", молоко 250 мл",", кефир 200 мл",", йогурт 150 г"][s.liq]}`},
+ {id:"s_soup",name:"Суп (тарелка)",keys:"суп борщ щи куриный лапша гороховый солянка рассольник уха грибной фрикадельки окрошка",hide:["d_41","d_42","d_43","d_44","d_45","d_46","d_47","d_48","d_49","d_50"],
+  q:[{k:"t",t:"Какой",o:[["Борщ"],["Щи"],["Куриный"],["Гороховый"],["Солянка"],["Рассольник"],["Уха"],["Грибной"],["С фрикадельками"],["Окрошка"]],d:0},
+     {k:"g",t:"Тарелка",o:[["Небольшая · 250 мл"],["Обычная · 350 мл"],["Большая · 500 мл"]],d:1},
+     {k:"sc",t:"Сметана",o:[["Нет"],["1 ст. л. (20 г)"],["2 ст. л. (40 г)"]],d:0},
+     {k:"br",t:"Хлеб",o:[["Без хлеба"],["1 ломтик чёрного (30 г)"],["2 ломтика чёрного (60 г)"],["1 ломтик белого (30 г)"]],d:0}],
+  calc:s=>[[["borsch","shchi","chsoup","peas","solyanka","rassol","ukha","mushsoup","meatball","okrosh"][s.t],[250,350,500][s.g]],["sour20",[0,20,40][s.sc]],[[null],["brye",30],["brye",60],["bwhite",30]][s.br]],
+  title:s=>`${["Борщ","Щи","Куриный суп","Гороховый суп","Солянка","Рассольник","Уха","Грибной суп","Суп с фрикадельками","Окрошка"][s.t]} · ${[250,350,500][s.g]} мл`}
+];
+NT_ING.water=["Вода",0,0,0,0];
+function ntPl(n,a,b,c){n=Math.abs(n)%100;const d=n%10;return n>10&&n<20?c:d===1?a:d>=2&&d<=4?b:c;}
+function ntScoopG(){try{return (ntO().scoop||{g:30}).g||30;}catch(e){return 30;}}
+const NT_SMART_HIDE=new Set(NT_SMART.flatMap(r=>r.hide||[]));
+/* сумма по ингредиентам; вода — в весе, без калорий */
+function ntSmartSum(rec,sel){const list=rec.calc(sel).filter(x=>x&&x[0]&&x[1]);let tot={g:0,kcal:0,p:0,f:0,c:0},parts=[];
+  list.forEach(([k,g])=>{const I=NT_ING[k];if(!I)return;let p=I[2],f=I[3],c=I[4],kc=I[1];
+    if(k==="whey"){try{const w=ntAllFoods().find(x=>x.id==="whey");if(w){p=w.p;f=w.f;c=w.c;kc=w.kcal;}}catch(e){}}
+    tot.g+=g;tot.kcal+=kc*g/100;tot.p+=p*g/100;tot.f+=f*g/100;tot.c+=c*g/100;if(k!=="water"&&g>0)parts.push({name:I[0],g:Math.round(g),kcal:Math.round(kc*g/100)});});
+  ["kcal","p","f","c"].forEach(x=>tot[x]=Math.max(0,tot[x]));return {tot,parts};}
+let NT_SMART_CUR=null;
+function ntSmartOpen(rec){const st=ntSmartLast(rec.id);NT_SMART_CUR={rec,sel:{}};
+  rec.q.forEach(q=>{const v=st&&st[q.k];NT_SMART_CUR.sel[q.k]=q.m?(Array.isArray(v)?v.filter(i=>i<q.o.length):[]):(Number.isInteger(v)&&v<q.o.length?v:q.d||0);});
+  NT_PICK=null;el("ntHits").hidden=true;el("ntPickBox").hidden=true;el("ntQ").value=rec.name;el("ntSmartBox").hidden=false;ntSmartRender();}
+function ntSmartRender(){const C=NT_SMART_CUR;if(!C)return;const box=el("ntSmartQ");box.innerHTML="";
+  C.rec.q.forEach(q=>{const w=document.createElement("div");w.className="sk-lvl nt-sq";w.innerHTML=`<span>${q.t}${q.m?" · можно несколько":""}</span>`;
+    q.o.forEach((o,i)=>{const b=document.createElement("button");b.type="button";b.textContent=o[0];const on=q.m?C.sel[q.k].includes(i):C.sel[q.k]===i;b.classList.toggle("on",on);b.setAttribute("aria-pressed",String(on));
+      b.onclick=()=>{if(q.m){const a=C.sel[q.k],j=a.indexOf(i);if(j>=0)a.splice(j,1);else a.push(i);a.sort((x,y)=>x-y);}else C.sel[q.k]=i;ntSmartRender();};w.appendChild(b);});box.appendChild(w);});
+  const {tot,parts}=ntSmartSum(C.rec,C.sel);
+  el("ntSmartRes").innerHTML=`<b>${C.rec.title(C.sel)}</b><br><b class="num">≈${Math.round(tot.g)} г</b> → <b class="num">${ntF(tot.kcal)} ккал</b> · Б ${ntF(tot.p,1)} · Ж ${ntF(tot.f,1)} · У ${ntF(tot.c,1)}`+
+    `<br><small>${parts.map(p=>`${p.name} ${p.g} г — ${p.kcal} ккал`).join(" · ")}</small>`+
+    (C.rec.calc(C.sel).some(x=>x&&(x[0]==="oil"||x[0]==="butter")&&x[1]>0)?`<br><small>Масло для жарки посчитано целиком — часть остаётся на сковороде.</small>`:"")+
+    `<br><small>Расчёт по составу · справочные значения на 100 г (USDA, таблицы состава)</small>`;}
+function ntSmartAdd(){const C=NT_SMART_CUR;if(!C)return;const {tot,parts}=ntSmartSum(C.rec,C.sel),name=C.rec.title(C.sel);
+  const adds=[];C.rec.q.forEach(q=>{if(q.m&&C.sel[q.k].length)adds.push(C.sel[q.k].map(i=>q.o[i][0].split(" · ")[0].toLocaleLowerCase("ru")).join(", "));});
+  NT_DRAFT.push({id:C.rec.id,name:name+(adds.length?" + "+adds.join(", "):""),g:Math.round(tot.g),qty:"",vol:false,kcal:tot.kcal,p:tot.p,f:tot.f,c:tot.c,parts});
+  ntSmartLastSet(C.rec.id,C.sel);NT_SMART_CUR=null;el("ntSmartBox").hidden=true;el("ntQ").value="";ntDraftRender();toast("Добавлено в приём");}
+/* последний выбор по каждому блюду запоминаем — в следующий раз те же кнопки уже нажаты */
+const NTK_SL="gym45_nutrition_smart_last_v1";
+function ntSmartLast(id){try{return (JSON.parse(localStorage.getItem(NTK_SL)||"{}")||{})[id]||null;}catch(e){return null;}}
+function ntSmartLastSet(id,sel){try{const o=JSON.parse(localStorage.getItem(NTK_SL)||"{}")||{};o[id]=sel;localStorage.setItem(NTK_SL,JSON.stringify(o));}catch(e){}}
+
 function ntAllFoods(){const N=NTN(),out=[];
   Object.values(N.foods).forEach(f=>{if(f.id==="wheyScoop")return;out.push({id:f.id,name:f.name,p:f.p,f:f.f,c:f.c,kcal:f.kcal,piece:f.piece||null,pl:f.piece?"яйцо ≈"+f.piece+" г без скорлупы":"",cup:f.cup||null,scoop:f.scoop||null,volume:!!f.volume,src:"Справочник Gym 45"});});
   NT_EXTRA.forEach(([id,name,p,fa,c,x])=>{x=x||{};out.push({id,name,p,f:fa,c,kcal:4*p+9*fa+4*c,piece:x.piece||null,pl:x.pl||"",volume:!!x.volume,src:x.src||"Справочник Gym 45 (USDA, усреднённо)"});});
-  NT_DISHES.forEach(([id,cat,name,kcal,p,fa,c])=>out.push({id,name,p,f:fa,c,kcal,piece:NT_DISH_PORTION,pu:true,pl:"≈"+NT_DISH_PORTION+" г",volume:false,cat,src:"Готовые блюда · NutriBird (усреднённо, на 100 г)"}));
+  NT_DISHES.forEach(([id,cat,name,kcal,p,fa,c])=>out.push({id,name,p,f:fa,c,kcal,piece:null,ms:ntDishMs(id,cat,name),volume:false,cat,src:"Готовые блюда · NutriBird (усреднённо, на 100 г)"}));
   NT_REST.forEach(([id,cat,name,kcal,p,fa,c,src])=>out.push({id,name,p,f:fa,c,kcal,piece:null,pl:"",volume:false,cat,src}));
-  NT_REF.forEach(([id,cat,name,kcal,p,fa,c,x])=>out.push({id,name,p,f:fa,c,kcal,piece:x.piece||null,pu:!!x.pu,pl:x.pl||"",volume:!!x.volume,cup:(x.cup||x.volume)?250:null,cat,src:"Справочник состава продуктов (на 100 "+(x.volume?"мл":"г")+")"}));
-  NT_OWN.forEach(([id,cat,name,kcal,p,fa,c,x])=>out.push({id,name,p,f:fa,c,kcal,piece:x.piece||null,pu:!!x.pu,pl:x.pl||"",volume:!!x.volume,cup:(x.cup||x.volume)?250:null,cat,src:"≈ по типичной рецептуре (на 100 "+(x.volume?"мл":"г")+") — состав зависит от заведения"}));
+  NT_REF.forEach(([id,cat,name,kcal,p,fa,c,x])=>out.push({id,name,p,f:fa,c,kcal,piece:x.pu?null:(x.piece||null),ms:x.pu?ntPlateMs(x.piece,name):null,pl:x.pu?"":(x.pl||""),volume:!!x.volume,cup:(x.cup||x.volume)?250:null,cat,src:"Справочник состава продуктов (на 100 "+(x.volume?"мл":"г")+")"}));
+  NT_OWN.forEach(([id,cat,name,kcal,p,fa,c,x])=>out.push({id,name,p,f:fa,c,kcal,piece:x.pu?null:(x.piece||null),ms:x.pu?ntPlateMs(x.piece,name):null,pl:x.pu?"":(x.pl||""),volume:!!x.volume,cup:(x.cup||x.volume)?250:null,cat,src:"≈ по типичной рецептуре (на 100 "+(x.volume?"мл":"г")+") — состав зависит от заведения"}));
   ntCustom().items.forEach(f=>out.push({...f,custom:true,src:"Мой продукт (этикетка)"}));
   /* протеин — по твоей порции из «Плана» (по умолчанию 30 г = 24 г белка), а не по усреднённому справочнику */
   try{const sc=ntO().scoop||{g:30,p:24},w=out.find(x=>x.id==="whey");if(w&&sc.g>0&&sc.p>0){w.p=Math.round(sc.p/sc.g*1000)/10;w.kcal=Math.round(4*w.p+9*w.f+4*w.c);w.scoop=sc.g;w.src=`Твоя порция протеина: ${sc.g} г = ${sc.p} г белка (меняется в «Плане 7 дней»)`;}}catch(e){}
+  out.forEach(ntAutoMs);
   return out;}
 const ntNorm=s=>String(s).toLocaleLowerCase("ru").replace(/ё/g,"е");
 let NT_DRAFT=[],NT_PICK=null;
 function ntDraftMeal(){const s=el("ntMeal");return s?s.value:"Завтрак";}
 function ntSearch(){const q=ntNorm(el("ntQ").value.trim()),box=el("ntHits");box.innerHTML="";if(!q){box.hidden=true;return;}
-  const words=q.split(/\s+/),hits=ntAllFoods().filter(f=>words.every(w=>ntNorm(f.name).includes(w))).slice(0,12);
-  box.hidden=false;if(!hits.length){box.innerHTML=`<p class="nt-sub">Нет в справочнике — добавь свой продукт ниже (КБЖУ с упаковки).</p>`;return;}
+  const words=q.split(/\s+/),sm=NT_SMART.filter(r=>words.every(w=>ntNorm(r.name+" "+r.keys).includes(w)));
+  const hits=ntAllFoods().filter(f=>!NT_SMART_HIDE.has(f.id)&&words.every(w=>ntNorm(f.name).includes(w))).slice(0,12-Math.min(sm.length,6));
+  box.hidden=false;sm.slice(0,6).forEach(r=>{const b=document.createElement("button");b.type="button";b.className="nt-hit nt-hit-smart";b.innerHTML=`<span></span><small>собрать <i class="nt-tag">состав</i></small>`;b.querySelector("span").textContent=r.name;b.onclick=()=>ntSmartOpen(r);box.appendChild(b);});
+  if(!hits.length&&sm.length)return;if(!hits.length){box.innerHTML=`<p class="nt-sub">Нет в справочнике — добавь свой продукт ниже (КБЖУ с упаковки).</p>`;return;}
   hits.forEach(f=>{const b=document.createElement("button");b.type="button";b.className="nt-hit";b.innerHTML=`<span></span><small class="num">${ntF(f.kcal)} ккал / 100 ${f.volume?"мл":"г"}</small>`;b.querySelector("span").textContent=f.name;b.onclick=()=>ntPick(f);box.appendChild(b);});}
-function ntPick(f){NT_PICK=f;el("ntHits").hidden=true;el("ntQ").value=f.name;const u=el("ntQUnit");
-  u.innerHTML=(f.piece?`<option value="piece">${f.pu?"Порции":"Штуки"}</option>`:"")+(f.cup?`<option value="cup">Стаканы 250 мл</option>`:"")+(f.scoop?`<option value="scoop">Скупы</option>`:"")+`<option value="g">${f.volume?"мл":"граммы"}</option>`+(ntImp()?`<option value="oz">${f.volume?"fl oz":"oz"}</option>`:"");
-  /* мера по умолчанию: штуки → скупы → стаканы (только для жидкостей) → граммы */
-  u.value=f.piece?"piece":f.scoop?"scoop":(f.cup&&f.volume)?"cup":"g";
+function ntPick(f){NT_PICK=f;NT_SMART_CUR=null;el("ntSmartBox").hidden=true;el("ntHits").hidden=true;el("ntQ").value=f.name;const u=el("ntQUnit");
+  const un=f.volume?"мл":"г";
+  u.innerHTML=(f.ms?f.ms.map((m,i)=>`<option value="m${i}">${m[0]} · ${m[1]} ${un}</option>`).join(""):"")+(f.piece?`<option value="piece">${ntPieceLabel(f)}</option>`:"")+(f.cup?`<option value="cup">Стакан · 250 мл</option>`:"")+(f.scoop?`<option value="scoop">Скуп · ${f.scoop} г</option>`:"")+`<option value="g">${f.volume?"Миллилитры":"Граммы"}</option>`+(ntImp()?`<option value="oz">${f.volume?"fl oz":"oz"}</option>`:"");
+  /* мера по умолчанию: обычная тарелка/кусок → штуки → скупы → стаканы (только для жидкостей) → граммы */
+  u.value=f.ms?"m"+(f.ms.length===3&&/тарелка|порция/i.test(f.ms[1][0])&&!/обычная/i.test(f.ms[0][0])?1:0):f.piece?"piece":f.scoop?"scoop":(f.cup&&f.volume)?"cup":"g";
   el("ntQAmt").value=ntDefAmt(f,u.value);el("ntPickBox").hidden=false;ntPickCalc();}
 /* количество по умолчанию — одна обычная порция в выбранной мере: 1 шт./стакан/скуп, протеин в граммах — 1 скуп (30 г) */
-function ntDefAmt(f,u){if(u==="piece"||u==="cup"||u==="scoop")return "1";if(u==="oz")return f.scoop?String(Math.round(f.scoop/NT_OZ*10)/10):"3.5";return f.scoop?String(f.scoop):"100";}
+function ntPieceLabel(f){const m=/^(.+?)\s*≈\s*([\d.,]+)\s*г/.exec(f.pl||"");const w=m?m[1].trim():f.id==="egg"?"яйцо":"штука";
+  return `Штуки · 1 ${w} ≈ ${f.piece} г${f.id==="egg"?" без скорлупы":""}`;}
+function ntDefAmt(f,u){if(/^m\d+$/.test(u)){const m=f.ms&&f.ms[+u.slice(1)];return String(m&&m[2]||1);}if(u==="piece"||u==="cup"||u==="scoop")return "1";if(u==="oz")return f.scoop?String(Math.round(f.scoop/NT_OZ*10)/10):"3.5";return f.scoop?String(f.scoop):"100";}
 function ntPickGrams(){const f=NT_PICK;if(!f)return NaN;const n=Number(String(el("ntQAmt").value).replace(",","."));const u=el("ntQUnit").value;
-  if(!Number.isFinite(n)||n<=0||n>5000)return NaN;return u==="piece"?n*f.piece:u==="cup"?n*f.cup:u==="scoop"?n*f.scoop:u==="oz"?n*(f.volume?NT_FLOZ:NT_OZ):n;}
+  if(!Number.isFinite(n)||n<=0||n>5000)return NaN;if(/^m\d+$/.test(u)){const m=f.ms&&f.ms[+u.slice(1)];return m?n*m[1]:NaN;}return u==="piece"?n*f.piece:u==="cup"?n*f.cup:u==="scoop"?n*f.scoop:u==="oz"?n*(f.volume?NT_FLOZ:NT_OZ):n;}
 function ntMac(f,g){return {kcal:f.kcal*g/100,p:f.p*g/100,f:f.f*g/100,c:f.c*g/100};}
 function ntPickCalc(){const f=NT_PICK,g=ntPickGrams(),o=el("ntPickRes");if(!f)return;
   if(!Number.isFinite(g)){o.textContent="Введи количество больше нуля.";return;}
-  const m=ntMac(f,g);o.innerHTML=`<b class="num">${ntMass(g,f.volume)}</b> → <b class="num">${ntF(m.kcal)} ккал</b> · Б ${ntF(m.p,1)} · Ж ${ntF(m.f,1)} · У ${ntF(m.c,1)}${f.pl?`<br><small>${f.pu?"1 порция":"1 шт."}: ${f.pl}</small>`:""}<br><small>${f.src}</small>`;}
+  const m=ntMac(f,g);o.innerHTML=`<b class="num">${ntMass(g,f.volume)}</b> → <b class="num">${ntF(m.kcal)} ккал</b> · Б ${ntF(m.p,1)} · Ж ${ntF(m.f,1)} · У ${ntF(m.c,1)}<br><small>${f.src}</small>`;}
 function ntDraftAdd(){const f=NT_PICK,g=ntPickGrams();if(!f||!Number.isFinite(g)){toast("Выбери продукт и количество");return;}
   const u=el("ntQUnit").value,n=Number(String(el("ntQAmt").value).replace(",","."));
-  NT_DRAFT.push({id:f.id,name:f.name,g:Math.round(g*10)/10,qty:u==="piece"?n+(f.pu?" порц.":" шт."):u==="cup"?n+" стак.":u==="scoop"?n+" скуп.":"",vol:f.volume,...ntMac(f,g)});
+  const mm=/^m\d+$/.test(u)&&f.ms?f.ms[+u.slice(1)]:null;
+  NT_DRAFT.push({id:f.id,name:f.name,g:Math.round(g*10)/10,qty:mm?(n===1?"":ntF(n,1)+" × ")+mm[0].toLocaleLowerCase("ru"):u==="piece"?n+" шт.":u==="cup"?n+" стак.":u==="scoop"?n+" скуп.":"",vol:f.volume,...ntMac(f,g)});
   NT_PICK=null;el("ntQ").value="";el("ntPickBox").hidden=true;ntDraftRender();el("ntQ").focus();}
 function ntDraftRender(){const box=el("ntDraft");if(!NT_DRAFT.length){box.innerHTML=`<p class="nt-sub">Пока пусто. Найди продукт, укажи количество и нажми «＋ В приём».</p>`;el("ntDraftSave").hidden=true;return;}
   const s=NT_DRAFT.reduce((a,i)=>{["kcal","p","f","c"].forEach(k=>a[k]+=i[k]);return a;},{kcal:0,p:0,f:0,c:0});
@@ -8149,8 +8387,8 @@ function ntDraftRender(){const box=el("ntDraft");if(!NT_DRAFT.length){box.innerH
   el("ntDraftSave").hidden=false;el("ntDraftSave").textContent=`Записать «${ntDraftMeal()}» · ${ntF(s.kcal)} ккал`;}
 function ntDraftSave(){if(!NT_DRAFT.length)return;const s=NT_DRAFT.reduce((a,i)=>{["kcal","p","f","c"].forEach(k=>a[k]+=i[k]);return a;},{kcal:0,p:0,f:0,c:0});
   const meal=ntDraftMeal(),list=foodGet();
-  list.push({id:Date.now()+"-"+Math.floor(Math.random()*1000),date:foodToday(),name:meal+": "+NT_DRAFT.map(i=>i.name.split(",")[0].replace(/ \(.*\)/,"")+(i.qty?" "+i.qty:" "+Math.round(i.g)+(i.vol?" мл":" г"))).join(", "),
-    kcal:Math.round(s.kcal),p:ntR1(s.p),f:ntR1(s.f),c:ntR1(s.c),src:"builder",meal,items:NT_DRAFT.map(i=>({id:i.id,name:i.name,g:i.g,qty:i.qty,kcal:Math.round(i.kcal),p:ntR1(i.p),f:ntR1(i.f),c:ntR1(i.c)}))});
+  list.push({id:Date.now()+"-"+Math.floor(Math.random()*1000),date:foodToday(),name:meal+": "+NT_DRAFT.map(i=>i.name.split(",")[0].replace(/ \(.*\)/,"")+(i.qty?" "+i.qty+" ·":"")+" "+Math.round(i.g)+(i.vol?" мл":" г")).join(", "),
+    kcal:Math.round(s.kcal),p:ntR1(s.p),f:ntR1(s.f),c:ntR1(s.c),src:"builder",meal,items:NT_DRAFT.map(i=>Object.assign({id:i.id,name:i.name,g:i.g,qty:i.qty,kcal:Math.round(i.kcal),p:ntR1(i.p),f:ntR1(i.f),c:ntR1(i.c)},i.parts?{parts:i.parts}:{}))});
   foodSet(list);NT_DRAFT=[];ntDraftRender();renderFood();toast(meal+" записан в дневник");}
 function ntCustomSave(){const name=el("ntCName").value.trim(),v=k=>Number(String(el(k).value).replace(",","."));const p=v("ntCP"),fa=v("ntCF"),c=v("ntCC");let kc=el("ntCK").value.trim()?v("ntCK"):4*p+9*fa+4*c;
   if(!name||![p,fa,c,kc].every(x=>Number.isFinite(x)&&x>=0)||p+fa+c>100||kc>1000){toast("Проверь название и КБЖУ на 100 г (Б+Ж+У ≤ 100)");return;}
@@ -8160,7 +8398,8 @@ function ntCustomSave(){const name=el("ntCName").value.trim(),v=k=>Number(String
 function ntDiaryItems(){const all=foodGet();el("foodList").querySelectorAll(".fdel").forEach(b=>{const x=all.find(r=>String(r.id)===b.dataset.id);if(!x||!Array.isArray(x.items))return;
   const row=b.closest(".frow"),fm=row&&row.querySelector(".fm");if(!fm||row.querySelector(".fitems"))return;const d=document.createElement("div");d.className="fitems";
   d.textContent=x.items.map(i=>`${i.name.split(",")[0]} ${i.qty||Math.round(i.g)+" г"} — ${i.kcal} ккал`).join(" · ");fm.after(d);});}
-el("ntQ").addEventListener("input",()=>{NT_PICK=null;el("ntPickBox").hidden=true;ntSearch();});
+el("ntQ").addEventListener("input",()=>{NT_PICK=null;el("ntPickBox").hidden=true;NT_SMART_CUR=null;el("ntSmartBox").hidden=true;ntSearch();});
+el("ntSmartAdd").addEventListener("click",()=>ntSmartAdd());
 el("ntQAmt").addEventListener("input",ntPickCalc);
 el("ntQUnit").addEventListener("change",()=>{if(NT_PICK)el("ntQAmt").value=ntDefAmt(NT_PICK,el("ntQUnit").value);ntPickCalc();});
 el("ntQAdd").addEventListener("click",ntDraftAdd);el("ntDraftSave").addEventListener("click",ntDraftSave);el("ntCSave").addEventListener("click",ntCustomSave);
