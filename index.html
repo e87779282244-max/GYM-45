@@ -83,6 +83,11 @@
   input[type="date"]::-webkit-date-and-time-value{text-align:center}
   /* «Назад» — шире, чтобы легче попадать пальцем */
   .icon-btn.back-btn{width:80px;height:50px;border-radius:14px}
+  /* плавающая «Назад»: появляется, когда кнопка в шапке экрана ушла за верх */
+  .float-back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:max(16px,env(safe-area-inset-right,0px));z-index:34;
+    width:80px;height:50px;border-radius:14px;opacity:0;pointer-events:none;transform:translateY(-10px);transition:opacity .18s,transform .18s}
+  .float-back.on{opacity:1;pointer-events:auto;transform:none}
+  .float-back.on:active{transform:translateY(4px)}
   .icon-btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--edge),0 3px 8px rgba(80,75,45,.16)}
 
   .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;
@@ -2829,6 +2834,15 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
     show("programs");toast("Сначала выбери программу — дальше вкладка «Тренировка» будет открывать следующую тренировку");}
   else show(t.dataset.scr);});
 document.querySelectorAll(".back-btn").forEach(b=>b.addEventListener("click",goBack));
+/* плавающая «Назад»: когда кнопка «Назад» текущего экрана прокручена за верх, справа сверху висит её копия */
+(function(){const fb=document.createElement("button");fb.type="button";fb.id="floatBack";fb.className="icon-btn float-back";fb.title="Назад";fb.setAttribute("aria-label","Назад");fb.textContent="←";document.body.appendChild(fb);
+  let tgt=null,raf=0;
+  const upd=()=>{raf=0;const sc=document.querySelector("section.screen:not([hidden])");const b=sc?[...sc.querySelectorAll(".back-btn")].find(x=>x.offsetParent):null;tgt=b||null;
+    const top=parseFloat(getComputedStyle(fb).top)||10;fb.classList.toggle("on",!!tgt&&tgt.getBoundingClientRect().bottom<top);};
+  const q=()=>{if(!raf)raf=requestAnimationFrame(upd);};
+  addEventListener("scroll",q,{passive:true});addEventListener("resize",q);
+  fb.addEventListener("click",()=>{fb.classList.remove("on");if(tgt)tgt.click();});
+  const _ap=applyScreen;applyScreen=function(){const r=_ap.apply(this,arguments);fb.classList.remove("on");setTimeout(q,60);return r;};})();
 
 /* ---------- login ---------- */
 function doLogin(e){if(e)e.preventDefault();el("login").style.display="none";}
