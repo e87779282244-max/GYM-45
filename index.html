@@ -557,6 +557,13 @@
   .nt-hit small{flex:none;color:var(--muted);font-size:12px}
   .nt-pick{font-size:14px;margin:8px 0;line-height:1.45}
 .nt-smart[hidden]{display:none}
+.nt-qline{display:flex;gap:8px;align-items:stretch}.nt-qline .food-in{flex:1;min-width:0}
+.nt-scan{flex:none;width:54px;border-radius:14px;border:1px solid var(--key-edge);background:linear-gradient(180deg,var(--key-top),var(--key-bot));color:var(--fg);display:grid;place-items:center;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 4px 0 var(--key-edge);margin-bottom:4px}.nt-scan svg{width:24px;height:24px}.nt-scan:active{transform:translateY(3px);box-shadow:0 1px 0 var(--key-edge)}
+.bc-cam{position:relative;border-radius:14px;overflow:hidden;background:#111;aspect-ratio:4/3}.bc-cam video{width:100%;height:100%;object-fit:cover;display:block}
+.bc-cam i{position:absolute;left:12%;right:12%;top:50%;height:2px;background:#e33;box-shadow:0 0 8px #e33}
+.bc-row{display:flex;gap:8px}.bc-row .food-in{flex:1;min-width:0}.bc-row .btn{width:auto;padding:0 16px}
+.bc-src{font-size:12px!important}
 .nt-quick{display:flex;flex-direction:column;gap:10px;margin:4px 0 10px}.nt-quick:empty{display:none}
 .nt-qrow>span{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
 .nt-qrow>div{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.nt-qrow>div::-webkit-scrollbar{display:none}
@@ -1730,7 +1737,7 @@
         <p class="nt-sub">Найди продукт, укажи сколько съел — КБЖУ посчитается само.</p>
         <label class="nt-lab">Приём<select id="ntMeal" class="food-in"><option>Завтрак</option><option>Обед</option><option>Ужин</option><option>Перекус</option></select></label>
         <div id="ntQuick" class="nt-quick"></div>
-        <input id="ntQ" class="food-in" placeholder="Продукт или блюдо: яйцо, гречка, борщ, плов…" autocomplete="off" enterkeyhint="search">
+        <div class="nt-qline"><input id="ntQ" class="food-in" placeholder="Продукт или блюдо: яйцо, гречка, борщ, плов…" autocomplete="off" enterkeyhint="search"><button type="button" class="nt-scan" id="ntScan" aria-label="Сканировать штрихкод" title="Штрихкод"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 8v8M10 8v8M13 8v8M17 8v8"/></svg></button></div>
         <div id="ntHits" class="nt-hits" hidden></div>
         <div id="ntPickBox" hidden>
           <div class="nt-grid"><label>Количество<input id="ntQAmt" class="food-in" type="text" inputmode="decimal" value="1"></label><label>Мера<select id="ntQUnit" class="food-in"></select></label></div>
@@ -2356,6 +2363,14 @@
 <div class="onb" id="onb" hidden></div>
 <div class="toast" id="toast">Сохранено</div>
 <div class="gvt-modal" id="coolModal" hidden></div>
+<div class="gvt-modal" id="bcModal" hidden><div class="card gvt-mbox">
+  <h3>Штрихкод</h3>
+  <div class="bc-cam" id="bcCam" hidden><video id="bcVideo" playsinline muted></video><i></i></div>
+  <p id="bcMsg">Наведи камеру на штрихкод на упаковке.</p>
+  <div class="bc-row"><input id="bcCode" class="food-in" type="text" inputmode="numeric" placeholder="или введи цифры: 4600000000000" autocomplete="off"><button type="button" class="btn btn-alt" id="bcFind">Найти</button></div>
+  <button type="button" class="btn btn-alt" id="bcClose">Закрыть</button>
+  <p class="bc-src">Данные о продуктах — Open Food Facts (открытая база, лицензия ODbL). Найденный продукт сохраняется в «Мои продукты».</p>
+</div></div>
 <div class="cool-play" id="coolPlay" hidden>
   <p class="eyebrow" id="clStep"></p>
   <h2 id="clName"></h2>
@@ -8414,7 +8429,7 @@ function ntPick(f){NT_PICK=f;NT_SMART_CUR=null;el("ntSmartBox").hidden=true;el("
   u.value=f.ms?"m"+(f.ms.length===3&&/тарелка|порция/i.test(f.ms[1][0])&&!/обычная/i.test(f.ms[0][0])?1:0):f.piece?"piece":f.scoop?"scoop":(f.cup&&f.volume)?"cup":"g";
   el("ntQAmt").value=ntDefAmt(f,u.value);el("ntPickBox").hidden=false;ntPickCalc();}
 /* количество по умолчанию — одна обычная порция в выбранной мере: 1 шт./стакан/скуп, протеин в граммах — 1 скуп (30 г) */
-function ntPieceLabel(f){const m=/^(.+?)\s*≈\s*([\d.,]+)\s*г/.exec(f.pl||"");const w=m?m[1].trim():f.id==="egg"?"яйцо":"штука";
+function ntPieceLabel(f){if(/порция/i.test(f.pl||""))return `Порция с упаковки · ${f.piece} г`;const m=/^(.+?)\s*≈\s*([\d.,]+)\s*г/.exec(f.pl||"");const w=m?m[1].trim():f.id==="egg"?"яйцо":"штука";
   return `Штуки · 1 ${w} ≈ ${f.piece} г${f.id==="egg"?" без скорлупы":""}`;}
 function ntDefAmt(f,u){if(/^m\d+$/.test(u)){const m=f.ms&&f.ms[+u.slice(1)];return String(m&&m[2]||1);}if(u==="piece"||u==="cup"||u==="scoop")return "1";if(u==="oz")return f.scoop?String(Math.round(f.scoop/NT_OZ*10)/10):"3.5";return f.scoop?String(f.scoop):"100";}
 function ntPickGrams(){const f=NT_PICK;if(!f)return NaN;const n=Number(String(el("ntQAmt").value).replace(",","."));const u=el("ntQUnit").value;
@@ -8442,6 +8457,7 @@ function ntDraftSave(){if(!NT_DRAFT.length)return;const s=NT_DRAFT.reduce((a,i)=
 function ntCustomSave(){const name=el("ntCName").value.trim(),v=k=>Number(String(el(k).value).replace(",","."));const p=v("ntCP"),fa=v("ntCF"),c=v("ntCC");let kc=el("ntCK").value.trim()?v("ntCK"):4*p+9*fa+4*c;
   if(!name||![p,fa,c,kc].every(x=>Number.isFinite(x)&&x>=0)||p+fa+c>100||kc>1000){toast("Проверь название и КБЖУ на 100 г (Б+Ж+У ≤ 100)");return;}
   const pc=v("ntCPiece"),a=ntCustom();const f={id:"c_"+Date.now(),name,p,f:fa,c,kcal:kc,piece:Number.isFinite(pc)&&pc>0?pc:null,pl:Number.isFinite(pc)&&pc>0?"1 шт. ≈"+pc+" г":""};
+  if(NT_BC_PENDING){f.bc=NT_BC_PENDING;NT_BC_PENDING=null;}
   a.items.push(f);a.updatedAt=Date.now();ntWrite(NTK_C,a);["ntCName","ntCK","ntCP","ntCF","ntCC","ntCPiece"].forEach(k=>el(k).value="");el("ntCustomWrap").open=false;ntPick(f);toast("Продукт сохранён");}
 /* в дневнике под записью «собранного» приёма — его состав */
 function ntDiaryItems(){const all=foodGet();el("foodList").querySelectorAll(".fdel").forEach(b=>{const x=all.find(r=>String(r.id)===b.dataset.id);if(!x||!Array.isArray(x.items))return;
@@ -8456,6 +8472,46 @@ el("ntMeal").addEventListener("change",ntDraftRender);
 {const h=new Date().getHours();el("ntMeal").value=h<11?"Завтрак":h<16?"Обед":h<21?"Ужин":"Перекус";}
 ntDraftRender();
 const _ntRenderFood2=renderFood;renderFood=function(){_ntRenderFood2();ntDiaryItems();};
+/* ===================== ШТРИХКОД: камера → Open Food Facts → «Мои продукты» ===================== */
+let NT_BC_PENDING=null,BC_STREAM=null,BC_TIMER=null,BC_READER=null,BC_BUSY=false;
+const bcClean=v=>String(v||"").replace(/\D/g,"");
+function bcFindLocal(code){return ntCustom().items.find(i=>i.bc===code)||null;}
+function bcStop(){try{clearInterval(BC_TIMER);}catch(e){}BC_TIMER=null;try{BC_READER&&BC_READER.reset&&BC_READER.reset();}catch(e){}BC_READER=null;
+  try{BC_STREAM&&BC_STREAM.getTracks().forEach(t=>t.stop());}catch(e){}BC_STREAM=null;const v=el("bcVideo");if(v)v.srcObject=null;el("bcCam").hidden=true;}
+function bcClose(){bcStop();el("bcModal").hidden=true;}
+function bcLoadZXing(){return new Promise((ok,no)=>{if(window.ZXing)return ok(window.ZXing);const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js";
+  sc.onload=()=>window.ZXing?ok(window.ZXing):no(new Error("zxing"));sc.onerror=()=>no(new Error("zxing"));document.head.appendChild(sc);});}
+async function bcOpen(){el("bcModal").hidden=false;el("bcCode").value="";el("bcMsg").textContent="Наведи камеру на штрихкод на упаковке.";
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){el("bcMsg").textContent="Камера здесь недоступна — введи цифры штрихкода под ним.";return;}
+  try{BC_STREAM=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false});}
+  catch(e){el("bcMsg").textContent="Нет доступа к камере — разреши её в настройках или введи цифры штрихкода вручную.";return;}
+  if(el("bcModal").hidden){bcStop();return;}
+  const v=el("bcVideo");v.srcObject=BC_STREAM;el("bcCam").hidden=false;try{await v.play();}catch(e){}
+  if("BarcodeDetector" in window){try{const det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]});
+      BC_TIMER=setInterval(async()=>{if(BC_BUSY||!BC_STREAM)return;try{const r=await det.detect(v);if(r&&r[0]&&r[0].rawValue)bcGot(r[0].rawValue);}catch(e){}},250);return;}catch(e){}}
+  try{const Z=await bcLoadZXing();const hints=new Map();hints.set(Z.DecodeHintType.POSSIBLE_FORMATS,[Z.BarcodeFormat.EAN_13,Z.BarcodeFormat.EAN_8,Z.BarcodeFormat.UPC_A,Z.BarcodeFormat.UPC_E]);
+    BC_READER=new Z.BrowserMultiFormatReader(hints);BC_READER.decodeFromVideoElementContinuously(v,(res)=>{if(res&&!BC_BUSY)bcGot(res.getText());});}
+  catch(e){el("bcMsg").textContent="Не удалось запустить распознавание — введи цифры штрихкода вручную.";}}
+function bcGot(code){code=bcClean(code);if(code.length<8)return;BC_BUSY=true;if(navigator.vibrate)navigator.vibrate(40);bcStop();el("bcCode").value=code;bcLookup(code).finally(()=>{BC_BUSY=false;});}
+async function bcLookup(code){code=bcClean(code);if(code.length<8){el("bcMsg").textContent="В штрихкоде 8 или 13 цифр.";return;}
+  const loc=bcFindLocal(code);if(loc){bcClose();ntPick(Object.assign({},loc,{custom:true,src:"Мой продукт (этикетка)"}));toast("Нашёл в твоих продуктах");return;}
+  el("bcMsg").textContent="Ищу "+code+" в Open Food Facts…";
+  let p=null;try{const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),9000);
+    const r=await fetch("https://world.openfoodfacts.org/api/v2/product/"+code+".json?fields=code,product_name,product_name_ru,generic_name,brands,nutriments,serving_quantity,quantity",{signal:ctl.signal});clearTimeout(t);
+    const j=await r.json();if(j&&j.status===1)p=j.product;else p=false;}catch(e){p=null;}
+  if(p===null){bcManual(code,"","Нет связи с базой штрихкодов. Введи КБЖУ с упаковки — продукт запомнится по штрихкоду.");return;}
+  const n=p&&p.nutriments||{},num=x=>{const v=Number(x);return Number.isFinite(v)?v:NaN;};
+  const name=p?[(p.product_name_ru||p.product_name||p.generic_name||"").trim(),(p.brands||"").split(",")[0].trim()].filter(Boolean).join(" · "):"";
+  const P=num(n.proteins_100g),F=num(n.fat_100g),C=num(n.carbohydrates_100g);let K=num(n["energy-kcal_100g"]);if(!Number.isFinite(K)&&Number.isFinite(num(n.energy_100g)))K=num(n.energy_100g)/4.184;
+  if(!p||![P,F,C].every(Number.isFinite)||!name){bcManual(code,name,p?"Продукт есть в базе, но без КБЖУ. Введи их с упаковки — запомню по штрихкоду.":"Такого штрихкода в базе пока нет. Введи КБЖУ с упаковки — запомню по штрихкоду.");return;}
+  const sq=num(p.serving_quantity),a=ntCustom(),f={id:"c_"+Date.now(),name,p:ntR1(P),f:ntR1(F),c:ntR1(C),kcal:Math.round(Number.isFinite(K)?K:4*P+9*F+4*C),bc:code,off:true,
+    piece:sq>0&&sq<2000?sq:null,pl:sq>0&&sq<2000?"порция с упаковки ≈"+ntF(sq)+" г":""};
+  a.items.push(f);a.updatedAt=Date.now();ntWrite(NTK_C,a);bcClose();ntPick(Object.assign({},f,{custom:true,src:"Open Food Facts (ODbL), на 100 г · сохранено в «Мои продукты»"}));toast("Нашёл: "+name);}
+function bcManual(code,name,msg){bcClose();NT_BC_PENDING=code;const w=el("ntCustomWrap");w.open=true;el("ntCName").value=name||"";el("ntCK").focus();w.scrollIntoView({block:"center",behavior:"smooth"});toast(msg);}
+el("ntScan").addEventListener("click",bcOpen);el("bcClose").addEventListener("click",bcClose);el("bcFind").addEventListener("click",()=>{bcStop();bcLookup(el("bcCode").value);});
+el("bcCode").addEventListener("keydown",e=>{if(e.key==="Enter"){bcStop();bcLookup(el("bcCode").value);}});
+el("bcModal").addEventListener("click",e=>{if(e.target===el("bcModal"))bcClose();});
+
 /* ===================== БЫСТРЫЙ ВВОД: повторить, мои блюда, частое, избранное =====================
    избранное и «мои блюда» — ключ gym45_nutrition_quick_v1 (синхронизируется вместе с питанием) */
 const NTK_Q="gym45_nutrition_quick_v1";
