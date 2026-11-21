@@ -556,7 +556,15 @@
   .nt-hit{display:flex;justify-content:space-between;gap:10px;align-items:baseline;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:10px 12px;font-size:14.5px;font-weight:600}
   .nt-hit small{flex:none;color:var(--muted);font-size:12px}
   .nt-pick{font-size:14px;margin:8px 0;line-height:1.45}
-.nt-smart[hidden]{display:none}.nt-smart .nt-sq{margin-top:10px}.nt-smart .nt-sq span{font-size:12.5px}
+.nt-smart[hidden]{display:none}
+.nt-quick{display:flex;flex-direction:column;gap:10px;margin:4px 0 10px}.nt-quick:empty{display:none}
+.nt-qrow>span{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
+.nt-qrow>div{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.nt-qrow>div::-webkit-scrollbar{display:none}
+.nt-qc{flex:none;display:flex;align-items:center;gap:6px;max-width:260px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:8px 11px;font:inherit;font-size:13.5px;font-weight:700;text-align:left}
+.nt-qc b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.nt-qc small{flex:none;font-size:12px;font-weight:600;color:var(--muted)}
+.nt-qc.rep{background:var(--accent-weak);border-color:transparent}.nt-qc i{font-style:normal;color:var(--muted);font-size:13px;padding-left:4px}
+.nt-fav{display:block;margin:10px auto 0;border:none;background:none;color:var(--accent-ink);font:inherit;font-size:14px;font-weight:700;padding:6px 10px}
+.nt-my[hidden],#ntMyForm[hidden]{display:none}#ntMyForm{display:flex;gap:8px;margin-top:8px}#ntMyForm .food-in{flex:1;min-width:0}#ntMyForm .btn{width:auto;padding:0 16px}.nt-smart .nt-sq{margin-top:10px}.nt-smart .nt-sq span{font-size:12.5px}
 .nt-smart .nt-sq button{padding:8px 13px;font-size:14px}
 .nt-hit .nt-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--accent-weak);color:var(--accent-ink);font-size:11.5px;font-weight:700;vertical-align:1px}
   .nt-pick small{color:var(--muted)}
@@ -1721,20 +1729,25 @@
         <h3>Собрать приём пищи</h3>
         <p class="nt-sub">Найди продукт, укажи сколько съел — КБЖУ посчитается само.</p>
         <label class="nt-lab">Приём<select id="ntMeal" class="food-in"><option>Завтрак</option><option>Обед</option><option>Ужин</option><option>Перекус</option></select></label>
+        <div id="ntQuick" class="nt-quick"></div>
         <input id="ntQ" class="food-in" placeholder="Продукт или блюдо: яйцо, гречка, борщ, плов…" autocomplete="off" enterkeyhint="search">
         <div id="ntHits" class="nt-hits" hidden></div>
         <div id="ntPickBox" hidden>
           <div class="nt-grid"><label>Количество<input id="ntQAmt" class="food-in" type="text" inputmode="decimal" value="1"></label><label>Мера<select id="ntQUnit" class="food-in"></select></label></div>
           <p id="ntPickRes" class="nt-pick"></p>
           <button type="button" class="btn btn-alt" id="ntQAdd">＋ В приём</button>
+          <button type="button" class="nt-fav" id="ntFavPick">☆ В избранное</button>
         </div>
         <div id="ntSmartBox" class="nt-smart" hidden>
           <div id="ntSmartQ"></div>
           <p id="ntSmartRes" class="nt-pick"></p>
           <button type="button" class="btn btn-alt" id="ntSmartAdd">＋ В приём</button>
+          <button type="button" class="nt-fav" id="ntFavSmart">☆ В избранное</button>
         </div>
         <div id="ntDraft"></div>
         <button type="button" class="btn" id="ntDraftSave" hidden>Записать</button>
+        <div id="ntMyWrap" class="nt-my" hidden><button type="button" class="nt-fav" id="ntMyOpen">☆ Сохранить как «моё блюдо»</button>
+          <div id="ntMyForm" hidden><input id="ntMyName" class="food-in" placeholder="Название, напр. Мой завтрак" autocomplete="off"><button type="button" class="btn btn-alt" id="ntMySave">Сохранить</button></div></div>
         <details class="nt-info" id="ntCustomWrap"><summary>＋ Свой продукт (КБЖУ с упаковки)</summary>
           <input id="ntCName" class="food-in" placeholder="Название, напр. Протеиновый батончик X" autocomplete="off" style="margin-top:8px">
           <div class="nt-grid" style="margin-top:8px"><label>Ккал / 100 г<input id="ntCK" class="food-in" type="text" inputmode="decimal" placeholder="авто"></label><label>Белки / 100 г<input id="ntCP" class="food-in" type="text" inputmode="decimal"></label><label>Жиры / 100 г<input id="ntCF" class="food-in" type="text" inputmode="decimal"></label><label>Углев. / 100 г<input id="ntCC" class="food-in" type="text" inputmode="decimal"></label><label>1 шт., г (если есть)<input id="ntCPiece" class="food-in" type="text" inputmode="decimal" placeholder="—"></label></div>
@@ -8381,13 +8394,13 @@ function ntDraftAdd(){const f=NT_PICK,g=ntPickGrams();if(!f||!Number.isFinite(g)
   NT_PICK=null;el("ntQ").value="";el("ntPickBox").hidden=true;ntDraftRender();el("ntQ").focus();}
 function ntDraftRender(){const box=el("ntDraft");if(!NT_DRAFT.length){box.innerHTML=`<p class="nt-sub">Пока пусто. Найди продукт, укажи количество и нажми «＋ В приём».</p>`;el("ntDraftSave").hidden=true;return;}
   const s=NT_DRAFT.reduce((a,i)=>{["kcal","p","f","c"].forEach(k=>a[k]+=i[k]);return a;},{kcal:0,p:0,f:0,c:0});
-  box.innerHTML=`<ul class="nt-shop">${NT_DRAFT.map((i,k)=>`<li><span></span><b class="num">${ntF(i.kcal)} ккал</b><small>${i.qty?i.qty+" · ":""}${ntMass(i.g,i.vol)} · Б ${ntF(i.p,1)} · Ж ${ntF(i.f,1)} · У ${ntF(i.c,1)} <button type="button" class="nt-x" data-k="${k}" aria-label="Убрать">✕</button></small></li>`).join("")}</ul><p class="nt-eb">Итого за приём</p>${ntMacros(s)}`;
+  box.innerHTML=`<ul class="nt-shop">${NT_DRAFT.map((i,k)=>`<li><span></span><b class="num">${ntF(i.kcal)} ккал</b><small>${i.qty?i.qty+" · ":""}${i.g?ntMass(i.g,i.vol)+" · ":""}Б ${ntF(i.p,1)} · Ж ${ntF(i.f,1)} · У ${ntF(i.c,1)} <button type="button" class="nt-x" data-k="${k}" aria-label="Убрать">✕</button></small></li>`).join("")}</ul><p class="nt-eb">Итого за приём</p>${ntMacros(s)}`;
   box.querySelectorAll("li > span").forEach((sp,k)=>sp.textContent=NT_DRAFT[k].name);
   box.querySelectorAll(".nt-x").forEach(b=>b.onclick=()=>{NT_DRAFT.splice(+b.dataset.k,1);ntDraftRender();});
   el("ntDraftSave").hidden=false;el("ntDraftSave").textContent=`Записать «${ntDraftMeal()}» · ${ntF(s.kcal)} ккал`;}
 function ntDraftSave(){if(!NT_DRAFT.length)return;const s=NT_DRAFT.reduce((a,i)=>{["kcal","p","f","c"].forEach(k=>a[k]+=i[k]);return a;},{kcal:0,p:0,f:0,c:0});
   const meal=ntDraftMeal(),list=foodGet();
-  list.push({id:Date.now()+"-"+Math.floor(Math.random()*1000),date:foodToday(),name:meal+": "+NT_DRAFT.map(i=>i.name.split(",")[0].replace(/ \(.*\)/,"")+(i.qty?" "+i.qty+" ·":"")+" "+Math.round(i.g)+(i.vol?" мл":" г")).join(", "),
+  list.push({id:Date.now()+"-"+Math.floor(Math.random()*1000),date:foodToday(),name:meal+": "+NT_DRAFT.map(i=>i.name.split(",")[0].replace(/ \(.*\)/,"")+(i.qty?" "+i.qty+(i.g?" ·":""):"")+(i.g?" "+Math.round(i.g)+(i.vol?" мл":" г"):"")).join(", "),
     kcal:Math.round(s.kcal),p:ntR1(s.p),f:ntR1(s.f),c:ntR1(s.c),src:"builder",meal,items:NT_DRAFT.map(i=>Object.assign({id:i.id,name:i.name,g:i.g,qty:i.qty,kcal:Math.round(i.kcal),p:ntR1(i.p),f:ntR1(i.f),c:ntR1(i.c)},i.parts?{parts:i.parts}:{}))});
   foodSet(list);NT_DRAFT=[];ntDraftRender();renderFood();toast(meal+" записан в дневник");}
 function ntCustomSave(){const name=el("ntCName").value.trim(),v=k=>Number(String(el(k).value).replace(",","."));const p=v("ntCP"),fa=v("ntCF"),c=v("ntCC");let kc=el("ntCK").value.trim()?v("ntCK"):4*p+9*fa+4*c;
@@ -8407,6 +8420,54 @@ el("ntMeal").addEventListener("change",ntDraftRender);
 {const h=new Date().getHours();el("ntMeal").value=h<11?"Завтрак":h<16?"Обед":h<21?"Ужин":"Перекус";}
 ntDraftRender();
 const _ntRenderFood2=renderFood;renderFood=function(){_ntRenderFood2();ntDiaryItems();};
+/* ===================== БЫСТРЫЙ ВВОД: повторить, мои блюда, частое, избранное =====================
+   избранное и «мои блюда» — ключ gym45_nutrition_quick_v1 (синхронизируется вместе с питанием) */
+const NTK_Q="gym45_nutrition_quick_v1";
+function ntQ(){const q=ntRead(NTK_Q,null)||{};return {fav:Array.isArray(q.fav)?q.fav:[],dishes:Array.isArray(q.dishes)?q.dishes:[],updatedAt:q.updatedAt||0};}
+function ntQSet(q){q.updatedAt=Date.now();ntWrite(NTK_Q,q);}
+const ntCopyItem=i=>Object.assign({id:i.id,name:i.name,g:+i.g||0,qty:i.qty||"",vol:!!i.vol,kcal:+i.kcal||0,p:+i.p||0,f:+i.f||0,c:+i.c||0},i.parts?{parts:i.parts}:{});
+const ntEntryItems=x=>Array.isArray(x.items)&&x.items.length?x.items.map(ntCopyItem):[{id:"manual",name:x.name.replace(/^(Завтрак|Обед|Ужин|Перекус): /,""),g:0,qty:"",kcal:+x.kcal||0,p:+x.p||0,f:+x.f||0,c:+x.c||0}];
+const NT_MEAL_GEN={"Завтрак":"завтрак","Обед":"обед","Ужин":"ужин","Перекус":"перекус"};
+function ntRepeatSrc(){const meal=ntDraftMeal(),day=foodToday(),all=foodGet().filter(x=>x&&x.date<day&&(x.meal===meal||String(x.name||"").startsWith(meal+":")));if(!all.length)return null;
+  const last=all.reduce((a,x)=>x.date>a?x.date:a,"");const ent=all.filter(x=>x.date===last);
+  const y=localDate(new Date(new Date(day+"T12:00").getTime()-864e5));
+  return {label:(last===y?"Вчерашний ":"Последний ")+NT_MEAL_GEN[meal]+(last===y?"":" · "+fmtDate(last)),items:ent.flatMap(ntEntryItems)};}
+function ntFrequent(){const day=foodToday(),from=localDate(new Date(new Date(day+"T12:00").getTime()-60*864e5)),cnt=new Map();
+  foodGet().forEach(x=>{if(!x||x.date<from||!Array.isArray(x.items))return;x.items.forEach(i=>{const k=i.id+"|"+Math.round(+i.g||0)+"|"+i.name;const o=cnt.get(k);if(o)o.n++;else cnt.set(k,{n:1,it:i});});});
+  return [...cnt.values()].filter(o=>o.n>=2).sort((a,b)=>b.n-a.n).slice(0,8).map(o=>o.it);}
+function ntFindFood(id){if(String(id).startsWith("s_"))return NT_SMART.find(r=>r.id===id)||null;return ntAllFoods().find(f=>f.id===id)||null;}
+function ntQuickRender(){const box=el("ntQuick");if(!box)return;const q=ntQ(),busy=el("ntQ").value.trim()||!el("ntPickBox").hidden||!el("ntSmartBox").hidden;
+  if(busy){box.innerHTML="";return;}let h="";
+  const rp=ntRepeatSrc();if(rp){const k=rp.items.reduce((a,i)=>a+i.kcal,0);h+=`<div class="nt-qrow"><span>Повторить</span><div><button type="button" class="nt-qc rep" data-a="rep"><b>↻ ${rp.label}</b><small>${ntF(k)} ккал</small></button></div></div>`;}
+  if(q.dishes.length)h+=`<div class="nt-qrow"><span>Мои блюда</span><div>${q.dishes.map((d,k)=>`<button type="button" class="nt-qc" data-a="my" data-k="${k}"><b></b><small>${ntF(d.items.reduce((a,i)=>a+(+i.kcal||0),0))} ккал</small><i data-del="${k}" aria-label="Удалить">✕</i></button>`).join("")}</div></div>`;
+  const fr=ntFrequent();if(fr.length)h+=`<div class="nt-qrow"><span>Частое</span><div>${fr.map((i,k)=>`<button type="button" class="nt-qc" data-a="fr" data-k="${k}"><b></b><small>${ntF(i.kcal)} ккал</small></button>`).join("")}</div></div>`;
+  const fv=q.fav.map(ntFindFood).filter(Boolean);if(fv.length)h+=`<div class="nt-qrow"><span>Избранное</span><div>${fv.map((f,k)=>`<button type="button" class="nt-qc" data-a="fv" data-k="${k}"><b></b>${f.q?`<small>состав</small>`:""}</button>`).join("")}</div></div>`;
+  box.innerHTML=h;
+  box.querySelectorAll('[data-a="my"] b').forEach((b,k)=>b.textContent=q.dishes[k].name);
+  box.querySelectorAll('[data-a="fr"] b').forEach((b,k)=>b.textContent=fr[k].name.split(",")[0].replace(/ \(.*\)/,"")+(fr[k].qty?" · "+fr[k].qty:" · "+Math.round(fr[k].g)+" г"));
+  box.querySelectorAll('[data-a="fv"] b').forEach((b,k)=>b.textContent=fv[k].name);
+  box.querySelectorAll(".nt-qc").forEach(b=>b.onclick=e=>{const a=b.dataset.a,k=+b.dataset.k;
+    if(e.target.dataset.del!==undefined){const q2=ntQ();const d=q2.dishes[+e.target.dataset.del];if(d&&confirmLite(b,"Удалить «"+d.name+"»?")){q2.dishes.splice(+e.target.dataset.del,1);ntQSet(q2);ntQuickRender();toast("Блюдо удалено");}return;}
+    if(a==="rep"){rp.items.forEach(i=>NT_DRAFT.push(ntCopyItem(i)));ntDraftRender();toast("Добавлено: "+rp.label.toLocaleLowerCase("ru"));}
+    else if(a==="my"){const d=ntQ().dishes[k];d.items.forEach(i=>NT_DRAFT.push(ntCopyItem(i)));ntDraftRender();toast("Добавлено: "+d.name);}
+    else if(a==="fr"){NT_DRAFT.push(ntCopyItem(fr[k]));ntDraftRender();toast("Добавлено в приём");}
+    else if(a==="fv"){const f=fv[k];if(f.q)ntSmartOpen(f);else ntPick(f);}});}
+/* второе нажатие на ✕ в течение 3 с — подтверждение (без системных окон) */
+function confirmLite(b,msg){if(b.dataset.arm&&Date.now()-+b.dataset.arm<3000){delete b.dataset.arm;return true;}b.dataset.arm=Date.now();toast(msg+" Нажми ✕ ещё раз");return false;}
+function ntFavId(){return NT_SMART_CUR?NT_SMART_CUR.rec.id:NT_PICK?NT_PICK.id:null;}
+function ntFavSync(){const id=ntFavId(),on=!!id&&ntQ().fav.includes(id);["ntFavPick","ntFavSmart"].forEach(k=>{const b=el(k);if(b)b.textContent=on?"★ В избранном":"☆ В избранное";});}
+function ntFavToggle(){const id=ntFavId();if(!id)return;const q=ntQ(),i=q.fav.indexOf(id);if(i>=0)q.fav.splice(i,1);else q.fav.unshift(id);q.fav=q.fav.slice(0,30);ntQSet(q);ntFavSync();toast(i>=0?"Убрано из избранного":"Добавлено в избранное");}
+el("ntFavPick").addEventListener("click",ntFavToggle);el("ntFavSmart").addEventListener("click",ntFavToggle);
+el("ntMyOpen").addEventListener("click",()=>{el("ntMyForm").hidden=false;el("ntMyName").value=el("ntMyName").value||"Мой "+NT_MEAL_GEN[ntDraftMeal()];el("ntMyName").focus();});
+el("ntMySave").addEventListener("click",()=>{const name=el("ntMyName").value.trim();if(!name||!NT_DRAFT.length){toast("Напиши название");return;}
+  const q=ntQ();q.dishes=q.dishes.filter(d=>d.name!==name);q.dishes.unshift({id:"m_"+Date.now(),name,items:NT_DRAFT.map(ntCopyItem)});q.dishes=q.dishes.slice(0,20);ntQSet(q);
+  el("ntMyForm").hidden=true;el("ntMyName").value="";toast("Сохранено в «Мои блюда»");});
+{const _dr=ntDraftRender;ntDraftRender=function(){_dr.apply(this,arguments);const w=el("ntMyWrap");if(w){w.hidden=!NT_DRAFT.length;if(!NT_DRAFT.length)el("ntMyForm").hidden=true;}try{ntQuickRender();}catch(e){}};}
+{const _p=ntPick;ntPick=function(){const r=_p.apply(this,arguments);ntFavSync();ntQuickRender();return r;};}
+{const _o=ntSmartOpen;ntSmartOpen=function(){const r=_o.apply(this,arguments);ntFavSync();ntQuickRender();return r;};}
+el("ntQ").addEventListener("input",()=>ntQuickRender());el("ntMeal").addEventListener("change",()=>ntQuickRender());
+{const _rf=renderFood;renderFood=function(){_rf.apply(this,arguments);try{ntQuickRender();}catch(e){}};}
+
 
 /* ---------- Сохранность данных: копия в файл, восстановление, откат к снимку ---------- */
 function dsAll(){const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("gym45_")&&k!==DS_K&&!k.startsWith("gym45_backup"))o[k]=localStorage.getItem(k);}return o;}
@@ -10513,7 +10574,7 @@ if(natOn())setInterval(()=>wlSync(),3000);
 let CLOUD=null, CLOUD_UID=null, cloudReady=false, CLOUD_EXTRA={};
 function cloudDoc(){return CLOUD.db.doc("data/users/"+CLOUD_UID+"/appdata");}
 /* CLOUD_EXTRA — поля облачного документа, которых эта версия не знает: сохраняем их, а не стираем */
-function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{parked:parkList(),rmMeta:rmMeta(),history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),w531:w5Store(),lz:lzStore(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()});}
+function cloudSnapshot(){return Object.assign({},CLOUD_EXTRA,{parked:parkList(),rmMeta:rmMeta(),history:safe.get(),food:foodGet(),foodDel:foodDelGet(),nutrition:{target:ntT(),options:ntRead(NTK_O,null),custom:ntRead(NTK_C,null),quick:ntRead(NTK_Q,null)},rm:rmReg(),gvt:gvtStore(),gvt2:g2Store(),w531:w5Store(),lz:lzStore(),sotka:skGet(),pp:ppAll(),rr:rrGet(),hc:hcGet(),sub:subAll(),parch:parGet(),cf:cfGet(),at:Date.now()});}
 /* объединение локальных и облачных данных — ничего не теряем при синхронизации */
 function mergeHistory(a,b){const seen=new Set(),out=[];
   const sig=h=>(h.date||"")+"|"+(h.name||"")+"|"+(h.vol||0)+"|"+JSON.stringify(h.log||0);
@@ -10566,7 +10627,8 @@ async function cloudInit(){
       try{localStorage.setItem(KEY,JSON.stringify(mergeHistory(safe.get(),d.history)))}catch(e){}
       try{if(!current&&draftAutoRestore(currentScreen==="home"))cloudRefreshUI();}catch(e){}
       try{localStorage.setItem(FOODK,JSON.stringify(mergeFood(foodGet(),d.food)))}catch(e){}
-      try{if(d.nutrition){const n=d.nutrition;if(n.target&&(n.target.updatedAt||0)>((ntT()||{}).updatedAt||0))localStorage.setItem(NTK_T,JSON.stringify(n.target));if(n.options&&(n.options.updatedAt||0)>(ntRead(NTK_O,{}).updatedAt||0))localStorage.setItem(NTK_O,JSON.stringify(n.options));if(n.custom&&Array.isArray(n.custom.items)){const a=ntCustom(),ids=new Set(a.items.map(i=>i.id));n.custom.items.forEach(i=>{if(i&&i.id&&!ids.has(i.id))a.items.push(i);});a.updatedAt=Math.max(a.updatedAt||0,n.custom.updatedAt||0);localStorage.setItem(NTK_C,JSON.stringify(a));}}}catch(e){}
+      try{if(d.nutrition){const n=d.nutrition;if(n.target&&(n.target.updatedAt||0)>((ntT()||{}).updatedAt||0))localStorage.setItem(NTK_T,JSON.stringify(n.target));if(n.options&&(n.options.updatedAt||0)>(ntRead(NTK_O,{}).updatedAt||0))localStorage.setItem(NTK_O,JSON.stringify(n.options));if(n.custom&&Array.isArray(n.custom.items)){const a=ntCustom(),ids=new Set(a.items.map(i=>i.id));n.custom.items.forEach(i=>{if(i&&i.id&&!ids.has(i.id))a.items.push(i);});a.updatedAt=Math.max(a.updatedAt||0,n.custom.updatedAt||0);localStorage.setItem(NTK_C,JSON.stringify(a));}
+        if(n.quick&&(n.quick.updatedAt||0)>(ntRead(NTK_Q,{}).updatedAt||0))localStorage.setItem(NTK_Q,JSON.stringify(n.quick));}}catch(e){}
       try{const a=rmReg(),b=d.rm||{},ma=rmMeta(),mb=d.rmMeta||{},out=mergeRm(a,b),mm=Object.assign({},mb,ma);
         Object.keys(mb).forEach(k=>{const x=(ma[k]||{}).at||"",y=(mb[k]||{}).at||"";if(y>x&&b[k]!=null){out[k]=b[k];mm[k]=mb[k];}});
         localStorage.setItem(RMK,JSON.stringify(out));if(Object.keys(mm).length)localStorage.setItem(RMMK,JSON.stringify(mm));}catch(e){}
