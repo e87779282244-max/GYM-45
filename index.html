@@ -7033,14 +7033,30 @@ el("swFinish").addEventListener("click",()=>{const d=SWS.cur;if(!d)return;
   subClearNow(d);swReset();SWS.cur=null;toast("Тренировка сохранена");show("progress");});
 
 /* ---- звук (Web Audio) ---- */
-let AC=null;
-function ac(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
-  if(AC.state!=="running")AC.resume();}catch(e){}return AC;}
+let AC=null,AC_STALE=false;
+function ac(){try{if(AC&&AC.state==="closed")AC=null;if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state!=="running"){const r=AC.resume();if(r&&r.catch)r.catch(()=>{});}}catch(e){}return AC;}
+/* запасной звук (обычный аудио-элемент): если iPhone после сворачивания «заморозил» Web Audio и касания ещё не было */
+let AC_FB=null;
+function acFallback(){if(AC_FB)return AC_FB;try{const sr=22050,seg=[[1046,.2],[0,.04],[1320,.35]],n=Math.round(sr*seg.reduce((a,x)=>a+x[1],0)),buf=new ArrayBuffer(44+n*2),dv=new DataView(buf);
+  const w=(o,str)=>{for(let i=0;i<str.length;i++)dv.setUint8(o+i,str.charCodeAt(i));};w(0,"RIFF");dv.setUint32(4,36+n*2,true);w(8,"WAVEfmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+  dv.setUint32(24,sr,true);dv.setUint32(28,sr*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);w(36,"data");dv.setUint32(40,n*2,true);
+  let k=0;seg.forEach(([f,d])=>{const m=Math.round(sr*d);for(let i=0;i<m&&k<n;i++,k++){const env=Math.min(1,i/200,(m-i)/400);dv.setInt16(44+k*2,f?Math.round(Math.sin(2*Math.PI*f*i/sr)*12000*env):0,true);}});
+  AC_FB=new Audio(URL.createObjectURL(new Blob([buf],{type:"audio/wav"})));AC_FB.preload="auto";}catch(e){AC_FB=null;}return AC_FB;}
 /* iPhone: звук разрешается только из нажатия — «разблокируем» его при каждом касании (тихий сигнал), иначе таймер в конце молчит */
-function acUnlock(){try{const c=ac();if(!c)return;const b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);}catch(e){}}
+function acUnlock(){try{
+  /* после возврата из фона iOS может оставить старый Web Audio «прерванным» навсегда — создаём новый прямо в касании */
+  if(AC&&AC_STALE&&AC.state!=="running"){try{AC.close();}catch(e){}AC=null;}AC_STALE=false;
+  const fb=acFallback();if(fb&&!fb.dataset.ok){fb.muted=true;const p=fb.play();if(p&&p.then)p.then(()=>{fb.pause();fb.currentTime=0;fb.muted=false;fb.dataset.ok="1";}).catch(()=>{fb.muted=false;});}
+  const c=ac();if(!c)return;const b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);}catch(e){}}
 ["touchend","pointerdown","keydown"].forEach(ev=>document.addEventListener(ev,acUnlock,{passive:true,capture:true}));
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&AC&&AC.state!=="running")try{AC.resume();}catch(e){}});
-function beep(freq,dur,vol,type){const c=ac();if(!c)return;
+document.addEventListener("visibilitychange",()=>{if(document.hidden||!AC)return;try{if(AC.state!=="running"){const r=AC.resume();if(r&&r.catch)r.catch(()=>{});}}catch(e){}
+  setTimeout(()=>{if(AC&&AC.state!=="running")AC_STALE=true;},500);});
+addEventListener("pageshow",()=>{if(AC&&AC.state!=="running")AC_STALE=true;});
+let AC_FB_AT=0;
+function beep(freq,dur,vol,type){const c=ac();
+  if(!c||c.state!=="running"){/* Web Audio молчит — короткий сигнал обычным аудио (не чаще раза в 1,2 с) */
+    try{const fb=acFallback();if(fb&&Date.now()-AC_FB_AT>1200){AC_FB_AT=Date.now();fb.currentTime=0;const p=fb.play();if(p&&p.catch)p.catch(()=>{});}}catch(e){}return;}
   const t=c.currentTime,o=c.createOscillator(),g=c.createGain();
   o.type=type||"square";o.frequency.value=freq;o.connect(g);g.connect(c.destination);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol==null?0.3:vol,t+0.012);
