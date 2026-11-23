@@ -3002,7 +3002,10 @@ function lastResult(name){
 /* ---------- обзор дня ---------- */
 let dayView=null; // {p,computed}
 function progKey(p){return (p.name||"")+"|"+(p.focus||"")+"|"+p.ex.map(e=>e[0]).join(",");}
-function isActive(p){return !!(current&&current.key===progKey(p));}
+/* активна, если это та же тренировка — даже если по ходу заменили упражнение (ключ по названиям тогда меняется) */
+function isActive(p){if(!(current&&p))return false;if(current.program===p||current.key===progKey(p))return true;
+  try{const a=current.program.g2,b=p.g2;if(a&&b)return a.progId===b.progId&&a.stage===b.stage&&a.pos===b.pos&&a.num===b.num&&a.day===b.day;
+    const x=current.program.au,y=p.au;if(x&&y)return x.id===y.id&&x.w===y.w&&current.program.name===p.name;}catch(e){}return false;}
 function startWorkout(p,computed){dayView={p:p,computed:computed};renderDay();show("day");}
 function plural(n,a,b,c){const m=n%10,h=n%100;return (m===1&&h!==11)?a:(m>=2&&m<=4&&(h<10||h>=20))?b:c;}
 /* ---------- прогрессия весов: вес на тренировку + объяснение «почему такой вес» ----------
@@ -3376,10 +3379,18 @@ function renderWorkout(){
 el("wkPrev").addEventListener("click",()=>{if(current&&current.idx>0){if(current.program.g2){current.idx--;saveDraft();renderWorkout();}else goEx(current.idx-1);}});
 el("wkNext").addEventListener("click",()=>{if(!current)return;
   if(current.program.g2){const U=current.program.g2.units;if(current.idx<U.length-1){current.idx++;saveDraft();renderWorkout();}
-    else{renderDay();show("day");if(U.every(g2UnitDone))finishWorkout();else toast("Проверь отметки ✓ и нажми «Завершить программу»");}return;}
+    else if(U.every(g2UnitDone)){renderDay();show("day");finishWorkout();}else wkFinishAsk();return;}
   const n=current.program.ex.length,i=current.idx;
   if(i<n-1&&!(nextUndone(i)<0&&exDone(i)))goEx(i+1);
-  else {renderDay();show("day");if(nextUndone(i)<0&&exDone(i))finishWorkout();else toast("Проверь отметки ✓ и нажми «Завершить программу»");}});
+  else if(nextUndone(i)<0&&exDone(i)){renderDay();show("day");finishWorkout();}
+  else wkFinishAsk();});
+/* «Завершить» на последнем упражнении, а часть подходов не отмечена: спросить, а не выкидывать молча в обзор дня */
+function wkFinishAsk(){if(!current)return;let done=0,left=0;current.sets.forEach((se,i)=>{if(current.stop&&current.stop[i])return;se.forEach(s=>{if(s.warm)return;if(s.done)done++;else left++;});});
+  if(!done){toast("Отметь выполненные подходы ✓ — тогда тренировку можно сохранить");return;}
+  const box=el("gvtMbox");box.innerHTML=`<h3>Завершить тренировку?</h3><p>Не отмечено ${left} ${plural(left,"подход","подхода","подходов")}. Сохраню только отмеченные (${done}), неотмеченные не попадут в историю.</p>
+    <button class="btn" type="button" id="wkFinY">Завершить и сохранить</button><button class="tm-mini" type="button" id="wkFinN">Вернуться к тренировке</button>`;
+  el("gvtModal").hidden=false;el("wkFinN").onclick=()=>{el("gvtModal").hidden=true;};
+  el("wkFinY").onclick=()=>{el("gvtModal").hidden=true;finishWorkout();};}
 /* ---------- таймер отдыха между подходами ---------- */
 /* отдых по умолчанию по разделам (сек). Бодибилдинг — 2 мин; остальные разделы настроим позже */
 const REST_BY_SEC={body:120};
