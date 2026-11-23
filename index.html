@@ -3246,6 +3246,12 @@ function mediaSync(){document.querySelectorAll(".ex-media video").forEach(v=>{v.
   if(mediaVisible(v)){if(v.paused)v.play().catch(()=>{});}else if(!v.paused){try{v.pause()}catch(e){}}});}
 window.__io=("IntersectionObserver" in window)?new IntersectionObserver(es=>{es.forEach(e=>{e.target.dataset.inview=e.isIntersecting?"1":"0";});mediaSync();},{threshold:0.15}):null;
 document.addEventListener("visibilitychange",mediaSync);
+/* возврат в приложение: заново подстроить карточку GVT и разбудить анимации (iOS после сворачивания оставляет видео пустым) */
+function mediaWake(){if(document.hidden)return;const run=()=>{try{document.querySelectorAll(".g2-card").forEach(c=>{if(c.isConnected)g2KeepOn(c);});}catch(e){}
+    document.querySelectorAll(".ex-media video").forEach(v=>{try{if(mediaVisible(v)&&(v.readyState<2||v.networkState===3||v.error)){const t=v.currentTime||0;v.load();v.addEventListener("loadeddata",()=>{try{v.currentTime=t;}catch(e){}},{once:true});}}catch(e){}});mediaSync();};
+  setTimeout(run,250);setTimeout(run,900);}
+document.addEventListener("visibilitychange",mediaWake);addEventListener("pageshow",mediaWake);addEventListener("focus",mediaWake);
+document.addEventListener("focusout",()=>setTimeout(()=>{try{document.querySelectorAll(".g2-card").forEach(c=>{if(c.isConnected)g2KeepOn(c);});}catch(e){}},350));
 ["touchstart","click"].forEach(ev=>document.addEventListener(ev,function p(){mediaSync();},{once:true}));
 function exDone(i){if(current.stop&&current.stop[i])return true;
   const st=current.sets[i].filter(x=>!x.warm);return st.length>0&&st.every(x=>x.done);}
@@ -5367,7 +5373,9 @@ function g2RenderPair(){const p=current.program,U=p.g2.units,ui=current.idx=Math
 function g2KeepOn(c){try{if(!c||!c.isConnected)return;const on=c.querySelector(".g2-cell.on"),box=c.querySelector(".g2-sets");if(!on||!box)return;
   const row=on.closest(".g2-row")||on;
   /* маленький экран: таблице не хватает места — убираем картинки и второстепенные строки */
-  if(!c.classList.contains("g2-tight")&&box.getBoundingClientRect().height<row.getBoundingClientRect().height*1.6)c.classList.add("g2-tight");
+  /* решение пересчитывается каждый раз (кроме момента ввода цифр): после сворачивания iOS на миг отдаёт маленький экран — картинки не должны пропадать навсегда */
+  const ae=document.activeElement,typing=!!ae&&c.contains(ae)&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName);
+  if(!typing||!c.classList.contains("g2-tight")){c.classList.remove("g2-tight");if(box.getBoundingClientRect().height<row.getBoundingClientRect().height*1.6)c.classList.add("g2-tight");}
   const a=row.getBoundingClientRect(),bb=box.getBoundingClientRect(),room=bb.height-a.height;
   const above=room>0?Math.min(room/2,a.height*0.7):0;box.scrollTop=Math.max(0,box.scrollTop+(a.top-bb.top)-above);}catch(e){}}
 function g2OpenMedia(key){const X=G2X[key];if(!X||!X.m)return;const v=el("pvideo");el("pname").textContent=X.n+(X.an?" ("+X.an+")":"");el("pcred").textContent="ID: edb-"+X.m+" · "+MEDIA_CREDIT;
