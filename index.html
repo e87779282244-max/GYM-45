@@ -1017,6 +1017,16 @@
   #scr-workout{flex:none;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;min-height:0;overflow:hidden;
     padding-bottom:calc(74px + max(10px,env(safe-area-inset-bottom,0px)))}
   #scr-workout.resting{padding-bottom:calc(134px + max(10px,env(safe-area-inset-bottom,0px)))}
+  #scr-workout.coaching{padding-bottom:calc(270px + max(10px,env(safe-area-inset-bottom,0px)))}
+  .wk-coach{position:fixed;left:50%;transform:translateX(-50%);width:min(404px,calc(100% - 36px));bottom:calc(140px + max(10px,env(safe-area-inset-bottom,0px)));z-index:36;
+    background:var(--surface);border:2px solid #6d7f38;border-radius:16px;padding:12px 14px;box-shadow:0 10px 28px rgba(40,38,20,.3);animation:coachIn .25s}
+  .wk-coach[hidden]{display:none}.wk-coach b{display:block;font-family:var(--dsp);font-size:18px;font-weight:800;color:var(--accent-ink,#3f4a1a)}
+  .wk-coach p{margin:6px 0 0;font-size:15px;line-height:1.4;color:var(--fg)}
+  @keyframes coachIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+  .guide-box{max-height:86vh;overflow-y:auto;-webkit-overflow-scrolling:touch}.guide-box h3{margin:0}.guide-box h4{margin:12px 0 4px;font-size:16px}
+  .guide-box p,.guide-box li{font-size:15px;line-height:1.45;color:var(--fg)!important}.guide-box ol,.guide-box ul{margin:4px 0;padding-left:20px}
+  .guide-box table{width:100%;border-collapse:collapse;font-size:14px}.guide-box th,.guide-box td{border:1px solid var(--line);padding:5px 6px;text-align:center}
+  #progGuideBtn{margin-top:12px}#progGuideBtn[hidden]{display:none}
   .wk-hd{padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:8px}
   .wk-hd h1{font-size:23px}
   .wk-hd .icon-btn{width:46px;height:46px;font-size:22px}
@@ -1668,6 +1678,7 @@
       <div class="card wod-card">
         <span class="tag" id="bodyMeta"></span>
         <p class="wod-desc" id="bodyDesc"></p>
+        <button class="btn btn-alt" type="button" id="progGuideBtn" hidden>📖 Описание программы</button>
       </div>
       <div class="stack" id="bodyDays"></div>
     </div>
@@ -2292,6 +2303,7 @@
     <div class="wk-time" id="wkTime"><span class="wk-clock">⏱ <b class="num" id="wkTimeT">0:00</b></span><span class="wk-tbar" aria-hidden="true"><i id="wkTimeBar"></i></span><span class="num" id="wkTimeSets">0/0</span></div>
     <div class="wk-prog"><span id="wkStep">Упражнение 1 из 1</span><div class="wk-dots" id="wkDots"></div></div>
     <div id="exList"></div>
+    <div class="wk-coach" id="wkCoach" hidden><b id="wkCoachT"></b><p id="wkCoachP"></p></div>
     <div class="wk-rest" id="wkRest" hidden>
       <svg class="wk-dial" viewBox="0 0 44 44" aria-hidden="true">
         <circle class="d-bg" cx="22" cy="22" r="20"/>
@@ -2363,6 +2375,7 @@
 <div class="onb" id="onb" hidden></div>
 <div class="toast" id="toast">Сохранено</div>
 <div class="gvt-modal" id="coolModal" hidden></div>
+<div class="gvt-modal" id="guideModal" hidden><div class="card gvt-mbox guide-box"><div id="guideBody"></div><button class="btn" type="button" id="guideClose">Понятно</button></div></div>
 <div class="gvt-modal" id="bcModal" hidden><div class="card gvt-mbox">
   <h3>Штрихкод</h3>
   <div class="bc-cam" id="bcCam" hidden><video id="bcVideo" playsinline muted></video><i></i></div>
@@ -3357,6 +3370,7 @@ function renderWorkout(){
       if(nx2>=0){restStop();setTimeout(()=>{if(current&&current.idx===i){goEx(nx2);wkFocusNext();toast("Сразу → "+wkExLbl(nx2));}},350);return;}
       for(let k=a;k<=b;k++)if(!exDone(k)){f2=k;break;}
       if(f2>=0){restStart(current.program.ex[b][6]);restAfter=()=>{if(!current)return;goEx(f2);wkFocusNext();toast("Новый круг → "+wkExLbl(f2));};return;}}
+    if(!s.warm&&!grp)try{if(wkCoach(i,b.dataset.s))return;}catch(e){console.error(e);}
     if(!exDone(i)){restStart();return;}
     const nx=nextUndone(i);
     if(nx<0){restStop();renderWorkout();wkAllDone();return;}
@@ -8507,6 +8521,72 @@ el("ntMeal").addEventListener("change",ntDraftRender);
 {const h=new Date().getHours();el("ntMeal").value=h<11?"Завтрак":h<16?"Обед":h<21?"Ужин":"Перекус";}
 ntDraftRender();
 const _ntRenderFood2=renderFood;renderFood=function(){_ntRenderFood2();ntDiaryItems();};
+/* ===================== ОПИСАНИЕ ПРОГРАММЫ: как выполнять (по кнопке на экране программы) ===================== */
+const AU_GUIDE={dc:`<h3>Как делать «Терминатор на минималках» (DC Training)</h3>
+<p>Вся программа — на одном приёме «отдых-пауза»: вместо нескольких обычных подходов на мышцу — <b>один, разбитый на три коротких захода почти без отдыха</b>.</p>
+<h4>1. Расписание</h4>
+<p>3 тренировки в неделю: пн, ср, пт. Чередуются по кругу:</p>
+<table><tr><th>Неделя</th><th>Пн</th><th>Ср</th><th>Пт</th></tr><tr><td>1</td><td>A1</td><td>B1</td><td>A2</td></tr><tr><td>2</td><td>B2</td><td>A3</td><td>B3</td></tr><tr><td>3</td><td>A1</td><td>B1</td><td>A2</td></tr></table>
+<ul><li><b>A</b> — грудь, плечи, трицепс, спина.</li><li><b>B</b> — бицепс, предплечья, икры, бицепс бедра, ноги.</li></ul>
+<p>Каждая мышца работает 2 раза за 9 дней, и каждый раз в другом упражнении.</p>
+<h4>2. Один подход «отдых-пауза» (пример: жим лёжа)</h4>
+<ol><li>Разминка: 2–3 лёгких подхода — их не отмечаешь.</li><li>Вес, с которым сделаешь 6–8 повторов.</li>
+<li><b>Заход 1:</b> почти до отказа, например 7 раз. Кладёшь штангу.</li><li><b>15 глубоких вдохов</b> (~20 с).</li>
+<li><b>Заход 2:</b> тот же вес, сколько получится (обычно 3–4). Снова 15 вдохов.</li><li><b>Заход 3:</b> ещё 2–3 раза.</li>
+<li>Всего 11–15 повторов, например 7 + 4 + 3 = 14.</li></ol>
+<p>В приложении у такого упражнения 3 строки — это 3 захода. Впиши в каждую, сколько реально сделал. После отметки захода приложение само подскажет «15 вдохов» и включит таймер.</p>
+<h4>3. Растяжка под нагрузкой — сразу после третьего захода</h4>
+<p>60–90 секунд в самом растянутом положении с весом. Больно — так и задумано. Приложение включит таймер с подсказкой.</p>
+<ul><li><b>Грудь:</b> гантели в нижней точке разводки или глубоко вниз на брусьях.</li><li><b>Спина:</b> вис на перекладине.</li>
+<li><b>Плечи и трицепс:</b> гантель за головой, локоть вверх.</li><li><b>Бицепс бедра:</b> наклон к прямым ногам.</li>
+<li><b>Квадрицепс:</b> сидя на пятках или задняя нога на скамье в выпаде.</li><li><b>Икры:</b> на краю платформы, пятки максимально вниз.</li></ul>
+<h4>4. Ноги и толщина спины — без отдых-паузы</h4>
+<ul><li><b>Приседания, жим ногами:</b> тяжёлый подход на 4–8, затем «вдоводел» — 20 повторов с весом на ~40 % меньше (между повторами можно постоять и подышать), потом растяжка.</li>
+<li><b>Тяга в наклоне, становая с плинтов:</b> тяжёлый подход на 6–9, затем 9–12 с весом чуть меньше.</li></ul>
+<h4>5. Прогресс — главное</h4>
+<p>В следующий раз на этом упражнении побей прошлый результат: больше веса или повторов. Прошлые веса подставляются сами («из пред. тренировки»).</p>
+<ul><li>Больше 15 повторов за три захода — в следующий раз добавь вес.</li><li>Меньше 11 — вес велик, сбавь.</li>
+<li>Два раза подряд не побил — замени упражнение на другое для этой мышцы.</li></ul>
+<h4>6. Разгрузка (недели 7–8)</h4>
+<p>Лёгкие тренировки: ~70 % рабочих весов, без отказа и без отдых-паузы. Потом можно начинать новый круг.</p>`};
+function progGuideSync(){const b=el("progGuideBtn");if(!b)return;const g=currentBody&&currentBody.id&&AU_GUIDE[currentBody.id];b.hidden=!g;}
+function progGuideOpen(id){const g=AU_GUIDE[id];if(!g)return;el("guideBody").innerHTML=g;el("guideModal").hidden=false;try{el("guideModal").querySelector(".guide-box").scrollTop=0;}catch(e){}}
+el("progGuideBtn").addEventListener("click",()=>{if(currentBody)progGuideOpen(currentBody.id);});
+el("guideClose").addEventListener("click",()=>{el("guideModal").hidden=true;});
+el("guideModal").addEventListener("click",e=>{if(e.target===el("guideModal"))el("guideModal").hidden=true;});
+{const _op=openProg;openProg=function(){const r=_op.apply(this,arguments);try{progGuideSync();}catch(e){}return r;};}
+
+/* ===================== ПОДСКАЗКИ ТРЕНЕРА В ПОДХОДЕ: 15 вдохов между заходами, растяжка под нагрузкой ===================== */
+function coachKind(i){const e=current&&current.program.ex&&current.program.ex[i];if(!e||current.program.g2)return null;const n=e[0],note=e[5]||"";
+  if(/ · отдых-пауза$/.test(n))return "rp";if(/ · вдоводел$/.test(n))return "wm";if(/[Зз]атем растяжка/.test(note))return "st";return null;}
+function stretchTip(n){n=n.toLocaleLowerCase("ru");
+  if(/носки|икр/.test(n))return "Икры: встань на край платформы, пятки максимально вниз.";
+  if(/присед|жим ногами|выпад|разгибан/.test(n))return "Квадрицепс: сядь на пятки или поставь заднюю ногу на скамью в глубоком выпаде.";
+  if(/сгибание ног|румынск|мёртв|мертв/.test(n))return "Бицепс бедра: наклонись к прямым ногам, спина ровная, тянись грудью вперёд.";
+  if(/узким|французск|трицепс|разгибание рук/.test(n))return "Трицепс: гантель за головой, локоть вверх — кисть тянется к лопатке.";
+  if(/армейск|жим стоя|жим гантелей сидя|махи|плеч|разведение.*в стороны/.test(n))return "Плечи: держись рукой за стойку за спиной и разворачивай корпус от неё.";
+  if(/жим|брусь|разведение|бабочк|отжиман/.test(n))return "Грудь: гантели в нижней точке разводки или глубоко вниз на брусьях — локти назад.";
+  if(/подтяг|тяга|пуловер/.test(n))return "Спина: вис на перекладине, плечи расслаблены — тянись вниз всем телом.";
+  if(/бицепс|молотк|сгибани/.test(n))return "Бицепс: руки назад на стойку или скамью, ладони вниз — тянись грудью вперёд.";
+  return "Задержись в самом растянутом положении этой мышцы с весом.";}
+function coachShow(t,p,lbl){el("wkCoachT").textContent=t;el("wkCoachP").textContent=p;el("wkCoach").hidden=false;scr.workout.classList.add("coaching");
+  const l=el("wkRest").querySelector(".wk-rest-l");if(l)l.textContent=lbl||"Отдых";}
+function coachHide(){el("wkCoach").hidden=true;scr.workout.classList.remove("coaching");const l=el("wkRest").querySelector(".wk-rest-l");if(l)l.textContent="Отдых";}
+{const _rs=restStop;restStop=function(){_rs.apply(this,arguments);try{coachHide();}catch(e){}};}
+/* true — подсказка взяла таймер на себя */
+function wkCoach(i,si){const k=coachKind(i);if(!k)return false;const S=current.sets[i],work=S.filter(x=>!x.warm),idx=work.indexOf(S[si]),last=work.every(x=>x.done);
+  if(idx<0)return false;const nm=current.program.ex[i][0].replace(/ · (отдых-пауза|вдоводел)$/,"");
+  if(k==="rp"&&!last){restStart(20);
+    coachShow("15 глубоких вдохов","Заход "+(idx+1)+" готов. Положи вес и сделай 15 глубоких вдохов (~20 с). Потом заход "+(idx+2)+" — тот же вес, сколько получится.","15 вдохов");
+    restAfter=()=>{wkFocusNext();toast("Заход "+(idx+2)+" — тот же вес, до отказа");};return true;}
+  if(!last)return false;
+  const nx=nextUndone(i);restStart(60);
+  coachShow("Растяжка под нагрузкой · 60–90 с",stretchTip(nm)+" Держи и терпи — это часть подхода. Нужно дольше — «+1 мин».","Растяжка");
+  restAfter=()=>{if(!current)return;if(nx<0){renderWorkout();wkAllDone();return;}toast("Растяжка готова — отдых перед следующим упражнением");
+    restStart(current.program.rest>0?current.program.rest:restDefault());
+    restAfter=()=>{if(current&&current.idx===i&&exDone(i)){goEx(nx);toast("Дальше: "+current.program.ex[nx][0]);}else wkFocusNext();};};
+  return true;}
+
 /* ===================== ШТРИХКОД: камера → Open Food Facts → «Мои продукты» ===================== */
 let NT_BC_PENDING=null,BC_STREAM=null,BC_TIMER=null,BC_READER=null,BC_BUSY=false;
 const bcClean=v=>String(v||"").replace(/\D/g,"");
