@@ -16,7 +16,7 @@ async def m():
     ok('у DC есть кнопка «Описание программы»',await E("!el('progGuideBtn').hidden&&el('progGuideBtn').textContent.includes('Описание программы')"))
     await E("el('progGuideBtn').click()");await pg.wait_for_timeout(150)
     t=await E("el('guideBody').innerText")
-    ok('описание: расписание, отдых-пауза, 15 вдохов, растяжка, вдоводел, прогресс, разгрузка',all(x in t for x in ['Расписание','Заход 1','15 глубоких вдохов','Растяжка под нагрузкой','вдоводел','Прогресс','Разгрузка']))
+    ok('описание: расписание, отдых-пауза, 15 вдохов, растяжка, добивающий, прогресс, разгрузка',all(x in t for x in ['Расписание','Заход 1','15 глубоких вдохов','Растяжка под нагрузкой','добивающий подход','Прогресс','Разгрузка']))
     if SHOT:await pg.screenshot(path=SHOT+'/guide.png')
     await E("el('guideClose').click()");ok('«Понятно» закрывает',await E("el('guideModal').hidden"))
     await E("authOpen(auAll().find(q=>q.id==='wl'))");ok('у других программ кнопки нет',await E("el('progGuideBtn').hidden"))
@@ -47,6 +47,8 @@ async def m():
     # таймер вдохов сам истекает
     await chk(0);await E("restEnd=Date.now()+50");await pg.wait_for_timeout(700)
     ok('таймер вдохов истёк сам — подсказка ушла',await E("el('wkCoach').hidden&&el('wkRest').hidden"))
+    ok('нигде нет слова «вдоводел»: добивающий подход называется «… · добивающий на 20»',await E("!document.body.innerText.includes('вдоводел')&&auAll().find(q=>q.id==='dc').weeks[0].days[1].ex.some(e=>e[0]==='Приседания со штангой · добивающий на 20')"))
+    ok('после добивающего — растяжка (подсказка распознаёт подход)',await E("(()=>{const o=current.program.ex;const k=coachKind;current.program.ex=[['Приседания со штангой · добивающий на 20',1,20,50,null,'',0]];const r=k(0);current.program.ex=o;return r==='wm'})()"))
     ok('без ошибок JS',not errs,errs[:3])
     await b.close()
 asyncio.run(m());print(f'{sum(R)}/{len(R)}'+(' PASS' if all(R) else ''))
