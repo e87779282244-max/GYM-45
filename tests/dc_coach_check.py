@@ -19,7 +19,7 @@ async def m():
     ok('описание: расписание, отдых-пауза, 15 вдохов, растяжка, добивающий, прогресс, разгрузка',all(x in t for x in ['Расписание','Заход 1','15 глубоких вдохов','Растяжка под нагрузкой','добивающий подход','Прогресс','Разгрузка']))
     if SHOT:await pg.screenshot(path=SHOT+'/guide.png')
     await E("el('guideClose').click()");ok('«Понятно» закрывает',await E("el('guideModal').hidden"))
-    await E("authOpen(auAll().find(q=>q.id==='wl'))");ok('у других программ кнопки нет',await E("el('progGuideBtn').hidden"))
+    ok('у программ без описания кнопки нет',await E("(()=>{const q=auAll().find(q=>!AU_GUIDE[q.id]);if(!q)return true;authOpen(q);return el('progGuideBtn').hidden})()"))
     # тренировка DC A1
     await E("(()=>{const p=auAll().find(q=>q.id==='dc');auPlanStart(p,{w:0,d:0});})()");await pg.wait_for_timeout(200)
     await E("el('dayStart').click()");await pg.wait_for_timeout(300)
