@@ -317,6 +317,12 @@
   .anf-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.anf-t{border:1px solid var(--line);border-radius:12px;padding:10px}.anf-t b{display:block;font-size:20px}.anf-t span{font-size:12px;opacity:.75}.anf-t small{display:block;font-size:12px;margin-top:2px}
   .anf-t .ok{color:var(--accent-ink)}.anf-t .warn{color:#b0702a}
   .anf-svg .b{fill:var(--line)}.anf-svg .b.ok{fill:var(--accent)}.anf-svg .b.over{fill:#c98a3a}.anf-svg .b.on{stroke:var(--ink,#222);stroke-width:1.5}.anf-svg .tl{stroke:var(--gold-ink);stroke-dasharray:4 3;stroke-width:1.5}.anf-svg text{font-size:10px;fill:currentColor;opacity:.7}
+  .coach-how{margin:6px 0 4px;padding:9px 11px;border-radius:12px;border:1.5px dashed var(--accent-ink,#3f4a1a);font-size:14px;line-height:1.4;color:var(--fg)}
+  .coach-how b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink,#3f4a1a);margin-bottom:2px}
+  .fx-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 2px;font-size:13px;color:var(--muted,#6b6b5a)}
+  .fx-row span{width:100%}.fx-b{flex:1;min-width:0;padding:8px 6px;border-radius:11px;border:1px solid var(--key-edge);background:linear-gradient(180deg,var(--key-top),var(--key-bot));color:var(--fg);font:inherit;font-size:13px;font-weight:700}
+  .fx-b.on{background:var(--accent-ink,#3f4a1a);color:#fff;border-color:transparent}
+  .an-hx i.fx{font-style:normal;font-weight:700}
   .coach-go{display:block;width:100%;margin:6px 0 4px;padding:12px;border-radius:14px;border:1px solid var(--key-edge);background:linear-gradient(180deg,var(--key-top),var(--key-bot));color:var(--fg);font:inherit;font-weight:800;font-size:15px;box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 4px 0 var(--key-edge)}
   .coach-go:active{transform:translateY(3px);box-shadow:0 1px 0 var(--key-edge)}
   .ex-note{font-size:13px;line-height:1.4;color:var(--accent-ink);background:var(--accent-weak);border-radius:10px;padding:7px 10px;margin:6px 0 4px}
@@ -1994,6 +2000,9 @@
         <p class="nt-err" id="pfErr" role="alert"></p>
       </div>
       <div class="card nt-res" id="pfNorm"></div>
+      <div class="card"><h3 style="margin-top:0">Тренировка</h3>
+        <label class="cf-chk"><input type="checkbox" id="pfCoach"> Подсказки тренера в подходе</label>
+        <p class="nt-sub">Окна «как делать следующий подход» и плашка перед первым подходом. Таймеры пауз (20 с, 10 с, растяжка) работают всегда.</p></div>
       <div class="card"><h3 style="margin-top:0">Вход в аккаунт</h3><p class="nt-sub" id="pfAcc"></p></div>
     </div>
   </section>
@@ -3011,7 +3020,7 @@ function lastResult(name){
   const all=safe.get();
   for(let i=all.length-1;i>=0;i--){const h=all[i];if(prSkipRec(h))continue; // GVT и лёгкая неделя — не образец для обычных программ
     if(h.log&&h.log[name]){const done=h.log[name].filter(s=>s.done&&s.r>0);
-      if(done.length)return {date:h.date,au:h.au&&h.au.id,sets:done.map(s=>({r:s.r,w:s.w})),rir:(done[done.length-1].rir!=null&&done[done.length-1].rir!=="")?String(done[done.length-1].rir):null,skip:!!(h.skipEx&&h.skipEx[name]),unk:!!(h.unk&&h.unk.includes(name))};}}
+      if(done.length)return {date:h.date,au:h.au&&h.au.id,sets:done.map(s=>s.fx?{r:s.r,w:s.w,fx:s.fx}:{r:s.r,w:s.w}),rir:(done[done.length-1].rir!=null&&done[done.length-1].rir!=="")?String(done[done.length-1].rir):null,skip:!!(h.skipEx&&h.skipEx[name]),unk:!!(h.unk&&h.unk.includes(name))};}}
   return null;
 }
 /* ---------- обзор дня ---------- */
@@ -3332,12 +3341,12 @@ function renderWorkout(){
   const _m=MEDIA[ex[0]];
   const _media=_m?`<div class="ex-media" data-key="${ex[0]}"><video src="${_m.v}" poster="${_m.p}" muted loop autoplay playsinline preload="auto"></video><span class="play">⛶</span></div>`:"";
   const _pr=current.prev&&current.prev[ex[0]];
-  const _prev=_pr?`<div class="prev-line">Прошлый раз: ${_pr.sets.map(s=>ex[3]?(s.r+"×"+s.w):(""+s.r)).join(", ")}${ex[3]?" кг":" повт."}</div>`:"";
+  const _prev=_pr?`<div class="prev-line">Прошлый раз: ${_pr.sets.map(s=>(ex[3]?(s.r+"×"+s.w):(""+s.r))+(s.fx&&typeof FX_LBL!=="undefined"&&FX_LBL[s.fx]?" + "+FX_LBL[s.fx]:"")).join(", ")}${ex[3]?" кг":" повт."}</div>`:"";
   const _rmv=(typeof rmReg==="function")?rmReg()[ex[0]]:0;
   const ns=current.sets[i].filter(x=>!x.warm).length;
   const _s0=current.sets[i].find(x=>!x.warm)||{},_tr=current.why&&current.why[i]&&_s0.r?_s0.r:ex[2],_tw=(current.why&&current.why[i])||(current.orig&&current.orig[i])?(_s0.w>0?fmtW(_s0.w):""):ex[3];
   const tgt=G?gvtTargetLine(i):ex[7]?String(ex[7]):`${ns} ${plural(ns,"подход","подхода","подходов")} × ${_tr} повт.${_tw?" · "+_tw+" кг":""}${_rmv?" · 1ПМ "+(/с весом/.test(ex[0])?"+":"")+_rmv+" кг":""}`;
-  const extra=G?`${gvtSrcLine(i)}${stopR?`<div class="gvt-stop">Блок остановлен: ${stopR}. Остальные подходы не засчитаны.</div>`:""}`:(ex[5]?`<div class="ex-note">${ex[5]}</div>`:"")+(typeof coachBtnHtml==="function"?coachBtnHtml(i):"");
+  const extra=G?`${gvtSrcLine(i)}${stopR?`<div class="gvt-stop">Блок остановлен: ${stopR}. Остальные подходы не засчитаны.</div>`:""}`:(ex[5]?`<div class="ex-note">${ex[5]}</div>`:"")+(typeof coachHowHtml==="function"?coachHowHtml(i):"")+(typeof coachBtnHtml==="function"?coachBtnHtml(i):"")+(typeof fxHtml==="function"?fxHtml(i):"");
   const add=(G&&G.main)?"":`<button class="addset" type="button">+ подход</button>`;
   const _g=G?null:wkGroup(i);let _circ="";
   if(_g){const tot=Math.max(...current.sets.slice(_g[0],_g[1]+1).map(se=>se.filter(x=>!x.warm).length)),dn=Math.min(...current.sets.slice(_g[0],_g[1]+1).map(se=>se.filter(x=>!x.warm&&x.done).length));
@@ -3379,6 +3388,8 @@ function renderWorkout(){
     restStart();
     restAfter=()=>{if(current&&current.idx===i&&exDone(i)){goEx(nx);toast("Дальше: "+current.program.ex[nx][0]);}else wkFocusNext();};});
   c.querySelectorAll(".coach-go").forEach(b=>b.onclick=()=>{try{coachWork(+b.dataset.sec||40);}catch(e){}});
+  c.querySelectorAll(".fx-b").forEach(b=>b.onclick=()=>{const s=fxLast(i);if(!s)return;if(b.dataset.fx)s.fx=b.dataset.fx;else delete s.fx;saveDraft();
+    c.querySelectorAll(".fx-b").forEach(x=>x.classList.toggle("on",x===b));});
   if(c.querySelector(".addset"))c.querySelector(".addset").onclick=()=>{
     const last=current.sets[i][current.sets[i].length-1]||{w:0,r:0};
     current.sets[i].push({w:last.w,r:last.r,done:false});saveDraft();renderWorkout();};
@@ -3415,7 +3426,9 @@ const REST_FALLBACK=120;
 function restDefault(){const p=current&&current.program;if(p&&!p.g2){const e=p.ex&&p.ex[current.idx];if(e&&e[6]>0)return e[6];if(p.rest>0)return p.rest;}const sec=p&&p.sec;return REST_BY_SEC[sec]||REST_FALLBACK;}
 let restEnd=0,restIv=null,restTotal=120,restAfter=null;
 /* конец отдыха (таймер или «Пропуск»): следующий подход, а если упражнение закрыто — следующее упражнение */
-function restDone(){restStop();const f=restAfter;restAfter=null;if(!current||currentScreen!=="workout")return;try{if(f)f();else wkFocusNext();}catch(e){}}
+let REST_CHAIN=0;
+function restDone(){const od=Math.max(0,Date.now()-restEnd);restStop();const f=restAfter;restAfter=null;if(!current||currentScreen!=="workout")return;
+  REST_CHAIN=od>1500?od:0;try{if(f)f();else wkFocusNext();}catch(e){}REST_CHAIN=0;}
 function wkFocusNext(){if(!current)return;if(current.program.g2){renderWorkout();return;}markCur();const r=el("exList").querySelector(".set-row.cur");
   if(r){try{r.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}r.classList.add("flash");setTimeout(()=>r.classList.remove("flash"),1200);}}
 function wkAllSetsDone(){return !!current&&current.sets.every((se,i)=>(current.stop&&current.stop[i])||se.filter(x=>!x.warm).every(x=>x.done));}
@@ -3438,6 +3451,7 @@ function restTick(){const left=Math.ceil((restEnd-Date.now())/1000);
   el("wkRestArc").setAttribute("stroke-dasharray",Math.max(0,Math.min(100,left/restTotal*100)).toFixed(2)+" 100");}
 function restStart(sec){restAfter=null;
   if(sec==null){const p=current&&current.program,e=p&&!p.g2&&p.ex&&p.ex[current.idx];if(e&&e[6]<0){restStop();return;}} /* отдых 0 по программе (HIIT 100) */const d=sec>0?sec:restDefault();restEnd=Date.now()+d*1000;restTotal=d;el("wkRest").hidden=false;scr.workout.classList.add("resting");
+  if(REST_CHAIN>0){restEnd-=REST_CHAIN;REST_CHAIN=0;}
   if(restIv)clearInterval(restIv);restIv=setInterval(restTick,250);restTick();}
 function restStop(){if(restIv)clearInterval(restIv);restIv=null;el("wkRest").hidden=true;scr.workout.classList.remove("resting");}
 /* ±1 мин меняет только текущий отдых; следующий снова начнётся с нормы раздела */
@@ -8676,11 +8690,158 @@ const AU_GUIDE={dc:`<h3>Как делать «Терминатор на мини
 <h4>3. Вкатка</h4>
 <p>Недели 1–2 — без форсированных: подбираешь веса и технику.</p>
 <h4>4. Прогресс</h4>
-<p>Каждую неделю — +вес или +повтор в рабочем подходе. Строгая техника, без рывков. Болят суставы — откати вес.</p>`};
+<p>Каждую неделю — +вес или +повтор в рабочем подходе. Строгая техника, без рывков. Болят суставы — откати вес.</p>`,fbn:`<h3>Как делать «Фулбади для новичков»</h3>
+<p>Всё тело за тренировку, 3 раза в неделю через день — например, пн, ср, пт.</p>
+<h4>1. Расписание</h4>
+<ul><li>Дни A и B чередуются: нечётные недели A-B-A, чётные B-A-B.</li><li>Нажми «Начать программу» — приложение само предложит следующую тренировку.</li></ul>
+<h4>2. Путь за 8 недель</h4>
+<table><tr><th>Недели</th><th>Задача</th></tr><tr><td>1–2</td><td>Техника, лёгкие веса, 3–4 повтора в запасе</td></tr><tr><td>3–4</td><td>Рабочие веса: 8 повторов, 2 в запасе</td></tr><tr><td>5–6</td><td>Четвёртый подход — больше объёма</td></tr><tr><td>7</td><td>Сила</td></tr><tr><td>8</td><td>Лёгкая неделя</td></tr></table>
+<h4>3. Как делать каждое упражнение</h4>
+<ol><li>Медленно вниз, без рывков, ровная спина.</li><li>Никогда не до отказа — 2 повтора всегда в запасе.</li><li>Подсобные упражнения — 12–15 чистых повторов.</li></ol>
+<h4>4. Прибавка веса</h4>
+<p>Только когда все повторы во всех подходах сделаны чисто: +2,5 кг в жимах и тягах, +5 кг в приседе и становой. Прошлые веса подставляются сами.</p>
+<h4>5. Что дальше</h4>
+<p>После 8 недель (или после 6-й, если техника уверенная) — следующая программа: фулбади 3 дня.</p>`,phil:`<h3>Как делать «Бурпи и проклятия»</h3>
+<p>24 тренировки без инвентаря по ~60 минут: 6 дней в неделю, 4 недели. Подходит для дома и отпуска.</p>
+<h4>1. Часы на всю тренировку</h4>
+<p>Запусти секундомер в начале и не останавливай. Каждый блок привязан ко времени: «0:00–15:00 · Разминка», «15:00–30:00 · EMOM»… Не успел — переходи к следующему блоку по часам.</p>
+<h4>2. Форматы</h4>
+<ul><li><b>EMOM</b> — «каждую минуту»: в начале минуты делаешь задание, остаток минуты отдыхаешь.</li>
+<li><b>AMRAP N мин</b> — сколько кругов успеешь за N минут.</li>
+<li><b>На время</b> — заданный объём как можно быстрее.</li>
+<li><b>Лесенка 20-18-16…</b> — с каждым кругом повторов меньше.</li>
+<li><b>Death by Burpees</b> — 1-я минута 1 бёрпи, 2-я — 2, 3-я — 3… пока успеваешь в минуту.</li></ul>
+<h4>3. В приложении</h4>
+<p>Блок = упражнение. Отмечай каждый круг, отдых между блоками включается сам.</p>
+<h4>4. Инвентарь</h4>
+<p>Вместо гантелей — рюкзак, сумка, бутылки с водой. Слушай тело: отдыхай дольше или замени движение, если что-то болит.</p>`,slpp:`<h3>Как делать «Streetlift 5 дней»</h3>
+<p>Масса и сила в подтягиваниях и брусьях с весом: верх тела — 2 раза в неделю, ноги — 1.</p>
+<h4>1. Расписание</h4>
+<p>Пн Push 1 · вт Pull 1 · ср ноги · чт Push 2 · пт Pull 2 · сб–вс отдых. Можно и так: пн–вт–ср, чт отдых, пт–сб.</p>
+<ul><li><b>Push</b> — грудь, трицепс, плечи. <b>Pull</b> — спина, бицепс.</li>
+<li>Push 1 / Pull 1 — тяжело: 4 подхода по 6–8 с весом.</li><li>Push 2 / Pull 2 — 6 подходов по 4; брусья и жим «· пауза 1 с» — замри на 1 с в нижней точке.</li></ul>
+<h4>2. Веса</h4>
+<ul><li>Штанга в базовых упражнениях — от 1ПМ (максимум на 1 раз, задай в «Рабочих весах»). Неделя 1: 75–80 %, жим с паузой — 60–65 %.</li>
+<li>Дальше +0–5 кг в неделю, если прошлая неделя далась уверенно.</li><li>Остальное — по RPE, вес подбираешь сам.</li></ul><p><b>RPE (тяжесть)</b> — насколько тяжёлым был подход: 10 — отказ, 9 — остался 1 повтор в запасе, 8 — два, 7 — три.</p>
+<h4>3. Отдых</h4>
+<p>База — от 3 минут, остальное — 1–3 мин, как написано в упражнении. Расписание часто не меняй.</p>`,pbx2:`<h3>Как делать «Powerbuild 6 дней»</h3>
+<p>Ноги — толчок — тяга дважды в неделю: первый круг на силу, второй на массу.</p>
+<h4>1. Расписание</h4>
+<p>Пн Legs 1 · вт Push 1 · ср Pull 1 · чт Legs 2 · пт Push 2 · сб Pull 2 · вс отдых. День отдыха можно сдвинуть.</p>
+<h4>2. Сила: присед, становая, жим</h4>
+<ul><li>Веса — от 1ПМ (задай в «Рабочих весах»). Неделя 1 — 75–80 %, жим с паузой — 60–65 %.</li><li>Дальше +0–5 кг в неделю, если прошлая далась уверенно.</li>
+<li>«· пауза 1 с» и «с паузой» — замри в нижней точке, потом вверх.</li><li>Отдых на базе — от 3 минут.</li></ul>
+<h4>3. Масса: остальное</h4>
+<p>Вес подбираешь сам по RPE, повторы — как указано (10–12, 15–20).</p><p><b>RPE (тяжесть)</b> — насколько тяжёлым был подход: 10 — отказ, 9 — остался 1 повтор в запасе, 8 — два, 7 — три.</p>`,blft:`<h3>Как делать «Body-lifting»</h3>
+<p>Стритлифтинг (подтягивания, брусья, присед с весом) плюс бодибилдинг на внешний вид.</p>
+<h4>1. Расписание</h4>
+<p>Пн — присед на силу · вт — подтягивания и жимы · ср — отдых · чт — брусья и тяги · пт — присед на объём · сб — микс · вс — отдых.</p>
+<h4>2. Топ-сет и бэк-офф</h4>
+<ol><li><b>Топ-сет</b> — самый тяжёлый подход дня на 1 повтор с нужной тяжестью (RPE недели).</li>
+<li><b>Бэк-офф</b> — затем 4 подхода по 4 с весом на указанный процент меньше. Пример: топ-сет 40 кг, бэк-офф −15 % → 34 кг (берёшь ближайший — 33,75).</li>
+<li>Отдых между ними 5–7 мин.</li></ol>
+<h4>3. Цикл 5 недель (всего два)</h4>
+<p>Топ-сет на RPE 6 → 7 → 8 → 9, пятая неделя — разгрузка без топ-сета.</p><p><b>RPE (тяжесть)</b> — насколько тяжёлым был подход: 10 — отказ, 9 — остался 1 повтор в запасе, 8 — два, 7 — три.</p>
+<h4>4. Обозначения</h4>
+<ul><li><b>Темп 310</b> — 3 с вниз, 1 с пауза, вверх быстро.</li><li><b>Бисет</b> — два упражнения подряд без отдыха.</li><li>«10 + 10 + 10 со сбросом» — три отрезка по 10, между ними сбрасываешь вес без отдыха.</li></ul>
+<p>Нужны перекладина, брусья, пояс для отягощения и резина. После 10 недель можно повторить, усложнив: больше подходов и повторов, меньше отдых.</p>`,bp180b:`<h3>Как делать «Жим лёжа 180 · для начинающих»</h3>
+<p>Для тех, кто жмёт меньше 135 кг. Жим — 2 раза в неделю, тяжёлые присед и становая обязательны, подходов мало — веса большие.</p>
+<h4>1. Три программы по 12 недель</h4>
+<ul><li><b>1 · 5×5</b>: 2 разогревочных подхода с ростом веса + 3 рабочих по 5. Растёт вес, а не число подходов. Тяжело — 4×5 (2 рабочих).</li>
+<li><b>2 · лесенка 5/4/3/2/1</b>: после 2 разогревочных — 5 повторов тяжело, но не до отказа; добавь вес — 4, потом 3, 2 и 1. Поправь повторы в строках.</li>
+<li><b>3 · единичные</b>: только после двух проходов программ 1 и 2. 5 подходов по 1 разу с 70 % от 1ПМ, к 6-й неделе — 90 %, дальше +1–2 кг в неделю.</li></ul>
+<h4>2. Как растёт вес</h4>
+<p>Первые недели — комфортно, к 6-й неделе выходишь на прежний максимум, дальше +1–2 кг. После каждой программы — неделя отдыха. Программы 1 и 2 можно пройти дважды.</p>
+<h4>3. Отдых</h4>
+<p>Между тяжёлыми подходами 3–5 мин, между очень тяжёлыми — до 10. Нет результата — делай не больше, а меньше.</p><h4>Техника жима</h4>
+<ul><li>Стопы всей подошвой в пол, плечи и таз прижаты к скамье.</li><li>Гриф вниз медленно — чуть ниже сосков, пауза на груди 1–2 с, вверх и чуть назад, к лицу.</li>
+<li>Локти ближе к корпусу, внизу — под кистями. Вдох перед повтором, выдох в трудной точке.</li></ul>`,bp180a:`<h3>Как делать «Жим лёжа 180 · для опытных»</h3>
+<p>Только если жмёшь от 135 кг. Цель — до +35 кг в жиме за ~1,5 года.</p>
+<h4>1. Пять фаз</h4>
+<table><tr><th>Фаза</th><th>Акцент</th><th>Длина</th></tr><tr><td>1</td><td>Грудь</td><td>12 нед.</td></tr><tr><td>2</td><td>Дельты</td><td>12 нед.</td></tr><tr><td>3</td><td>Трицепс</td><td>12 нед.</td></tr><tr><td>4</td><td>Верх спины</td><td>12 нед.</td></tr><tr><td>5</td><td>На рекорд</td><td>20 нед.</td></tr></table>
+<p>После каждой фазы — неделя полного отдыха от штанги.</p>
+<h4>2. Фазы 1–4</h4>
+<ul><li>Первые 6 недель веса растут везде; потом — только в жиме и в упражнениях на мышцу фазы, остальные «замораживаются».</li>
+<li>Последняя тренировка фазы — новый максимум: единичные до веса на 5–7 кг легче рекорда, потом +2 кг к рекорду, если легко — +5–7.</li>
+<li>«Из стоек» — каждый повтор с мёртвой точки на ограничителях. «Лёгкий» жим — как в понедельник, на 20 % легче.</li></ul>
+<h4>3. Фаза 5 — мини-циклы по 4 недели</h4>
+<p>Жим по неделям: по 5 → по 3 → … В каждой — 5–7 подходов с ростом веса, последний — максимум на это число повторов.</p>
+<h4>4. Перегруз</h4>
+<p>Сокращённый вариант — в заметке к каждой фазе, или 3 тренировки за 10 дней. Отдых 3–5 мин, на очень тяжёлых — до 10.</p><h4>Техника жима</h4>
+<ul><li>Стопы всей подошвой в пол, плечи и таз прижаты к скамье.</li><li>Гриф вниз медленно — чуть ниже сосков, пауза на груди 1–2 с, вверх и чуть назад, к лицу.</li>
+<li>Локти ближе к корпусу, внизу — под кистями. Вдох перед повтором, выдох в трудной точке.</li></ul>`,faleev:`<h3>Как делать «Последний герой»</h3>
+<p>Только три движения: присед, жим лёжа, становая. Без отказов и без проходок на максимум.</p>
+<h4>1. Неделя</h4>
+<ul><li>Пн — тяжёлый присед · вт — тяжёлый жим · ср — тяжёлая становая · пт — лёгкие присед и жим.</li><li>Лёгкая тренировка — 5×4 с 80 % от тяжёлой, взрывно, на технику.</li><li>Новичку становая — не раньше чем через месяц приседаний.</li></ul>
+<h4>2. Путь</h4>
+<ol><li><b>5 по 8</b> одним весом. Сделал все — следующая тяжёлая тренировка +5 кг. Не идёт несколько тренировок — 5×7, потом 5×6, 5×5.</li>
+<li>Застрял на 5×5 на 2–3 недели — пора на <b>10-недельные циклы</b>: простой → трёхступенчатый → двухступенчатый. Проценты считаются от 1ПМ из «Рабочих весов».</li>
+<li>«6-4-2-1» — после разминки: 6 повторов, 4, 2 и плановый 1 раз, вес растёт.</li></ol>
+<h4>3. Главное правило</h4>
+<p>Чувствуешь, что повтор не выйдет, — ставь штангу на стойки. Максимум прикинешь без проходки: вес 5×5 × 1,2. Циклы во всех трёх движениях идут одновременно.</p>`,baza:`<h3>Как делать «BAZA GYM 45»</h3>
+<p>Жим → тяга → ноги по кругу.</p>
+<h4>1. Расписание</h4>
+<ul><li><b>3 дня</b> (пн, ср, пт) — один круг в неделю.</li><li><b>6 дней</b> для опытных — два круга, воскресенье отдых.</li></ul>
+<h4>2. Дни</h4>
+<ul><li><b>Жим</b> — грудь, плечи, трицепс.</li><li><b>Тяга</b> — спина, бицепс.</li><li><b>Ноги</b> — присед, фронтальный присед, гиперэкстензия, прыжки, планка.</li></ul>
+<h4>3. Как работать</h4>
+<ol><li>Перед базовым упражнением — 1–2 лёгких разминочных подхода (не отмечаешь).</li><li>Рабочие подходы: 1–2 повтора в запасе, не до отказа.</li><li>Отдых: база 2–3 мин, остальное 1–1,5 мин.</li></ol>
+<h4>4. Прогресс</h4>
+<p>Сделал все подходы и повторы чисто — в следующий раз +2,5 кг (присед и становая +5 кг). Прошлые веса подставляются сами.</p>`,slwsf:`<h3>Как делать «Классический цикл»</h3>
+<p>База — подтягивания и брусья с весом. 4 тренировки в неделю, например пн, вт, чт, пт.</p>
+<h4>1. Дни</h4>
+<ul><li>День 1 — подтягивания с весом + тяга, бицепс, хват.</li><li>День 2 — брусья с весом + жим, трицепс, пресс.</li><li>День 3 — ноги и плечи.</li><li>День 4 — объём: подтягивания и брусья без веса, стойка на руках.</li></ul>
+<h4>2. Основное упражнение</h4>
+<ol><li>Разминка: 2–3 подхода по нарастающей — не отмечаешь.</li><li>Один рабочий подход на 5 с максимальным для себя весом.</li><li>Затем 3 подхода по 5 с весом на 10 % легче.</li></ol>
+<h4>3. Прогресс</h4>
+<p>Сделал все 4 подхода по 5 — в следующий раз +1,25–2,5 кг. Отдых в базовых — от 3 мин.</p>`,slprep:`<h3>Как делать «Подготовка к отягощению»</h3>
+<p>Пояс с весом — только когда делаешь 15 строгих подтягиваний и 25 строгих отжиманий на брусьях.</p>
+<h4>1. Тренировка</h4>
+<ul><li>Подтягивания 4 × 4 и брусья 4 × 10 — с этого начинаешь.</li><li>Отдых 2 мин. 3 раза в неделю (минимум 2), между тренировками день отдыха.</li></ul>
+<h4>2. Прогресс</h4>
+<ol><li>Каждую тренировку +1 повтор в каждом подходе.</li><li>Цель — 4 × 9 подтягиваний и 4 × 15 на брусьях.</li><li>Дошёл — проверь максимум. Есть 15 и 25 — переходи на программы с весом.</li></ol>
+<h4>3. Строгая техника</h4>
+<p>Подтягивания: с прямых рук, подбородок выше перекладины, без раскачки. Брусья: плечи ниже локтей внизу, наверху руки прямые.</p>`,sl55:`<h3>Как делать «Метод 5×5 · подтягивания и брусья»</h3>
+<p>Неделя — по две тренировки на каждое движение.</p>
+<h4>1. Расписание</h4>
+<p>Пн — подтягивания A · вт — брусья A · чт — подтягивания B · пт — брусья B. Между тренировками одного движения — минимум 2 дня.</p>
+<h4>2. Подходы по нарастающей</h4>
+<p>X — твой рабочий вес на 5. Подходы 1–4 по 5 повторов с 40, 55, 70 и 85 % от X, 5-й подход:</p>
+<ul><li>сессия <b>A</b> — 5 повторов с X;</li><li>сессия <b>B</b> — 3 повтора с X + 2,5 кг.</li></ul>
+<p>Пример: X = 10 кг → 3,75 / 5 / 6,25 / 7,5 / 10 кг, в сессии B пятый — 12,5 кг × 3.</p>
+<h4>3. Прогресс</h4>
+<ul><li>Неделя прошла — X +2,5 кг.</li><li>Не сделал положенные повторы — повтори эту тренировку. Снова не вышло — откатись на два цикла назад.</li></ul>`,slblat:`<h3>Как делать «Завещание атлета»</h3>
+<p>Медленный, но верный рост веса — почти без застоев.</p>
+<h4>1. Расписание</h4>
+<p>Пн и чт — подтягивания, вт и пт — брусья. Между тренировками одного движения 2 дня отдыха.</p>
+<h4>2. Цикл 2 недели</h4>
+<p>4 тренировки на движение с одним весом:</p>
+<ol><li>5 подходов по 2.</li><li>5 по 3.</li><li>5 по 4.</li><li>5 по 5.</li></ol>
+<p>Прошёл весь цикл — +2,5 кг и снова с 5×2. Отдых между подходами — от 3 мин.</p>
+<h4>3. Не вышло</h4>
+<p>Повтори эту тренировку в следующий раз. Снова не вышло — откатись на два цикла назад. Этот метод и «5×5» можно чередовать, но каждый держи несколько недель.</p>`,ta:`<h3>Как делать «Руки титана»</h3>
+<p>Большие руки через рост базовой силы. 7 этапов по порядку, между ними — 10 дней полного отдыха.</p>
+<h4>1. Подготовка (этапы 1–3)</h4>
+<ul><li><b>1 · 5×5</b>, 2 дня (пн, пт), 3 мес. Первый месяц веса ниже рабочих — связки привыкают.</li><li><b>2 · 5×5 всё тело</b>, 3 дня. В пятницу присед на 20–30 % легче.</li><li><b>3 · 5×6</b>, 2 дня. В конце — вис на перекладине с полотенцем.</li></ul>
+<h4>2. Как читать 5×5 и 5×6</h4>
+<p>Первые подходы — разогрев с ростом веса, затем 3 тяжёлых. Рабочий вес растёт каждую неделю маленькими блинами.</p>
+<h4>3. Специализация (этапы 4–7)</h4>
+<ul><li>Ориентир для старта: руки от 40 см, жим 135, присед 180, становая 226 кг.</li><li>Фаза 1 (12 нед.) → фаза 2 (3 нед., 95 % — руки) → 10 дней отдыха → фаза 1 (6 нед.) → фаза 2.</li>
+<li>Начинай с ~80 % от максимума, к 5–6-й неделе выходи на максимум.</li><li>Приседания на 20 повторов — с глубоким дыханием между повторами, потом дыхательные пуловеры.</li></ul>`,pl5:`<h3>Как делать «5×5 · Сила»</h3>
+<p>8 недель на силу в приседе, жиме и становой. Веса считаются от твоего 1ПМ — задай его в «Рабочих весах».</p>
+<h4>1. Неделя</h4>
+<p>Пн — акцент присед · ср — жим · пт — становая. Главное движение дня — 5×5, два других — облегчённо, плюс подтягивания, тяга и пресс.</p>
+<h4>2. План</h4>
+<table><tr><th>Недели</th><th>Что</th></tr><tr><td>1–4</td><td>5×5, вес растёт</td></tr><tr><td>5</td><td>4×3 — тяжелее</td></tr><tr><td>6</td><td>Пик: 1 раз + 2×2</td></tr><tr><td>7</td><td>Разгрузка 2×3</td></tr><tr><td>8</td><td>Проходка: новый 1ПМ</td></tr></table>
+<h4>3. Проходка</h4>
+<ol><li>Хорошая разминка с ростом веса.</li><li>3 попытки на 1 раз в каждом движении: первая уверенная, вторая около прежнего максимума, третья — рекорд.</li><li>С новым 1ПМ можно начинать следующий цикл.</li></ol>
+<p>Отдых между тяжёлыми подходами 3–5 мин. Без отказов.</p>`};
 function progGuideSync(){const b=el("progGuideBtn");if(!b)return;const g=currentBody&&currentBody.id&&AU_GUIDE[currentBody.id];b.hidden=!g;}
 function progGuideOpen(id){const g=AU_GUIDE[id];if(!g)return;el("guideBody").innerHTML=g;el("guideModal").hidden=false;try{el("guideModal").querySelector(".guide-box").scrollTop=0;}catch(e){}}
 el("progGuideBtn").addEventListener("click",()=>{if(currentBody)progGuideOpen(currentBody.id);});
 el("guideClose").addEventListener("click",()=>{el("guideModal").hidden=true;});
+{const cb=el("pfCoach");if(cb){cb.checked=coachOn();cb.addEventListener("change",()=>{try{localStorage.setItem("gym45_coach_v1",cb.checked?"on":"off");}catch(e){}
+  if(!cb.checked)try{coachHide();}catch(e){}toast(cb.checked?"Подсказки тренера включены":"Подсказки выключены — таймеры пауз остаются");});}}
 el("guideModal").addEventListener("click",e=>{if(e.target===el("guideModal"))el("guideModal").hidden=true;});
 {const _op=openProg;openProg=function(){const r=_op.apply(this,arguments);try{progGuideSync();}catch(e){}return r;};}
 
@@ -8695,7 +8856,27 @@ function coachKind(i){const e=current&&current.program.ex&&current.program.ex[i]
   if(/[Зз]атем растяжка/.test(note))return "st";return null;}
 function coachStretchLen(note){const m=String(note||"").match(/[Зз]атем растяжка ([\d–-]+ (?:с|мин))/);return m?m[1]:"60–90 с";}
 /* подсказка на время обычного отдыха: таймер как обычно, сверху — что делать в следующем подходе */
-function coachTip(t,p){restStart();if(!el("wkRest").hidden)coachShow(t,p,"Отдых");return true;}
+function coachTip(t,p){if(!coachOn())return false;restStart();if(!el("wkRest").hidden)coachShow(t,p,"Отдых");return true;}
+const COACH_HOW={
+  rp:"Отдых-пауза: заход до отказа → положи вес на 20 с → тот же вес, снова до отказа. Таймер паузы включится сам, когда отметишь заход.",
+  wm:"Добивающий подход: 20 повторов с меньшим весом. Между повторами можно постоять и подышать. Потом — растяжка.",
+  cl:"Кластер: 3 захода одним весом, между ними 20 с. Заход 1 — ~9 повт. (1–2 в запасе), заход 2 — ~5, заход 3 — до отказа.",
+  r4:"6 заходов по 4 повтора одним весом, между ними 10 с (5 вдохов). До отказа — только последний заход. Таймер 10 с включится сам.",
+  fst:"FST-7: короткие подходы, пауза 30–45 с. В паузе напрягай и растягивай мышцу, пей воду.",
+  drop:"Каждый подход — дроп-сет: до отказа → сразу сбрось 20–50 % веса → снова до отказа, без отдыха.",
+  tdrop:"Тройной дроп: до отказа → −20–30 % → до отказа → ещё −20–30 % → до отказа. Между сбросами не отдыхай.",
+  ldrop:"Обычные подходы, а последний — дроп-сет: до отказа → сразу −20–30 % → снова до отказа.",
+  myo:"Обычные подходы, а последний — мио-повторы: отказ → 3–5 вдохов → 3–5 повт., так 3–4 раза.",
+  part:"Обычные подходы, а последний — до отказа и дальше короткими повторами в растянутой половине движения.",
+  t40:"Повторы не считаешь заранее: 40 секунд без пауз. Нажми кнопку ниже, когда начинаешь."};
+function coachHowHtml(i){try{if(!coachOn())return "";let k=coachKind(i);if(!k||k==="st")return "";if(k==="drop"&&/тройной/.test(current.program.ex[i][0]))k="tdrop";
+  if(current.sets[i].some(x=>!x.warm&&x.done))return "";const t=COACH_HOW[k];return t?`<div class="coach-how"><b>Как делать</b>${t}</div>`:"";}catch(e){return "";}}
+const FX_LBL={f:"форсированные",n:"негатив"};
+function fxOk(i){try{const p=current.program,id=p.au&&p.au.id,e=p.ex[i],note=String(e[5]||"");if(!(id==="bg"||id==="hd")||p.g2)return false;
+  if(/без форсирован|^Разгрузка|^вместо:/.test(note))return false;return /до отказа/.test(note);}catch(e){return false;}}
+function fxLast(i){const w=current.sets[i].filter(x=>!x.warm);return w[w.length-1]||null;}
+function fxHtml(i){if(!fxOk(i))return "";const s=fxLast(i);if(!s)return "";const v=s.fx||"";
+  return `<div class="fx-row"><span>После отказа добил:</span>${[["","Ничего"],["f","Форсированные"],["n","Негатив"]].map(([k,l])=>`<button type="button" class="fx-b${v===k?" on":""}" data-fx="${k}">${l}</button>`).join("")}</div>`;}
 function coachBtnHtml(i){try{if(coachKind(i)==="t40"&&!exDone(i))return `<button class="coach-go" type="button" data-sec="40">▶ Старт 40 секунд</button>`;}catch(e){}return "";}
 function coachWork(sec){restStart(sec);coachShow("Работай "+sec+" секунд","Без пауз вверху и внизу, повторы считай сам. По сигналу — стоп: впиши, сколько сделал, и отметь подход.","Работа");
   restAfter=()=>{toast("Стоп! Впиши повторы и отметь подход");};}
@@ -8709,7 +8890,8 @@ function stretchTip(n){n=n.toLocaleLowerCase("ru");
   if(/подтяг|тяга|пуловер/.test(n))return "Спина: вис на перекладине, плечи расслаблены — тянись вниз всем телом.";
   if(/бицепс|молотк|сгибани/.test(n))return "Бицепс: руки назад на стойку или скамью, ладони вниз — тянись грудью вперёд.";
   return "Задержись в самом растянутом положении этой мышцы с весом.";}
-function coachShow(t,p,lbl){el("wkCoachT").textContent=t;el("wkCoachP").textContent=p;el("wkCoach").hidden=false;scr.workout.classList.add("coaching");
+function coachOn(){try{return localStorage.getItem("gym45_coach_v1")!=="off";}catch(e){return true;}}
+function coachShow(t,p,lbl){if(!coachOn()){const l=el("wkRest").querySelector(".wk-rest-l");if(l)l.textContent=lbl||"Отдых";return;}el("wkCoachT").textContent=t;el("wkCoachP").textContent=p;el("wkCoach").hidden=false;scr.workout.classList.add("coaching");
   const l=el("wkRest").querySelector(".wk-rest-l");if(l)l.textContent=lbl||"Отдых";}
 function coachHide(){el("wkCoach").hidden=true;scr.workout.classList.remove("coaching");const l=el("wkRest").querySelector(".wk-rest-l");if(l)l.textContent="Отдых";}
 {const _rs=restStop;restStop=function(){_rs.apply(this,arguments);try{coachHide();}catch(e){}};}
@@ -9188,7 +9370,7 @@ function anSecOfRec(x){if(x.sec)return x.sec;if(x.cross)return "cross";if(x.sw)r
   if(/^День \d|стрит/i.test(n))return "street";
   return "other";}
 /* ---- данные о подходах при завершении тренировки ---- */
-function anSetOut(x){const o={r:x.r,w:x.w,done:x.done};const pp=parseInt(x.pr);if(pp>0)o.p=pp;if(x.rir!=null&&x.rir!=="")o.rir=String(x.rir);if(x.at)o.at=x.at;return o;}
+function anSetOut(x){const o={r:x.r,w:x.w,done:x.done};if(x.fx==="f"||x.fx==="n")o.fx=x.fx;const pp=parseInt(x.pr);if(pp>0)o.p=pp;if(x.rir!=null&&x.rir!=="")o.rir=String(x.rir);if(x.at)o.at=x.at;return o;}
 function anApplyRir(log,prog){try{prog.ex.forEach((e,i)=>{const v=current.rirEx&&current.rirEx[i];if(v==null||v==="")return;const a=log[e[0]];if(!a)return;
   const last=[...a].reverse().find(s=>s.done);if(last&&last.rir==null)last.rir=String(v);});}catch(e){}}
 function anTs(v){if(!v)return 0;const t=typeof v==="number"?v:new Date(v).getTime();return isFinite(t)?t:0;}
@@ -9948,7 +10130,7 @@ function anHist(R){const hist=el("hist");hist.innerHTML="";const S=anSt();
   if(!R.length){hist.innerHTML=`<p class="nt-sub" style="margin:6px 0">Пока нет завершённых тренировок.</p>`;return;}
   R.slice().reverse().slice(0,10).forEach(r=>{const x=r.raw,row=document.createElement("details");row.className="an-hrow";const key=anRecKey(x);
     const right=x.sw?`${x.circles||0}${x.target?"/"+x.target:""} кр.${x.secs?" · "+mmss(x.secs):""}`:x.cross?(x.score?(x.pr?"🏆 ":"")+x.score:(x.secs?mmss(x.secs):"")):(r.vol?anFmtT(r.vol):"");
-    let det="";if(x.log&&!Array.isArray(x.log)&&typeof x.log==="object")det=Object.entries(x.log).map(([n,a])=>{const d=(a||[]).filter(s=>s&&s.done);return d.length?`<div class="an-hx"><b></b><span>${d.map(s=>(+s.w?ntF(+s.w,1)+"×":"")+s.r+(s.rir!=null&&s.rir!==""?` <i>запас ${s.rir}</i>`:"")).join(", ")}</span></div>`.replace("<b></b>",`<b>${n.replace(/</g,"&lt;")}</b>`):"";}).join("");
+    let det="";if(x.log&&!Array.isArray(x.log)&&typeof x.log==="object")det=Object.entries(x.log).map(([n,a])=>{const d=(a||[]).filter(s=>s&&s.done);return d.length?`<div class="an-hx"><b></b><span>${d.map(s=>(+s.w?ntF(+s.w,1)+"×":"")+s.r+(s.rir!=null&&s.rir!==""?` <i>запас ${s.rir}</i>`:"")+(s.fx&&FX_LBL[s.fx]?` <i class="fx">+${FX_LBL[s.fx]}</i>`:"")).join(", ")}</span></div>`.replace("<b></b>",`<b>${n.replace(/</g,"&lt;")}</b>`):"";}).join("");
     const meta=[AN_SEC_LBL[r.sec]||"",r.dur?AN_MET.time[1](r.dur):"",r.rest?"отдых ~"+mmss(r.rest):"",x.ready?"готовность: "+x.ready:""].filter(Boolean).join(" · ");
     row.innerHTML=`<summary><span class="d"></span><span class="v num">${right}${S.rpe[key]?` <i class="an-rpe-b">тяжесть ${S.rpe[key]}</i>`:""}</span></summary>
       <div class="an-hd"><p class="nt-sub">${meta}</p>${det}<div class="an-rpe"><span>Тяжесть, 1–10 <small>(RPE)</small></span><div>${[6,7,8,9,10].map(v=>`<button type="button" data-v="${v}" class="${+S.rpe[key]===v?"on":""}">${v}</button>`).join("")}</div></div></div>`;
